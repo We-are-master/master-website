@@ -1,0 +1,153 @@
+# Master Services - Business Website
+
+A modern, responsive website for Master Services' business clients, built with React and Vite. This website showcases Master's property maintenance services for businesses across London.
+
+## Features
+
+- **Modern Design**: Clean, professional design inspired by industry leaders
+- **Responsive Layout**: Fully responsive across all devices
+- **Business-Focused**: Tailored content for business clients
+- **Interactive Components**: Dynamic FAQ, testimonials, and contact forms
+- **SEO Optimized**: Proper meta tags and semantic HTML
+- **Fast Performance**: Built with Vite for optimal loading speeds
+
+## Services Showcased
+
+- **Cleaning Services**: End of tenancy, deep cleaning, regular maintenance
+- **Trades Services**: Plumbing, electrical, handyman, carpentry
+- **Business Solutions**: Multi-site management, API integration, reporting
+- **Quality Assurance**: DBS checked professionals, £5M insurance coverage
+
+## Technology Stack
+
+- **React 18**: Modern React with hooks
+- **Vite**: Fast build tool and dev server
+- **React Router**: Client-side routing
+- **Lucide React**: Beautiful icons
+- **CSS3**: Modern styling with Flexbox and Grid
+- **Responsive Design**: Mobile-first approach
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (version 16 or higher)
+- npm or yarn
+
+### Installation
+
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd site_master
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Start the development server:
+```bash
+npm run dev
+```
+
+4. Open your browser and visit `http://localhost:3000`
+
+### Building for Production
+
+```bash
+npm run build
+```
+
+The built files will be in the `dist` directory.
+
+## Project Structure
+
+```
+src/
+├── components/          # Reusable UI components
+│   ├── Header.jsx      # Navigation header
+│   ├── Hero.jsx        # Hero section
+│   ├── Services.jsx    # Services showcase
+│   ├── Features.jsx    # Features and benefits
+│   ├── Process.jsx     # How it works
+│   ├── Testimonials.jsx # Client testimonials
+│   ├── FAQ.jsx         # Frequently asked questions
+│   └── Footer.jsx      # Site footer
+├── pages/              # Page components
+│   ├── Contact.jsx     # Contact page
+│   └── About.jsx       # About page
+├── App.jsx             # Main app component
+├── main.jsx            # App entry point
+└── index.css           # Global styles
+```
+
+## Key Features
+
+### Homepage Sections
+
+1. **Hero Section**: Compelling value proposition with contact form
+2. **Services**: Comprehensive service offerings with trust indicators
+3. **Features**: Key benefits and why choose Master
+4. **Process**: Simple 3-step process explanation
+5. **Testimonials**: Client reviews and industry recognition
+6. **FAQ**: Common questions and answers
+
+### Additional Pages
+
+- **Contact Page**: Detailed contact form and information
+- **About Page**: Company story, values, and team
+
+### Design Elements
+
+- **Color Scheme**: Professional blue gradient with clean whites
+- **Typography**: Inter font family for modern readability
+- **Icons**: Lucide React icons for consistency
+- **Animations**: Subtle hover effects and transitions
+- **Cards**: Clean card-based layout for content sections
+
+## Customization
+
+### Colors
+The main color scheme is defined in `src/index.css`:
+- Primary: `#667eea` (blue gradient)
+- Secondary: `#718096` (gray)
+- Background: `#f7fafc` (light gray)
+
+### Content
+All content is easily customizable in the respective component files. Key areas:
+- Company information in `Header.jsx` and `Footer.jsx`
+- Service descriptions in `Services.jsx`
+- FAQ content in `FAQ.jsx`
+- Contact details in `Contact.jsx`
+
+## Browser Support
+
+- Chrome (latest)
+- Firefox (latest)
+- Safari (latest)
+- Edge (latest)
+
+## Performance
+
+- Optimized bundle size with Vite
+- Lazy loading for images
+- Efficient React components
+- Minimal external dependencies
+
+## License
+
+This project is proprietary to Master Services Trades Ltd.
+
+## Contact
+
+For questions about this website or Master Services:
+
+- **Email**: hello@wearemaster.com
+- **Phone**: 020 3337 6168
+- **Address**: 124 City Rd, London EC1V 2NX, United Kingdom
+
+---
+
+Built with ❤️ for Master Services Business Clients
