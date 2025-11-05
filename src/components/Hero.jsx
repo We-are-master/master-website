@@ -49,8 +49,8 @@ const Hero = () => {
         animation: 'float 8s ease-in-out infinite reverse'
       }}></div>
 
-      <div className="container mx-auto px-4 relative z-10">
-        <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4rem', alignItems: 'center'}} className="hero-grid">
+      <div className="container mx-auto px-4 relative z-10" style={{overflowX: 'hidden', maxWidth: '100%'}}>
+        <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4rem', alignItems: 'center', maxWidth: '100%', overflowX: 'hidden'}} className="hero-grid">
           {/* Left Content */}
           <div>
             {/* Badge */}

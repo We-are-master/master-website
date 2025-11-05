@@ -91,16 +91,20 @@ const Header = () => {
       boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
       position: 'sticky',
       top: 0,
-      zIndex: 50
+      zIndex: 50,
+      width: '100%',
+      overflowX: 'hidden'
     }}>
-      <div className="container">
+      <div className="container" style={{width: '100%', maxWidth: '100%', overflowX: 'hidden'}}>
         <div style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           padding: '1rem 0',
           gap: '1rem',
-          flexWrap: 'nowrap'
+          flexWrap: 'wrap',
+          width: '100%',
+          maxWidth: '100%'
         }}>
           {/* Logo */}
           <Link to="/" style={{display: 'flex', alignItems: 'center', flexShrink: 0, textDecoration: 'none'}}>
