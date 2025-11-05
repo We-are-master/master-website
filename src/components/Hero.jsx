@@ -49,7 +49,7 @@ const Hero = () => {
         animation: 'float 8s ease-in-out infinite reverse'
       }}></div>
 
-      <div className="container mx-auto px-4 relative z-10" style={{overflowX: 'hidden', maxWidth: '100%'}}>
+      <div className="container mx-auto px-4 relative z-10" style={{overflowX: 'hidden', maxWidth: '100%', padding: '0 2rem'}}>
         <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4rem', alignItems: 'center', maxWidth: '100%', overflowX: 'hidden'}} className="hero-grid">
           {/* Left Content */}
           <div>
@@ -350,7 +350,7 @@ const Hero = () => {
         .container {
           max-width: 1200px;
           margin: 0 auto;
-          padding: 0 1rem;
+          padding: 0 2rem;
         }
         
         @media (max-width: 768px) {
