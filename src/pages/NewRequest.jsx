@@ -477,6 +477,61 @@ const NewRequest = () => {
         }
       }
 
+      // Fetch user data for webhook
+      const { data: userData } = await supabase
+        .from('users')
+        .select('full_name, email, phone')
+        .eq('id', user.id)
+        .single();
+
+      // Prepare webhook payload with all request information
+      const webhookPayload = {
+        request_id: request.id,
+        zoho_id: request.zoho_id || '',
+        user_id: user.id,
+        user_name: userData?.full_name || user.email || 'Unknown',
+        user_email: user.email || userData?.email || '',
+        user_phone: userData?.phone || formData.contactPhone || '',
+        title: request.title,
+        description: request.description,
+        service_type: request.service_type,
+        priority: request.priority,
+        status: request.status,
+        location: request.location,
+        location_lat: formData.locationLat,
+        location_lng: formData.locationLng,
+        contact_phone: formData.contactPhone || '',
+        preferred_date: formData.preferredDate || null,
+        preferred_time: formData.preferredTime || '',
+        scheduled_date: request.scheduled_date,
+        requested_date: request.requested_date,
+        created_at: request.created_at,
+        notes: request.notes,
+        image_urls: imageUrls,
+        image_count: imageUrls.length
+      };
+
+      // Send to webhook (non-blocking - don't fail if webhook fails)
+      try {
+        console.log('Sending request to webhook...');
+        const webhookResponse = await fetch('https://n8n.wearemaster.com/webhook/9c4a40a5-6e6a-444a-91be-0cb5fdbe1a80', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(webhookPayload)
+        });
+
+        if (!webhookResponse.ok) {
+          console.warn('Webhook responded with error:', webhookResponse.status, webhookResponse.statusText);
+        } else {
+          console.log('Request successfully sent to webhook');
+        }
+      } catch (webhookError) {
+        // Log error but don't block the flow
+        console.error('Error sending request to webhook:', webhookError);
+      }
+
       // Redirect to dashboard or request details
       navigate(`/request/${request.id}`);
     } catch (error) {
