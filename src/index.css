@@ -372,6 +372,7 @@ html {
   animation: fadeInUp 0.6s ease-out;
 }
 
+
 /* Mobile Responsive */
 @media (max-width: 768px) {
   .section {
@@ -384,5 +385,23 @@ html {
   
   .container {
     padding: 0 15px;
+  }
+  
+  /* Show mobile menu button on mobile */
+  .mobile-menu-button {
+    display: flex !important;
+  }
+  
+  /* Hide desktop navigation on mobile */
+  nav.hidden.md\:flex,
+  .hidden.md\:flex {
+    display: none !important;
+  }
+}
+
+/* Hide mobile menu button on desktop */
+@media (min-width: 769px) {
+  .mobile-menu-button {
+    display: none !important;
   }
 }

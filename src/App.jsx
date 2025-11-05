@@ -10,6 +10,13 @@ import FAQ from './components/FAQ'
 import Footer from './components/Footer'
 import Contact from './pages/Contact'
 import About from './pages/About'
+import Login from './pages/Login'
+import ForgotPassword from './pages/ForgotPassword'
+import Dashboard from './pages/Dashboard'
+import NewRequest from './pages/NewRequest'
+import RequestDetails from './pages/RequestDetails'
+import MyRequests from './pages/MyRequests'
+import Settings from './pages/Settings'
 
 function App() {
   return (
@@ -29,6 +36,13 @@ function App() {
           } />
           <Route path="/contact" element={<Contact />} />
           <Route path="/about" element={<About />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/new-request" element={<NewRequest />} />
+          <Route path="/request/:id" element={<RequestDetails />} />
+          <Route path="/my-requests" element={<MyRequests />} />
+          <Route path="/settings" element={<Settings />} />
         </Routes>
         <Footer />
       </div>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckCircle, Star, ArrowRight, Phone, Clock, Shield, Users } from 'lucide-react';
+import { CheckCircle, Star, ArrowRight, Phone, Clock, Shield, Users, Wrench, Droplets, Zap, Sparkles, ArrowDown, ArrowUp, ArrowLeft } from 'lucide-react';
 import logo from '../assets/logo.png';
 
 const Hero = () => {
@@ -50,7 +50,7 @@ const Hero = () => {
       }}></div>
 
       <div className="container mx-auto px-4 relative z-10">
-        <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4rem', alignItems: 'center'}}>
+        <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4rem', alignItems: 'center'}} className="hero-grid">
           {/* Left Content */}
           <div>
             {/* Badge */}
@@ -66,7 +66,7 @@ const Hero = () => {
               marginBottom: '1.5rem',
               backdropFilter: 'blur(10px)',
               border: '1px solid rgba(255, 255, 255, 0.2)'
-            }}>
+            }} className="hero-badge">
               <div style={{
                 width: '8px',
                 height: '8px',
@@ -75,34 +75,33 @@ const Hero = () => {
                 marginRight: '0.5rem',
                 animation: 'pulse 2s infinite'
               }}></div>
-              29 Jobs Live Right Now
+              +240 Professionals & +23K Jobs Completed
             </div>
-
-            {/* Tagline */}
-            <p style={{
-              fontSize: '1.25rem',
-              color: 'rgba(255, 255, 255, 0.9)',
-              marginBottom: '2rem',
-              fontWeight: '500'
-            }}>
-              Fair prices. Trusted pros. Booked in just 60 seconds.
-            </p>
 
             {/* Main Headline */}
             <h1 style={{
               fontSize: '4rem',
               fontWeight: '800',
               color: 'white',
-              marginBottom: '2rem',
+              marginBottom: '1.5rem',
               lineHeight: '1.1',
               letterSpacing: '-0.02em'
-            }}>
-              The Easiest Way to Book
+            }} className="hero-title">
+              The Smarter Way to Manage
               <br />
-              <span style={{color: '#E94A02'}}>Property Maintenance</span>
-              <br />
-              <span style={{fontSize: '2.5rem', color: 'rgba(255, 255, 255, 0.8)'}}>for Your Business</span>
+              <span style={{color: '#E94A02'}}>Maintenance Across Your Business</span>
             </h1>
+
+            {/* Description */}
+            <p style={{
+              fontSize: '1.25rem',
+              color: 'rgba(255, 255, 255, 0.9)',
+              marginBottom: '2.5rem',
+              fontWeight: '400',
+              lineHeight: '1.6'
+            }} className="hero-description">
+              We manage the people, the services and the technology, you focus on growing your business.
+            </p>
 
             {/* CTA Buttons */}
             <div style={{
@@ -126,7 +125,7 @@ const Hero = () => {
                 border: 'none',
                 cursor: 'pointer'
               }}>
-                Get an Instant Quote & Book Today
+                Get in Touch Today
                 <ArrowRight style={{marginLeft: '0.5rem', width: '20px', height: '20px'}} />
               </a>
               
@@ -149,34 +148,10 @@ const Hero = () => {
               </a>
             </div>
 
-            {/* Trust Indicators */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '2rem',
-              flexWrap: 'wrap'
-            }}>
-              <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
-                <div style={{display: 'flex', color: '#E94A02'}}>
-                  {[...Array(5)].map((_, i) => (
-                    <span key={i} style={{fontSize: '1rem'}}>★</span>
-                  ))}
-                </div>
-                <span style={{color: 'white', fontSize: '0.875rem', fontWeight: '500'}}>4.8 Rating</span>
-              </div>
-              <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
-                <Users style={{color: '#E94A02', width: '16px', height: '16px'}} />
-                <span style={{color: 'white', fontSize: '0.875rem', fontWeight: '500'}}>500+ Businesses</span>
-              </div>
-              <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
-                <Shield style={{color: '#E94A02', width: '16px', height: '16px'}} />
-                <span style={{color: 'white', fontSize: '0.875rem', fontWeight: '500'}}>Fully Insured</span>
-              </div>
-            </div>
           </div>
 
-          {/* Right Content - Visual Elements */}
-          <div style={{
+          {/* Right Content - Services with Master Logo Center */}
+          <div className="hero-right-content" style={{
             position: 'relative',
             height: '600px',
             display: 'flex',
@@ -210,15 +185,44 @@ const Hero = () => {
               animation: 'float 8s ease-in-out infinite reverse'
             }}></div>
 
-            {/* Service Icons - Right Side */}
+            {/* Master Logo - Center */}
             <div style={{
               position: 'absolute',
-              top: '15%',
-              right: '5%',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              zIndex: 10,
+              textAlign: 'center'
+            }}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto',
+                animation: 'fadeInUp 1s ease-out'
+              }}>
+                <img 
+                  src={logo} 
+                  alt="Master Logo" 
+                  style={{
+                    width: '250px',
+                    height: '250px',
+                    marginLeft: '100px',
+                    marginTop: '-50px',
+                    objectFit: 'contain',
+                    filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.3))'
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Plumbing - Top Right */}
+            <div className="hero-service-card" style={{
+              position: 'absolute',
+              top: '10%',
+              right: '15%',
               zIndex: 3,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1rem'
+              animation: 'fadeInUp 0.6s ease-out'
             }}>
               <div style={{
                 backgroundColor: 'white',
@@ -228,11 +232,21 @@ const Hero = () => {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.5rem',
-                animation: 'fadeInUp 0.6s ease-out'
+                position: 'relative'
               }}>
-                <div style={{color: '#E94A02', fontSize: '1.5rem'}}>🔧</div>
+                <Droplets style={{color: '#E94A02', width: '24px', height: '24px'}} />
                 <span style={{fontWeight: '600', color: '#111827'}}>Plumbing</span>
               </div>
+            </div>
+
+            {/* Electrical - Top Left */}
+            <div className="hero-service-card" style={{
+              position: 'absolute',
+              top: '15%',
+              left: '10%',
+              zIndex: 3,
+              animation: 'fadeInUp 0.8s ease-out'
+            }}>
               <div style={{
                 backgroundColor: 'white',
                 padding: '1rem',
@@ -241,11 +255,21 @@ const Hero = () => {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.5rem',
-                animation: 'fadeInUp 0.8s ease-out'
+                position: 'relative'
               }}>
-                <div style={{color: '#E94A02', fontSize: '1.5rem'}}>⚡</div>
+                <Zap style={{color: '#2001AF', width: '24px', height: '24px'}} />
                 <span style={{fontWeight: '600', color: '#111827'}}>Electrical</span>
               </div>
+            </div>
+
+            {/* Maintenance - Bottom Right */}
+            <div className="hero-service-card" style={{
+              position: 'absolute',
+              bottom: '15%',
+              right: '20%',
+              zIndex: 3,
+              animation: 'fadeInUp 1s ease-out'
+            }}>
               <div style={{
                 backgroundColor: 'white',
                 padding: '1rem',
@@ -254,22 +278,20 @@ const Hero = () => {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.5rem',
-                animation: 'fadeInUp 1s ease-out'
+                position: 'relative'
               }}>
-                <div style={{color: '#E94A02', fontSize: '1.5rem'}}>🏠</div>
+                <Wrench style={{color: '#020135', width: '24px', height: '24px'}} />
                 <span style={{fontWeight: '600', color: '#111827'}}>Maintenance</span>
               </div>
             </div>
 
-            {/* Service Icons - Left Side */}
+            {/* Repairs - Bottom Left */}
             <div style={{
               position: 'absolute',
-              bottom: '15%',
-              left: '5%',
+              bottom: '20%',
+              left: '15%',
               zIndex: 3,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1rem'
+              animation: 'fadeInUp 1.2s ease-out'
             }}>
               <div style={{
                 backgroundColor: 'white',
@@ -279,11 +301,22 @@ const Hero = () => {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.5rem',
-                animation: 'fadeInUp 1.2s ease-out'
+                position: 'relative'
               }}>
-                <div style={{color: '#E94A02', fontSize: '1.5rem'}}>🔨</div>
+                <Wrench style={{color: '#E94A02', width: '24px', height: '24px'}} />
                 <span style={{fontWeight: '600', color: '#111827'}}>Repairs</span>
               </div>
+            </div>
+
+            {/* Cleaning - Middle Left */}
+            <div style={{
+              position: 'absolute',
+              top: '50%',
+              left: '5%',
+              transform: 'translateY(-50%)',
+              zIndex: 3,
+              animation: 'fadeInUp 1.4s ease-out'
+            }}>
               <div style={{
                 backgroundColor: 'white',
                 padding: '1rem',
@@ -292,9 +325,9 @@ const Hero = () => {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.5rem',
-                animation: 'fadeInUp 1.4s ease-out'
+                position: 'relative'
               }}>
-                <div style={{color: '#E94A02', fontSize: '1.5rem'}}>🧹</div>
+                <Sparkles style={{color: '#E94A02', width: '24px', height: '24px'}} />
                 <span style={{fontWeight: '600', color: '#111827'}}>Cleaning</span>
               </div>
             </div>
@@ -323,6 +356,48 @@ const Hero = () => {
         @media (max-width: 768px) {
           .container {
             padding: 0 1rem;
+          }
+          
+          .hero-grid {
+            grid-template-columns: 1fr !important;
+            gap: 2rem !important;
+          }
+          
+          .hero-title {
+            font-size: 2rem !important;
+            line-height: 1.2 !important;
+          }
+          
+          .hero-description {
+            font-size: 1rem !important;
+            margin-bottom: 1.5rem !important;
+          }
+          
+          .hero-badge {
+            font-size: 0.75rem !important;
+            padding: 0.4rem 0.75rem !important;
+            margin-bottom: 1rem !important;
+          }
+          
+          /* Hide arrows on mobile */
+          .hero-arrow {
+            display: none !important;
+          }
+          
+          /* Hide right content on mobile */
+          .hero-right-content {
+            display: none !important;
+          }
+          
+          /* Adjust service cards for mobile */
+          .hero-service-card {
+            position: relative !important;
+            margin: 0.5rem 0 !important;
+            left: auto !important;
+            right: auto !important;
+            top: auto !important;
+            bottom: auto !important;
+            transform: none !important;
           }
         }
       `}</style>
