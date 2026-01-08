@@ -275,7 +275,7 @@ const Dashboard = () => {
             change: `Based on ${ratedRequests.length} reviews`,
             icon: <Star className="w-6 h-6" />,
             color: '#f59e0b'
-          }
+    }
         ]);
 
         // Get recent requests (last 5)
@@ -1771,7 +1771,7 @@ const Dashboard = () => {
                     marginBottom: '2rem',
               border: '1px solid #e5e7eb',
                     boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
-                  }}>
+            }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
                       <Lock style={{ color: '#E94A02', width: '24px', height: '24px' }} />
                       <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#111827', margin: 0 }}>

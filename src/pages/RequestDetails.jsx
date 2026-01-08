@@ -88,10 +88,10 @@ const RequestDetails = () => {
           location: request.location || 'Location not specified',
           assignedTo: request.assigned_to ? {
             name: request.assigned_to,
-            phone: '+44 20 7123 4567',
+      phone: '+44 20 7123 4567',
             email: 'technician@master.com',
-            rating: 4.8,
-            completedJobs: 156
+      rating: 4.8,
+      completedJobs: 156
           } : null,
           createdAt: request.created_at || request.requested_date,
           scheduledDate: request.scheduled_date,
@@ -586,9 +586,9 @@ const RequestDetails = () => {
                           Estimated Cost
                         </h4>
                         {requestData.estimatedCost ? (
-                          <p style={{ fontSize: '1.25rem', fontWeight: '600', color: '#111827', margin: 0 }}>
-                            {requestData.estimatedCost}
-                          </p>
+                        <p style={{ fontSize: '1.25rem', fontWeight: '600', color: '#111827', margin: 0 }}>
+                          {requestData.estimatedCost}
+                        </p>
                         ) : (
                           <p style={{ fontSize: '1rem', fontStyle: 'italic', color: '#6b7280', margin: 0 }}>
                             Awaiting quote
@@ -659,31 +659,31 @@ const RequestDetails = () => {
                       Photos ({requestData.images.length})
                     </h3>
                     {requestData.images.length > 0 ? (
-                      <div style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-                        gap: '1rem'
-                      }}>
-                        {requestData.images.map((image, index) => (
-                          <div key={index} style={{
-                            position: 'relative',
-                            borderRadius: '0.75rem',
-                            overflow: 'hidden',
-                            border: '1px solid #e5e7eb'
-                          }}>
-                            <img
-                              src={image}
-                              alt={`Request photo ${index + 1}`}
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+                      gap: '1rem'
+                    }}>
+                      {requestData.images.map((image, index) => (
+                        <div key={index} style={{
+                          position: 'relative',
+                          borderRadius: '0.75rem',
+                          overflow: 'hidden',
+                          border: '1px solid #e5e7eb'
+                        }}>
+                          <img
+                            src={image}
+                            alt={`Request photo ${index + 1}`}
                               onError={(e) => {
                                 console.error('Error loading image:', image);
                                 e.target.style.display = 'none';
                               }}
-                              style={{
-                                width: '100%',
-                                height: '150px',
-                                objectFit: 'cover'
-                              }}
-                            />
+                            style={{
+                              width: '100%',
+                              height: '150px',
+                              objectFit: 'cover'
+                            }}
+                          />
                           <div style={{
                             position: 'absolute',
                             top: '0.5rem',
@@ -720,15 +720,15 @@ const RequestDetails = () => {
                                 }
                               }}
                               style={{
-                                width: '32px',
-                                height: '32px',
-                                borderRadius: '50%',
-                                backgroundColor: 'rgba(0,0,0,0.5)',
-                                border: 'none',
-                                color: 'white',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
+                              width: '32px',
+                              height: '32px',
+                              borderRadius: '50%',
+                              backgroundColor: 'rgba(0,0,0,0.5)',
+                              border: 'none',
+                              color: 'white',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
                                 justifyContent: 'center',
                                 transition: 'background-color 0.2s'
                               }}
@@ -744,7 +744,7 @@ const RequestDetails = () => {
                           </div>
                         </div>
                       ))}
-                      </div>
+                    </div>
                     ) : (
                       <div style={{
                         padding: '3rem',
@@ -781,61 +781,61 @@ const RequestDetails = () => {
               </h3>
                 {requestData.assignedTo ? (
                   <>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-                      <div style={{
-                        width: '50px',
-                        height: '50px',
-                        borderRadius: '50%',
-                        backgroundColor: '#2001AF',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: 'white',
-                        fontSize: '1.25rem',
-                        fontWeight: '600'
-                      }}>
-                        {requestData.assignedTo.name.split(' ').map(n => n[0]).join('')}
-                      </div>
-                      <div>
-                        <h4 style={{ fontSize: '1rem', fontWeight: '600', color: '#111827', margin: '0 0 0.25rem 0' }}>
-                          {requestData.assignedTo.name}
-                        </h4>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                          <div style={{ display: 'flex', color: '#f59e0b' }}>
-                            {[...Array(5)].map((_, i) => (
-                              <span key={i} style={{ fontSize: '0.75rem' }}>★</span>
-                            ))}
-                          </div>
-                          <span style={{ fontSize: '0.875rem', color: '#6b7280' }}>
-                            {requestData.assignedTo.rating} ({requestData.assignedTo.completedJobs} jobs)
-                          </span>
-                        </div>
-                      </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+                <div style={{
+                  width: '50px',
+                  height: '50px',
+                  borderRadius: '50%',
+                  backgroundColor: '#2001AF',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  fontSize: '1.25rem',
+                  fontWeight: '600'
+                }}>
+                  {requestData.assignedTo.name.split(' ').map(n => n[0]).join('')}
+                </div>
+                <div>
+                  <h4 style={{ fontSize: '1rem', fontWeight: '600', color: '#111827', margin: '0 0 0.25rem 0' }}>
+                    {requestData.assignedTo.name}
+                  </h4>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <div style={{ display: 'flex', color: '#f59e0b' }}>
+                      {[...Array(5)].map((_, i) => (
+                        <span key={i} style={{ fontSize: '0.75rem' }}>★</span>
+                      ))}
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                      <a href={`tel:${requestData.assignedTo.phone}`} style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.5rem',
-                        color: '#6b7280',
-                        textDecoration: 'none',
-                        fontSize: '0.875rem'
-                      }}>
-                        <Phone size={16} />
-                        {requestData.assignedTo.phone}
-                      </a>
-                      <a href={`mailto:${requestData.assignedTo.email}`} style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.5rem',
-                        color: '#6b7280',
-                        textDecoration: 'none',
-                        fontSize: '0.875rem'
-                      }}>
-                        <Mail size={16} />
-                        {requestData.assignedTo.email}
-                      </a>
-                    </div>
+                    <span style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+                      {requestData.assignedTo.rating} ({requestData.assignedTo.completedJobs} jobs)
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <a href={`tel:${requestData.assignedTo.phone}`} style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  color: '#6b7280',
+                  textDecoration: 'none',
+                  fontSize: '0.875rem'
+                }}>
+                  <Phone size={16} />
+                  {requestData.assignedTo.phone}
+                </a>
+                <a href={`mailto:${requestData.assignedTo.email}`} style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  color: '#6b7280',
+                  textDecoration: 'none',
+                  fontSize: '0.875rem'
+                }}>
+                  <Mail size={16} />
+                  {requestData.assignedTo.email}
+                </a>
+              </div>
                   </>
                 ) : (
                   <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>
@@ -881,17 +881,17 @@ const RequestDetails = () => {
                   }}
                   disabled={uploading}
                   style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.75rem',
-                    padding: '0.75rem',
-                    border: '2px solid #e5e7eb',
-                    borderRadius: '0.5rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem',
+                  padding: '0.75rem',
+                  border: '2px solid #e5e7eb',
+                  borderRadius: '0.5rem',
                     backgroundColor: uploading ? '#f3f4f6' : 'white',
                     color: uploading ? '#9ca3af' : '#6b7280',
                     cursor: uploading ? 'not-allowed' : 'pointer',
-                    fontSize: '0.875rem',
-                    fontWeight: '500',
+                  fontSize: '0.875rem',
+                  fontWeight: '500',
                     textAlign: 'left',
                     opacity: uploading ? 0.7 : 1
                   }}

@@ -384,22 +384,22 @@ const Header = () => {
                 </div>
               </>
             ) : (
-              <a href="/login" style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                backgroundColor: 'transparent',
-                color: 'white',
-                padding: '0.75rem 1.5rem',
-                borderRadius: '0.5rem',
-                textDecoration: 'none',
-                fontSize: '0.875rem',
-                fontWeight: '600',
-                transition: 'all 0.3s ease',
-                border: '2px solid white',
+            <a href="/login" style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              backgroundColor: 'transparent',
+              color: 'white',
+              padding: '0.75rem 1.5rem',
+              borderRadius: '0.5rem',
+              textDecoration: 'none',
+              fontSize: '0.875rem',
+              fontWeight: '600',
+              transition: 'all 0.3s ease',
+              border: '2px solid white',
                 whiteSpace: 'nowrap'
-              }}>
-                Login
-              </a>
+            }}>
+              Login
+            </a>
             )}
           </div>
 
@@ -547,22 +547,22 @@ const Header = () => {
                   </div>
                 ) : (
                   <a href="/login" style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                     backgroundColor: 'transparent',
-                    color: 'white',
-                    padding: '0.75rem 1.5rem',
-                    borderRadius: '0.5rem',
-                    textDecoration: 'none',
-                    fontSize: '0.875rem',
-                    fontWeight: '600',
-                    transition: 'all 0.3s ease',
+                  color: 'white',
+                  padding: '0.75rem 1.5rem',
+                  borderRadius: '0.5rem',
+                  textDecoration: 'none',
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  transition: 'all 0.3s ease',
                     border: '2px solid white',
-                    width: '100%'
-                  }}>
+                  width: '100%'
+                }}>
                     Login
-                  </a>
+                </a>
                 )}
               </div>
             </nav>

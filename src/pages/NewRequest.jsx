@@ -663,7 +663,7 @@ const NewRequest = () => {
                 formData={formData} 
                 setFormData={setFormData}
                 onGoogleLoaded={handleGoogleLoaded}
-              />
+                  />
 
               <div>
                 <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '600', color: '#374151', marginBottom: '0.5rem' }}>
@@ -841,13 +841,13 @@ const NewRequest = () => {
                 e.stopImmediatePropagation();
               }}
               style={{
-                border: '2px dashed #d1d5db',
-                borderRadius: '1rem',
-                padding: '3rem',
-                textAlign: 'center',
-                backgroundColor: '#f9fafb',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease'
+              border: '2px dashed #d1d5db',
+              borderRadius: '1rem',
+              padding: '3rem',
+              textAlign: 'center',
+              backgroundColor: '#f9fafb',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease'
               }}
             >
               <Upload style={{ width: '48px', height: '48px', color: '#9ca3af', marginBottom: '1rem' }} />
@@ -1016,29 +1016,29 @@ const NewRequest = () => {
               return (
                 <React.Fragment key={step}>
                   <div style={{
-                    display: 'flex',
+                display: 'flex',
                     flexDirection: 'column',
-                    alignItems: 'center',
+                alignItems: 'center',
                     position: 'relative',
                     zIndex: 2
-                  }}>
+              }}>
                     {/* Step Circle */}
-                    <div style={{
+                <div style={{
                       width: '48px',
                       height: '48px',
-                      borderRadius: '50%',
+                  borderRadius: '50%',
                       backgroundColor: isActive ? '#E94A02' : '#e5e7eb',
                       color: isActive ? 'white' : '#6b7280',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontWeight: '600',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: '600',
                       fontSize: '1rem',
                       marginBottom: '0.75rem',
                       transition: 'all 0.3s ease'
-                    }}>
+                }}>
                       {step}
-                    </div>
+                </div>
                     
                     {/* Step Label */}
                     <span style={{
@@ -1055,16 +1055,16 @@ const NewRequest = () => {
                   
                   {/* Connecting Line */}
                   {index < 3 && (
-                    <div style={{
+                  <div style={{
                       width: '100px',
-                      height: '2px',
+                    height: '2px',
                       backgroundColor: '#e5e7eb',
                       marginTop: '24px',
                       marginLeft: '0.5rem',
                       marginRight: '0.5rem',
                       transition: 'all 0.3s ease'
-                    }} />
-                  )}
+                  }} />
+                )}
                 </React.Fragment>
               );
             })}
