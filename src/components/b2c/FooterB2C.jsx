@@ -1,9 +1,52 @@
 import React, { useEffect, useRef } from 'react';
 import { Phone, Mail, MapPin, Facebook, Twitter, Instagram, Linkedin, Apple, Play, Shield, Award, Users, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import logo from '../../assets/logo.png';
 
 const FooterB2C = () => {
   const footerRef = useRef(null);
+
+  // Add responsive styles
+  useEffect(() => {
+    const footerStyles = `
+      @media (max-width: 1024px) {
+        .footer-grid {
+          grid-template-columns: repeat(2, 1fr) !important;
+          gap: 2rem !important;
+        }
+      }
+      
+      @media (max-width: 768px) {
+        .footer-grid {
+          grid-template-columns: 1fr !important;
+          gap: 2rem !important;
+        }
+        
+        .footer-stat {
+          flex-direction: column !important;
+          text-align: center !important;
+        }
+      }
+      
+      @media (max-width: 640px) {
+        .container {
+          padding: 0 1rem !important;
+        }
+      }
+    `;
+    
+    const styleSheet = document.createElement('style');
+    styleSheet.id = 'footer-responsive-styles';
+    styleSheet.textContent = footerStyles;
+    document.head.appendChild(styleSheet);
+    
+    return () => {
+      const existingStyle = document.getElementById('footer-responsive-styles');
+      if (existingStyle) {
+        existingStyle.remove();
+      }
+    };
+  }, []);
 
   // Add GSAP animations if available
   useEffect(() => {
@@ -19,7 +62,7 @@ const FooterB2C = () => {
           const stats = footerRef.current?.querySelectorAll('.footer-stat');
           
           if (columns && columns.length > 0) {
-            gsap.fromTo(columns,
+            gsap.fromTo(Array.from(columns),
               { opacity: 0, y: 40 },
               {
                 opacity: 1,
@@ -37,7 +80,7 @@ const FooterB2C = () => {
           }
           
           if (stats && stats.length > 0) {
-            gsap.fromTo(stats,
+            gsap.fromTo(Array.from(stats),
               { opacity: 0, scale: 0.8 },
               {
                 opacity: 1,
@@ -67,7 +110,9 @@ const FooterB2C = () => {
         backgroundColor: '#020034',
         color: 'white',
         position: 'relative',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        width: '100%',
+        maxWidth: '100vw'
       }}
     >
       {/* Background Pattern */}
@@ -82,29 +127,32 @@ const FooterB2C = () => {
         opacity: 0.3
       }}></div>
 
-      <div className="container" style={{ position: 'relative', zIndex: 1 }}>
+      <div className="container" style={{ position: 'relative', zIndex: 1, maxWidth: '1200px', margin: '0 auto', padding: '0 2rem', width: '100%', boxSizing: 'border-box' }}>
         {/* Main Footer Content */}
         <div style={{ padding: '5rem 0 3rem' }}>
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+            gridTemplateColumns: 'repeat(4, 1fr)',
             gap: '3rem',
-            marginBottom: '4rem'
-          }}>
+            marginBottom: '4rem',
+            width: '100%',
+            boxSizing: 'border-box'
+          }}
+          className="footer-grid"
+          >
             {/* Company Info */}
             <div className="footer-column" style={{ maxWidth: '350px' }}>
               <div style={{ marginBottom: '1.5rem' }}>
-                <h2 style={{
-                  fontSize: '1.75rem',
-                  fontWeight: '800',
-                  marginBottom: '0.5rem',
-                  background: 'linear-gradient(135deg, #E94A02 0%, #FF6B35 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text'
-                }}>
-                  Master
-                </h2>
+                <div style={{ marginBottom: '1rem' }}>
+                  <img 
+                    src={logo} 
+                    alt="Master" 
+                    style={{
+                      height: '50px',
+                      width: 'auto'
+                    }}
+                  />
+                </div>
                 <p style={{
                   color: 'rgba(255,255,255,0.7)',
                   fontSize: '0.95rem',
@@ -436,18 +484,18 @@ const FooterB2C = () => {
           padding: '2rem 0',
           borderTop: '1px solid rgba(255,255,255,0.1)',
           display: 'flex',
-          flexDirection: 'column',
-          gap: '1.5rem',
+          flexDirection: 'row',
           alignItems: 'center',
-          justifyContent: 'space-between'
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '1.5rem'
         }}>
-          {/* Trust Indicators */}
+          {/* Trust Indicators - Left Side */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '2rem',
-            flexWrap: 'wrap',
-            justifyContent: 'center'
+            gap: '1.5rem',
+            flexWrap: 'wrap'
           }}>
             <div className="footer-stat" style={{
               display: 'flex',
@@ -486,13 +534,13 @@ const FooterB2C = () => {
             </div>
           </div>
 
-          {/* Copyright */}
+          {/* Copyright - Right Side */}
           <div style={{
             display: 'flex',
             flexDirection: 'column',
-            alignItems: 'center',
-            gap: '1rem',
-            textAlign: 'center'
+            alignItems: 'flex-end',
+            gap: '0.75rem',
+            textAlign: 'right'
           }}>
             <div style={{
               color: 'rgba(255,255,255,0.6)',
@@ -505,7 +553,7 @@ const FooterB2C = () => {
               gap: '1.5rem',
               fontSize: '0.875rem',
               flexWrap: 'wrap',
-              justifyContent: 'center'
+              justifyContent: 'flex-end'
             }}>
               {['Terms of Service', 'Privacy Policy', 'Cookie Policy'].map((link, index) => (
                 <a 
@@ -529,9 +577,9 @@ const FooterB2C = () => {
             </div>
             <div style={{
               color: 'rgba(255,255,255,0.5)',
-              fontSize: '0.75rem',
-              marginTop: '0.5rem'
+              fontSize: '0.75rem'
             }}>
+              MASTER SERVICES TRADES LTD<br />
               Company number: 15406523
             </div>
           </div>

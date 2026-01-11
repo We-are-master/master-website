@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import './B2CCleaningBooking.css';
+import usePlacesAutocomplete, { getGeocode, getLatLng } from 'use-places-autocomplete';
 
 // This is a simplified React version of the cleaning booking form
 // The full implementation would require Stripe integration and Google Places API
@@ -9,6 +10,9 @@ const B2CCleaningBooking = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [step, setStep] = useState(1);
+  const [isGoogleLoaded, setIsGoogleLoaded] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const addressInputRef = useRef(null);
   const [state, setState] = useState({
     postcode: '',
     cleanType: '',
@@ -48,6 +52,101 @@ const B2CCleaningBooking = () => {
       }
     }
   }, [location.state]);
+
+  // Load Google Maps script dynamically
+  useEffect(() => {
+    const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
+    if (!apiKey) {
+      console.warn('VITE_GOOGLE_API_KEY not found in environment variables');
+      return;
+    }
+
+    // Check if script is already loaded
+    if (window.google && window.google.maps && window.google.maps.places) {
+      setIsGoogleLoaded(true);
+      return;
+    }
+
+    // Check if script is already in the DOM
+    const existingScript = document.querySelector('script[src*="maps.googleapis.com"]');
+    if (existingScript) {
+      const checkGoogle = () => {
+        if (window.google && window.google.maps && window.google.maps.places) {
+          setIsGoogleLoaded(true);
+        }
+      };
+      existingScript.addEventListener('load', checkGoogle);
+      checkGoogle(); // Check immediately
+      return () => {
+        existingScript.removeEventListener('load', checkGoogle);
+      };
+    }
+
+    // Load script if not already loaded
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+    script.async = true;
+    script.defer = true;
+    script.onload = () => {
+      setIsGoogleLoaded(true);
+    };
+    script.onerror = () => {
+      console.error('Failed to load Google Maps API');
+      setIsGoogleLoaded(false);
+    };
+    document.head.appendChild(script);
+  }, []);
+
+  // Initialize Google Places Autocomplete
+  const placesAutocomplete = usePlacesAutocomplete({
+    requestOptions: {
+      componentRestrictions: { country: 'gb' }, // Restrict to UK
+    },
+    debounce: 300,
+    initOnMount: false,
+  });
+
+  const {
+    ready,
+    value: autocompleteValue,
+    setValue: setAutocompleteValue,
+    suggestions: { status, data },
+    clearSuggestions,
+    init,
+  } = placesAutocomplete;
+
+  // Initialize the hook when Google Maps is loaded
+  useEffect(() => {
+    if (isGoogleLoaded && window.google && window.google.maps && window.google.maps.places && !ready) {
+      init();
+    }
+  }, [isGoogleLoaded, ready, init]);
+
+  const handleSelectSuggestion = async (suggestion) => {
+    const address = suggestion.description;
+    setAutocompleteValue(address, false);
+    clearSuggestions();
+    setShowSuggestions(false);
+    
+    try {
+      const results = await getGeocode({ address });
+      const { lat, lng } = await getLatLng(results[0]);
+      
+      // Extract postcode from the address
+      const postcodeMatch = address.match(/[A-Z]{1,2}[0-9]{1,2}[A-Z]?\s?[0-9][A-Z]{2}/i);
+      if (postcodeMatch) {
+        updateState({ 
+          addressPicked: address,
+          postcode: postcodeMatch[0].toUpperCase()
+        });
+      } else {
+        updateState({ addressPicked: address });
+      }
+    } catch (error) {
+      console.error('Error getting location:', error);
+      updateState({ addressPicked: address });
+    }
+  };
 
   const updateState = (updates) => {
     setState(prev => {
@@ -166,8 +265,12 @@ const B2CCleaningBooking = () => {
         <div style={{
           backgroundColor: 'white',
           borderBottom: '1px solid #e5e7eb',
-          padding: '1rem 0',
-          marginBottom: '1rem'
+          padding: '1.5rem 0',
+          marginBottom: '2rem',
+          borderRadius: '16px',
+          paddingLeft: '1.5rem',
+          paddingRight: '1.5rem',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
         }}>
           <button
             onClick={() => navigate('/')}
@@ -180,18 +283,27 @@ const B2CCleaningBooking = () => {
               color: '#2001AF',
               cursor: 'pointer',
               fontSize: '1rem',
-              fontWeight: '500'
+              fontWeight: '600',
+              transition: 'all 0.3s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.color = '#020034';
+              e.target.style.transform = 'translateX(-4px)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.color = '#2001AF';
+              e.target.style.transform = 'translateX(0)';
             }}
           >
             <ArrowLeft size={20} />
-            Back
+            Back to Home
           </button>
         </div>
 
         <div className="hero-banner" role="img" aria-label="You're almost there — book now and let us handle the rest."></div>
 
         <h2>Your Home, Your Way</h2>
-        <p className="lead">Flexible services tailored to your schedule</p>
+        <p className="lead">Flexible cleaning services tailored to your schedule</p>
 
         {/* Progress Stepper */}
         <div className="stepper" aria-label="Progress">
@@ -214,50 +326,112 @@ const B2CCleaningBooking = () => {
           <div id="leftCol">
             {/* STEP 1: Address */}
             {step === 1 && (
-              <div id="step1" className="card stepcard" style={{ border: '2px solid #020034', boxShadow: '0 0 0 4px rgba(2,0,52,.10)' }}>
-                <label id="postcodeLabel" style={{ position: 'relative', paddingRight: '88px' }}>
+              <div id="step1" className="card stepcard" style={{ border: '2px solid #2001AF', boxShadow: '0 0 0 4px rgba(32,1,175,.10), 0 8px 24px rgba(2,0,52,.1)' }}>
+                <label id="postcodeLabel" style={{ position: 'relative', paddingRight: '100px' }}>
                   What's the service address?
-                  <span style={{
-                    position: 'absolute',
-                    right: 0,
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    background: 'linear-gradient(90deg, #020034, #ED4A00)',
-                    color: '#fff',
-                    fontSize: '10px',
-                    fontWeight: '900',
-                    letterSpacing: '0.03em',
-                    padding: '5px 9px',
-                    borderRadius: '999px',
-                    boxShadow: '0 4px 10px rgba(0,0,0,.08)'
-                  }}>
+                  <span>
                     Start here
                   </span>
                 </label>
-                <input
-                  id="addressStep1"
-                  type="text"
-                  placeholder="Start typing your address…"
-                  autoComplete="postal-code"
-                  value={state.addressPicked}
-                  onChange={(e) => updateState({ addressPicked: e.target.value })}
-                  style={{
-                    width: '100%',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '12px',
-                    padding: '12px 14px',
-                    fontSize: '14px',
-                    outline: 'none'
-                  }}
-                />
+                <div style={{ position: 'relative' }}>
+                  <input
+                    ref={addressInputRef}
+                    id="addressStep1"
+                    type="text"
+                    placeholder="Start typing your address…"
+                    autoComplete="off"
+                    value={ready ? autocompleteValue : state.addressPicked}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (ready) {
+                        setAutocompleteValue(value, true);
+                        setShowSuggestions(true);
+                        // Also update state for manual typing
+                        updateState({ addressPicked: value });
+                      } else {
+                        updateState({ addressPicked: value });
+                      }
+                    }}
+                    onFocus={(e) => {
+                      if (ready) {
+                        setShowSuggestions(true);
+                      }
+                    }}
+                    onBlur={(e) => {
+                      // Update state with final value if user typed manually
+                      if (ready && autocompleteValue && autocompleteValue !== state.addressPicked) {
+                        updateState({ addressPicked: autocompleteValue });
+                      }
+                      // Delay to allow click on suggestions
+                      setTimeout(() => setShowSuggestions(false), 200);
+                    }}
+                    disabled={!ready && isGoogleLoaded === false}
+                  />
+                  
+                  {/* Suggestions Dropdown */}
+                  {showSuggestions && ready && status === 'OK' && data && data.length > 0 && (
+                    <div style={{
+                      position: 'absolute',
+                      top: '100%',
+                      left: 0,
+                      right: 0,
+                      marginTop: '0.75rem',
+                      backgroundColor: 'white',
+                      border: '2px solid #e5e7eb',
+                      borderRadius: '16px',
+                      boxShadow: '0 12px 24px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.05)',
+                      zIndex: 1000,
+                      maxHeight: '320px',
+                      overflowY: 'auto'
+                    }}>
+                      {data.map((suggestion) => (
+                        <div
+                          key={suggestion.place_id}
+                          onClick={() => handleSelectSuggestion(suggestion)}
+                          style={{
+                            padding: '1rem 1.25rem',
+                            cursor: 'pointer',
+                            borderBottom: '1px solid #f3f4f6',
+                            transition: 'all 0.2s ease'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.target.style.backgroundColor = '#f0f4ff';
+                            e.target.style.borderLeft = '4px solid #2001AF';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.target.style.backgroundColor = 'white';
+                            e.target.style.borderLeft = '4px solid transparent';
+                          }}
+                        >
+                          <div style={{
+                            fontSize: '0.9375rem',
+                            fontWeight: '600',
+                            color: '#020034',
+                            marginBottom: '0.25rem'
+                          }}>
+                            {suggestion.structured_formatting.main_text}
+                          </div>
+                          <div style={{
+                            fontSize: '0.8125rem',
+                            color: '#6b7280',
+                            fontWeight: '500'
+                          }}>
+                            {suggestion.structured_formatting.secondary_text}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
                 <small className="note">Start typing your address (like 123 City Road) and we'll find you</small>
-                <div className="btns" style={{ marginTop: '12px' }}>
+                <div className="btns">
                   <button
                     className="btn primary"
                     onClick={handleStep1Continue}
                     disabled={!state.addressPicked.trim()}
                   >
                     Continue
+                    <ArrowLeft size={18} style={{ transform: 'rotate(180deg)' }} />
                   </button>
                 </div>
               </div>
@@ -387,9 +561,15 @@ const B2CCleaningBooking = () => {
                   </div>
                 </div>
 
-                <div className="btns" style={{ marginTop: '20px' }}>
-                  <button className="btn secondary" onClick={() => setStep(1)}>Back</button>
-                  <button className="btn primary" onClick={handleStep2Continue}>Continue</button>
+                <div className="btns">
+                  <button className="btn secondary" onClick={() => setStep(1)}>
+                    <ArrowLeft size={18} />
+                    Back
+                  </button>
+                  <button className="btn primary" onClick={handleStep2Continue}>
+                    Continue
+                    <ArrowLeft size={18} style={{ transform: 'rotate(180deg)' }} />
+                  </button>
                 </div>
               </div>
             )}
@@ -405,13 +585,6 @@ const B2CCleaningBooking = () => {
                       min={new Date().toISOString().split('T')[0]}
                       value={state.contact.date}
                       onChange={(e) => updateState({ contact: { ...state.contact, date: e.target.value } })}
-                      style={{
-                        width: '100%',
-                        border: '1px solid #e5e7eb',
-                        borderRadius: '12px',
-                        padding: '12px 14px',
-                        fontSize: '14px'
-                      }}
                     />
                   </div>
 
@@ -510,10 +683,14 @@ const B2CCleaningBooking = () => {
                   onChange={(e) => updateState({ contact: { ...state.contact, address: e.target.value } })}
                 />
 
-                <div className="btns" style={{ marginTop: 'auto' }}>
-                  <button className="btn secondary" onClick={() => setStep(2)}>Back</button>
+                <div className="btns">
+                  <button className="btn secondary" onClick={() => setStep(2)}>
+                    <ArrowLeft size={18} />
+                    Back
+                  </button>
                   <button className="btn orange" onClick={handleStep3Continue}>
                     Proceed to payment
+                    <ArrowLeft size={18} style={{ transform: 'rotate(180deg)' }} />
                   </button>
                 </div>
               </div>
@@ -540,6 +717,7 @@ const B2CCleaningBooking = () => {
 
                     <div className="btns">
                       <button type="button" className="btn secondary" onClick={() => setStep(3)}>
+                        <ArrowLeft size={18} />
                         Back
                       </button>
                       <button
@@ -552,6 +730,7 @@ const B2CCleaningBooking = () => {
                         }}
                       >
                         Pay now £{calculatePrice().toFixed(2)}
+                        <ArrowLeft size={18} style={{ transform: 'rotate(180deg)' }} />
                       </button>
                     </div>
                   </div>

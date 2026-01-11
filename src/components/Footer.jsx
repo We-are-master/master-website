@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import { Phone, Mail, MapPin, Facebook, Twitter, Instagram, Linkedin, Apple, Play } from 'lucide-react'
 import logo from '../assets/logo.png'
 
@@ -18,8 +19,7 @@ const Footer = () => {
                     alt="Master" 
                     style={{
                       height: '50px',
-                      width: 'auto',
-                      filter: 'brightness(0) invert(1)'
+                      width: 'auto'
                     }}
                   />
                 </div>
@@ -114,6 +114,15 @@ const Footer = () => {
               </ul>
             </div>
 
+            {/* Company */}
+            <div>
+              <h3 style={{fontSize: '1.125rem', fontWeight: '600', marginBottom: '1.5rem', color: 'white'}}>Company</h3>
+              <ul style={{listStyle: 'none', padding: 0}}>
+                <li style={{marginBottom: '0.75rem'}}><Link to="/about" style={{color: 'white', textDecoration: 'none', transition: 'color 0.3s ease'}}>About Us</Link></li>
+                <li style={{marginBottom: '0.75rem'}}><Link to="/contact" style={{color: 'white', textDecoration: 'none', transition: 'color 0.3s ease'}}>Contact Us</Link></li>
+              </ul>
+            </div>
+
             {/* Contact */}
             <div>
               <h3 style={{fontSize: '1.125rem', fontWeight: '600', marginBottom: '1.5rem', color: 'white'}}>Contact</h3>
@@ -163,7 +172,8 @@ const Footer = () => {
             </div>
             
             <div style={{fontSize: '0.875rem', color: '#9ca3af', textAlign: 'center'}}>
-              MASTER SERVICES TRADES LTD Company number <strong style={{color: 'white'}}>15406523</strong>
+              <strong style={{color: 'white'}}>MASTER SERVICES TRADES LTD</strong><br />
+              Company number: <strong style={{color: 'white'}}>15406523</strong>
             </div>
           </div>
         </div>

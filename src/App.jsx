@@ -1,6 +1,6 @@
 import React from 'react'
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
-import Header from './components/Header'
+import HeaderB2B from './components/HeaderB2B'
 import HeaderB2C from './components/b2c/HeaderB2C'
 import Hero from './components/Hero'
 import Services from './components/Services'
@@ -34,7 +34,7 @@ function AppContent() {
 
   return (
     <div className="App">
-      {isB2C ? <HeaderB2C /> : <Header />}
+      {isB2C ? <HeaderB2C /> : <HeaderB2B />}
       <Routes>
         {/* B2C Routes - Now the default homepage */}
         <Route path="/" element={<B2CHome />} />

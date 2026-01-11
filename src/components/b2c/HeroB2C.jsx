@@ -172,7 +172,16 @@ const HeroB2C = () => {
         repeat: 1,
         ease: 'power2.inOut',
         onComplete: () => {
-          navigate('/booking', { state: { service: searchTerm } });
+          // Check if search term is cleaning-related
+          const searchLower = searchTerm.toLowerCase();
+          const isCleaning = searchLower.includes('cleaning') || searchLower.includes('clean') || 
+                            searchLower.includes('deep clean') || searchLower.includes('end of tenancy') ||
+                            searchLower.includes('upholstery');
+          if (isCleaning) {
+            navigate('/cleaning-booking', { state: { jobDescription: searchTerm } });
+          } else {
+            navigate('/booking', { state: { service: searchTerm } });
+          }
         }
       });
     }

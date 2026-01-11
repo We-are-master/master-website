@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ArrowRight, CheckCircle, Search, CreditCard, UserCheck } from 'lucide-react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -12,6 +12,7 @@ const HowItWorksB2C = () => {
   const titleRef = useRef(null);
   const stepsRef = useRef(null);
   const bgRef = useRef(null);
+  const [imageErrors, setImageErrors] = useState({});
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -135,7 +136,7 @@ const HowItWorksB2C = () => {
       title: 'Get it done!',
       description: 'We\'ll match you with a vetted local tradesperson to get the job done.',
       color: '#E94A02',
-      image: 'https://images.unsplash.com/photo-1504307651254-35680f026213?w=400&h=300&fit=crop'
+      image: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=300&fit=crop&auto=format'
     }
   ];
 
@@ -299,17 +300,38 @@ const HowItWorksB2C = () => {
                 borderRadius: '16px',
                 overflow: 'hidden',
                 marginBottom: '1.5rem',
-                backgroundColor: '#f3f4f6'
+                backgroundColor: '#f3f4f6',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: imageErrors[step.number] 
+                  ? `linear-gradient(135deg, ${step.color}15 0%, ${step.color}08 100%)`
+                  : 'transparent'
               }}>
-                <img
-                  src={step.image}
-                  alt={step.title}
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover'
-                  }}
-                />
+                {imageErrors[step.number] ? (
+                  <div style={{
+                    color: step.color,
+                    fontSize: '3rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    {step.icon}
+                  </div>
+                ) : (
+                  <img
+                    src={step.image}
+                    alt={step.title}
+                    onError={() => {
+                      setImageErrors(prev => ({ ...prev, [step.number]: true }));
+                    }}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover'
+                    }}
+                  />
+                )}
               </div>
 
               <h3 style={{

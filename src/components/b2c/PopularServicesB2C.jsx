@@ -135,7 +135,13 @@ const PopularServicesB2C = () => {
       repeat: 1,
       ease: 'power2.inOut',
       onComplete: () => {
-        navigate('/booking', { state: { service: service.title } });
+        // Cleaning services should go directly to cleaning booking form
+        const isCleaning = service.title.toLowerCase().includes('cleaning') || service.title.toLowerCase().includes('clean');
+        if (isCleaning) {
+          navigate('/cleaning-booking');
+        } else {
+          navigate('/booking', { state: { service: service.title } });
+        }
       }
     });
   };

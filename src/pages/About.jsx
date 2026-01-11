@@ -32,26 +32,6 @@ const About = () => {
     }
   ]
 
-  const team = [
-    {
-      name: "Sarah Mitchell",
-      role: "Founder & CEO",
-      description: "15+ years in property management and business operations",
-      image: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=200&h=200&fit=crop&crop=face"
-    },
-    {
-      name: "David Chen",
-      role: "Operations Director",
-      description: "Expert in scaling service operations and quality management",
-      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face"
-    },
-    {
-      name: "Emma Rodriguez",
-      role: "Head of Partnerships",
-      description: "Specialist in business development and client relationships",
-      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop&crop=face"
-    }
-  ]
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -146,41 +126,6 @@ const About = () => {
                 </h3>
                 <p className="text-gray-600 leading-relaxed">
                   {value.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Leadership Team */}
-      <section className="section">
-        <div className="container">
-          <div className="text-center mb-16">
-            <h2 className="section-title">Leadership Team</h2>
-            <p className="section-subtitle">
-              Meet the people behind Master Services
-            </p>
-          </div>
-
-          <div className="grid grid-3 gap-8">
-            {team.map((member, index) => (
-              <div key={index} className="text-center">
-                <div className="mb-6">
-                  <img
-                    src={member.image}
-                    alt={member.name}
-                    className="w-32 h-32 rounded-full object-cover mx-auto shadow-lg"
-                  />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  {member.name}
-                </h3>
-                <p className="text-primary font-medium mb-3">
-                  {member.role}
-                </p>
-                <p className="text-gray-600 text-sm">
-                  {member.description}
                 </p>
               </div>
             ))}
