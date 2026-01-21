@@ -455,7 +455,7 @@ const FooterB2C = () => {
                 </h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                   {[
-                    { icon: Phone, text: '020 3337 6168', subtext: 'Mon-Sun, 8am-8pm', color: '#E94A02' },
+                    { icon: Phone, text: '+44 7983 182332', subtext: 'Mon-Sun, 8am-8pm', color: '#E94A02' },
                     { icon: Mail, text: 'hello@wearemaster.com', subtext: null, color: '#E94A02' },
                     { icon: MapPin, text: 'London, UK', subtext: 'Serving Greater London', color: '#E94A02' }
                   ].map((contact, index) => (
@@ -497,27 +497,6 @@ const FooterB2C = () => {
             gap: '1.5rem',
             flexWrap: 'wrap'
           }}>
-            <div className="footer-stat" style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              padding: '0.75rem 1.5rem',
-              backgroundColor: 'rgba(255,255,255,0.05)',
-              borderRadius: '12px',
-              border: '1px solid rgba(255,255,255,0.1)'
-            }}>
-              <div style={{ display: 'flex', color: '#fbbf24' }}>
-                {[...Array(5)].map((_, i) => (
-                  <span key={i} style={{ fontSize: '1.125rem' }}>★</span>
-                ))}
-              </div>
-              <div style={{ fontSize: '0.875rem', color: 'rgba(255,255,255,0.9)', marginLeft: '0.5rem' }}>
-                <strong>4.9</strong> / 5.0
-              </div>
-              <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)', marginLeft: '0.5rem' }}>
-                Trustpilot
-              </div>
-            </div>
             <div className="footer-stat" style={{
               padding: '0.75rem 1.5rem',
               backgroundColor: 'rgba(255,255,255,0.05)',

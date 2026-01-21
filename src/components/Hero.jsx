@@ -129,7 +129,7 @@ const Hero = () => {
                 <ArrowRight style={{marginLeft: '0.5rem', width: '20px', height: '20px'}} />
               </a>
               
-              <a href="tel:02033376168" style={{
+              <a href="tel:+447983182332" style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 backgroundColor: 'transparent',
@@ -144,7 +144,7 @@ const Hero = () => {
                 cursor: 'pointer'
               }}>
                 <Phone style={{marginRight: '0.5rem', width: '20px', height: '20px'}} />
-                Call 020 3337 6168
+                Call +44 7983 182332
               </a>
             </div>
 

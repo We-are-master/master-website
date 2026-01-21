@@ -13,6 +13,8 @@ const HeroB2C = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [currentServiceIndex, setCurrentServiceIndex] = useState(0);
+  const [displayedText, setDisplayedText] = useState('');
+  const [isTyping, setIsTyping] = useState(true);
   const heroRef = useRef(null);
   const badgeRef = useRef(null);
   const titleRef = useRef(null);
@@ -24,23 +26,61 @@ const HeroB2C = () => {
 
   const services = [
     'TV mounting',
-    'Plumbing',
-    'Electrical',
-    'Cleaning services',
-    'Carpentry',
+    'Plumbing repair',
+    'Electrical work',
+    'Deep cleaning',
+    'Furniture assembly',
     'Handyman services',
     'Light fitting',
-    'Flatpack assembly'
+    'Painting walls'
   ];
 
-  // Rotate services text - simple direct change
+  // Typing effect for placeholder
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentServiceIndex((prev) => (prev + 1) % services.length);
-    }, 2500); // Change every 2.5 seconds
-
-    return () => clearInterval(interval);
-  }, [services.length]);
+    const currentService = services[currentServiceIndex];
+    let charIndex = 0;
+    let typingTimeout;
+    let deleteTimeout;
+    
+    // Reset displayed text when service changes
+    setDisplayedText('');
+    setIsTyping(true);
+    
+    // Type characters one by one
+    const typeChar = () => {
+      if (charIndex <= currentService.length) {
+        setDisplayedText(currentService.slice(0, charIndex));
+        charIndex++;
+        typingTimeout = setTimeout(typeChar, 80); // Typing speed
+      } else {
+        // Wait before deleting
+        setIsTyping(false);
+        deleteTimeout = setTimeout(() => {
+          deleteChars(currentService.length);
+        }, 2000); // Wait 2 seconds before deleting
+      }
+    };
+    
+    // Delete characters one by one
+    const deleteChars = (length) => {
+      if (length >= 0) {
+        setDisplayedText(currentService.slice(0, length));
+        setIsTyping(true);
+        deleteTimeout = setTimeout(() => deleteChars(length - 1), 40); // Delete speed (faster)
+      } else {
+        // Move to next service
+        setCurrentServiceIndex((prev) => (prev + 1) % services.length);
+      }
+    };
+    
+    // Start typing
+    typingTimeout = setTimeout(typeChar, 500);
+    
+    return () => {
+      clearTimeout(typingTimeout);
+      clearTimeout(deleteTimeout);
+    };
+  }, [currentServiceIndex]);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -379,21 +419,86 @@ const HeroB2C = () => {
               }}>
                 <Search size={22} />
               </div>
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="What do you need help with? (e.g., TV mounting, plumbing, cleaning...)"
-                style={{
-                  flex: 1,
-                  border: 'none',
-                  outline: 'none',
-                  fontSize: '1.125rem',
-                  padding: '1.25rem 0',
-                  color: '#111827',
-                  fontFamily: 'inherit'
-                }}
-              />
+              <div style={{
+                flex: 1,
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                minWidth: 0
+              }}>
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder=""
+                  style={{
+                    width: '100%',
+                    border: 'none',
+                    outline: 'none',
+                    fontSize: '1.125rem',
+                    padding: '1.25rem 0',
+                    color: '#111827',
+                    fontFamily: 'inherit',
+                    background: 'transparent',
+                    position: 'relative',
+                    zIndex: 2
+                  }}
+                />
+                {/* AI Typing Placeholder */}
+                {!searchTerm && (
+                  <div style={{
+                    position: 'absolute',
+                    left: 0,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    pointerEvents: 'none',
+                    zIndex: 1
+                  }}>
+                    <span style={{
+                      color: '#9ca3af',
+                      fontSize: '1.125rem',
+                      fontFamily: 'inherit'
+                    }}>
+                      Try "
+                    </span>
+                    <span style={{
+                      color: '#6366f1',
+                      fontSize: '1.125rem',
+                      fontFamily: 'inherit',
+                      fontWeight: '500',
+                      background: 'linear-gradient(90deg, #6366f1, #8b5cf6)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      backgroundClip: 'text'
+                    }}>
+                      {displayedText}
+                    </span>
+                    <span style={{
+                      width: '2px',
+                      height: '1.25rem',
+                      backgroundColor: '#6366f1',
+                      animation: 'blink 1s infinite',
+                      opacity: isTyping ? 1 : 0
+                    }}></span>
+                    <span style={{
+                      color: '#9ca3af',
+                      fontSize: '1.125rem',
+                      fontFamily: 'inherit'
+                    }}>
+                      "
+                    </span>
+                  </div>
+                )}
+                <style>{`
+                  @keyframes blink {
+                    0%, 50% { opacity: 1; }
+                    51%, 100% { opacity: 0; }
+                  }
+                `}</style>
+              </div>
               <button
                 type="submit"
                 style={{

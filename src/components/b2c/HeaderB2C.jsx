@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { LogIn, Menu, X, ChevronDown } from 'lucide-react';
+import { LogIn, Menu, X, ChevronDown, Package } from 'lucide-react';
 import logo from '../../assets/logo.png';
 
 const HeaderB2C = () => {
@@ -168,13 +168,42 @@ const HeaderB2C = () => {
           </Link>
         </nav>
 
-        {/* Right Side: Login Button */}
+        {/* Right Side: My Orders & Login Button */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
           gap: '1rem',
           flexShrink: 0
         }} className="hidden md:flex">
+          <button
+            onClick={() => navigate('/customer-login')}
+            style={{
+              backgroundColor: 'transparent',
+              color: 'white',
+              border: '1px solid rgba(255,255,255,0.3)',
+              borderRadius: '8px',
+              padding: '0.65rem 1.25rem',
+              fontSize: '0.9rem',
+              fontWeight: '500',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              transition: 'all 0.3s ease',
+              whiteSpace: 'nowrap'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.backgroundColor = 'rgba(255,255,255,0.1)';
+              e.target.style.borderColor = 'rgba(255,255,255,0.5)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.backgroundColor = 'transparent';
+              e.target.style.borderColor = 'rgba(255,255,255,0.3)';
+            }}
+          >
+            <Package size={16} />
+            My Orders
+          </button>
           <button
             onClick={() => navigate('/login')}
             style={{
@@ -202,7 +231,7 @@ const HeaderB2C = () => {
             }}
           >
             <LogIn size={18} />
-            Login
+            B2B Login
           </button>
         </div>
 
@@ -243,6 +272,30 @@ const HeaderB2C = () => {
             <Link to="/contact" style={{ color: 'white', textDecoration: 'none' }} onClick={() => setIsMenuOpen(false)}>Contact Us</Link>
             <button
               onClick={() => {
+                navigate('/customer-login');
+                setIsMenuOpen(false);
+              }}
+              style={{
+                backgroundColor: 'rgba(255,255,255,0.1)',
+                color: 'white',
+                border: '1px solid rgba(255,255,255,0.3)',
+                borderRadius: '8px',
+                padding: '0.75rem 1.5rem',
+                fontSize: '0.95rem',
+                fontWeight: '500',
+                cursor: 'pointer',
+                marginTop: '1rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem'
+              }}
+            >
+              <Package size={18} />
+              My Orders
+            </button>
+            <button
+              onClick={() => {
                 navigate('/login');
                 setIsMenuOpen(false);
               }}
@@ -255,7 +308,7 @@ const HeaderB2C = () => {
                 fontSize: '0.95rem',
                 fontWeight: '600',
                 cursor: 'pointer',
-                marginTop: '1rem',
+                marginTop: '0.5rem',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -263,7 +316,7 @@ const HeaderB2C = () => {
               }}
             >
               <LogIn size={18} />
-              Login
+              B2B Login
             </button>
           </nav>
         </div>

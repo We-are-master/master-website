@@ -226,7 +226,7 @@ const Process = () => {
                 Get Your Quote Now
                 <ArrowRight className="w-5 h-5" style={{marginLeft: '0.5rem'}} />
               </a>
-              <a href="tel:02033376168" style={{
+              <a href="tel:+447983182332" style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 backgroundColor: 'transparent',
@@ -241,7 +241,7 @@ const Process = () => {
                 width: '100%',
                 justifyContent: 'center'
               }}>
-                Call 020 3337 6168
+                Call +44 7983 182332
               </a>
             </div>
             

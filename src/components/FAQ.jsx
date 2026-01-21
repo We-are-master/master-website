@@ -103,8 +103,8 @@ const FAQ = () => {
               <a href="/contact" className="btn btn-primary text-lg px-8 py-4">
                 Contact Support
               </a>
-              <a href="tel:02033376168" className="btn btn-outline text-lg px-8 py-4">
-                Call 020 3337 6168
+              <a href="tel:+447983182332" className="btn btn-outline text-lg px-8 py-4">
+                Call +44 7983 182332
               </a>
             </div>
           </div>

@@ -60,36 +60,48 @@ export async function createPaymentIntent(paymentData) {
 }
 
 /**
- * Alternative: Create payment intent via Supabase Edge Function
+ * Create payment intent via Supabase Edge Function
+ * This also creates a pending booking record in booking_website table
  * @param {Object} paymentData - Payment information
+ * @param {number} paymentData.amount - Amount in pence (GBP)
+ * @param {string} paymentData.currency - Currency code (default: 'gbp')
+ * @param {Object} paymentData.metadata - Additional metadata for Stripe
+ * @param {Object} paymentData.booking_data - Booking details to save in database
  * @returns {Promise<Object>} Payment intent with client secret
  */
 export async function createPaymentIntentViaSupabase(paymentData) {
   try {
     const { supabase } = await import('./supabase');
     
-    // Try Supabase Edge Function first
-    try {
-      const { data, error } = await supabase.functions.invoke('create-payment-intent', {
-        body: {
-          amount: paymentData.amount,
-          currency: paymentData.currency || 'gbp',
-          metadata: paymentData.metadata || {}
-        }
-      });
+    // Prepare metadata with source identifier for webhook
+    const metadata = {
+      ...paymentData.metadata,
+      source: 'website', // Important: webhook uses this to identify website payments
+    };
 
-      if (!error && data) {
-        return {
-          clientSecret: data.clientSecret,
-          paymentIntentId: data.id
-        };
+    const { data, error } = await supabase.functions.invoke('create-payment-intent', {
+      body: {
+        amount: paymentData.amount,
+        currency: paymentData.currency || 'gbp',
+        metadata: metadata,
+        customer_email: paymentData.metadata?.customer_email,
+        booking_data: paymentData.booking_data || null, // Optional: pre-create booking record
       }
-    } catch (supabaseError) {
-      console.warn('Supabase Edge Function not available, trying API endpoint:', supabaseError);
+    });
+
+    if (error) {
+      console.error('Supabase function error:', error);
+      throw new Error(error.message || 'Failed to create payment intent');
     }
 
-    // Fallback to API endpoint
-    return await createPaymentIntent(paymentData);
+    if (!data || !data.clientSecret) {
+      throw new Error('Invalid response from payment service');
+    }
+
+    return {
+      clientSecret: data.clientSecret,
+      paymentIntentId: data.id
+    };
   } catch (error) {
     console.error('Error creating payment intent:', error);
     throw error;

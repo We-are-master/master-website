@@ -198,7 +198,7 @@ const Header = () => {
           }} className="hidden lg:flex">
             <div style={{display: 'flex', alignItems: 'center', whiteSpace: 'nowrap'}}>
               <Phone style={{width: '16px', height: '16px', marginRight: '0.25rem', color: '#E94A02', flexShrink: 0}} />
-              <span>020 3337 6168</span>
+              <span>+44 7983 182332</span>
             </div>
             <div style={{display: 'flex', alignItems: 'center', whiteSpace: 'nowrap'}}>
               <Mail style={{width: '16px', height: '16px', marginRight: '0.25rem', color: '#E94A02', flexShrink: 0}} />
@@ -491,7 +491,7 @@ const Header = () => {
                   color: 'rgba(255, 255, 255, 0.8)'
                 }}>
                   <Phone style={{width: '16px', height: '16px', marginRight: '0.5rem', color: '#E94A02'}} />
-                  <span>020 3337 6168</span>
+                  <span>+44 7983 182332</span>
                 </div>
                 <div style={{
                   display: 'flex',

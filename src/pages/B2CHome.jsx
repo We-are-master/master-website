@@ -4,7 +4,6 @@ import PopularServicesB2C from '../components/b2c/PopularServicesB2C';
 import TestimonialsB2C from '../components/b2c/TestimonialsB2C';
 import HowItWorksB2C from '../components/b2c/HowItWorksB2C';
 import WhyChooseB2C from '../components/b2c/WhyChooseB2C';
-import FooterB2C from '../components/b2c/FooterB2C';
 
 const B2CHome = () => {
   return (
@@ -20,7 +19,6 @@ const B2CHome = () => {
       <TestimonialsB2C />
       <HowItWorksB2C />
       <WhyChooseB2C />
-      <FooterB2C />
     </div>
   );
 };

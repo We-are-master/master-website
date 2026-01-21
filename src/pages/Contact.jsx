@@ -28,7 +28,7 @@ const Contact = () => {
     {
       icon: <Phone className="w-6 h-6" />,
       title: "Phone",
-      details: ["020 3337 6168", "079 8318 2332", "075 0880 1803"],
+      details: ["+44 7983 182332"],
       description: "Call us for immediate assistance"
     },
     {
@@ -65,7 +65,7 @@ const Contact = () => {
               how Master can help your business.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a href="tel:02033376168" className="btn btn-primary text-lg px-8 py-4">
+              <a href="tel:+447983182332" className="btn btn-primary text-lg px-8 py-4">
                 <Phone className="w-5 h-5 mr-2" />
                 Call Now
               </a>

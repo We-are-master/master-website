@@ -140,9 +140,7 @@ const Footer = () => {
                 <div style={{display: 'flex', alignItems: 'flex-start'}}>
                   <Phone className="w-5 h-5" style={{color: '#E94A02', marginRight: '0.75rem', marginTop: '0.25rem', flexShrink: 0}} />
                   <div>
-                    <p style={{color: '#e5e7eb', margin: 0}}>020 3337 6168</p>
-                    <p style={{color: '#e5e7eb', margin: 0}}>079 8318 2332</p>
-                    <p style={{color: '#e5e7eb', margin: 0}}>075 0880 1803</p>
+                    <p style={{color: '#e5e7eb', margin: 0}}>+44 7983 182332</p>
                   </div>
                 </div>
                 <div style={{display: 'flex', alignItems: 'center'}}>

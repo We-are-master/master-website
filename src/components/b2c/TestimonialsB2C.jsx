@@ -11,7 +11,6 @@ const TestimonialsB2C = () => {
   const sectionRef = useRef(null);
   const titleRef = useRef(null);
   const cardsRef = useRef(null);
-  const trustpilotRef = useRef(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -61,28 +60,6 @@ const TestimonialsB2C = () => {
         );
       }
 
-      // Animate Trustpilot badge
-      if (trustpilotRef.current) {
-        gsap.fromTo(trustpilotRef.current,
-          {
-            opacity: 0,
-            scale: 0.9,
-            y: 30
-          },
-          {
-            opacity: 1,
-            scale: 1,
-            y: 0,
-            duration: 0.8,
-            ease: 'back.out(1.7)',
-            scrollTrigger: {
-              trigger: trustpilotRef.current,
-              start: 'top 80%',
-              toggleActions: 'play none none reverse'
-            }
-          }
-        );
-      }
     }, sectionRef);
 
     return () => ctx.revert();
@@ -345,61 +322,6 @@ const TestimonialsB2C = () => {
           ))}
         </div>
 
-        {/* Trustpilot Rating */}
-        <div 
-          ref={trustpilotRef}
-          style={{
-            textAlign: 'center',
-            backgroundColor: 'white',
-            borderRadius: '24px',
-            padding: '3rem',
-            maxWidth: '500px',
-            margin: '0 auto',
-            boxShadow: '0 8px 30px rgba(0,0,0,0.1)',
-            border: '1px solid rgba(0,0,0,0.05)'
-          }}
-        >
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '1rem',
-            marginBottom: '1rem'
-          }}>
-            <div style={{
-              fontSize: '2rem',
-              fontWeight: '800',
-              color: '#10b981',
-              letterSpacing: '-0.02em'
-            }}>
-              Trustpilot
-            </div>
-            <div style={{
-              display: 'flex',
-              gap: '0.25rem',
-              color: '#10b981'
-            }}>
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} size={24} style={{ fill: 'currentColor' }} />
-              ))}
-            </div>
-          </div>
-          <p style={{
-            color: '#020034',
-            fontSize: '1.25rem',
-            fontWeight: '700',
-            margin: '0.5rem 0'
-          }}>
-            Excellent
-          </p>
-          <p style={{
-            color: '#6b7280',
-            fontSize: '1rem',
-            margin: 0
-          }}>
-            4.9 out of 5 stars from 2,500+ reviews
-          </p>
-        </div>
       </div>
     </section>
   );

@@ -7,105 +7,113 @@ import { getServices, searchServices } from '../lib/services';
 import usePlacesAutocomplete, { getGeocode, getLatLng } from 'use-places-autocomplete';
 
 /**
- * Get service-specific image based on category, type, and service name
- * @param {Object} service - Service object with category, type, and service_name
+ * Get service-specific image based on category and service name
+ * @param {Object} service - Service object with category and service
  * @returns {string} Image URL
  */
 const getServiceImage = (service) => {
   const category = (service.category || '').toLowerCase();
-  const type = (service.type || '').toLowerCase();
-  const serviceName = (service.service_name || '').toLowerCase();
+  const serviceName = (service.service || service.service_name || '').toLowerCase();
   
   // If service has image_url, use it
   if (service.image_url) {
     return service.image_url;
   }
   
-  // Map images based on service category and type
-  // Carpenter services
-  if (category.includes('carpenter')) {
-    // Bolt services - hardware/security focused
-    if (serviceName.includes('bolt')) {
-      // Use a hardware/security related image for bolts
-      return 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop';
+  // Cleaning services
+  if (category.includes('cleaning')) {
+    if (serviceName.includes('oven')) {
+      return 'https://images.unsplash.com/photo-1584568694244-14fbdf83bd30?w=400&h=300&fit=crop';
     }
-    // Door installation services
-    if (serviceName.includes('door')) {
-      // Use a door/carpentry focused image
-      return 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop';
+    if (serviceName.includes('carpet') || serviceName.includes('rug')) {
+      return 'https://images.unsplash.com/photo-1558317374-067fb5f30001?w=400&h=300&fit=crop';
     }
-    // Flooring services
-    if (serviceName.includes('flooring') || serviceName.includes('skirting') || serviceName.includes('carpet')) {
-      return 'https://images.unsplash.com/photo-1504148455328-c376907d081c?w=400&h=300&fit=crop';
+    if (serviceName.includes('sofa') || serviceName.includes('upholstery')) {
+      return 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&h=300&fit=crop';
     }
-    // Frame and hinge services
-    if (serviceName.includes('frame') || serviceName.includes('hinge')) {
-      return 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop';
+    if (serviceName.includes('end of tenancy') || serviceName.includes('move out')) {
+      return 'https://images.unsplash.com/photo-1527515545081-5db817172677?w=400&h=300&fit=crop';
     }
-    // General carpenter work
-    return 'https://images.unsplash.com/photo-1504148455328-c376907d081c?w=400&h=300&fit=crop';
+    if (serviceName.includes('deep clean')) {
+      return 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=300&fit=crop';
+    }
+    if (serviceName.includes('after builder')) {
+      return 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=400&h=300&fit=crop';
+    }
+    return 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=300&fit=crop';
   }
   
-  // Electrician services
-  if (category.includes('electrician')) {
-    if (serviceName.includes('light') || serviceName.includes('fitting')) {
+  // Certificates
+  if (category.includes('certificate')) {
+    if (serviceName.includes('eicr') || serviceName.includes('electrical')) {
+      return 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=400&h=300&fit=crop';
+    }
+    if (serviceName.includes('gas')) {
+      return 'https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=400&h=300&fit=crop';
+    }
+    if (serviceName.includes('fire')) {
+      return 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop';
+    }
+    if (serviceName.includes('pat')) {
       return 'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400&h=300&fit=crop';
     }
-    if (serviceName.includes('eicr') || serviceName.includes('pat')) {
-      return 'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400&h=300&fit=crop';
-    }
-    // General electrician work
-    return 'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400&h=300&fit=crop';
+    return 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=400&h=300&fit=crop';
   }
   
   // Plumbing/Electrician services
-  if (category.includes('plumbing')) {
+  if (category.includes('plumbing') || category.includes('electrician')) {
     return 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=400&h=300&fit=crop';
+  }
+  
+  // Multi Trader / Handyman services
+  if (category.includes('multi trader') || category.includes('handyman')) {
+    return 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=300&fit=crop';
+  }
+  
+  // Carpenter services
+  if (category.includes('carpenter')) {
+    if (serviceName.includes('door')) {
+      return 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop';
+    }
+    if (serviceName.includes('flooring') || serviceName.includes('floor')) {
+      return 'https://images.unsplash.com/photo-1504148455328-c376907d081c?w=400&h=300&fit=crop';
+    }
+    return 'https://images.unsplash.com/photo-1504148455328-c376907d081c?w=400&h=300&fit=crop';
   }
   
   // Painter services
   if (category.includes('painter')) {
-    return 'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=400&h=300&fit=crop';
+    return 'https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=400&h=300&fit=crop';
   }
   
-  // Handyman services
-  if (category.includes('handyman')) {
-    return 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=300&fit=crop';
-  }
-  
-  // Materials category
-  if (type.includes('materials')) {
-    if (serviceName.includes('door')) {
-      return 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop';
-    }
-    if (serviceName.includes('bolt')) {
-      // Hardware/security image for bolt materials
-      return 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop';
-    }
-    if (serviceName.includes('hinge') || serviceName.includes('handle')) {
-      return 'https://images.unsplash.com/photo-1504148455328-c376907d081c?w=400&h=300&fit=crop';
-    }
-    return 'https://images.unsplash.com/photo-1504148455328-c376907d081c?w=400&h=300&fit=crop';
-  }
-  
-  // Default fallback - use a unique image based on service ID hash
+  // Default fallback
   const imageOptions = [
-    'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=400&h=300&fit=crop',
     'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=300&fit=crop',
-    'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop',
-    'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400&h=300&fit=crop',
-    'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=400&h=300&fit=crop',
-    'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=400&h=300&fit=crop',
+    'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=300&fit=crop',
     'https://images.unsplash.com/photo-1504148455328-c376907d081c?w=400&h=300&fit=crop'
   ];
   
-  // Use service ID to consistently select an image
   if (service.id) {
     const hash = service.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     return imageOptions[hash % imageOptions.length];
   }
   
   return imageOptions[0];
+};
+
+/**
+ * Get category color
+ */
+const getCategoryColor = (category) => {
+  const colors = {
+    'Cleaning': { bg: '#ecfdf5', text: '#059669', border: '#a7f3d0' },
+    'Certificates': { bg: '#eff6ff', text: '#2563eb', border: '#bfdbfe' },
+    'Plumbing/Electrician': { bg: '#fef3c7', text: '#d97706', border: '#fcd34d' },
+    'Multi Trader': { bg: '#fce7f3', text: '#db2777', border: '#fbcfe8' },
+    'Carpenter': { bg: '#fed7aa', text: '#c2410c', border: '#fdba74' },
+    'Painter': { bg: '#e0e7ff', text: '#4f46e5', border: '#c7d2fe' }
+  };
+  return colors[category] || { bg: '#f3f4f6', text: '#6b7280', border: '#e5e7eb' };
 };
 
 const B2CBooking = () => {
@@ -338,46 +346,67 @@ const B2CBooking = () => {
     setLoading(true);
     
     try {
-      // Fetch services from Supabase
-      let servicesFromDB = await getServices();
+      // Fetch all services from Supabase
+      const allServices = await getServices();
+      let servicesFromDB = allServices;
       
       // If we have a job description, use AI to match services
       if (jobDescription.trim()) {
         const normalizedQuery = normalizeServiceQuery(jobDescription);
+        console.log('Normalized query:', normalizedQuery, 'from:', jobDescription);
         
         // Try AI matching first
         try {
-          const aiMatched = await matchServicesWithAI(normalizedQuery, servicesFromDB);
+          const aiMatched = await matchServicesWithAI(jobDescription, allServices);
           if (aiMatched && aiMatched.length > 0) {
             servicesFromDB = aiMatched;
+            console.log('AI matched', aiMatched.length, 'services');
+          } else {
+            // AI returned empty, try database search
+            const dbSearch = await searchServices(normalizedQuery);
+            if (dbSearch && dbSearch.length > 0) {
+              servicesFromDB = dbSearch;
+              console.log('DB search found', dbSearch.length, 'services');
+            } else {
+              // No matches found - show all services but with a note
+              console.log('No exact matches, showing all services');
+              servicesFromDB = allServices;
+            }
           }
         } catch (aiError) {
-          console.warn('AI matching failed, using basic search:', aiError);
-          // Fall back to basic search
-          servicesFromDB = await searchServices(normalizedQuery);
+          console.warn('AI matching failed, using database search:', aiError);
+          // Fall back to database search
+          const dbSearch = await searchServices(normalizedQuery);
+          servicesFromDB = dbSearch && dbSearch.length > 0 ? dbSearch : allServices;
         }
       }
       
-      // Transform Supabase services to match the expected format
+      // Transform Supabase services to match the expected format (V2 schema)
       const transformedServices = servicesFromDB.map(service => {
-        // Get price from master_price field (primary) or fallback to other fields
-        const price = service.master_price 
-          ? parseFloat(service.master_price) 
-          : (service.price ? parseFloat(service.price) : (service.hourly_rate ? parseFloat(service.hourly_rate) : 0));
+        // Get price from new schema (price) or fallback to old schema (master_price)
+        const price = service.price 
+          ? parseFloat(service.price) 
+          : (service.master_price ? parseFloat(service.master_price) : 0);
+        
+        // Get service name from new schema (service) or old schema (service_name)
+        const serviceName = service.service || service.service_name || 'Service';
         
         return {
           id: service.id,
-          title: service.service_name || service.title || 'Service',
+          title: serviceName,
           description: service.description || 'Professional service',
           price: price,
-          duration: service.duration || service.estimated_duration || '1-2 hours',
-          unit: service.unit || '',
-          rating: 4.8,
-          reviews: Math.floor(Math.random() * 1000) + 100,
+          priceType: service.price_type || 'fixed', // 'fixed', 'from', 'hourly', 'per_unit'
+          priceUnit: service.price_unit || service.unit || '',
+          idealFor: service.ideal_for || '',
+          notes: service.notes || '',
+          duration: service.duration_estimate || service.duration || '1-2 hours',
+          rating: 4.8 + (Math.random() * 0.2), // 4.8 - 5.0
+          reviews: Math.floor(Math.random() * 500) + 200,
           image: getServiceImage(service),
           category: service.category,
-          type: service.type,
-          originalService: service // Keep original for reference
+          keywords: service.keywords || [],
+          originalService: service
         };
       });
       
@@ -753,166 +782,317 @@ const B2CBooking = () => {
         {/* Step 3: Available Services */}
         {step === 3 && (
           <div>
-            <div style={{ marginBottom: '2rem' }}>
-              <h1 style={{
-                fontSize: '2rem',
-                fontWeight: '700',
-                color: '#2001AF',
-                marginBottom: '0.5rem'
+            {/* Header with search info */}
+            <div style={{ 
+              marginBottom: '2rem',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: '1rem'
               }}>
-                Available services
-              </h1>
-              <p style={{ color: '#6b7280' }}>
-                Based on your location: <strong>{postcode}</strong>
-              </p>
+                <div>
+                  <h1 style={{
+                    fontSize: '2rem',
+                    fontWeight: '700',
+                    color: '#2001AF',
+                    marginBottom: '0.5rem'
+                  }}>
+                    {availableServices.length} services found
+                  </h1>
+                  <p style={{ color: '#6b7280', margin: 0 }}>
+                    {jobDescription && (
+                      <>Searching for "<strong>{jobDescription}</strong>" in </>
+                    )}
+                    <strong>{postcode}</strong>
+                  </p>
+                </div>
+                
+                {/* Trust badges */}
+                <div style={{
+                  display: 'flex',
+                  gap: '1rem',
+                  flexWrap: 'wrap'
+                }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    padding: '0.5rem 1rem',
+                    backgroundColor: '#ecfdf5',
+                    borderRadius: '2rem',
+                    fontSize: '0.875rem',
+                    color: '#059669',
+                    fontWeight: '500'
+                  }}>
+                    <Shield size={16} />
+                    Fully Insured
+                  </div>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    padding: '0.5rem 1rem',
+                    backgroundColor: '#fef3c7',
+                    borderRadius: '2rem',
+                    fontSize: '0.875rem',
+                    color: '#d97706',
+                    fontWeight: '500'
+                  }}>
+                    <CheckCircle size={16} />
+                    Vetted Pros
+                  </div>
+                </div>
+              </div>
             </div>
 
+            {/* Services Grid */}
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
               gap: '1.5rem'
             }}>
-              {availableServices.map((service) => (
-                <div
-                  key={service.id}
-                  onClick={() => handleServiceSelect(service)}
-                  style={{
-                    backgroundColor: 'white',
-                    borderRadius: '1rem',
-                    overflow: 'hidden',
-                    boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease'
-                  }}
-                  onMouseOver={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-5px)';
-                    e.currentTarget.style.boxShadow = '0 10px 20px rgba(0,0,0,0.15)';
-                  }}
-                  onMouseOut={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
-                  }}
-                >
-                  <div style={{
-                    width: '100%',
-                    height: '200px',
-                    backgroundColor: '#f3f4f6',
-                    overflow: 'hidden'
-                  }}>
-                    <img
-                      src={service.image}
-                      alt={service.title}
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover'
-                      }}
-                    />
-                  </div>
-                  <div style={{ padding: '1.5rem' }}>
+              {availableServices.map((service) => {
+                const categoryColors = getCategoryColor(service.category);
+                
+                return (
+                  <div
+                    key={service.id}
+                    onClick={() => handleServiceSelect(service)}
+                    style={{
+                      backgroundColor: 'white',
+                      borderRadius: '1rem',
+                      overflow: 'hidden',
+                      boxShadow: '0 4px 6px rgba(0,0,0,0.07)',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease',
+                      border: '1px solid #e5e7eb'
+                    }}
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-5px)';
+                      e.currentTarget.style.boxShadow = '0 20px 40px rgba(32, 1, 175, 0.15)';
+                      e.currentTarget.style.borderColor = '#2001AF';
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.07)';
+                      e.currentTarget.style.borderColor = '#e5e7eb';
+                    }}
+                  >
+                    {/* Image with category badge */}
                     <div style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'start',
-                      marginBottom: '0.5rem'
+                      width: '100%',
+                      height: '180px',
+                      backgroundColor: '#f3f4f6',
+                      overflow: 'hidden',
+                      position: 'relative'
                     }}>
+                      <img
+                        src={service.image}
+                        alt={service.title}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover'
+                        }}
+                      />
+                      {/* Category Badge */}
+                      <div style={{
+                        position: 'absolute',
+                        top: '0.75rem',
+                        left: '0.75rem',
+                        padding: '0.35rem 0.75rem',
+                        backgroundColor: categoryColors.bg,
+                        color: categoryColors.text,
+                        borderRadius: '2rem',
+                        fontSize: '0.75rem',
+                        fontWeight: '600',
+                        border: `1px solid ${categoryColors.border}`
+                      }}>
+                        {service.category}
+                      </div>
+                      {/* Price Badge */}
+                      <div style={{
+                        position: 'absolute',
+                        bottom: '0.75rem',
+                        right: '0.75rem',
+                        padding: '0.5rem 1rem',
+                        backgroundColor: 'white',
+                        color: '#2001AF',
+                        borderRadius: '0.5rem',
+                        fontSize: '1.125rem',
+                        fontWeight: '700',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+                      }}>
+                        {service.priceType === 'from' && <span style={{ fontSize: '0.75rem', fontWeight: '400' }}>From </span>}
+                        £{typeof service.price === 'number' ? service.price.toFixed(2) : parseFloat(service.price || 0).toFixed(2)}
+                      </div>
+                    </div>
+
+                    {/* Content */}
+                    <div style={{ padding: '1.25rem' }}>
+                      {/* Title */}
                       <h3 style={{
-                        fontSize: '1.25rem',
+                        fontSize: '1.125rem',
                         fontWeight: '700',
                         color: '#111827',
-                        margin: 0
+                        margin: '0 0 0.5rem 0',
+                        lineHeight: '1.3'
                       }}>
                         {service.title}
                       </h3>
-                      <div style={{
-                        fontSize: '1.5rem',
-                        fontWeight: '700',
-                        color: '#2001AF'
+
+                      {/* Description */}
+                      <p style={{
+                        color: '#6b7280',
+                        fontSize: '0.875rem',
+                        lineHeight: '1.5',
+                        marginBottom: '0.75rem',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden'
                       }}>
-                        £{typeof service.price === 'number' ? service.price.toFixed(2) : parseFloat(service.price || 0).toFixed(2)}
-                        {service.unit && (
+                        {service.description}
+                      </p>
+
+                      {/* Ideal For */}
+                      {service.idealFor && (
+                        <p style={{
+                          color: '#059669',
+                          fontSize: '0.8rem',
+                          marginBottom: '0.75rem',
+                          fontStyle: 'italic'
+                        }}>
+                          ✓ Ideal for: {service.idealFor}
+                        </p>
+                      )}
+
+                      {/* Notes */}
+                      {service.notes && (
+                        <p style={{
+                          color: '#9ca3af',
+                          fontSize: '0.75rem',
+                          marginBottom: '0.75rem',
+                          padding: '0.5rem',
+                          backgroundColor: '#f9fafb',
+                          borderRadius: '0.25rem'
+                        }}>
+                          ℹ️ {service.notes}
+                        </p>
+                      )}
+
+                      {/* Stats row */}
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        paddingTop: '0.75rem',
+                        borderTop: '1px solid #f3f4f6',
+                        marginBottom: '1rem'
+                      }}>
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.25rem'
+                        }}>
+                          <Star size={14} style={{ color: '#fbbf24', fill: '#fbbf24' }} />
                           <span style={{
-                            fontSize: '0.875rem',
-                            fontWeight: '400',
-                            color: '#6b7280',
-                            marginLeft: '0.25rem'
+                            color: '#111827',
+                            fontWeight: '600',
+                            fontSize: '0.875rem'
                           }}>
-                            / {service.unit}
+                            {service.rating.toFixed(1)}
+                          </span>
+                          <span style={{
+                            color: '#9ca3af',
+                            fontSize: '0.8rem'
+                          }}>
+                            ({service.reviews} reviews)
+                          </span>
+                        </div>
+                        {service.priceUnit && (
+                          <span style={{
+                            color: '#6b7280',
+                            fontSize: '0.8rem',
+                            fontWeight: '500'
+                          }}>
+                            {service.priceUnit}
                           </span>
                         )}
                       </div>
-                    </div>
 
-                    <p style={{
-                      color: '#6b7280',
-                      fontSize: '0.95rem',
-                      lineHeight: '1.6',
-                      marginBottom: '1rem'
-                    }}>
-                      {service.description}
-                    </p>
-
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '1rem',
-                      marginBottom: '1rem',
-                      flexWrap: 'wrap'
-                    }}>
-                      <div style={{
+                      {/* CTA Button */}
+                      <button style={{
+                        width: '100%',
+                        backgroundColor: '#2001AF',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '0.5rem',
+                        padding: '0.875rem',
+                        fontSize: '0.95rem',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '0.25rem',
-                        color: '#fbbf24'
-                      }}>
-                        <Star size={16} style={{ fill: 'currentColor' }} />
-                        <span style={{
-                          color: '#111827',
-                          fontWeight: '600',
-                          fontSize: '0.875rem'
-                        }}>
-                          {service.rating}
-                        </span>
-                        <span style={{
-                          color: '#6b7280',
-                          fontSize: '0.875rem'
-                        }}>
-                          ({service.reviews})
-                        </span>
-                      </div>
-                      <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.5rem',
-                        color: '#6b7280',
-                        fontSize: '0.875rem'
-                      }}>
-                        <Clock size={16} />
-                        {service.duration}
-                      </div>
+                        justifyContent: 'center',
+                        gap: '0.5rem'
+                      }}
+                      onMouseOver={(e) => {
+                        e.target.style.backgroundColor = '#1a0199';
+                        e.target.style.transform = 'scale(1.02)';
+                      }}
+                      onMouseOut={(e) => {
+                        e.target.style.backgroundColor = '#2001AF';
+                        e.target.style.transform = 'scale(1)';
+                      }}
+                      >
+                        Book Now
+                        <ArrowLeft size={16} style={{ transform: 'rotate(180deg)' }} />
+                      </button>
                     </div>
-
-                    <button style={{
-                      width: '100%',
-                      backgroundColor: '#2001AF',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '0.5rem',
-                      padding: '0.75rem',
-                      fontSize: '1rem',
-                      fontWeight: '600',
-                      cursor: 'pointer',
-                      transition: 'all 0.3s ease'
-                    }}
-                    onMouseOver={(e) => e.target.style.backgroundColor = '#1a0199'}
-                    onMouseOut={(e) => e.target.style.backgroundColor = '#2001AF'}
-                    >
-                      Select this service
-                    </button>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
+
+            {/* No results message */}
+            {availableServices.length === 0 && (
+              <div style={{
+                textAlign: 'center',
+                padding: '4rem 2rem',
+                backgroundColor: 'white',
+                borderRadius: '1rem',
+                boxShadow: '0 4px 6px rgba(0,0,0,0.05)'
+              }}>
+                <Search size={48} style={{ color: '#9ca3af', marginBottom: '1rem' }} />
+                <h3 style={{ color: '#374151', marginBottom: '0.5rem' }}>No services found</h3>
+                <p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
+                  Try searching with different keywords or browse our categories
+                </p>
+                <button
+                  onClick={() => setStep(1)}
+                  style={{
+                    backgroundColor: '#2001AF',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '0.5rem',
+                    padding: '0.75rem 1.5rem',
+                    fontSize: '1rem',
+                    fontWeight: '600',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Try Again
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

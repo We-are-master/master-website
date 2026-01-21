@@ -2,6 +2,8 @@ import React from 'react'
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
 import HeaderB2B from './components/HeaderB2B'
 import HeaderB2C from './components/b2c/HeaderB2C'
+import FooterB2C from './components/b2c/FooterB2C'
+import CookieConsent from './components/CookieConsent'
 import Hero from './components/Hero'
 import Services from './components/Services'
 import Features from './components/Features'
@@ -22,12 +24,16 @@ import B2CHome from './pages/B2CHome'
 import B2CBooking from './pages/B2CBooking'
 import B2CCheckout from './pages/B2CCheckout'
 import B2CCleaningBooking from './pages/B2CCleaningBooking'
+import B2CLogin from './pages/B2CLogin'
+import B2CMyOrders from './pages/B2CMyOrders'
+import CheckoutSuccess from './pages/CheckoutSuccess'
 
 function AppContent() {
   const location = useLocation();
   // B2C is now the default homepage
-  // B2B routes: /b2b, /dashboard, /login, /forgot-password, /new-request, /request/*, /my-requests, /settings, /contact, /about
-  const b2bRoutes = ['/b2b', '/dashboard', '/login', '/forgot-password', '/new-request', '/my-requests', '/settings', '/contact', '/about'];
+  // B2B routes: /b2b, /dashboard, /login, /forgot-password, /new-request, /request/*, /my-requests, /settings
+  // Note: /about and /contact now use B2C layout (same as home)
+  const b2bRoutes = ['/b2b', '/dashboard', '/login', '/forgot-password', '/new-request', '/my-requests', '/settings'];
   const isB2BRoute = b2bRoutes.some(route => location.pathname === route) || 
                      location.pathname.startsWith('/request/');
   const isB2C = !isB2BRoute;
@@ -45,6 +51,10 @@ function AppContent() {
         <Route path="/b2c/cleaning-booking" element={<B2CCleaningBooking />} />
         <Route path="/checkout" element={<B2CCheckout />} />
         <Route path="/b2c/checkout" element={<B2CCheckout />} />
+        <Route path="/checkout-success" element={<CheckoutSuccess />} />
+        <Route path="/b2c/checkout-success" element={<CheckoutSuccess />} />
+        <Route path="/customer-login" element={<B2CLogin />} />
+        <Route path="/my-orders" element={<B2CMyOrders />} />
         
         {/* B2B Routes - Moved to /b2b path */}
         <Route path="/b2b" element={
@@ -67,7 +77,8 @@ function AppContent() {
         <Route path="/my-requests" element={<MyRequests />} />
         <Route path="/settings" element={<Settings />} />
       </Routes>
-      {!isB2C && <Footer />}
+      {isB2C ? <FooterB2C /> : <Footer />}
+      <CookieConsent />
     </div>
   );
 }
