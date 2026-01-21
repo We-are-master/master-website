@@ -340,7 +340,11 @@ const B2CCheckout = () => {
       }, 100);
     } catch (err) {
       console.error('Error creating payment intent:', err);
-      setPaymentError('Failed to initialize payment. Please try again.');
+      // Show more detailed error in development
+      const errorMessage = import.meta.env.DEV 
+        ? `Failed to initialize payment: ${err.message}` 
+        : 'Failed to initialize payment. Please try again.';
+      setPaymentError(errorMessage);
     } finally {
       setCreatingPaymentIntent(false);
     }
