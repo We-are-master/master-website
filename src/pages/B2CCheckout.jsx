@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, CheckCircle, Shield, Loader2, AlertCircle, Clock, Upload, X, Image, Plus, Minus } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Shield, Loader2, AlertCircle, Clock, Upload, X, Image, Plus, Minus, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { getStripe, createPaymentIntentViaSupabase } from '../lib/stripe';
 
@@ -124,6 +124,7 @@ const B2CCheckout = () => {
   const [paymentError, setPaymentError] = useState(null);
   const [creatingPaymentIntent, setCreatingPaymentIntent] = useState(false);
   const fileInputRef = useRef(null);
+  const paymentSectionRef = useRef(null);
   
   // Customer details form
   const [customerDetails, setCustomerDetails] = useState({
@@ -145,10 +146,110 @@ const B2CCheckout = () => {
   const [uploadedPhotos, setUploadedPhotos] = useState([]);
   const [uploading, setUploading] = useState(false);
 
+  // Date and time slot state
+  const [selectedDates, setSelectedDates] = useState([]);
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState(null);
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+
   // Check if service is hourly
   const isHourlyService = service?.priceType === 'hourly' || 
     service?.priceUnit?.toLowerCase().includes('hour') ||
     service?.title?.toLowerCase().includes('hourly');
+
+  // Time slots configuration
+  const timeSlots = [
+    { id: 'morning-early', label: '8:00 - 10:00', period: 'Morning' },
+    { id: 'morning-late', label: '10:00 - 12:00', period: 'Morning' },
+    { id: 'afternoon-early', label: '12:00 - 14:00', period: 'Afternoon' },
+    { id: 'afternoon-late', label: '14:00 - 16:00', period: 'Afternoon' },
+    { id: 'evening-early', label: '16:00 - 18:00', period: 'Evening' },
+    { id: 'evening-late', label: '18:00 - 20:00', period: 'Evening' },
+  ];
+
+  // Calendar helper functions
+  const getDaysInMonth = (date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startingDay = firstDay.getDay();
+    return { daysInMonth, startingDay };
+  };
+
+  const isDateDisabled = (date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const checkDate = new Date(date);
+    checkDate.setHours(0, 0, 0, 0);
+    // Disable past dates and today (need at least 1 day notice)
+    return checkDate <= today;
+  };
+
+  const formatDate = (date) => {
+    if (!date) return '';
+    return date.toLocaleDateString('en-GB', { 
+      weekday: 'long', 
+      day: 'numeric', 
+      month: 'long', 
+      year: 'numeric' 
+    });
+  };
+
+  const formatDateShort = (date) => {
+    if (!date) return '';
+    return date.toLocaleDateString('en-GB', { 
+      weekday: 'short', 
+      day: 'numeric', 
+      month: 'short'
+    });
+  };
+
+  const isSameDay = (date1, date2) => {
+    if (!date1 || !date2) return false;
+    return date1.getDate() === date2.getDate() &&
+           date1.getMonth() === date2.getMonth() &&
+           date1.getFullYear() === date2.getFullYear();
+  };
+
+  const isDateSelected = (date) => {
+    return selectedDates.some(d => isSameDay(d, date));
+  };
+
+  const navigateMonth = (direction) => {
+    setCurrentMonth(prev => {
+      const newMonth = new Date(prev);
+      newMonth.setMonth(prev.getMonth() + direction);
+      return newMonth;
+    });
+  };
+
+  const handleDateSelect = (day) => {
+    const newDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
+    if (!isDateDisabled(newDate)) {
+      setSelectedDates(prev => {
+        const alreadySelected = prev.some(d => isSameDay(d, newDate));
+        if (alreadySelected) {
+          // Remove date if already selected
+          return prev.filter(d => !isSameDay(d, newDate));
+        } else {
+          // Add date (max 5 dates)
+          if (prev.length >= 5) {
+            return prev;
+          }
+          // Sort dates chronologically
+          return [...prev, newDate].sort((a, b) => a - b);
+        }
+      });
+      if (formErrors.date) {
+        setFormErrors(prev => ({ ...prev, date: '' }));
+      }
+    }
+  };
+
+  const removeSelectedDate = (dateToRemove) => {
+    setSelectedDates(prev => prev.filter(d => !isSameDay(d, dateToRemove)));
+  };
 
   // Calculate total price for hourly services
   const totalPrice = isHourlyService 
@@ -204,6 +305,8 @@ const B2CCheckout = () => {
           customer_name: customerDetails?.fullName || '',
           customer_email: customerDetails?.email || '',
           customer_phone: customerDetails?.phone || '',
+          scheduled_dates: selectedDates.map(d => d.toISOString().split('T')[0]).join(', '),
+          scheduled_time_slot: selectedTimeSlot || '',
         },
         // Pre-create booking record in database
         booking_data: {
@@ -222,10 +325,19 @@ const B2CCheckout = () => {
           bedrooms: null,
           bathrooms: null,
           cleaning_addons: [],
+          scheduled_dates: selectedDates.map(d => d.toISOString().split('T')[0]),
+          scheduled_time_slot: selectedTimeSlot || null,
         }
       });
 
       setClientSecret(paymentData.clientSecret);
+      
+      // Scroll to payment section after payment intent is created
+      setTimeout(() => {
+        if (paymentSectionRef.current) {
+          paymentSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
     } catch (err) {
       console.error('Error creating payment intent:', err);
       setPaymentError('Failed to initialize payment. Please try again.');
@@ -338,6 +450,15 @@ const B2CCheckout = () => {
     if (isHourlyService && !hourlyJobDescription.trim()) {
       errors.hourlyJobDescription = 'Please describe the work you need done';
     }
+
+    // Require at least 2 dates
+    if (selectedDates.length < 2) {
+      errors.date = 'Please select at least 2 preferred dates';
+    }
+    
+    if (!selectedTimeSlot) {
+      errors.timeSlot = 'Please select a time slot';
+    }
     
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
@@ -354,6 +475,8 @@ const B2CCheckout = () => {
 
   const handlePaymentSuccess = (paymentIntent) => {
     setPaymentSuccess(true);
+    // Scroll to top to show success message
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     // Redirect to success page after a short delay
     setTimeout(() => {
       navigate('/checkout-success', {
@@ -362,7 +485,10 @@ const B2CCheckout = () => {
           postcode,
           jobDescription,
           customerDetails,
-          paymentIntentId: paymentIntent.id
+          paymentIntentId: paymentIntent.id,
+          scheduledDates: selectedDates.map(d => d.toISOString()),
+          scheduledTimeSlot: selectedTimeSlot,
+          timeSlotLabel: timeSlots.find(s => s.id === selectedTimeSlot)?.label
         }
       });
     }, 2000);
@@ -375,6 +501,8 @@ const B2CCheckout = () => {
            customerDetails.addressLine1 && 
            customerDetails.city && 
            customerDetails.postcode &&
+           selectedDates.length >= 2 &&
+           selectedTimeSlot &&
            agreedToTerms &&
            (!isHourlyService || (agreedToHourlyTerms && hourlyJobDescription.trim()));
   };
@@ -1158,6 +1286,381 @@ const B2CCheckout = () => {
               </div>
             </div>
 
+            {/* Date & Time Selection */}
+            <div style={{
+              backgroundColor: 'white',
+              borderRadius: '1rem',
+              padding: '2rem',
+              boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+              marginBottom: '1.5rem',
+              border: '1px solid #e5e7eb'
+            }}>
+              <h3 style={{
+                fontSize: '1.25rem',
+                fontWeight: '700',
+                color: '#111827',
+                marginBottom: '1.5rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}>
+                <Calendar size={24} style={{ color: '#E94A02' }} />
+                Select Date & Time
+              </h3>
+
+              {/* Calendar */}
+              <div style={{ marginBottom: '1.5rem' }}>
+                <label style={{
+                  display: 'block',
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  color: '#374151',
+                  marginBottom: '0.5rem'
+                }}>
+                  Preferred Dates * <span style={{ fontWeight: '400', color: '#6b7280' }}>(select at least 2)</span>
+                </label>
+                <p style={{
+                  fontSize: '0.8rem',
+                  color: '#6b7280',
+                  marginBottom: '0.75rem'
+                }}>
+                  Please select 2-5 dates that work for you. We'll confirm the best available date.
+                </p>
+                
+                <div style={{
+                  border: `2px solid ${formErrors.date ? '#ef4444' : '#e5e7eb'}`,
+                  borderRadius: '0.75rem',
+                  overflow: 'hidden'
+                }}>
+                  {/* Calendar Header */}
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '1rem',
+                    backgroundColor: '#020034',
+                    color: 'white'
+                  }}>
+                    <button
+                      type="button"
+                      onClick={() => navigateMonth(-1)}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: 'white',
+                        cursor: 'pointer',
+                        padding: '0.5rem',
+                        borderRadius: '0.25rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                      onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.1)'}
+                      onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                    >
+                      <ChevronLeft size={20} />
+                    </button>
+                    <span style={{ fontWeight: '600', fontSize: '1rem' }}>
+                      {currentMonth.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => navigateMonth(1)}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: 'white',
+                        cursor: 'pointer',
+                        padding: '0.5rem',
+                        borderRadius: '0.25rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                      onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.1)'}
+                      onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                    >
+                      <ChevronRight size={20} />
+                    </button>
+                  </div>
+
+                  {/* Day Labels */}
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(7, 1fr)',
+                    backgroundColor: '#f9fafb',
+                    borderBottom: '1px solid #e5e7eb'
+                  }}>
+                    {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+                      <div key={day} style={{
+                        padding: '0.75rem',
+                        textAlign: 'center',
+                        fontSize: '0.75rem',
+                        fontWeight: '600',
+                        color: '#6b7280'
+                      }}>
+                        {day}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Calendar Grid */}
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(7, 1fr)',
+                    padding: '0.5rem'
+                  }}>
+                    {(() => {
+                      const { daysInMonth, startingDay } = getDaysInMonth(currentMonth);
+                      const days = [];
+                      
+                      // Empty cells for days before the first of the month
+                      for (let i = 0; i < startingDay; i++) {
+                        days.push(<div key={`empty-${i}`} style={{ padding: '0.5rem' }} />);
+                      }
+                      
+                      // Days of the month
+                      for (let day = 1; day <= daysInMonth; day++) {
+                        const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
+                        const disabled = isDateDisabled(date);
+                        const isSelected = isDateSelected(date);
+                        const canSelectMore = selectedDates.length < 5;
+                        
+                        days.push(
+                          <button
+                            key={day}
+                            type="button"
+                            onClick={() => handleDateSelect(day)}
+                            disabled={disabled || (!isSelected && !canSelectMore)}
+                            style={{
+                              padding: '0.75rem',
+                              textAlign: 'center',
+                              border: isSelected ? '2px solid #E94A02' : 'none',
+                              borderRadius: '0.5rem',
+                              cursor: disabled || (!isSelected && !canSelectMore) ? 'not-allowed' : 'pointer',
+                              backgroundColor: isSelected ? '#E94A02' : disabled ? '#f3f4f6' : 'transparent',
+                              color: isSelected ? 'white' : disabled ? '#d1d5db' : '#374151',
+                              fontWeight: isSelected ? '600' : '400',
+                              transition: 'all 0.2s ease',
+                              fontSize: '0.875rem',
+                              position: 'relative'
+                            }}
+                            onMouseEnter={(e) => {
+                              if (!disabled && !isSelected && canSelectMore) {
+                                e.target.style.backgroundColor = '#f0f4ff';
+                                e.target.style.color = '#2001AF';
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              if (!disabled && !isSelected) {
+                                e.target.style.backgroundColor = 'transparent';
+                                e.target.style.color = '#374151';
+                              }
+                            }}
+                          >
+                            {day}
+                          </button>
+                        );
+                      }
+                      
+                      return days;
+                    })()}
+                  </div>
+                </div>
+
+                {formErrors.date && (
+                  <p style={{ color: '#ef4444', fontSize: '0.8rem', marginTop: '0.5rem' }}>{formErrors.date}</p>
+                )}
+
+                {/* Selected Dates Display */}
+                {selectedDates.length > 0 && (
+                  <div style={{
+                    marginTop: '0.75rem',
+                    padding: '1rem',
+                    backgroundColor: selectedDates.length >= 2 ? '#f0fdf4' : '#fef3c7',
+                    borderRadius: '0.5rem',
+                    border: `1px solid ${selectedDates.length >= 2 ? '#bbf7d0' : '#fcd34d'}`
+                  }}>
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      marginBottom: '0.75rem'
+                    }}>
+                      <span style={{ 
+                        color: selectedDates.length >= 2 ? '#166534' : '#92400e', 
+                        fontSize: '0.85rem', 
+                        fontWeight: '600',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem'
+                      }}>
+                        {selectedDates.length >= 2 ? (
+                          <CheckCircle size={16} style={{ color: '#10b981' }} />
+                        ) : (
+                          <AlertCircle size={16} style={{ color: '#f59e0b' }} />
+                        )}
+                        {selectedDates.length} date{selectedDates.length !== 1 ? 's' : ''} selected
+                        {selectedDates.length < 2 && ' (select at least 2)'}
+                      </span>
+                      <span style={{ 
+                        color: '#6b7280', 
+                        fontSize: '0.75rem' 
+                      }}>
+                        {5 - selectedDates.length} remaining
+                      </span>
+                    </div>
+                    <div style={{
+                      display: 'flex',
+                      flexWrap: 'wrap',
+                      gap: '0.5rem'
+                    }}>
+                      {selectedDates.map((date, index) => (
+                        <div
+                          key={index}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            backgroundColor: 'white',
+                            border: '1px solid #e5e7eb',
+                            borderRadius: '0.5rem',
+                            padding: '0.5rem 0.75rem',
+                            fontSize: '0.85rem'
+                          }}
+                        >
+                          <Calendar size={14} style={{ color: '#E94A02' }} />
+                          <span style={{ color: '#374151', fontWeight: '500' }}>
+                            {formatDateShort(date)}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => removeSelectedDate(date)}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              padding: '0.125rem',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              color: '#9ca3af',
+                              borderRadius: '50%',
+                              transition: 'all 0.2s ease'
+                            }}
+                            onMouseEnter={(e) => {
+                              e.target.style.color = '#ef4444';
+                              e.target.style.backgroundColor = '#fee2e2';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.target.style.color = '#9ca3af';
+                              e.target.style.backgroundColor = 'transparent';
+                            }}
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Time Slots */}
+              <div>
+                <label style={{
+                  display: 'block',
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  color: '#374151',
+                  marginBottom: '0.75rem'
+                }}>
+                  Preferred Time Slot *
+                </label>
+
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(2, 1fr)',
+                  gap: '0.75rem'
+                }}>
+                  {timeSlots.map(slot => (
+                    <button
+                      key={slot.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedTimeSlot(slot.id);
+                        if (formErrors.timeSlot) {
+                          setFormErrors(prev => ({ ...prev, timeSlot: '' }));
+                        }
+                      }}
+                      style={{
+                        padding: '1rem',
+                        border: `2px solid ${selectedTimeSlot === slot.id ? '#E94A02' : '#e5e7eb'}`,
+                        borderRadius: '0.75rem',
+                        backgroundColor: selectedTimeSlot === slot.id ? '#fff5f0' : 'white',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        transition: 'all 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        if (selectedTimeSlot !== slot.id) {
+                          e.currentTarget.style.borderColor = '#E94A02';
+                          e.currentTarget.style.backgroundColor = '#fef7f5';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (selectedTimeSlot !== slot.id) {
+                          e.currentTarget.style.borderColor = '#e5e7eb';
+                          e.currentTarget.style.backgroundColor = 'white';
+                        }
+                      }}
+                    >
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between'
+                      }}>
+                        <div>
+                          <div style={{
+                            fontSize: '0.7rem',
+                            color: selectedTimeSlot === slot.id ? '#E94A02' : '#9ca3af',
+                            fontWeight: '500',
+                            marginBottom: '0.25rem',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.05em'
+                          }}>
+                            {slot.period}
+                          </div>
+                          <div style={{
+                            fontSize: '1rem',
+                            fontWeight: '600',
+                            color: selectedTimeSlot === slot.id ? '#E94A02' : '#374151'
+                          }}>
+                            {slot.label}
+                          </div>
+                        </div>
+                        {selectedTimeSlot === slot.id && (
+                          <CheckCircle size={20} style={{ color: '#E94A02' }} />
+                        )}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+
+                {formErrors.timeSlot && (
+                  <p style={{ color: '#ef4444', fontSize: '0.8rem', marginTop: '0.5rem' }}>{formErrors.timeSlot}</p>
+                )}
+
+                <p style={{
+                  fontSize: '0.8rem',
+                  color: '#6b7280',
+                  marginTop: '0.75rem'
+                }}>
+                  Our professional will arrive within the selected time window. We'll confirm the exact time via email.
+                </p>
+              </div>
+            </div>
+
             {/* Terms & Conditions */}
             <div style={{
               backgroundColor: 'white',
@@ -1294,7 +1797,7 @@ const B2CCheckout = () => {
           </div>
 
           {/* Right: Booking Summary */}
-          <div>
+          <div ref={paymentSectionRef}>
             <div style={{
               backgroundColor: 'white',
               borderRadius: '1rem',
@@ -1385,6 +1888,57 @@ const B2CCheckout = () => {
                   </div>
                 )}
               </div>
+
+              {/* Date & Time Summary */}
+              {(selectedDates.length > 0 || selectedTimeSlot) && (
+                <div style={{
+                  backgroundColor: selectedDates.length >= 2 ? '#f0fdf4' : '#fef3c7',
+                  borderRadius: '0.5rem',
+                  padding: '0.75rem',
+                  marginBottom: '1rem',
+                  border: `1px solid ${selectedDates.length >= 2 ? '#bbf7d0' : '#fcd34d'}`
+                }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    marginBottom: '0.5rem'
+                  }}>
+                    <Calendar size={16} style={{ color: selectedDates.length >= 2 ? '#16a34a' : '#d97706' }} />
+                    <span style={{ fontWeight: '600', color: selectedDates.length >= 2 ? '#166534' : '#92400e', fontSize: '0.85rem' }}>
+                      Preferred Dates ({selectedDates.length})
+                    </span>
+                  </div>
+                  {selectedDates.length > 0 && (
+                    <div style={{ marginBottom: selectedTimeSlot ? '0.5rem' : 0 }}>
+                      {selectedDates.slice(0, 3).map((date, index) => (
+                        <p key={index} style={{ color: selectedDates.length >= 2 ? '#166534' : '#92400e', fontSize: '0.8rem', margin: '0 0 0.25rem 0' }}>
+                          • {date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })}
+                        </p>
+                      ))}
+                      {selectedDates.length > 3 && (
+                        <p style={{ color: '#6b7280', fontSize: '0.75rem', margin: 0, fontStyle: 'italic' }}>
+                          +{selectedDates.length - 3} more date{selectedDates.length - 3 > 1 ? 's' : ''}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                  {selectedTimeSlot && (
+                    <div style={{
+                      paddingTop: '0.5rem',
+                      borderTop: '1px solid rgba(0,0,0,0.1)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem'
+                    }}>
+                      <Clock size={14} style={{ color: selectedDates.length >= 2 ? '#16a34a' : '#d97706' }} />
+                      <span style={{ color: selectedDates.length >= 2 ? '#15803d' : '#b45309', fontSize: '0.8rem' }}>
+                        {timeSlots.find(s => s.id === selectedTimeSlot)?.label}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Customer Summary (shows when filled) */}
               {customerDetails.fullName && (

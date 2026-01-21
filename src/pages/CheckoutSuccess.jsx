@@ -19,6 +19,9 @@ const CheckoutSuccess = () => {
         jobDescription: stateData.jobDescription,
         customerDetails: stateData.customerDetails,
         paymentIntentId: stateData.paymentIntentId,
+        scheduledDates: stateData.scheduledDates,
+        scheduledTimeSlot: stateData.scheduledTimeSlot,
+        timeSlotLabel: stateData.timeSlotLabel,
       });
     } else {
       // If no state, try to get payment_intent from URL (Stripe redirect)
@@ -194,6 +197,95 @@ const CheckoutSuccess = () => {
                   }}>
                     {bookingDetails.jobDescription}
                   </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Scheduled Dates & Time */}
+          {bookingDetails?.scheduledDates && bookingDetails.scheduledDates.length > 0 && (
+            <div style={{
+              backgroundColor: '#f0fdf4',
+              borderRadius: '0.75rem',
+              padding: '1.5rem',
+              marginBottom: '1.5rem',
+              border: '1px solid #bbf7d0'
+            }}>
+              <h3 style={{
+                fontSize: '1rem',
+                fontWeight: '600',
+                color: '#166534',
+                marginBottom: '1rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}>
+                <Calendar size={18} />
+                Your Preferred Dates
+              </h3>
+              
+              <p style={{
+                fontSize: '0.8rem',
+                color: '#6b7280',
+                marginBottom: '1rem'
+              }}>
+                We'll confirm the final date from your options below:
+              </p>
+              
+              <div style={{ display: 'grid', gap: '0.5rem', marginBottom: '1rem' }}>
+                {bookingDetails.scheduledDates.map((dateStr, index) => (
+                  <div key={index} style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.75rem'
+                  }}>
+                    <div style={{
+                      width: '28px',
+                      height: '28px',
+                      backgroundColor: '#dcfce7',
+                      borderRadius: '0.5rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '0.75rem',
+                      fontWeight: '600',
+                      color: '#16a34a'
+                    }}>
+                      {index + 1}
+                    </div>
+                    <span style={{ color: '#166534', fontSize: '0.9rem', fontWeight: '500' }}>
+                      {new Date(dateStr).toLocaleDateString('en-GB', { 
+                        weekday: 'long', 
+                        day: 'numeric', 
+                        month: 'long'
+                      })}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              {bookingDetails.timeSlotLabel && (
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem',
+                  paddingTop: '1rem',
+                  borderTop: '1px solid #bbf7d0'
+                }}>
+                  <div style={{
+                    width: '28px',
+                    height: '28px',
+                    backgroundColor: '#dcfce7',
+                    borderRadius: '0.5rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    <Clock size={14} style={{ color: '#16a34a' }} />
+                  </div>
+                  <span style={{ color: '#166534', fontSize: '0.9rem', fontWeight: '500' }}>
+                    Time: {bookingDetails.timeSlotLabel}
+                  </span>
                 </div>
               )}
             </div>
