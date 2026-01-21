@@ -20,8 +20,8 @@ const CheckoutSuccess = () => {
         customerDetails: stateData.customerDetails,
         paymentIntentId: stateData.paymentIntentId,
         scheduledDates: stateData.scheduledDates,
-        scheduledTimeSlot: stateData.scheduledTimeSlot,
-        timeSlotLabel: stateData.timeSlotLabel,
+        scheduledTimeSlots: stateData.scheduledTimeSlots,
+        timeSlotLabels: stateData.timeSlotLabels,
       });
     } else {
       // If no state, try to get payment_intent from URL (Stripe redirect)
@@ -264,28 +264,34 @@ const CheckoutSuccess = () => {
                 ))}
               </div>
 
-              {bookingDetails.timeSlotLabel && (
+              {bookingDetails.timeSlotLabels && bookingDetails.timeSlotLabels.length > 0 && (
                 <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.75rem',
                   paddingTop: '1rem',
                   borderTop: '1px solid #bbf7d0'
                 }}>
                   <div style={{
-                    width: '28px',
-                    height: '28px',
-                    backgroundColor: '#dcfce7',
-                    borderRadius: '0.5rem',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center'
+                    gap: '0.5rem',
+                    marginBottom: '0.5rem'
                   }}>
-                    <Clock size={14} style={{ color: '#16a34a' }} />
+                    <Clock size={16} style={{ color: '#16a34a' }} />
+                    <span style={{ fontWeight: '600', color: '#166534', fontSize: '0.9rem' }}>
+                      Preferred Time Slots
+                    </span>
                   </div>
-                  <span style={{ color: '#166534', fontSize: '0.9rem', fontWeight: '500' }}>
-                    Time: {bookingDetails.timeSlotLabel}
-                  </span>
+                  {bookingDetails.timeSlotLabels.map((label, index) => (
+                    <div key={index} style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      marginBottom: '0.25rem'
+                    }}>
+                      <span style={{ color: '#166534', fontSize: '0.85rem' }}>
+                        • {label}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>

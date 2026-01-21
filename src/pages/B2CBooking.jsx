@@ -884,23 +884,24 @@ const B2CBooking = () => {
                       e.currentTarget.style.borderColor = '#e5e7eb';
                     }}
                   >
-                    {/* Image with category badge */}
+                    {/* Header with category badge and price - No image */}
                     <div style={{
                       width: '100%',
-                      height: '180px',
-                      backgroundColor: '#f3f4f6',
+                      height: '100px',
+                      background: 'linear-gradient(135deg, #2001AF 0%, #4F46E5 50%, #7C3AED 100%)',
                       overflow: 'hidden',
-                      position: 'relative'
+                      position: 'relative',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
                     }}>
-                      <img
-                        src={service.image}
-                        alt={service.title}
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover'
-                        }}
-                      />
+                      {/* Decorative pattern */}
+                      <div style={{
+                        position: 'absolute',
+                        inset: 0,
+                        opacity: 0.1,
+                        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+                      }} />
                       {/* Category Badge */}
                       <div style={{
                         position: 'absolute',

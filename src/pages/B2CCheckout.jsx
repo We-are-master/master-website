@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, CheckCircle, Shield, Loader2, AlertCircle, Clock, Upload, X, Image, Plus, Minus, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Shield, Loader2, AlertCircle, Clock, Upload, X, Plus, Minus, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { getStripe, createPaymentIntentViaSupabase } from '../lib/stripe';
 
@@ -125,6 +125,7 @@ const B2CCheckout = () => {
   const [creatingPaymentIntent, setCreatingPaymentIntent] = useState(false);
   const fileInputRef = useRef(null);
   const paymentSectionRef = useRef(null);
+  const [hasScrolledToPayment, setHasScrolledToPayment] = useState(false);
   
   // Customer details form
   const [customerDetails, setCustomerDetails] = useState({
@@ -148,7 +149,7 @@ const B2CCheckout = () => {
 
   // Date and time slot state
   const [selectedDates, setSelectedDates] = useState([]);
-  const [selectedTimeSlot, setSelectedTimeSlot] = useState(null);
+  const [selectedTimeSlots, setSelectedTimeSlots] = useState([]);
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
   // Check if service is hourly
@@ -306,7 +307,7 @@ const B2CCheckout = () => {
           customer_email: customerDetails?.email || '',
           customer_phone: customerDetails?.phone || '',
           scheduled_dates: selectedDates.map(d => d.toISOString().split('T')[0]).join(', '),
-          scheduled_time_slot: selectedTimeSlot || '',
+          scheduled_time_slots: selectedTimeSlots.join(', '),
         },
         // Pre-create booking record in database
         booking_data: {
@@ -326,7 +327,7 @@ const B2CCheckout = () => {
           bathrooms: null,
           cleaning_addons: [],
           scheduled_dates: selectedDates.map(d => d.toISOString().split('T')[0]),
-          scheduled_time_slot: selectedTimeSlot || null,
+          scheduled_time_slots: selectedTimeSlots,
         }
       });
 
@@ -460,8 +461,8 @@ const B2CCheckout = () => {
       errors.date = 'Please select at least 2 preferred dates';
     }
     
-    if (!selectedTimeSlot) {
-      errors.timeSlot = 'Please select a time slot';
+    if (selectedTimeSlots.length === 0) {
+      errors.timeSlot = 'Please select at least one time slot';
     }
     
     setFormErrors(errors);
@@ -491,8 +492,8 @@ const B2CCheckout = () => {
           customerDetails,
           paymentIntentId: paymentIntent.id,
           scheduledDates: selectedDates.map(d => d.toISOString()),
-          scheduledTimeSlot: selectedTimeSlot,
-          timeSlotLabel: timeSlots.find(s => s.id === selectedTimeSlot)?.label
+          scheduledTimeSlots: selectedTimeSlots,
+          timeSlotLabels: selectedTimeSlots.map(id => timeSlots.find(s => s.id === id)?.label).filter(Boolean)
         }
       });
     }, 2000);
@@ -506,10 +507,28 @@ const B2CCheckout = () => {
            customerDetails.city && 
            customerDetails.postcode &&
            selectedDates.length >= 2 &&
-           selectedTimeSlot &&
+           selectedTimeSlots.length > 0 &&
            agreedToTerms &&
            (!isHourlyService || (agreedToHourlyTerms && hourlyJobDescription.trim()));
   };
+
+  // Auto-scroll to payment section when form becomes valid
+  useEffect(() => {
+    const formValid = isFormValid();
+    if (formValid && !hasScrolledToPayment && !clientSecret) {
+      setHasScrolledToPayment(true);
+      // Small delay to ensure smooth UX
+      setTimeout(() => {
+        if (paymentSectionRef.current) {
+          paymentSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 300);
+    }
+    // Reset if form becomes invalid again
+    if (!formValid && hasScrolledToPayment) {
+      setHasScrolledToPayment(false);
+    }
+  }, [customerDetails, selectedDates, selectedTimeSlots, agreedToTerms, agreedToHourlyTerms, hourlyJobDescription, hasScrolledToPayment, clientSecret]);
 
   if (paymentSuccess) {
     return (
@@ -1577,78 +1596,94 @@ const B2CCheckout = () => {
                   fontSize: '0.875rem',
                   fontWeight: '600',
                   color: '#374151',
+                  marginBottom: '0.5rem'
+                }}>
+                  Preferred Time Slots * <span style={{ fontWeight: '400', color: '#6b7280' }}>(select all that work)</span>
+                </label>
+                <p style={{
+                  fontSize: '0.8rem',
+                  color: '#6b7280',
                   marginBottom: '0.75rem'
                 }}>
-                  Preferred Time Slot *
-                </label>
+                  Select one or more time slots that work for you.
+                </p>
 
                 <div style={{
                   display: 'grid',
                   gridTemplateColumns: 'repeat(2, 1fr)',
                   gap: '0.75rem'
                 }}>
-                  {timeSlots.map(slot => (
-                    <button
-                      key={slot.id}
-                      type="button"
-                      onClick={() => {
-                        setSelectedTimeSlot(slot.id);
-                        if (formErrors.timeSlot) {
-                          setFormErrors(prev => ({ ...prev, timeSlot: '' }));
-                        }
-                      }}
-                      style={{
-                        padding: '1rem',
-                        border: `2px solid ${selectedTimeSlot === slot.id ? '#E94A02' : '#e5e7eb'}`,
-                        borderRadius: '0.75rem',
-                        backgroundColor: selectedTimeSlot === slot.id ? '#fff5f0' : 'white',
-                        cursor: 'pointer',
-                        textAlign: 'left',
-                        transition: 'all 0.2s ease'
-                      }}
-                      onMouseEnter={(e) => {
-                        if (selectedTimeSlot !== slot.id) {
-                          e.currentTarget.style.borderColor = '#E94A02';
-                          e.currentTarget.style.backgroundColor = '#fef7f5';
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (selectedTimeSlot !== slot.id) {
-                          e.currentTarget.style.borderColor = '#e5e7eb';
-                          e.currentTarget.style.backgroundColor = 'white';
-                        }
-                      }}
-                    >
-                      <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between'
-                      }}>
-                        <div>
-                          <div style={{
-                            fontSize: '0.7rem',
-                            color: selectedTimeSlot === slot.id ? '#E94A02' : '#9ca3af',
-                            fontWeight: '500',
-                            marginBottom: '0.25rem',
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.05em'
-                          }}>
-                            {slot.period}
+                  {timeSlots.map(slot => {
+                    const isSelected = selectedTimeSlots.includes(slot.id);
+                    return (
+                      <button
+                        key={slot.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedTimeSlots(prev => {
+                            if (isSelected) {
+                              return prev.filter(id => id !== slot.id);
+                            } else {
+                              return [...prev, slot.id];
+                            }
+                          });
+                          if (formErrors.timeSlot) {
+                            setFormErrors(prev => ({ ...prev, timeSlot: '' }));
+                          }
+                        }}
+                        style={{
+                          padding: '1rem',
+                          border: `2px solid ${isSelected ? '#E94A02' : '#e5e7eb'}`,
+                          borderRadius: '0.75rem',
+                          backgroundColor: isSelected ? '#fff5f0' : 'white',
+                          cursor: 'pointer',
+                          textAlign: 'left',
+                          transition: 'all 0.2s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!isSelected) {
+                            e.currentTarget.style.borderColor = '#E94A02';
+                            e.currentTarget.style.backgroundColor = '#fef7f5';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isSelected) {
+                            e.currentTarget.style.borderColor = '#e5e7eb';
+                            e.currentTarget.style.backgroundColor = 'white';
+                          }
+                        }}
+                      >
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between'
+                        }}>
+                          <div>
+                            <div style={{
+                              fontSize: '0.7rem',
+                              color: isSelected ? '#E94A02' : '#9ca3af',
+                              fontWeight: '500',
+                              marginBottom: '0.25rem',
+                              textTransform: 'uppercase',
+                              letterSpacing: '0.05em'
+                            }}>
+                              {slot.period}
+                            </div>
+                            <div style={{
+                              fontSize: '1rem',
+                              fontWeight: '600',
+                              color: isSelected ? '#E94A02' : '#374151'
+                            }}>
+                              {slot.label}
+                            </div>
                           </div>
-                          <div style={{
-                            fontSize: '1rem',
-                            fontWeight: '600',
-                            color: selectedTimeSlot === slot.id ? '#E94A02' : '#374151'
-                          }}>
-                            {slot.label}
-                          </div>
+                          {isSelected && (
+                            <CheckCircle size={20} style={{ color: '#E94A02' }} />
+                          )}
                         </div>
-                        {selectedTimeSlot === slot.id && (
-                          <CheckCircle size={20} style={{ color: '#E94A02' }} />
-                        )}
-                      </div>
-                    </button>
-                  ))}
+                      </button>
+                    );
+                  })}
                 </div>
 
                 {formErrors.timeSlot && (
@@ -1660,7 +1695,7 @@ const B2CCheckout = () => {
                   color: '#6b7280',
                   marginTop: '0.75rem'
                 }}>
-                  Our professional will arrive within the selected time window. We'll confirm the exact time via email.
+                  Our professional will arrive within one of your selected time windows. We'll confirm the exact time via email.
                 </p>
               </div>
             </div>
@@ -1798,6 +1833,7 @@ const B2CCheckout = () => {
                 ))}
               </div>
             </div>
+
           </div>
 
           {/* Right: Booking Summary */}
@@ -1894,13 +1930,13 @@ const B2CCheckout = () => {
               </div>
 
               {/* Date & Time Summary */}
-              {(selectedDates.length > 0 || selectedTimeSlot) && (
+              {(selectedDates.length > 0 || selectedTimeSlots.length > 0) && (
                 <div style={{
-                  backgroundColor: selectedDates.length >= 2 ? '#f0fdf4' : '#fef3c7',
+                  backgroundColor: selectedDates.length >= 2 && selectedTimeSlots.length > 0 ? '#f0fdf4' : '#fef3c7',
                   borderRadius: '0.5rem',
                   padding: '0.75rem',
                   marginBottom: '1rem',
-                  border: `1px solid ${selectedDates.length >= 2 ? '#bbf7d0' : '#fcd34d'}`
+                  border: `1px solid ${selectedDates.length >= 2 && selectedTimeSlots.length > 0 ? '#bbf7d0' : '#fcd34d'}`
                 }}>
                   <div style={{
                     display: 'flex',
@@ -1914,7 +1950,7 @@ const B2CCheckout = () => {
                     </span>
                   </div>
                   {selectedDates.length > 0 && (
-                    <div style={{ marginBottom: selectedTimeSlot ? '0.5rem' : 0 }}>
+                    <div style={{ marginBottom: selectedTimeSlots.length > 0 ? '0.5rem' : 0 }}>
                       {selectedDates.slice(0, 3).map((date, index) => (
                         <p key={index} style={{ color: selectedDates.length >= 2 ? '#166534' : '#92400e', fontSize: '0.8rem', margin: '0 0 0.25rem 0' }}>
                           • {date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })}
@@ -1927,18 +1963,22 @@ const B2CCheckout = () => {
                       )}
                     </div>
                   )}
-                  {selectedTimeSlot && (
+                  {selectedTimeSlots.length > 0 && (
                     <div style={{
                       paddingTop: '0.5rem',
-                      borderTop: '1px solid rgba(0,0,0,0.1)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5rem'
+                      borderTop: '1px solid rgba(0,0,0,0.1)'
                     }}>
-                      <Clock size={14} style={{ color: selectedDates.length >= 2 ? '#16a34a' : '#d97706' }} />
-                      <span style={{ color: selectedDates.length >= 2 ? '#15803d' : '#b45309', fontSize: '0.8rem' }}>
-                        {timeSlots.find(s => s.id === selectedTimeSlot)?.label}
-                      </span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+                        <Clock size={14} style={{ color: selectedDates.length >= 2 ? '#16a34a' : '#d97706' }} />
+                        <span style={{ fontWeight: '600', color: selectedDates.length >= 2 ? '#166534' : '#92400e', fontSize: '0.8rem' }}>
+                          Time Slots ({selectedTimeSlots.length})
+                        </span>
+                      </div>
+                      {selectedTimeSlots.map((slotId, index) => (
+                        <p key={index} style={{ color: selectedDates.length >= 2 ? '#15803d' : '#b45309', fontSize: '0.75rem', margin: '0 0 0.15rem 0' }}>
+                          • {timeSlots.find(s => s.id === slotId)?.label}
+                        </p>
+                      ))}
                     </div>
                   )}
                 </div>
@@ -2057,53 +2097,89 @@ const B2CCheckout = () => {
                 </div>
               )}
 
-              {/* Payment Form */}
+              {/* Payment Section */}
               {stripePromise && isFormValid() && clientSecret ? (
-                <Elements 
-                  stripe={stripePromise} 
-                  options={{
-                    clientSecret,
-                    appearance: {
-                      theme: 'stripe',
-                      variables: {
-                        colorPrimary: '#E94A02',
+                <>
+                  {/* Payment Form Header */}
+                  <div style={{
+                    backgroundColor: '#f0fdf4',
+                    border: '1px solid #bbf7d0',
+                    borderRadius: '0.5rem',
+                    padding: '0.75rem',
+                    marginBottom: '1rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem'
+                  }}>
+                    <CheckCircle size={18} style={{ color: '#16a34a' }} />
+                    <span style={{ color: '#166534', fontSize: '0.85rem', fontWeight: '500' }}>
+                      Details confirmed! Complete your payment below.
+                    </span>
+                  </div>
+                  
+                  <Elements 
+                    stripe={stripePromise} 
+                    options={{
+                      clientSecret,
+                      appearance: {
+                        theme: 'stripe',
+                        variables: {
+                          colorPrimary: '#E94A02',
+                        },
                       },
-                    },
-                  }}
-                >
-                  <PaymentForm
-                    onSuccess={handlePaymentSuccess}
-                    clientSecret={clientSecret}
-                  />
-                </Elements>
+                    }}
+                  >
+                    <PaymentForm
+                      onSuccess={handlePaymentSuccess}
+                      clientSecret={clientSecret}
+                    />
+                  </Elements>
+                </>
               ) : stripePromise && isFormValid() && !clientSecret ? (
                 <button
                   onClick={createPaymentIntent}
                   disabled={creatingPaymentIntent}
                   style={{
                     width: '100%',
-                    backgroundColor: creatingPaymentIntent ? '#9ca3af' : '#E94A02',
+                    background: creatingPaymentIntent ? '#9ca3af' : 'linear-gradient(135deg, #E94A02 0%, #d13d00 100%)',
                     color: 'white',
                     border: 'none',
-                    borderRadius: '0.5rem',
-                    padding: '1rem',
-                    fontSize: '1rem',
-                    fontWeight: '600',
+                    borderRadius: '0.75rem',
+                    padding: '1.25rem',
+                    fontSize: '1.125rem',
+                    fontWeight: '700',
                     cursor: creatingPaymentIntent ? 'not-allowed' : 'pointer',
                     marginBottom: '1rem',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: '0.5rem'
+                    gap: '0.75rem',
+                    boxShadow: creatingPaymentIntent ? 'none' : '0 4px 15px rgba(233, 74, 2, 0.4)',
+                    transition: 'all 0.3s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!creatingPaymentIntent) {
+                      e.target.style.transform = 'translateY(-2px)';
+                      e.target.style.boxShadow = '0 6px 20px rgba(233, 74, 2, 0.5)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!creatingPaymentIntent) {
+                      e.target.style.transform = 'translateY(0)';
+                      e.target.style.boxShadow = '0 4px 15px rgba(233, 74, 2, 0.4)';
+                    }
                   }}
                 >
                   {creatingPaymentIntent ? (
                     <>
-                      <Loader2 size={20} style={{ animation: 'spin 1s linear infinite' }} />
-                      Preparing payment...
+                      <Loader2 size={24} style={{ animation: 'spin 1s linear infinite' }} />
+                      Preparing secure payment...
                     </>
                   ) : (
-                    'Continue to Payment'
+                    <>
+                      <Shield size={22} />
+                      Proceed to Payment
+                    </>
                   )}
                 </button>
               ) : stripePromise && !isFormValid() ? (
@@ -2111,18 +2187,18 @@ const B2CCheckout = () => {
                   onClick={validateForm}
                   style={{
                     width: '100%',
-                    backgroundColor: '#9ca3af',
-                    color: 'white',
+                    backgroundColor: '#d1d5db',
+                    color: '#6b7280',
                     border: 'none',
-                    borderRadius: '0.5rem',
-                    padding: '1rem',
-                    fontSize: '1rem',
+                    borderRadius: '0.75rem',
+                    padding: '1.25rem',
+                    fontSize: '1.125rem',
                     fontWeight: '600',
                     cursor: 'pointer',
                     marginBottom: '1rem'
                   }}
                 >
-                  Complete your details to continue
+                  Complete all fields to continue
                 </button>
               ) : (
                 <div style={{
