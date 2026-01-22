@@ -195,7 +195,6 @@ function matchServicesBasic(userQuery, availableServices) {
       }
 
       // Flexible keyword match (e.g., "tv mount" matches "tv mounting")
-      const queryNoSpaces = query.replace(/\s+/g, '');
       if (keywordsLower.some(k => {
         const kNoSpaces = k.replace(/\s+/g, '');
         return k.includes(query) || query.includes(k) ||
@@ -277,7 +276,6 @@ function matchServicesBasic(userQuery, availableServices) {
       .map(item => item.service);
 
     // If we have high-scoring matches (exact or flexible keyword matches), filter out generic services
-    const queryNoSpaces = query.replace(/\s+/g, '');
     const hasExactMatches = filtered.some(service => {
       const keywords = (service.keywords || []).map(k => k.toLowerCase());
       const name = (service.service || '').toLowerCase();
