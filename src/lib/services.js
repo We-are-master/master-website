@@ -29,13 +29,32 @@ export async function getServices(filters = {}) {
     const { data, error } = await query;
 
     if (error) {
-      console.error('Error fetching services:', error);
+      console.error('❌ Error fetching services from Supabase:', error);
+      
+      // Provide more helpful error messages
+      if (error.message?.includes('Failed to fetch') || error.message?.includes('ERR_NAME_NOT_RESOLVED')) {
+        console.error('🔴 Network Error: Cannot reach Supabase. Check:');
+        console.error('   1. VITE_SUPABASE_URL is correctly set');
+        console.error('   2. The Supabase instance is running and accessible');
+        console.error('   3. CORS is properly configured');
+        console.error('   Current URL:', import.meta.env.VITE_SUPABASE_URL || 'NOT SET');
+      }
+      
       throw error;
     }
 
     return data || [];
   } catch (error) {
-    console.error('Error in getServices:', error);
+    console.error('❌ Error in getServices:', error);
+    
+    // Log additional context for network errors
+    if (error.message?.includes('Failed to fetch') || error.name === 'TypeError') {
+      console.error('💡 This is likely a network/DNS issue. Verify:');
+      console.error('   - Supabase URL is correct and accessible');
+      console.error('   - No firewall blocking the connection');
+      console.error('   - DNS is resolving correctly');
+    }
+    
     return [];
   }
 }

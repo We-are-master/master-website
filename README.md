@@ -136,6 +136,40 @@ All content is easily customizable in the respective component files. Key areas:
 - Efficient React components
 - Minimal external dependencies
 
+## Environment Variables
+
+The following environment variables are required:
+
+- `VITE_SUPABASE_URL`: Your Supabase project URL (e.g., `https://supabase.wearemaster.com`)
+- `VITE_SUPABASE_ANON_KEY`: Your Supabase anonymous/public key
+
+### Setting Environment Variables in Production (Vercel)
+
+1. Go to your Vercel project dashboard
+2. Navigate to **Settings > Environment Variables**
+3. Add the following variables:
+   - `VITE_SUPABASE_URL` = `https://supabase.wearemaster.com` (or your actual Supabase URL)
+   - `VITE_SUPABASE_ANON_KEY` = Your Supabase anon key
+4. **Important**: After adding/updating variables, redeploy your application
+
+### Troubleshooting
+
+#### Error: `net::ERR_NAME_NOT_RESOLVED` when fetching services
+
+This error occurs when the Supabase URL is incorrect or the domain cannot be resolved.
+
+**Solution:**
+1. Verify `VITE_SUPABASE_URL` is set correctly in your production environment
+2. Ensure the URL starts with `https://` (not `http://` or missing protocol)
+3. Common mistake: Using `storage.wearemaster.com` instead of `supabase.wearemaster.com`
+4. Check that the Supabase instance is running and accessible
+5. Verify DNS is resolving correctly for your Supabase domain
+
+**To check your current configuration:**
+- Open browser console in production
+- Look for error messages starting with `❌` - they will show the current URL configuration
+- The console will warn if it detects common misconfigurations
+
 ## License
 
 This project is proprietary to Master Services Trades Ltd.
