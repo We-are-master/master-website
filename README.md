@@ -158,17 +158,47 @@ The following environment variables are required:
 
 This error occurs when the Supabase URL is incorrect or the domain cannot be resolved.
 
-**Solution:**
-1. Verify `VITE_SUPABASE_URL` is set correctly in your production environment
-2. Ensure the URL starts with `https://` (not `http://` or missing protocol)
-3. Common mistake: Using `storage.wearemaster.com` instead of `supabase.wearemaster.com`
-4. Check that the Supabase instance is running and accessible
-5. Verify DNS is resolving correctly for your Supabase domain
+**For Self-Hosted Supabase:**
+
+1. **Verify the correct Supabase URL:**
+   - SSH into your Supabase server: `ssh root@168.231.112.159`
+   - Check the Supabase configuration to find the public URL
+   - Common URLs for self-hosted Supabase:
+     - `https://supabase.wearemaster.com`
+     - `https://api.wearemaster.com`
+     - Or check your reverse proxy/nginx configuration
+
+2. **Verify DNS Configuration:**
+   ```bash
+   # Test DNS resolution
+   nslookup supabase.wearemaster.com
+   # or
+   dig supabase.wearemaster.com
+   ```
+   - If DNS doesn't resolve, add an A record pointing to your server IP (168.231.112.159)
+
+3. **Check Supabase is accessible:**
+   ```bash
+   # From your server
+   curl https://supabase.wearemaster.com/rest/v1/
+   # Should return a response (even if 401/403, that means it's reachable)
+   ```
+
+4. **Update Vercel Environment Variables:**
+   - Go to Vercel Dashboard > Settings > Environment Variables
+   - Set `VITE_SUPABASE_URL` to the correct URL (e.g., `https://supabase.wearemaster.com`)
+   - **Important**: Redeploy after updating environment variables
+
+**Common Issues:**
+- ❌ Using `storage.wearemaster.com` (doesn't exist) → Use `supabase.wearemaster.com`
+- ❌ Missing `https://` protocol → Always use `https://`
+- ❌ DNS not configured → Add A record for the subdomain
+- ❌ Firewall blocking → Ensure port 443 is open
 
 **To check your current configuration:**
 - Open browser console in production
 - Look for error messages starting with `❌` - they will show the current URL configuration
-- The console will warn if it detects common misconfigurations
+- The console will show the hostname being used for debugging
 
 ## License
 

@@ -26,6 +26,20 @@ if (supabaseUrl && supabaseUrl.includes('storage.wearemaster.com')) {
   console.error('   Please update VITE_SUPABASE_URL in your production environment variables')
 }
 
+// Log URL for debugging DNS issues
+if (supabaseUrl && typeof window !== 'undefined') {
+  try {
+    const url = new URL(supabaseUrl)
+    console.log('🔍 Supabase URL configured:', {
+      hostname: url.hostname,
+      protocol: url.protocol,
+      port: url.port || (url.protocol === 'https:' ? '443' : '80')
+    })
+  } catch (e) {
+    console.error('❌ Invalid Supabase URL format:', supabaseUrl)
+  }
+}
+
 // Log configuration in development
 if (import.meta.env.DEV) {
   console.log('🔧 Supabase Config:', {
