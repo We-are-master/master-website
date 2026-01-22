@@ -29,13 +29,11 @@ export async function getServices(filters = {}) {
     const { data, error } = await query;
 
     if (error) {
-      console.error('Error fetching services:', error);
       throw error;
     }
 
     return data || [];
   } catch (error) {
-    console.error('Error in getServices:', error);
     return [];
   }
 }
@@ -64,13 +62,11 @@ export async function getServiceById(serviceId) {
       .single();
 
     if (error) {
-      console.error('Error fetching service:', error);
       return null;
     }
 
     return data;
   } catch (error) {
-    console.error('Error in getServiceById:', error);
     return null;
   }
 }
@@ -92,14 +88,11 @@ export async function searchServices(searchTerm) {
       .rpc('search_services_by_keyword', { search_term: searchTerm.trim().toLowerCase() });
 
     if (error) {
-      console.warn('RPC search failed, falling back to direct query:', error);
-      // Fallback to direct query if function doesn't exist
       return searchServicesDirectly(searchTerm);
     }
 
     return data || [];
   } catch (error) {
-    console.error('Error in searchServices:', error);
     return searchServicesDirectly(searchTerm);
   }
 }
@@ -113,29 +106,119 @@ async function searchServicesDirectly(searchTerm) {
   try {
     const term = searchTerm.trim().toLowerCase();
     
-    const { data, error } = await supabase
+    // Get all active services and filter client-side for better keyword matching
+    // This ensures we can properly search in the keywords array
+    const { data: allServices, error } = await supabase
       .from(SERVICES_TABLE)
       .select('*')
-      .eq('is_active', true)
-      .or(`service.ilike.%${term}%,description.ilike.%${term}%,category.ilike.%${term}%,ideal_for.ilike.%${term}%,keywords.cs.{${term}}`)
-      .order('category', { ascending: true })
-      .order('service', { ascending: true });
+      .eq('is_active', true);
 
     if (error) {
-      console.error('Error in direct search:', error);
       return [];
     }
 
+    if (!allServices || allServices.length === 0) {
+      return [];
+    }
+
+
+    // Filter services that match the search term (be more flexible)
+    const termWords = term.split(/\s+/).filter(w => w.length > 1);
+    const matchingServices = allServices.filter(service => {
+      const name = (service.service || '').toLowerCase();
+      const description = (service.description || '').toLowerCase();
+      const category = (service.category || '').toLowerCase();
+      const idealFor = (service.ideal_for || '').toLowerCase();
+      const keywords = (service.keywords || []).map(k => k.toLowerCase());
+      
+      // Check exact keyword match (highest priority)
+      if (keywords.some(k => k === term)) {
+        return true;
+      }
+      
+      // Check if keyword contains the term or vice versa (flexible matching)
+      if (keywords.some(k => {
+        return k.includes(term) || term.includes(k) || 
+               k.replace(/\s+/g, '') === term.replace(/\s+/g, '') ||
+               k.replace(/\s+/g, '') === term.replace(/\s+/g, '') + 'ing' ||
+               term.replace(/\s+/g, '') === k.replace(/\s+/g, '') + 'ing';
+      })) {
+        return true;
+      }
+      
+      // Check if all words from search are in keywords
+      if (termWords.length > 0 && termWords.every(word => 
+        keywords.some(k => k.includes(word) || word.includes(k))
+      )) {
+        return true;
+      }
+      
+      // Check service name (exact or contains)
+      if (name === term || name.includes(term)) {
+        return true;
+      }
+      
+      // Check if all words from search are in service name
+      if (termWords.length > 0 && termWords.every(word => name.includes(word))) {
+        return true;
+      }
+      
+      // Check category
+      if (category.includes(term)) {
+        return true;
+      }
+      
+      // Check description
+      if (description.includes(term)) {
+        return true;
+      }
+      
+      // Check ideal_for
+      if (idealFor.includes(term)) {
+        return true;
+      }
+      
+      return false;
+    });
+
     // Sort by relevance client-side
-    const sorted = (data || []).sort((a, b) => {
+    const sorted = matchingServices.sort((a, b) => {
       const aScore = calculateRelevance(a, term);
       const bScore = calculateRelevance(b, term);
       return bScore - aScore;
     });
 
+    // Filter out generic services if we have specific matches
+    const hasExactKeywordMatches = sorted.some(service => {
+      const keywords = (service.keywords || []).map(k => k.toLowerCase());
+      return keywords.some(k => k === term);
+    });
+
+    if (hasExactKeywordMatches) {
+      const genericCategories = ['carpenter', 'handyman', 'multi trader'];
+      const filtered = sorted.filter(service => {
+        const category = (service.category || '').toLowerCase();
+        const keywords = (service.keywords || []).map(k => k.toLowerCase());
+        const name = (service.service || '').toLowerCase();
+        
+        // Keep exact matches
+        if (keywords.some(k => k === term) || name === term) {
+          return true;
+        }
+        
+        // Keep non-generic categories
+        if (!genericCategories.includes(category)) {
+          return true;
+        }
+        
+        // Filter out generic services
+        return false;
+      });
+      
+      return filtered.length > 0 ? filtered : sorted;
+    }
     return sorted;
   } catch (error) {
-    console.error('Error in searchServicesDirectly:', error);
     return [];
   }
 }
@@ -148,25 +231,63 @@ async function searchServicesDirectly(searchTerm) {
  */
 function calculateRelevance(service, term) {
   let score = 0;
-  const termLower = term.toLowerCase();
+  const termLower = term.toLowerCase().trim();
+  const termNoSpaces = termLower.replace(/\s+/g, '');
+  const keywords = service.keywords || [];
+  const keywordsLower = keywords.map(k => k.toLowerCase());
+  const termWords = termLower.split(/\s+/).filter(w => w.length > 1);
   
-  // Exact match in service name (highest priority)
-  if (service.service?.toLowerCase().includes(termLower)) score += 10;
+  // EXACT keyword match (HIGHEST PRIORITY - 1000 points)
+  if (keywordsLower.some(k => k === termLower)) {
+    score += 1000;
+  }
   
-  // Match in category
-  if (service.category?.toLowerCase().includes(termLower)) score += 8;
+  // Flexible keyword match (e.g., "tv mount" matches "tv mounting")
+  if (keywordsLower.some(k => {
+    const kNoSpaces = k.replace(/\s+/g, '');
+    return k.includes(termLower) || termLower.includes(k) ||
+           kNoSpaces === termNoSpaces ||
+           kNoSpaces === termNoSpaces + 'ing' ||
+           termNoSpaces === kNoSpaces + 'ing' ||
+           kNoSpaces === termNoSpaces.replace('ing', '') ||
+           termNoSpaces === kNoSpaces.replace('ing', '');
+  })) {
+    score += 800; // Very high priority for flexible matches
+  }
   
-  // Exact keyword match
-  if (service.keywords?.some(k => k.toLowerCase() === termLower)) score += 7;
+  // All search words match in keywords
+  if (termWords.length > 0 && termWords.every(word => 
+    keywordsLower.some(k => k.includes(word) || word.includes(k))
+  )) {
+    score += 600;
+  }
   
-  // Partial keyword match
-  if (service.keywords?.some(k => k.toLowerCase().includes(termLower))) score += 5;
+  // Exact match in service name (high priority)
+  const serviceName = service.service?.toLowerCase() || '';
+  const serviceNameNoSpaces = serviceName.replace(/\s+/g, '');
+  if (serviceName === termLower) {
+    score += 200;
+  } else if (serviceNameNoSpaces === termNoSpaces || 
+             serviceNameNoSpaces === termNoSpaces + 'ing' ||
+             termNoSpaces === serviceNameNoSpaces + 'ing') {
+    score += 180; // Flexible name match
+  } else if (serviceName.includes(termLower)) {
+    score += 100;
+  }
   
-  // Match in description
-  if (service.description?.toLowerCase().includes(termLower)) score += 3;
+  // Service name contains all words from search
+  if (termWords.length > 0 && termWords.every(word => serviceName.includes(word))) {
+    score += 150;
+  }
   
-  // Match in ideal_for
-  if (service.ideal_for?.toLowerCase().includes(termLower)) score += 2;
+  // Match in category (lower priority)
+  if (service.category?.toLowerCase().includes(termLower)) score += 20;
+  
+  // Match in description (low priority)
+  if (service.description?.toLowerCase().includes(termLower)) score += 10;
+  
+  // Match in ideal_for (lowest priority)
+  if (service.ideal_for?.toLowerCase().includes(termLower)) score += 5;
   
   return score;
 }
@@ -185,10 +306,9 @@ export async function getServicesGroupedByCategory() {
         acc[category] = [];
       }
       acc[category].push(service);
-      return acc;
-    }, {});
+    return acc;
+  }, {});
   } catch (error) {
-    console.error('Error in getServicesGroupedByCategory:', error);
     return {};
   }
 }
@@ -205,14 +325,12 @@ export async function getCategories() {
       .eq('is_active', true);
 
     if (error) {
-      console.error('Error fetching categories:', error);
       throw error;
     }
 
     const uniqueCategories = [...new Set(data.map(item => item.category))];
     return uniqueCategories.sort();
   } catch (error) {
-    console.error('Error in getCategories:', error);
     return [];
   }
 }
@@ -232,13 +350,11 @@ export async function getPopularServices(limit = 8) {
       .limit(limit);
 
     if (error) {
-      console.error('Error fetching popular services:', error);
       return [];
     }
 
     return data || [];
   } catch (error) {
-    console.error('Error in getPopularServices:', error);
     return [];
   }
 }
@@ -266,7 +382,6 @@ export async function getServiceSuggestions(input, limit = 5) {
       .limit(limit * 2); // Get more and filter client-side for better relevance
 
     if (error) {
-      console.error('Error fetching suggestions:', error);
       return [];
     }
 
@@ -281,7 +396,6 @@ export async function getServiceSuggestions(input, limit = 5) {
 
     return sorted;
   } catch (error) {
-    console.error('Error in getServiceSuggestions:', error);
     return [];
   }
 }

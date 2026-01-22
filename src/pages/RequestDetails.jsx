@@ -59,20 +59,20 @@ const RequestDetails = () => {
         // Parse image URLs from notes if available
         let images = [];
         if (request.notes) {
-          console.log('Request notes:', request.notes);
+('Request notes:', request.notes);
           // Try to match "Images: ..." pattern (handles newlines and multiple spaces)
           const imageMatch = request.notes.match(/Images:\s*([^\n]+)/);
           if (imageMatch) {
             const imageString = imageMatch[1].trim();
             images = imageString.split(',').map(url => url.trim()).filter(url => url.length > 0);
-            console.log('Parsed images:', images);
+('Parsed images:', images);
           } else {
             // Try to find URLs in notes (fallback)
             const urlPattern = /(https?:\/\/[^\s,]+)/g;
             const foundUrls = request.notes.match(urlPattern);
             if (foundUrls) {
               images = foundUrls;
-              console.log('Found URLs in notes:', images);
+('Found URLs in notes:', images);
             }
           }
         }
@@ -103,7 +103,7 @@ const RequestDetails = () => {
 
         setRequestData(formattedData);
       } catch (error) {
-        console.error('Error fetching request:', error);
+('Error fetching request:', error);
         setError(error.message || 'Failed to load request details');
       } finally {
         setLoading(false);
@@ -183,7 +183,7 @@ const RequestDetails = () => {
         
         uploadedUrls.push(urlData.publicUrl);
       } catch (error) {
-        console.error('Error uploading image:', error);
+('Error uploading image:', error);
         // Continue with other images even if one fails
       }
     }
@@ -278,7 +278,6 @@ const RequestDetails = () => {
         setActiveTab('photos');
       }
     } catch (error) {
-      console.error('Error uploading images:', error);
       alert('Failed to upload images. Please try again.');
     } finally {
       setUploading(false);
@@ -675,7 +674,7 @@ const RequestDetails = () => {
                             src={image}
                             alt={`Request photo ${index + 1}`}
                               onError={(e) => {
-                                console.error('Error loading image:', image);
+('Error loading image:', image);
                                 e.target.style.display = 'none';
                               }}
                             style={{
@@ -714,7 +713,7 @@ const RequestDetails = () => {
                                   document.body.removeChild(link);
                                   window.URL.revokeObjectURL(url);
                                 } catch (error) {
-                                  console.error('Error downloading image:', error);
+('Error downloading image:', error);
                                   // Fallback: abrir em nova aba se download falhar
                                   window.open(image, '_blank');
                                 }

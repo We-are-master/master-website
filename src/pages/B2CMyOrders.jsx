@@ -47,7 +47,6 @@ const B2CMyOrders = () => {
       setUser(session.user);
       await fetchOrders(session.user.email);
     } catch (err) {
-      console.error('Auth error:', err);
       navigate('/customer-login');
     }
   };
@@ -65,14 +64,12 @@ const B2CMyOrders = () => {
         .order('created_at', { ascending: false });
 
       if (ordersError) {
-        console.log('booking_website table error:', ordersError);
         setOrders([]);
         setError('Failed to load your orders. Please try again.');
       } else {
         setOrders(ordersData || []);
       }
     } catch (err) {
-      console.error('Error fetching orders:', err);
       setError('Failed to load your orders. Please try again.');
     } finally {
       setLoading(false);

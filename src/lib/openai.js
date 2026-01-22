@@ -11,7 +11,6 @@ export async function matchServicesWithAI(userQuery, availableServices) {
     const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
     
     if (!apiKey) {
-      console.warn('OpenAI API key not found. Falling back to basic search.');
       return matchServicesBasic(userQuery, availableServices);
     }
 
@@ -26,30 +25,42 @@ export async function matchServicesWithAI(userQuery, availableServices) {
       name: s.service || s.service_name || s.title || 'Unknown',
       category: s.category || '',
       keywords: s.keywords || [],
-      description: s.description || '',
+      description: (s.description || '').substring(0, 100), // Limit description length
       ideal_for: s.ideal_for || ''
     }));
 
-    const prompt = `You are a service matching assistant for a home services platform. Your job is to match the user's search query with the MOST RELEVANT services.
 
-IMPORTANT RULES:
-1. Only return services that are DIRECTLY relevant to what the user is searching for
-2. If the user searches for "TV mounting" or "mount TV", return TV-related services, NOT carpentry
-3. If user searches for "plumber" or "tap leak", return plumbing services
-4. If user searches for "cleaning", return cleaning services
-5. Pay attention to the service name, category, and keywords
-6. Be strict - don't include services that are only vaguely related
-7. Return MAXIMUM 15 most relevant services
+    const prompt = `Match the user's service request with relevant services. BE PRECISE - prioritize exact matches.
 
-User Search Query: "${userQuery}"
+USER REQUEST: "${userQuery}"
 
-Available Services (JSON format):
-${JSON.stringify(serviceList.slice(0, 100), null, 0)}
+AVAILABLE SERVICES:
+${JSON.stringify(serviceList.slice(0, 100), null, 2)}
 
-Return a JSON array with the IDs of ONLY the relevant services, ordered by relevance (most relevant first).
-Format: [{"id": "uuid-here", "score": 0.95}]
+CRITICAL RULES:
+1. PRIORITY ORDER (most important first):
+   - Services with EXACT keyword match (if user searches "tv mount", return services with keyword "tv mount")
+   - Services with service name containing the exact search terms
+   - Services with keywords containing the search terms
+   - Only include generic services (like "Carpenter") if NO specific matches exist
 
-If NO services match the query, return an empty array: []`;
+2. EXAMPLES:
+   - "tv mount" → Return TV mounting/installation services, NOT generic carpentry
+   - "tap leak" → Return plumbing services, NOT general handyman
+   - "deep clean" → Return deep cleaning services, NOT general cleaning
+
+3. DO NOT return generic services (Carpenter, Handyman, etc.) when specific services match
+
+RETURN FORMAT: JSON array with service IDs and scores.
+Example: [{"id": "abc-123-uuid", "score": 0.95}, {"id": "def-456-uuid", "score": 0.85}]
+
+SCORING:
+- Exact keyword match: 0.95-1.0
+- Service name match: 0.85-0.94
+- Keyword contains match: 0.75-0.84
+- Generic/category match: 0.5-0.74 (only if no specific matches)
+
+Return up to 15 services, ordered by relevance. Return [] only if absolutely nothing matches.`;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -62,27 +73,25 @@ If NO services match the query, return an empty array: []`;
         messages: [
           {
             role: 'system',
-            content: 'You are a precise service matching assistant. You MUST only return services that directly match what the user is looking for. Be strict and accurate. Always return valid JSON arrays. Never include unrelated services.'
+            content: 'You are a helpful service matching assistant. Match user queries with relevant services. Return a JSON array with service IDs and relevance scores. Always return valid JSON - use format: [{"id": "uuid", "score": 0.9}]. Be helpful and include services that match the user\'s intent.'
           },
           {
             role: 'user',
             content: prompt
           }
         ],
-        temperature: 0.1,
-        max_tokens: 1000
+        temperature: 0.2,
+        max_tokens: 2000
       })
     });
 
     if (!response.ok) {
-      console.error('OpenAI API error:', response.statusText);
       return matchServicesBasic(userQuery, availableServices);
     }
 
     const data = await response.json();
     const content = data.choices[0]?.message?.content;
     
-    console.log('OpenAI response:', content);
     
     if (!content) {
       return matchServicesBasic(userQuery, availableServices);
@@ -91,26 +100,48 @@ If NO services match the query, return an empty array: []`;
     // Parse the JSON response
     let matchedServices = [];
     try {
-      // Extract JSON from response (in case it's wrapped in markdown)
-      const jsonMatch = content.match(/\[[\s\S]*?\]/);
+      // Clean the content - remove markdown code blocks if present
+      let cleanedContent = content.trim();
+      
+      // Remove markdown code blocks (```json ... ```)
+      if (cleanedContent.startsWith('```')) {
+        cleanedContent = cleanedContent.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '');
+      }
+      
+      // Try to find JSON array in the response
+      const jsonMatch = cleanedContent.match(/\[[\s\S]*?\]/);
       if (jsonMatch) {
         matchedServices = JSON.parse(jsonMatch[0]);
       } else {
-        matchedServices = JSON.parse(content);
+        // Try parsing the whole content
+        matchedServices = JSON.parse(cleanedContent);
+      }
+      
+      // Validate that we got an array
+      if (!Array.isArray(matchedServices)) {
+        return matchServicesBasic(userQuery, availableServices);
       }
     } catch (parseError) {
-      console.error('Error parsing OpenAI response:', parseError, content);
       return matchServicesBasic(userQuery, availableServices);
     }
 
     // If AI returned empty array, fall back to basic search
     if (!matchedServices || matchedServices.length === 0) {
-      console.log('AI returned no matches, falling back to basic search');
       return matchServicesBasic(userQuery, availableServices);
     }
 
     // Map matched services back to full service objects
-    const matchedIds = matchedServices.map(m => m.id);
+    // Handle both formats: [{"id": "...", "score": 0.9}] or just ["id1", "id2"]
+    const matchedIds = matchedServices.map(m => {
+      if (typeof m === 'string') return m;
+      if (typeof m === 'object' && m.id) return m.id;
+      return null;
+    }).filter(id => id !== null);
+
+    if (matchedIds.length === 0) {
+      return matchServicesBasic(userQuery, availableServices);
+    }
+
     const matchedFullServices = availableServices
       .filter(s => matchedIds.includes(s.id))
       .sort((a, b) => {
@@ -119,11 +150,14 @@ If NO services match the query, return an empty array: []`;
         return aIndex - bIndex;
       });
 
-    console.log('AI matched services:', matchedFullServices.length);
     
-    return matchedFullServices.length > 0 ? matchedFullServices : matchServicesBasic(userQuery, availableServices);
+    // If we found matches, return them. Otherwise fall back to basic search
+    if (matchedFullServices.length > 0) {
+      return matchedFullServices;
+    } else {
+      return matchServicesBasic(userQuery, availableServices);
+    }
   } catch (error) {
-    console.error('Error in matchServicesWithAI:', error);
     return matchServicesBasic(userQuery, availableServices);
   }
 }
@@ -141,87 +175,173 @@ function matchServicesBasic(userQuery, availableServices) {
 
   const query = userQuery.toLowerCase().trim();
   const queryWords = query.split(/\s+/).filter(w => w.length > 1);
+  const queryNoSpaces = query.replace(/\s+/g, '');
 
-  // Score each service
-  const scoredServices = availableServices.map(service => {
-    // V2 schema uses 'service' field, also check 'service_name' and 'title' for compatibility
-    const name = (service.service || service.service_name || service.title || '').toLowerCase();
-    const description = (service.description || '').toLowerCase();
-    const category = (service.category || '').toLowerCase();
-    const idealFor = (service.ideal_for || '').toLowerCase();
-    const keywords = service.keywords || [];
-    
-    let score = 0;
+    // Score each service
+    const scoredServices = availableServices.map(service => {
+      // V2 schema uses 'service' field, also check 'service_name' and 'title' for compatibility
+      const name = (service.service || service.service_name || service.title || '').toLowerCase();
+      const description = (service.description || '').toLowerCase();
+      const category = (service.category || '').toLowerCase();
+      const idealFor = (service.ideal_for || '').toLowerCase();
+      const keywords = service.keywords || [];
+      const keywordsLower = keywords.map(k => k.toLowerCase());
+      
+      let score = 0;
 
-    // Exact match in service name (highest priority)
-    if (name.includes(query)) {
-      score += 100;
+      // EXACT keyword match (HIGHEST PRIORITY - 1000 points)
+      if (keywordsLower.some(k => k === query)) {
+        score += 1000;
+      }
+
+      // Flexible keyword match (e.g., "tv mount" matches "tv mounting")
+      const queryNoSpaces = query.replace(/\s+/g, '');
+      if (keywordsLower.some(k => {
+        const kNoSpaces = k.replace(/\s+/g, '');
+        return k.includes(query) || query.includes(k) ||
+               kNoSpaces === queryNoSpaces ||
+               kNoSpaces === queryNoSpaces + 'ing' ||
+               queryNoSpaces === kNoSpaces + 'ing' ||
+               kNoSpaces === queryNoSpaces.replace('ing', '') ||
+               queryNoSpaces === kNoSpaces.replace('ing', '');
+      })) {
+        score += 800; // Very high priority for flexible matches
+      }
+
+      // Keyword contains search term (high priority)
+      if (keywordsLower.some(k => k.includes(query) || query.includes(k))) {
+        score += 500;
+      }
+
+      // Exact match in service name (high priority)
+      if (name === query) {
+        score += 200;
+      } else if (name.includes(query)) {
+        score += 100;
+      }
+
+      // Service name contains all words from search
+      const allWordsMatch = queryWords.every(word => word.length > 1 && name.includes(word));
+      if (allWordsMatch && queryWords.length > 0) {
+        score += 150;
+      }
+
+      // Word matches in keywords (high priority)
+      queryWords.forEach(word => {
+        if (word.length > 2 && keywordsLower.some(k => k.includes(word))) {
+          score += 40;
+        }
+      });
+
+      // Word matches in service name
+      queryWords.forEach(word => {
+        if (word.length > 2 && name.includes(word)) {
+          score += 30;
+        }
+      });
+
+      // Category match (lower priority - penalize generic categories)
+      const isGenericCategory = ['carpenter', 'handyman', 'multi trader'].includes(category);
+      if (category.includes(query)) {
+        score += isGenericCategory ? 5 : 20; // Penalize generic categories
+      }
+
+      // Word matches in category
+      queryWords.forEach(word => {
+        if (word.length > 2 && category.includes(word)) {
+          score += isGenericCategory ? 3 : 15;
+        }
+      });
+
+      // Matches in description (low priority)
+      queryWords.forEach(word => {
+        if (word.length > 2 && description.includes(word)) {
+          score += 5;
+        }
+      });
+
+      // Matches in ideal_for (lowest priority)
+      queryWords.forEach(word => {
+        if (word.length > 2 && idealFor.includes(word)) {
+          score += 3;
+        }
+      });
+
+      return { service, score };
+    });
+
+    // Sort by score and filter out zero scores
+    const filtered = scoredServices
+      .filter(item => item.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .map(item => item.service);
+
+    // If we have high-scoring matches (exact or flexible keyword matches), filter out generic services
+    const queryNoSpaces = query.replace(/\s+/g, '');
+    const hasExactMatches = filtered.some(service => {
+      const keywords = (service.keywords || []).map(k => k.toLowerCase());
+      const name = (service.service || '').toLowerCase();
+      const nameNoSpaces = name.replace(/\s+/g, '');
+      
+      // Check exact match
+      if (keywords.some(k => k === query) || name === query) {
+        return true;
+      }
+      
+      // Check flexible match (e.g., "tv mount" vs "tv mounting")
+      if (keywords.some(k => {
+        const kNoSpaces = k.replace(/\s+/g, '');
+        return kNoSpaces === queryNoSpaces ||
+               kNoSpaces === queryNoSpaces + 'ing' ||
+               queryNoSpaces === kNoSpaces + 'ing';
+      })) {
+        return true;
+      }
+      
+      if (nameNoSpaces === queryNoSpaces ||
+          nameNoSpaces === queryNoSpaces + 'ing' ||
+          queryNoSpaces === nameNoSpaces + 'ing') {
+        return true;
+      }
+      
+      return false;
+    });
+
+    if (hasExactMatches) {
+      // Filter out generic services when we have specific matches
+      const genericCategories = ['carpenter', 'handyman', 'multi trader'];
+      const specificMatches = filtered.filter(service => {
+        const category = (service.category || '').toLowerCase();
+        const keywords = (service.keywords || []).map(k => k.toLowerCase());
+        const name = (service.service || '').toLowerCase();
+        
+        // Keep if it has exact or flexible keyword/name match
+        const nameNoSpaces = name.replace(/\s+/g, '');
+        if (keywords.some(k => {
+          const kNoSpaces = k.replace(/\s+/g, '');
+          return k === query || kNoSpaces === queryNoSpaces ||
+                 kNoSpaces === queryNoSpaces + 'ing' ||
+                 queryNoSpaces === kNoSpaces + 'ing';
+        }) || name === query || nameNoSpaces === queryNoSpaces ||
+            nameNoSpaces === queryNoSpaces + 'ing' ||
+            queryNoSpaces === nameNoSpaces + 'ing') {
+          return true;
+        }
+        
+        // Keep if category is not generic
+        if (!genericCategories.includes(category)) {
+          return true;
+        }
+        
+        // Filter out generic services
+        return false;
+      });
+      
+        return specificMatches.length > 0 ? specificMatches : filtered;
     }
 
-    // Exact keyword match (very high priority)
-    const keywordsLower = keywords.map(k => k.toLowerCase());
-    if (keywordsLower.some(k => k === query)) {
-      score += 80;
-    }
-
-    // Partial keyword match
-    if (keywordsLower.some(k => k.includes(query) || query.includes(k))) {
-      score += 50;
-    }
-
-    // Word matches in service name
-    queryWords.forEach(word => {
-      if (word.length > 2 && name.includes(word)) {
-        score += 30;
-      }
-    });
-
-    // Word matches in keywords
-    queryWords.forEach(word => {
-      if (word.length > 2 && keywordsLower.some(k => k.includes(word))) {
-        score += 25;
-      }
-    });
-
-    // Category match
-    if (category.includes(query)) {
-      score += 20;
-    }
-
-    // Word matches in category
-    queryWords.forEach(word => {
-      if (word.length > 2 && category.includes(word)) {
-        score += 15;
-      }
-    });
-
-    // Matches in description
-    queryWords.forEach(word => {
-      if (word.length > 2 && description.includes(word)) {
-        score += 5;
-      }
-    });
-
-    // Matches in ideal_for
-    queryWords.forEach(word => {
-      if (word.length > 2 && idealFor.includes(word)) {
-        score += 3;
-      }
-    });
-
-    return { service, score };
-  });
-
-  // Sort by score and filter out zero scores
-  const filtered = scoredServices
-    .filter(item => item.score > 0)
-    .sort((a, b) => b.score - a.score)
-    .map(item => item.service);
-
-  console.log('Basic search results:', filtered.length, 'services found for query:', query);
-
-  // Only return matched services, don't return all if no match
-  return filtered;
+    // Only return matched services, don't return all if no match
+    return filtered;
 }
 
 /**

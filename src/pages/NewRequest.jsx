@@ -28,7 +28,6 @@ const LocationInput = ({ formData, setFormData, onGoogleLoaded }) => {
   useEffect(() => {
     const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
     if (!apiKey) {
-      console.warn('VITE_GOOGLE_API_KEY not found in environment variables');
       return;
     }
 
@@ -74,7 +73,6 @@ const LocationInput = ({ formData, setFormData, onGoogleLoaded }) => {
       }
     };
     script.onerror = () => {
-      console.error('Failed to load Google Maps API');
       setIsGoogleLoaded(false);
     };
     document.head.appendChild(script);
@@ -109,7 +107,6 @@ const LocationInput = ({ formData, setFormData, onGoogleLoaded }) => {
   // Initialize the hook when Google Maps is loaded
   useEffect(() => {
     if (isGoogleLoaded && window.google && window.google.maps && window.google.maps.places && !ready) {
-      console.log('Initializing Google Places Autocomplete...');
       init();
     }
   }, [isGoogleLoaded, ready, init]);
@@ -117,7 +114,6 @@ const LocationInput = ({ formData, setFormData, onGoogleLoaded }) => {
   // Debug: Log suggestions status
   useEffect(() => {
     if (showSuggestions && value && ready) {
-      console.log('Suggestions status:', status, 'Data length:', data?.length, 'Ready:', ready);
     }
   }, [showSuggestions, status, data, value, ready]);
 
@@ -137,7 +133,6 @@ const LocationInput = ({ formData, setFormData, onGoogleLoaded }) => {
         locationLng: lng
       }));
     } catch (error) {
-      console.error('Error getting location:', error);
       setFormData(prev => ({
         ...prev,
         location: address
@@ -363,7 +358,6 @@ const NewRequest = () => {
         
         uploadedUrls.push(urlData.publicUrl);
       } catch (error) {
-        console.error('Error uploading image:', error);
         // Continue with other images even if one fails
       }
     }
@@ -385,7 +379,6 @@ const NewRequest = () => {
     
     // CRITICAL: Only submit if the submit button was explicitly clicked
     if (!submitButtonClickedRef.current) {
-      console.log('Submit blocked: submit button was not clicked');
       return;
     }
     
@@ -394,7 +387,6 @@ const NewRequest = () => {
     
     // Only submit if we're on the last step
     if (currentStep !== 4) {
-      console.log('Submit blocked: not on step 4, current step:', currentStep);
       return;
     }
     
@@ -410,7 +402,6 @@ const NewRequest = () => {
     
     // Prevent multiple submissions
     if (loading) {
-      console.log('Submit blocked: already submitting');
       return;
     }
     
@@ -452,9 +443,7 @@ const NewRequest = () => {
       // Upload images if any
       let imageUrls = [];
       if (formData.images.length > 0 && request) {
-        console.log('Uploading images:', formData.images.length);
         imageUrls = await uploadImages(formData.images, request.id);
-        console.log('Uploaded image URLs:', imageUrls);
         
         // Update request with image URLs
         if (imageUrls.length > 0) {
@@ -470,9 +459,7 @@ const NewRequest = () => {
             .eq('id', request.id);
           
           if (updateError) {
-            console.error('Error updating request with images:', updateError);
           } else {
-            console.log('Successfully updated request with image URLs');
           }
         }
       }
@@ -513,7 +500,6 @@ const NewRequest = () => {
 
       // Send to webhook (non-blocking - don't fail if webhook fails)
       try {
-        console.log('Sending request to webhook...');
         const webhookResponse = await fetch('https://n8n.wearemaster.com/webhook/9c4a40a5-6e6a-444a-91be-0cb5fdbe1a80', {
           method: 'POST',
           headers: {
@@ -523,19 +509,15 @@ const NewRequest = () => {
         });
 
         if (!webhookResponse.ok) {
-          console.warn('Webhook responded with error:', webhookResponse.status, webhookResponse.statusText);
         } else {
-          console.log('Request successfully sent to webhook');
         }
       } catch (webhookError) {
         // Log error but don't block the flow
-        console.error('Error sending request to webhook:', webhookError);
       }
 
       // Redirect to dashboard or request details
       navigate(`/request/${request.id}`);
     } catch (error) {
-      console.error('Error submitting request:', error);
       setError(error.message || 'Failed to submit request. Please try again.');
       setLoading(false);
     }
@@ -1105,7 +1087,6 @@ const NewRequest = () => {
                 e.stopImmediatePropagation();
               }
               
-              console.log('Form onSubmit blocked - submission only allowed via button click');
               
               // Reset the flag
               submitButtonClickedRef.current = false;
@@ -1191,7 +1172,6 @@ const NewRequest = () => {
                     if (e.stopImmediatePropagation) {
                       e.stopImmediatePropagation();
                     }
-                    console.log('Submit button clicked explicitly');
                     submitButtonClickedRef.current = true;
                     // Manually trigger handleSubmit
                     handleSubmit(e);

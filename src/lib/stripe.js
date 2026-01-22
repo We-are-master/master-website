@@ -8,10 +8,10 @@ let stripePromise = null;
 export const getStripe = () => {
   if (!stripePromise) {
     const publishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
-    if (!publishableKey) {
-      console.warn('Stripe publishable key not found in environment variables');
+    if (!publishableKey || !publishableKey.startsWith('pk_')) {
       return null;
     }
+    
     stripePromise = loadStripe(publishableKey);
   }
   return stripePromise;
@@ -54,7 +54,6 @@ export async function createPaymentIntent(paymentData) {
       paymentIntentId: data.id
     };
   } catch (error) {
-    console.error('Error creating payment intent:', error);
     throw error;
   }
 }
@@ -79,12 +78,6 @@ export async function createPaymentIntentViaSupabase(paymentData) {
       source: 'website', // Important: webhook uses this to identify website payments
     };
 
-    console.log('Creating payment intent with data:', {
-      amount: paymentData.amount,
-      currency: paymentData.currency || 'gbp',
-      metadata: metadata,
-    });
-
     const { data, error } = await supabase.functions.invoke('create-payment-intent', {
       body: {
         amount: paymentData.amount,
@@ -95,11 +88,8 @@ export async function createPaymentIntentViaSupabase(paymentData) {
       }
     });
 
-    console.log('Supabase function response:', { data, error });
 
     if (error) {
-      console.error('Supabase function error:', error);
-      // Check if it's a function not found error
       if (error.message?.includes('not found') || error.message?.includes('404')) {
         throw new Error('Payment service not available. Please contact support. (Edge Function not deployed)');
       }
@@ -107,7 +97,6 @@ export async function createPaymentIntentViaSupabase(paymentData) {
     }
 
     if (!data || !data.clientSecret) {
-      console.error('Invalid response data:', data);
       throw new Error('Invalid response from payment service. Please try again.');
     }
 
@@ -116,8 +105,6 @@ export async function createPaymentIntentViaSupabase(paymentData) {
       paymentIntentId: data.id
     };
   } catch (error) {
-    console.error('Error creating payment intent:', error);
-    // Provide more helpful error message
     if (error.message?.includes('FunctionsHttpError') || error.message?.includes('FunctionsRelayError')) {
       throw new Error('Payment service error. Please try again or contact support.');
     }

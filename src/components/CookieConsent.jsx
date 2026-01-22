@@ -64,7 +64,6 @@ const CookieConsent = () => {
   const enableAnalytics = () => {
     // Google Analytics, Facebook Pixel, etc. would be enabled here
     // Example: window.gtag && window.gtag('consent', 'update', { analytics_storage: 'granted' });
-    console.log('Analytics enabled');
   };
 
   const cookieTypes = [

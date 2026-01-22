@@ -143,7 +143,6 @@ const B2CBooking = () => {
   useEffect(() => {
     const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
     if (!apiKey) {
-      console.warn('VITE_GOOGLE_API_KEY not found in environment variables');
       return;
     }
 
@@ -177,7 +176,6 @@ const B2CBooking = () => {
       setIsGoogleLoaded(true);
     };
     script.onerror = () => {
-      console.error('Failed to load Google Maps API');
       setIsGoogleLoaded(false);
     };
     document.head.appendChild(script);
@@ -227,7 +225,6 @@ const B2CBooking = () => {
         setPostcode(address.toUpperCase().replace(/[^A-Z0-9\s]/g, ''));
       }
     } catch (error) {
-      console.error('Error getting location:', error);
       const postcodeMatch = address.match(/[A-Z]{1,2}[0-9]{1,2}[A-Z]?\s?[0-9][A-Z]{2}/i);
       if (postcodeMatch) {
         setPostcode(postcodeMatch[0].toUpperCase());
@@ -353,30 +350,33 @@ const B2CBooking = () => {
       // If we have a job description, use AI to match services
       if (jobDescription.trim()) {
         const normalizedQuery = normalizeServiceQuery(jobDescription);
-        console.log('Normalized query:', normalizedQuery, 'from:', jobDescription);
+        const originalQuery = jobDescription.trim().toLowerCase();
         
-        // Try AI matching first
+        // Try AI matching first with original query
         try {
-          const aiMatched = await matchServicesWithAI(jobDescription, allServices);
+          const aiMatched = await matchServicesWithAI(originalQuery, allServices);
           if (aiMatched && aiMatched.length > 0) {
             servicesFromDB = aiMatched;
-            console.log('AI matched', aiMatched.length, 'services');
           } else {
-            // AI returned empty, try database search
-            const dbSearch = await searchServices(normalizedQuery);
+            // AI returned empty, try database search with both original and normalized
+            let dbSearch = await searchServices(originalQuery);
+            if ((!dbSearch || dbSearch.length === 0) && normalizedQuery !== originalQuery) {
+              dbSearch = await searchServices(normalizedQuery);
+            }
+            
             if (dbSearch && dbSearch.length > 0) {
               servicesFromDB = dbSearch;
-              console.log('DB search found', dbSearch.length, 'services');
             } else {
               // No matches found - show all services but with a note
-              console.log('No exact matches, showing all services');
               servicesFromDB = allServices;
             }
           }
         } catch (aiError) {
-          console.warn('AI matching failed, using database search:', aiError);
-          // Fall back to database search
-          const dbSearch = await searchServices(normalizedQuery);
+          // Fall back to database search with both queries
+          let dbSearch = await searchServices(originalQuery);
+          if ((!dbSearch || dbSearch.length === 0) && normalizedQuery !== originalQuery) {
+            dbSearch = await searchServices(normalizedQuery);
+          }
           servicesFromDB = dbSearch && dbSearch.length > 0 ? dbSearch : allServices;
         }
       }
@@ -410,11 +410,9 @@ const B2CBooking = () => {
         };
       });
       
-      console.log('Transformed services:', transformedServices);
       
       // If no services found, use mock services as fallback
       if (transformedServices.length === 0) {
-        console.warn('No services found, using mock services');
         setAvailableServices(mockServices);
       } else {
         setAvailableServices(transformedServices);
@@ -423,7 +421,6 @@ const B2CBooking = () => {
       setLoading(false);
       setStep(3);
     } catch (error) {
-      console.error('Error fetching services:', error);
       // Fallback to mock services on error
       setAvailableServices(mockServices);
       setLoading(false);

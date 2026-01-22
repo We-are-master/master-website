@@ -131,7 +131,6 @@ const MyRequests = () => {
         setRequests(formattedRequests);
         setFilteredRequests(formattedRequests);
       } catch (error) {
-        console.error('Error fetching requests:', error);
       } finally {
         setLoading(false);
       }

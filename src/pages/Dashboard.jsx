@@ -293,7 +293,7 @@ const Dashboard = () => {
 
         setRecentRequests(recent);
       } catch (error) {
-        console.error('Error fetching data:', error);
+('Error fetching data:', error);
       } finally {
         setLoading(false);
       }
@@ -426,7 +426,7 @@ const Dashboard = () => {
           setAllRequests(formattedRequests);
           setFilteredRequests(formattedRequests);
         } catch (error) {
-          console.error('Error fetching requests:', error);
+('Error fetching requests:', error);
         } finally {
           setRequestsLoading(false);
         }
@@ -479,7 +479,7 @@ const Dashboard = () => {
             phone: userDataFromDB?.phone || ''
           });
         } catch (error) {
-          console.error('Error fetching settings data:', error);
+('Error fetching settings data:', error);
           setSettingsError('Failed to load user data');
         } finally {
           setSettingsLoading(false);
@@ -526,7 +526,7 @@ const Dashboard = () => {
 
           setScheduledJobs(formattedJobs);
         } catch (error) {
-          console.error('Error fetching scheduled jobs:', error);
+('Error fetching scheduled jobs:', error);
         } finally {
           setScheduleLoading(false);
         }
@@ -560,7 +560,6 @@ const Dashboard = () => {
       setSettingsSuccess('Profile updated successfully');
       setTimeout(() => setSettingsSuccess(''), 3000);
     } catch (error) {
-      console.error('Error updating profile:', error);
       setSettingsError(error.message || 'Failed to update profile');
     } finally {
       setSettingsSaving(false);
@@ -603,7 +602,6 @@ const Dashboard = () => {
       });
       setTimeout(() => setSettingsSuccess(''), 3000);
     } catch (error) {
-      console.error('Error updating password:', error);
       setSettingsError(error.message || 'Failed to update password');
     } finally {
       setSettingsSaving(false);

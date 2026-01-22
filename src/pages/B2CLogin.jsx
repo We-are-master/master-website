@@ -49,7 +49,6 @@ const B2CLogin = () => {
       setStep('code');
       startResendCooldown();
     } catch (err) {
-      console.error('Error sending OTP:', err);
       setError(err.message || 'Failed to send verification code. Please try again.');
     } finally {
       setLoading(false);
@@ -87,7 +86,6 @@ const B2CLogin = () => {
         }, 1500);
       }
     } catch (err) {
-      console.error('Error verifying OTP:', err);
       if (err.message?.includes('expired')) {
         setError('Code has expired. Please request a new one.');
       } else if (err.message?.includes('invalid')) {

@@ -62,7 +62,7 @@ const Settings = () => {
           emailNotifications: true
         });
       } catch (error) {
-        console.error('Error fetching user data:', error);
+('Error fetching user data:', error);
         setError('Failed to load user data');
       } finally {
         setLoading(false);
@@ -96,7 +96,6 @@ const Settings = () => {
       setSuccess('Profile updated successfully');
       setTimeout(() => setSuccess(''), 3000);
     } catch (error) {
-      console.error('Error updating profile:', error);
       setError(error.message || 'Failed to update profile');
     } finally {
       setSaving(false);
@@ -142,7 +141,6 @@ const Settings = () => {
       });
       setTimeout(() => setSuccess(''), 3000);
     } catch (error) {
-      console.error('Error updating password:', error);
       setError(error.message || 'Failed to update password');
     } finally {
       setSaving(false);

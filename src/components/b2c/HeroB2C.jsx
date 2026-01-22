@@ -388,14 +388,17 @@ const HeroB2C = () => {
           >
             <div style={{
               display: 'flex',
+              flexDirection: 'row',
               backgroundColor: 'white',
               borderRadius: '16px',
               padding: '0.5rem',
               boxShadow: '0 20px 60px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.1)',
               maxWidth: '700px',
               margin: '0 auto',
-              transition: 'all 0.3s ease'
+              transition: 'all 0.3s ease',
+              gap: '0.5rem'
             }}
+            className="hero-search-container"
             onFocus={(e) => {
               gsap.to(e.currentTarget, {
                 boxShadow: '0 25px 70px rgba(0,0,0,0.4), 0 0 0 4px rgba(233, 74, 2, 0.2)',
@@ -424,7 +427,9 @@ const HeroB2C = () => {
                 position: 'relative',
                 display: 'flex',
                 alignItems: 'center',
-                minWidth: 0
+                minWidth: 0,
+                flexShrink: 1,
+                overflow: 'hidden'
               }}>
                 <input
                   type="text"
@@ -435,58 +440,67 @@ const HeroB2C = () => {
                     width: '100%',
                     border: 'none',
                     outline: 'none',
-                    fontSize: '1.125rem',
-                    padding: '1.25rem 0',
+                    fontSize: 'clamp(1rem, 4vw, 1.125rem)',
+                    padding: '1.25rem 0.5rem',
                     color: '#111827',
                     fontFamily: 'inherit',
                     background: 'transparent',
                     position: 'relative',
-                    zIndex: 2
+                    zIndex: 2,
+                    minWidth: 0
                   }}
                 />
                 {/* AI Typing Placeholder */}
                 {!searchTerm && (
                   <div style={{
                     position: 'absolute',
-                    left: 0,
+                    left: '0.5rem',
                     top: '50%',
                     transform: 'translateY(-50%)',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '0.5rem',
                     pointerEvents: 'none',
-                    zIndex: 1
-                  }}>
+                    zIndex: 1,
+                    maxWidth: 'calc(100% - 1rem)',
+                    overflow: 'hidden'
+                  }}
+                  className="hero-placeholder"
+                  >
                     <span style={{
                       color: '#9ca3af',
-                      fontSize: '1.125rem',
-                      fontFamily: 'inherit'
+                      fontSize: 'clamp(1rem, 4vw, 1.125rem)',
+                      fontFamily: 'inherit',
+                      whiteSpace: 'nowrap'
                     }}>
                       Try "
                     </span>
                     <span style={{
                       color: '#6366f1',
-                      fontSize: '1.125rem',
+                      fontSize: 'clamp(1rem, 4vw, 1.125rem)',
                       fontFamily: 'inherit',
                       fontWeight: '500',
                       background: 'linear-gradient(90deg, #6366f1, #8b5cf6)',
                       WebkitBackgroundClip: 'text',
                       WebkitTextFillColor: 'transparent',
-                      backgroundClip: 'text'
+                      backgroundClip: 'text',
+                      whiteSpace: 'nowrap'
                     }}>
                       {displayedText}
                     </span>
                     <span style={{
                       width: '2px',
-                      height: '1.25rem',
+                      height: 'clamp(1rem, 4vw, 1.25rem)',
                       backgroundColor: '#6366f1',
                       animation: 'blink 1s infinite',
-                      opacity: isTyping ? 1 : 0
+                      opacity: isTyping ? 1 : 0,
+                      flexShrink: 0
                     }}></span>
                     <span style={{
                       color: '#9ca3af',
-                      fontSize: '1.125rem',
-                      fontFamily: 'inherit'
+                      fontSize: 'clamp(1rem, 4vw, 1.125rem)',
+                      fontFamily: 'inherit',
+                      whiteSpace: 'nowrap'
                     }}>
                       "
                     </span>
@@ -497,6 +511,64 @@ const HeroB2C = () => {
                     0%, 50% { opacity: 1; }
                     51%, 100% { opacity: 0; }
                   }
+                  
+                  @media (max-width: 640px) {
+                    .hero-search-container {
+                      padding: 0.75rem !important;
+                      gap: 0.5rem !important;
+                    }
+                    
+                    .hero-search-container > div:first-child {
+                      padding: 0 0.5rem !important;
+                      flex-shrink: 0;
+                    }
+                    
+                    .hero-search-container > div:first-child svg {
+                      width: 18px !important;
+                      height: 18px !important;
+                    }
+                    
+                    .hero-search-container input {
+                      padding: 0.875rem 0.25rem !important;
+                      font-size: 0.9375rem !important;
+                    }
+                    
+                    .hero-search-container button {
+                      padding: 0.875rem 1.25rem !important;
+                      font-size: 0.875rem !important;
+                      gap: 0.375rem !important;
+                    }
+                    
+                    .hero-search-container button svg {
+                      width: 16px !important;
+                      height: 16px !important;
+                    }
+                  }
+                  
+                  @media (max-width: 480px) {
+                    .hero-search-container {
+                      padding: 0.5rem !important;
+                      gap: 0.375rem !important;
+                    }
+                    
+                    .hero-search-container button span {
+                      display: none;
+                    }
+                    
+                    .hero-search-container button {
+                      padding: 0.875rem 1rem !important;
+                      min-width: auto;
+                    }
+                    
+                    .hero-placeholder {
+                      left: 0.25rem !important;
+                      max-width: calc(100% - 120px) !important;
+                    }
+                    
+                    .hero-placeholder span {
+                      font-size: 0.875rem !important;
+                    }
+                  }
                 `}</style>
               </div>
               <button
@@ -506,15 +578,16 @@ const HeroB2C = () => {
                   color: 'white',
                   border: 'none',
                   borderRadius: '12px',
-                  padding: '1.25rem 2.5rem',
-                  fontSize: '1.125rem',
+                  padding: 'clamp(1rem, 3vw, 1.25rem) clamp(1rem, 4vw, 2.5rem)',
+                  fontSize: 'clamp(0.875rem, 3vw, 1.125rem)',
                   fontWeight: '700',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.5rem',
                   transition: 'all 0.3s ease',
-                  whiteSpace: 'nowrap'
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0
                 }}
                 onMouseEnter={(e) => {
                   gsap.to(e.target, {
@@ -531,7 +604,7 @@ const HeroB2C = () => {
                   });
                 }}
               >
-                Get instant price
+                <span>Get instant price</span>
                 <ArrowRight size={20} />
               </button>
             </div>

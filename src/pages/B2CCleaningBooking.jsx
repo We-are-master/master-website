@@ -57,7 +57,6 @@ const B2CCleaningBooking = () => {
   useEffect(() => {
     const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
     if (!apiKey) {
-      console.warn('VITE_GOOGLE_API_KEY not found in environment variables');
       return;
     }
 
@@ -91,7 +90,6 @@ const B2CCleaningBooking = () => {
       setIsGoogleLoaded(true);
     };
     script.onerror = () => {
-      console.error('Failed to load Google Maps API');
       setIsGoogleLoaded(false);
     };
     document.head.appendChild(script);
@@ -143,7 +141,6 @@ const B2CCleaningBooking = () => {
         updateState({ addressPicked: address });
       }
     } catch (error) {
-      console.error('Error getting location:', error);
       updateState({ addressPicked: address });
     }
   };

@@ -44,7 +44,6 @@ const PaymentForm = ({ onSuccess, clientSecret }) => {
         onSuccess(paymentIntent);
       }
     } catch (err) {
-      console.error('Payment error:', err);
       setError('An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);
@@ -260,6 +259,9 @@ const B2CCheckout = () => {
   useEffect(() => {
     const initStripe = async () => {
       const stripe = await getStripe();
+      if (!stripe) {
+        setPaymentError('Stripe is not configured. Please contact support.');
+      }
       setStripePromise(stripe);
     };
     initStripe();
@@ -340,7 +342,6 @@ const B2CCheckout = () => {
         }
       }, 100);
     } catch (err) {
-      console.error('Error creating payment intent:', err);
       // Show more detailed error in development
       const errorMessage = import.meta.env.DEV 
         ? `Failed to initialize payment: ${err.message}` 

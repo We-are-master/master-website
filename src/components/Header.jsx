@@ -39,7 +39,6 @@ const Header = () => {
           }
         }
       } catch (error) {
-        console.error('Error checking user:', error)
       } finally {
         setLoading(false)
       }
