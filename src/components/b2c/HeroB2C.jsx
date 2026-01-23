@@ -25,14 +25,11 @@ const HeroB2C = () => {
   const bgCircle2Ref = useRef(null);
 
   const services = [
-    'TV mounting',
-    'Plumbing repair',
-    'Electrical work',
-    'Deep cleaning',
-    'Furniture assembly',
-    'Handyman services',
-    'Light fitting',
-    'Painting walls'
+    'Painting',
+    'Handyman',
+    'Pro Cleaning',
+    'Plumber',
+    'Electrician'
   ];
 
   // Typing effect for placeholder
@@ -326,7 +323,7 @@ const HeroB2C = () => {
             }}
           >
             <Sparkles size={16} />
-            <span>Trusted by 10,000+ homeowners across London</span>
+            <span>Trusted local professionals.</span>
           </div>
 
           {/* Main Headline */}
@@ -342,6 +339,12 @@ const HeroB2C = () => {
               textShadow: '0 4px 20px rgba(0,0,0,0.3)'
             }}
           >
+            <span style={{
+              color: 'white'
+            }}>
+              Booked the right way for
+            </span>
+            <br />
             <span
               style={{
                 background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
@@ -352,12 +355,6 @@ const HeroB2C = () => {
               }}
             >
               {services[currentServiceIndex]}
-            </span>
-            <br />
-            <span style={{
-              color: 'white'
-            }}>
-              done right
             </span>
           </h1>
 
@@ -375,7 +372,7 @@ const HeroB2C = () => {
               marginRight: 'auto'
             }}
           >
-            Professional tradespeople at your doorstep. Book in minutes, get instant pricing, and enjoy peace of mind.
+            Clear pricing, vetted local trades and real accountability, all in one platform.
           </p>
 
           {/* Search Bar */}
