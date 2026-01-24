@@ -150,23 +150,23 @@ const PopularServicesB2C = () => {
     <section 
       ref={sectionRef}
       style={{ 
-        padding: '6rem 0',
-        backgroundColor: '#fafbfc',
+        padding: '8rem 0',
+        backgroundColor: '#ffffff',
         position: 'relative',
         overflow: 'hidden',
         width: '100%',
         maxWidth: '100vw'
       }}
-    >
-      {/* Background Pattern */}
+      >
+      {/* Subtle Background Pattern */}
       <div style={{
         position: 'absolute',
         top: 0,
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(0,0,0,0.03) 1px, transparent 0)',
-        backgroundSize: '40px 40px',
+        backgroundImage: 'linear-gradient(rgba(0,0,0,0.01) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.01) 1px, transparent 1px)',
+        backgroundSize: '60px 60px',
         opacity: 0.5
       }}></div>
 
@@ -177,21 +177,25 @@ const PopularServicesB2C = () => {
         maxWidth: '100%',
         overflow: 'hidden'
       }}>
-        <div ref={titleRef} style={{ textAlign: 'center', marginBottom: '4rem' }}>
+        <div ref={titleRef} style={{ textAlign: 'center', marginBottom: '5rem' }}>
           <h2 style={{
-            fontSize: 'clamp(2rem, 4vw, 3rem)',
-            fontWeight: '800',
-            color: '#020034',
-            marginBottom: '1rem',
-            letterSpacing: '-0.02em'
+            fontSize: 'clamp(2.5rem, 5vw, 3.5rem)',
+            fontWeight: '600',
+            color: '#1d1d1f',
+            marginBottom: '1.5rem',
+            letterSpacing: '-0.04em',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
           }}>
             Popular services
           </h2>
           <p style={{
-            fontSize: '1.25rem',
-            color: '#6b7280',
-            maxWidth: '600px',
-            margin: '0 auto'
+            fontSize: 'clamp(1.125rem, 2vw, 1.375rem)',
+            color: '#86868b',
+            maxWidth: '640px',
+            margin: '0 auto',
+            lineHeight: '1.5',
+            letterSpacing: '-0.01em',
+            fontWeight: '400'
           }}>
             From quick fixes to major installations, we've got you covered
           </p>
@@ -215,10 +219,10 @@ const PopularServicesB2C = () => {
               onMouseEnter={(e) => {
                 setHoveredIndex(index);
                 gsap.to(e.currentTarget, {
-                  y: -8,
-                  boxShadow: '0 25px 50px rgba(0,0,0,0.15)',
-                  duration: 0.4,
-                  ease: 'power2.out'
+                  y: -4,
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.08)',
+                  duration: 0.3,
+                  ease: 'cubic-bezier(0.4, 0, 0.2, 1)'
                 });
                 const icon = e.currentTarget.querySelector('.service-icon');
                 const image = e.currentTarget.querySelector('.service-image');
@@ -242,8 +246,8 @@ const PopularServicesB2C = () => {
                 setHoveredIndex(null);
                 gsap.to(e.currentTarget, {
                   y: 0,
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                  duration: 0.4
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06)',
+                  duration: 0.3
                 });
                 const icon = e.currentTarget.querySelector('.service-icon');
                 const image = e.currentTarget.querySelector('.service-image');
@@ -263,11 +267,13 @@ const PopularServicesB2C = () => {
               }}
               style={{
                 cursor: 'pointer',
-                borderRadius: '20px',
+                borderRadius: '12px',
                 overflow: 'hidden',
                 backgroundColor: 'white',
-                boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                position: 'relative'
+                boxShadow: '0 2px 8px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06)',
+                border: '1px solid rgba(0,0,0,0.06)',
+                position: 'relative',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
               }}
             >
               {/* Image Container */}
@@ -304,14 +310,15 @@ const PopularServicesB2C = () => {
                     position: 'absolute',
                     top: '1rem',
                     right: '1rem',
-                    width: '56px',
-                    height: '56px',
-                    backgroundColor: 'white',
-                    borderRadius: '16px',
+                    width: '48px',
+                    height: '48px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                    backdropFilter: 'blur(10px)',
+                    borderRadius: '10px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                     color: service.color
                   }}
                 >
@@ -322,18 +329,20 @@ const PopularServicesB2C = () => {
               {/* Content */}
               <div style={{ padding: '1.5rem' }}>
                 <h3 style={{
-                  fontSize: '1.25rem',
-                  fontWeight: '700',
-                  color: '#020034',
-                  marginBottom: '0.5rem'
+                  fontSize: '1.125rem',
+                  fontWeight: '600',
+                  color: '#1d1d1f',
+                  marginBottom: '0.5rem',
+                  letterSpacing: '-0.01em'
                 }}>
                   {service.title}
                 </h3>
                 <p style={{
-                  color: '#6b7280',
-                  fontSize: '0.95rem',
-                  lineHeight: '1.6',
-                  marginBottom: '1rem'
+                  color: '#86868b',
+                  fontSize: '0.9375rem',
+                  lineHeight: '1.5',
+                  marginBottom: '1rem',
+                  fontWeight: '400'
                 }}>
                   {service.description}
                 </p>
@@ -342,11 +351,12 @@ const PopularServicesB2C = () => {
                   alignItems: 'center',
                   gap: '0.5rem',
                   color: service.color,
-                  fontWeight: '600',
-                  fontSize: '0.95rem'
+                  fontWeight: '500',
+                  fontSize: '0.875rem',
+                  letterSpacing: '-0.01em'
                 }}>
                   <span>Book now</span>
-                  <ArrowRight size={18} />
+                  <ArrowRight size={16} />
                 </div>
               </div>
             </div>

@@ -12,14 +12,16 @@ const HeaderB2C = () => {
     <header 
       className="header-b2c"
       style={{
-        backgroundColor: '#020034',
-        background: '#020034',
+        backgroundColor: 'rgba(2, 0, 52, 0.95)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
         color: 'white',
         padding: '1rem 0',
         position: 'sticky',
         top: 0,
         zIndex: 100,
-        boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
+        boxShadow: '0 1px 0 rgba(255,255,255,0.05)',
+        borderBottom: '1px solid rgba(255,255,255,0.08)',
         width: '100%',
         margin: 0,
         display: 'block'
@@ -62,15 +64,16 @@ const HeaderB2C = () => {
           justifyContent: 'center'
         }} className="hidden md:flex">
           <Link to="/" style={{
-            color: 'white',
+            color: 'rgba(255, 255, 255, 0.8)',
             textDecoration: 'none',
-            fontSize: '0.95rem',
-            fontWeight: '500',
-            transition: 'opacity 0.3s ease',
-            whiteSpace: 'nowrap'
+            fontSize: '0.9375rem',
+            fontWeight: '400',
+            transition: 'color 0.2s ease',
+            whiteSpace: 'nowrap',
+            letterSpacing: '-0.01em'
           }}
-          onMouseEnter={(e) => e.target.style.opacity = '0.7'}
-          onMouseLeave={(e) => e.target.style.opacity = '1'}
+          onMouseEnter={(e) => e.target.style.color = 'white'}
+          onMouseLeave={(e) => e.target.style.color = 'rgba(255, 255, 255, 0.8)'}
           >
             Home
           </Link>
@@ -83,20 +86,25 @@ const HeaderB2C = () => {
             <button style={{
               backgroundColor: 'transparent',
               border: 'none',
-              color: 'white',
-              fontSize: '0.95rem',
-              fontWeight: '500',
+              color: 'rgba(255, 255, 255, 0.8)',
+              fontSize: '0.9375rem',
+              fontWeight: '400',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               gap: '0.25rem',
               padding: 0,
-              whiteSpace: 'nowrap'
-            }}>
+              whiteSpace: 'nowrap',
+              letterSpacing: '-0.01em',
+              transition: 'color 0.2s ease'
+            }}
+            onMouseEnter={(e) => e.target.style.color = 'white'}
+            onMouseLeave={(e) => e.target.style.color = 'rgba(255, 255, 255, 0.8)'}
+            >
               Services
-              <ChevronDown size={16} style={{ 
+              <ChevronDown size={14} style={{ 
                 transform: servicesOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                transition: 'transform 0.3s ease'
+                transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
               }} />
             </button>
             {servicesOpen && (
@@ -105,10 +113,13 @@ const HeaderB2C = () => {
                 top: '100%',
                 left: 0,
                 marginTop: '0.5rem',
-                backgroundColor: 'white',
-                borderRadius: '0.5rem',
-                boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
-                padding: '0.75rem 0',
+                backgroundColor: 'rgba(2, 0, 52, 0.98)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+                borderRadius: '8px',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                padding: '0.5rem 0',
                 minWidth: '200px',
                 zIndex: 1001
               }}>
@@ -123,13 +134,20 @@ const HeaderB2C = () => {
                       style={{
                         display: 'block',
                         padding: '0.75rem 1.25rem',
-                        color: '#111827',
+                        color: 'rgba(255, 255, 255, 0.8)',
                         textDecoration: 'none',
-                        fontSize: '0.9rem',
-                        transition: 'background-color 0.2s ease'
+                        fontSize: '0.875rem',
+                        transition: 'all 0.2s ease',
+                        letterSpacing: '-0.01em'
                       }}
-                      onMouseEnter={(e) => e.target.style.backgroundColor = '#f3f4f6'}
-                      onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                      onMouseEnter={(e) => {
+                        e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                        e.target.style.color = 'white';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.backgroundColor = 'transparent';
+                        e.target.style.color = 'rgba(255, 255, 255, 0.8)';
+                      }}
                     >
                       {service}
                     </Link>
@@ -140,29 +158,31 @@ const HeaderB2C = () => {
           </div>
 
           <Link to="/about" style={{
-            color: 'white',
+            color: 'rgba(255, 255, 255, 0.8)',
             textDecoration: 'none',
-            fontSize: '0.95rem',
-            fontWeight: '500',
-            transition: 'opacity 0.3s ease',
-            whiteSpace: 'nowrap'
+            fontSize: '0.9375rem',
+            fontWeight: '400',
+            transition: 'color 0.2s ease',
+            whiteSpace: 'nowrap',
+            letterSpacing: '-0.01em'
           }}
-          onMouseEnter={(e) => e.target.style.opacity = '0.7'}
-          onMouseLeave={(e) => e.target.style.opacity = '1'}
+          onMouseEnter={(e) => e.target.style.color = 'white'}
+          onMouseLeave={(e) => e.target.style.color = 'rgba(255, 255, 255, 0.8)'}
           >
             About Us
           </Link>
 
           <Link to="/contact" style={{
-            color: 'white',
+            color: 'rgba(255, 255, 255, 0.8)',
             textDecoration: 'none',
-            fontSize: '0.95rem',
-            fontWeight: '500',
-            transition: 'opacity 0.3s ease',
-            whiteSpace: 'nowrap'
+            fontSize: '0.9375rem',
+            fontWeight: '400',
+            transition: 'color 0.2s ease',
+            whiteSpace: 'nowrap',
+            letterSpacing: '-0.01em'
           }}
-          onMouseEnter={(e) => e.target.style.opacity = '0.7'}
-          onMouseLeave={(e) => e.target.style.opacity = '1'}
+          onMouseEnter={(e) => e.target.style.color = 'white'}
+          onMouseLeave={(e) => e.target.style.color = 'rgba(255, 255, 255, 0.8)'}
           >
             Contact Us
           </Link>
@@ -179,58 +199,62 @@ const HeaderB2C = () => {
             onClick={() => navigate('/customer-login')}
             style={{
               backgroundColor: 'transparent',
-              color: 'white',
-              border: '1px solid rgba(255,255,255,0.3)',
+              color: 'rgba(255, 255, 255, 0.8)',
+              border: '1px solid rgba(255,255,255,0.15)',
               borderRadius: '8px',
-              padding: '0.65rem 1.25rem',
-              fontSize: '0.9rem',
-              fontWeight: '500',
+              padding: '0.625rem 1.125rem',
+              fontSize: '0.875rem',
+              fontWeight: '400',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               gap: '0.5rem',
-              transition: 'all 0.3s ease',
-              whiteSpace: 'nowrap'
+              transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+              whiteSpace: 'nowrap',
+              letterSpacing: '-0.01em'
             }}
             onMouseEnter={(e) => {
-              e.target.style.backgroundColor = 'rgba(255,255,255,0.1)';
-              e.target.style.borderColor = 'rgba(255,255,255,0.5)';
+              e.target.style.backgroundColor = 'rgba(255,255,255,0.08)';
+              e.target.style.borderColor = 'rgba(255,255,255,0.25)';
+              e.target.style.color = 'white';
             }}
             onMouseLeave={(e) => {
               e.target.style.backgroundColor = 'transparent';
-              e.target.style.borderColor = 'rgba(255,255,255,0.3)';
+              e.target.style.borderColor = 'rgba(255,255,255,0.15)';
+              e.target.style.color = 'rgba(255, 255, 255, 0.8)';
             }}
           >
-            <Package size={16} />
+            <Package size={14} />
             My Orders
           </button>
           <button
             onClick={() => navigate('/login')}
             style={{
-              backgroundColor: 'white',
-              color: '#020034',
+              backgroundColor: '#E94A02',
+              color: 'white',
               border: 'none',
               borderRadius: '8px',
-              padding: '0.75rem 1.5rem',
-              fontSize: '0.95rem',
-              fontWeight: '600',
+              padding: '0.625rem 1.25rem',
+              fontSize: '0.875rem',
+              fontWeight: '500',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               gap: '0.5rem',
-              transition: 'all 0.3s ease',
-              whiteSpace: 'nowrap'
+              transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+              whiteSpace: 'nowrap',
+              letterSpacing: '-0.01em'
             }}
             onMouseEnter={(e) => {
-              e.target.style.backgroundColor = '#f3f4f6';
-              e.target.style.transform = 'translateY(-2px)';
+              e.target.style.backgroundColor = '#d13d00';
+              e.target.style.transform = 'translateY(-1px)';
             }}
             onMouseLeave={(e) => {
-              e.target.style.backgroundColor = 'white';
+              e.target.style.backgroundColor = '#E94A02';
               e.target.style.transform = 'translateY(0)';
             }}
           >
-            <LogIn size={18} />
+            <LogIn size={16} />
             B2B Login
           </button>
         </div>
@@ -323,18 +347,14 @@ const HeaderB2C = () => {
       )}
       <style>{`
         .header-b2c {
-          background-color: #020034 !important;
-          background: #020034 !important;
+          background-color: rgba(2, 0, 52, 0.95) !important;
+          background: rgba(2, 0, 52, 0.95) !important;
         }
         .header-b2c * {
           background-color: transparent !important;
         }
         .header-b2c .container {
           background-color: transparent !important;
-        }
-        .header-b2c nav a,
-        .header-b2c nav button {
-          color: white !important;
         }
         @media (max-width: 768px) {
           .hidden.md\\:flex {

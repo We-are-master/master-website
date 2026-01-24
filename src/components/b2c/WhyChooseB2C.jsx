@@ -83,8 +83,8 @@ const WhyChooseB2C = () => {
           card.addEventListener('mouseleave', () => {
             gsap.to(card, {
               y: 0,
-              boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-              duration: 0.4
+              boxShadow: '0 2px 8px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06)',
+              duration: 0.3
             });
             if (icon) {
               gsap.to(icon, {
@@ -187,22 +187,24 @@ const WhyChooseB2C = () => {
     <section 
       ref={sectionRef}
       style={{
-        padding: '6rem 0',
-        background: 'linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)',
+        padding: '8rem 0',
+        background: '#fbfbfd',
         position: 'relative',
         overflow: 'hidden',
         width: '100%',
         maxWidth: '100vw'
       }}
     >
-      {/* Decorative Background */}
+      {/* Subtle Background */}
       <div style={{
         position: 'absolute',
         top: 0,
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundImage: 'radial-gradient(circle at 80% 20%, rgba(233, 74, 2, 0.03) 0%, transparent 50%), radial-gradient(circle at 20% 80%, rgba(32, 1, 175, 0.03) 0%, transparent 50%)'
+        backgroundImage: 'linear-gradient(rgba(0,0,0,0.01) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.01) 1px, transparent 1px)',
+        backgroundSize: '60px 60px',
+        opacity: 0.5
       }}></div>
 
       <div className="container" style={{ 
@@ -235,19 +237,23 @@ const WhyChooseB2C = () => {
             <span>Why choose us</span>
           </div>
           <h2 style={{
-            fontSize: 'clamp(2rem, 4vw, 3rem)',
-            fontWeight: '800',
-            marginBottom: '1rem',
-            color: '#020034',
-            letterSpacing: '-0.02em'
+            fontSize: 'clamp(2.5rem, 5vw, 3.5rem)',
+            fontWeight: '600',
+            marginBottom: '1.5rem',
+            color: '#1d1d1f',
+            letterSpacing: '-0.04em',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
           }}>
             Why homeowners and renters choose Master
           </h2>
           <p style={{
-            fontSize: '1.25rem',
-            color: '#6b7280',
+            fontSize: 'clamp(1.125rem, 2vw, 1.375rem)',
+            color: '#86868b',
             maxWidth: '700px',
-            margin: '0 auto'
+            margin: '0 auto',
+            lineHeight: '1.5',
+            letterSpacing: '-0.01em',
+            fontWeight: '400'
           }}>
             The Master brand you know & trust, with the ease of booking online.
           </p>
@@ -269,14 +275,15 @@ const WhyChooseB2C = () => {
               className="benefit-card"
               style={{
                 backgroundColor: 'white',
-                borderRadius: '24px',
-                padding: '2.5rem',
-                color: '#111827',
+                borderRadius: '12px',
+                padding: '2rem',
+                color: '#1d1d1f',
                 textAlign: 'left',
-                boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                border: '1px solid rgba(0,0,0,0.05)',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06)',
+                border: '1px solid rgba(0,0,0,0.06)',
                 position: 'relative',
-                overflow: 'hidden'
+                overflow: 'hidden',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
               }}
             >
               {/* Accent Line */}
@@ -293,14 +300,14 @@ const WhyChooseB2C = () => {
               <div 
                 className="benefit-icon"
                 style={{
-                  width: '72px',
-                  height: '72px',
-                  borderRadius: '18px',
+                  width: '56px',
+                  height: '56px',
+                  borderRadius: '12px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  marginBottom: '1.5rem',
-                  background: `${benefit.color}15`,
+                  marginBottom: '1.25rem',
+                  background: `${benefit.color}12`,
                   color: benefit.color
                 }}
               >
@@ -308,18 +315,19 @@ const WhyChooseB2C = () => {
               </div>
 
               <h3 style={{
-                fontSize: '1.5rem',
-                fontWeight: '800',
+                fontSize: '1.25rem',
+                fontWeight: '600',
                 marginBottom: '0.75rem',
-                color: '#020034',
-                letterSpacing: '-0.01em'
+                color: '#1d1d1f',
+                letterSpacing: '-0.02em'
               }}>
                 {benefit.title}
               </h3>
               <p style={{
-                color: '#6b7280',
-                lineHeight: '1.7',
-                fontSize: '1rem'
+                color: '#86868b',
+                lineHeight: '1.5',
+                fontSize: '0.9375rem',
+                fontWeight: '400'
               }}>
                 {benefit.description}
               </p>
@@ -339,8 +347,9 @@ const WhyChooseB2C = () => {
             margin: '5rem auto 0',
             padding: '3rem',
             backgroundColor: 'white',
-            borderRadius: '24px',
-            boxShadow: '0 8px 30px rgba(0,0,0,0.1)'
+            borderRadius: '12px',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04)',
+            border: '1px solid rgba(0,0,0,0.06)'
           }}
         >
           {[
@@ -357,18 +366,20 @@ const WhyChooseB2C = () => {
               }}
             >
               <div style={{
-                fontSize: '2.5rem',
-                fontWeight: '800',
+                fontSize: '2.25rem',
+                fontWeight: '600',
                 color: stat.color,
                 marginBottom: '0.5rem',
-                letterSpacing: '-0.02em'
+                letterSpacing: '-0.03em',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
               }}>
                 {stat.number}
               </div>
               <div style={{
-                fontSize: '0.95rem',
-                color: '#6b7280',
-                fontWeight: '600'
+                fontSize: '0.875rem',
+                color: '#86868b',
+                fontWeight: '400',
+                letterSpacing: '-0.01em'
               }}>
                 {stat.label}
               </div>

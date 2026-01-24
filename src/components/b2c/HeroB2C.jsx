@@ -229,72 +229,43 @@ const HeroB2C = () => {
       ref={heroRef}
       style={{
         position: 'relative',
-        minHeight: '90vh',
+        minHeight: '100vh',
         display: 'flex',
         alignItems: 'center',
         overflow: 'hidden',
-        background: 'linear-gradient(135deg, #020034 0%, #2001AF 50%, #E94A02 100%)',
-        width: '100%'
+        background: '#020034',
+        width: '100%',
+        paddingTop: '2rem',
+        paddingBottom: '2rem'
       }}
     >
-      {/* Animated Background Elements */}
-      <div 
-        ref={bgCircle1Ref}
-        style={{
-          position: 'absolute',
-          top: '-50%',
-          right: '-10%',
-          width: '800px',
-          height: '800px',
-          background: 'radial-gradient(circle, rgba(233, 74, 2, 0.15) 0%, transparent 70%)',
-          borderRadius: '50%',
-          zIndex: 1
-        }}
-      ></div>
-      
-      <div 
-        ref={bgCircle2Ref}
-        style={{
-          position: 'absolute',
-          bottom: '-30%',
-          left: '-5%',
-          width: '600px',
-          height: '600px',
-          background: 'radial-gradient(circle, rgba(32, 1, 175, 0.2) 0%, transparent 70%)',
-          borderRadius: '50%',
-          zIndex: 1
-        }}
-      ></div>
-
-      {/* Background Image Overlay */}
+      {/* Subtle Background Gradient with Brand Colors */}
       <div style={{
         position: 'absolute',
         top: 0,
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundImage: 'url(https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=1920&q=80)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        opacity: 0.15,
+        background: 'radial-gradient(ellipse 80% 50% at 50% 0%, rgba(233, 74, 2, 0.12) 0%, transparent 50%), radial-gradient(ellipse 60% 40% at 20% 100%, rgba(32, 1, 175, 0.15) 0%, transparent 50%)',
         zIndex: 1
       }}></div>
-
-      {/* Gradient Overlay */}
+      
+      {/* Minimal Grid Pattern */}
       <div style={{
         position: 'absolute',
         top: 0,
         left: 0,
         right: 0,
         bottom: 0,
-        background: 'linear-gradient(180deg, rgba(2,0,52,0.8) 0%, rgba(32,1,175,0.6) 50%, rgba(233,74,2,0.7) 100%)',
-        zIndex: 2
+        backgroundImage: 'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)',
+        backgroundSize: '60px 60px',
+        zIndex: 1
       }}></div>
 
       <div className="container" style={{ 
         position: 'relative', 
         zIndex: 3,
-        padding: '4rem 0',
+        padding: '2rem 0',
         width: '100%',
         maxWidth: '100%',
         overflow: 'hidden'
@@ -311,18 +282,19 @@ const HeroB2C = () => {
               display: 'inline-flex',
               alignItems: 'center',
               gap: '0.5rem',
-              backgroundColor: 'rgba(255, 255, 255, 0.15)',
-              backdropFilter: 'blur(10px)',
-              color: 'white',
-              padding: '0.75rem 1.5rem',
-              borderRadius: '50px',
-              fontSize: '0.875rem',
-              fontWeight: '600',
-              marginBottom: '2rem',
-              border: '1px solid rgba(255, 255, 255, 0.2)'
+              backgroundColor: 'rgba(255, 255, 255, 0.05)',
+              backdropFilter: 'blur(20px)',
+              color: 'rgba(255, 255, 255, 0.8)',
+              padding: '0.5rem 1rem',
+              borderRadius: '8px',
+              fontSize: '0.75rem',
+              fontWeight: '500',
+              marginBottom: '1.5rem',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              letterSpacing: '0.01em'
             }}
           >
-            <Sparkles size={16} />
+            <Sparkles size={12} style={{ opacity: 0.7 }} />
             <span>Trusted by 10,000+ homeowners across London</span>
           </div>
 
@@ -330,39 +302,39 @@ const HeroB2C = () => {
           <h1 
             ref={titleRef}
             style={{
-              fontSize: 'clamp(2.5rem, 6vw, 4.5rem)',
-              fontWeight: '900',
+              fontSize: 'clamp(2rem, 5vw, 3.5rem)',
+              fontWeight: '600',
               color: 'white',
-              marginBottom: '1.5rem',
+              marginBottom: '1.25rem',
               lineHeight: '1.1',
-              letterSpacing: '-0.02em',
-              textShadow: '0 4px 20px rgba(0,0,0,0.3)'
+              letterSpacing: '-0.03em',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
             }}
           >
             <span style={{
-              color: 'white'
+              color: 'white',
+              display: 'block',
+              marginBottom: '0.25rem'
             }}>
               Trusted local professionals.
             </span>
-            <br />
             <span style={{
-              color: 'white'
+              color: 'rgba(255, 255, 255, 0.6)',
+              fontWeight: '400'
             }}>
               Booked the right way for{' '}
             </span>
             <span
               style={{
-                background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
+                color: '#E94A02',
+                fontWeight: '600',
                 display: 'inline-block'
               }}
             >
               {services[currentServiceIndex]}
             </span>
             <span style={{
-              color: 'white'
+              color: 'rgba(255, 255, 255, 0.6)'
             }}>
               .
             </span>
@@ -372,17 +344,18 @@ const HeroB2C = () => {
           <p 
             ref={subtitleRef}
             style={{
-              fontSize: 'clamp(1.125rem, 2vw, 1.5rem)',
-              color: 'rgba(255,255,255,0.95)',
-              marginBottom: '3rem',
+              fontSize: 'clamp(1rem, 2vw, 1.25rem)',
+              color: 'rgba(255,255,255,0.7)',
+              marginBottom: '2rem',
               fontWeight: '400',
-              lineHeight: '1.6',
-              maxWidth: '700px',
+              lineHeight: '1.5',
+              maxWidth: '640px',
               marginLeft: 'auto',
-              marginRight: 'auto'
+              marginRight: 'auto',
+              letterSpacing: '-0.01em'
             }}
           >
-            Professional tradespeople at your doorstep. Book in minutes, get instant pricing, and enjoy peace of mind. All in one platform.
+            Professional tradespeople at your doorstep. Book in minutes, get instant pricing, and enjoy peace of mind.
           </p>
 
           {/* Search Bar */}
@@ -396,27 +369,29 @@ const HeroB2C = () => {
             <div style={{
               display: 'flex',
               flexDirection: 'row',
-              backgroundColor: 'white',
-              borderRadius: '16px',
+              backgroundColor: 'rgba(255, 255, 255, 0.08)',
+              backdropFilter: 'blur(20px)',
+              borderRadius: '12px',
               padding: '0.5rem',
-              boxShadow: '0 20px 60px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.1)',
-              maxWidth: '700px',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.08)',
+              maxWidth: '720px',
               margin: '0 auto',
-              transition: 'all 0.3s ease',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
               gap: '0.5rem'
             }}
             className="hero-search-container"
             onFocus={(e) => {
               gsap.to(e.currentTarget, {
-                boxShadow: '0 25px 70px rgba(0,0,0,0.4), 0 0 0 4px rgba(233, 74, 2, 0.2)',
-                scale: 1.02,
-                duration: 0.3
+                boxShadow: '0 12px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(233, 74, 2, 0.3)',
+                backgroundColor: 'rgba(255, 255, 255, 0.12)',
+                duration: 0.3,
+                ease: 'power2.out'
               });
             }}
             onBlur={(e) => {
               gsap.to(e.currentTarget, {
-                boxShadow: '0 20px 60px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.1)',
-                scale: 1,
+                boxShadow: '0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.08)',
+                backgroundColor: 'rgba(255, 255, 255, 0.08)',
                 duration: 0.3
               });
             }}
@@ -425,9 +400,9 @@ const HeroB2C = () => {
                 display: 'flex',
                 alignItems: 'center',
                 padding: '0 1.25rem',
-                color: '#6b7280'
+                color: 'rgba(255, 255, 255, 0.5)'
               }}>
-                <Search size={22} />
+                <Search size={20} />
               </div>
               <div style={{
                 flex: 1,
@@ -449,7 +424,7 @@ const HeroB2C = () => {
                     outline: 'none',
                     fontSize: 'clamp(1rem, 4vw, 1.125rem)',
                     padding: '1.25rem 0.5rem',
-                    color: '#111827',
+                    color: 'white',
                     fontFamily: 'inherit',
                     background: 'transparent',
                     position: 'relative',
@@ -475,7 +450,7 @@ const HeroB2C = () => {
                   className="hero-placeholder"
                   >
                     <span style={{
-                      color: '#9ca3af',
+                      color: 'rgba(255, 255, 255, 0.4)',
                       fontSize: 'clamp(1rem, 4vw, 1.125rem)',
                       fontFamily: 'inherit',
                       whiteSpace: 'nowrap'
@@ -483,14 +458,10 @@ const HeroB2C = () => {
                       Try "
                     </span>
                     <span style={{
-                      color: '#6366f1',
+                      color: '#E94A02',
                       fontSize: 'clamp(1rem, 4vw, 1.125rem)',
                       fontFamily: 'inherit',
                       fontWeight: '500',
-                      background: 'linear-gradient(90deg, #6366f1, #8b5cf6)',
-                      WebkitBackgroundClip: 'text',
-                      WebkitTextFillColor: 'transparent',
-                      backgroundClip: 'text',
                       whiteSpace: 'nowrap'
                     }}>
                       {displayedText}
@@ -498,13 +469,13 @@ const HeroB2C = () => {
                     <span style={{
                       width: '2px',
                       height: 'clamp(1rem, 4vw, 1.25rem)',
-                      backgroundColor: '#6366f1',
+                      backgroundColor: '#E94A02',
                       animation: 'blink 1s infinite',
                       opacity: isTyping ? 1 : 0,
                       flexShrink: 0
                     }}></span>
                     <span style={{
-                      color: '#9ca3af',
+                      color: 'rgba(255, 255, 255, 0.4)',
                       fontSize: 'clamp(1rem, 4vw, 1.125rem)',
                       fontFamily: 'inherit',
                       whiteSpace: 'nowrap'
@@ -584,23 +555,25 @@ const HeroB2C = () => {
                   backgroundColor: '#E94A02',
                   color: 'white',
                   border: 'none',
-                  borderRadius: '12px',
-                  padding: 'clamp(1rem, 3vw, 1.25rem) clamp(1rem, 4vw, 2.5rem)',
-                  fontSize: 'clamp(0.875rem, 3vw, 1.125rem)',
-                  fontWeight: '700',
+                  borderRadius: '8px',
+                  padding: 'clamp(1rem, 3vw, 1.25rem) clamp(1.5rem, 4vw, 2.5rem)',
+                  fontSize: 'clamp(0.875rem, 3vw, 1rem)',
+                  fontWeight: '500',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.5rem',
-                  transition: 'all 0.3s ease',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   whiteSpace: 'nowrap',
-                  flexShrink: 0
+                  flexShrink: 0,
+                  letterSpacing: '-0.01em'
                 }}
                 onMouseEnter={(e) => {
                   gsap.to(e.target, {
                     backgroundColor: '#d13d00',
-                    scale: 1.05,
-                    duration: 0.3
+                    scale: 1.02,
+                    duration: 0.3,
+                    ease: 'power2.out'
                   });
                 }}
                 onMouseLeave={(e) => {
@@ -612,7 +585,7 @@ const HeroB2C = () => {
                 }}
               >
                 <span>Get instant price</span>
-                <ArrowRight size={20} />
+                <ArrowRight size={18} />
               </button>
             </div>
           </form>
@@ -624,9 +597,9 @@ const HeroB2C = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '1.5rem',
+              gap: '0.75rem',
               flexWrap: 'wrap',
-              marginTop: '3rem'
+              marginTop: '2rem'
             }}
           >
             {[
@@ -641,21 +614,22 @@ const HeroB2C = () => {
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.5rem',
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  backdropFilter: 'blur(10px)',
-                  padding: '0.75rem 1.25rem',
-                  borderRadius: '12px',
-                  border: '1px solid rgba(255, 255, 255, 0.2)',
-                  color: 'white',
-                  fontSize: '0.95rem',
-                  fontWeight: '500'
+                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                  backdropFilter: 'blur(20px)',
+                  padding: '0.5rem 0.875rem',
+                  borderRadius: '8px',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  color: 'rgba(255, 255, 255, 0.8)',
+                  fontSize: '0.8125rem',
+                  fontWeight: '400',
+                  letterSpacing: '0.01em'
                 }}
               >
                 <span style={{ 
-                  color: '#10b981',
-                  fontSize: '1.1rem',
-                  fontWeight: 'bold'
-                }}>✔</span>
+                  color: '#E94A02',
+                  fontSize: '0.875rem',
+                  fontWeight: '600'
+                }}>✓</span>
                 <span>{text}</span>
               </div>
             ))}
@@ -672,14 +646,15 @@ const HeroB2C = () => {
         zIndex: 3
       }}>
         <div style={{
-          width: '30px',
-          height: '50px',
-          border: '2px solid rgba(255,255,255,0.5)',
-          borderRadius: '25px',
+          width: '24px',
+          height: '40px',
+          border: '1px solid rgba(255,255,255,0.2)',
+          borderRadius: '12px',
           display: 'flex',
           justifyContent: 'center',
-          paddingTop: '10px',
-          cursor: 'pointer'
+          paddingTop: '8px',
+          cursor: 'pointer',
+          transition: 'all 0.3s ease'
         }}
         onClick={() => {
           window.scrollTo({
@@ -687,12 +662,18 @@ const HeroB2C = () => {
             behavior: 'smooth'
           });
         }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.4)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)';
+        }}
         >
           <div style={{
-            width: '6px',
-            height: '10px',
-            backgroundColor: 'rgba(255,255,255,0.7)',
-            borderRadius: '3px'
+            width: '4px',
+            height: '8px',
+            backgroundColor: 'rgba(255,255,255,0.5)',
+            borderRadius: '2px'
           }}></div>
         </div>
       </div>
