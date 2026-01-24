@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { LogIn, Menu, X, ChevronDown, Package } from 'lucide-react';
+import { Menu, X, ChevronDown, Package } from 'lucide-react';
 import logo from '../../assets/logo.png';
 
 const HeaderB2C = () => {
@@ -188,7 +188,7 @@ const HeaderB2C = () => {
           </Link>
         </nav>
 
-        {/* Right Side: My Orders & Login Button */}
+        {/* Right Side: My Orders */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
@@ -226,36 +226,6 @@ const HeaderB2C = () => {
           >
             <Package size={14} />
             My Orders
-          </button>
-          <button
-            onClick={() => navigate('/login')}
-            style={{
-              backgroundColor: '#E94A02',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              padding: '0.625rem 1.25rem',
-              fontSize: '0.875rem',
-              fontWeight: '500',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-              whiteSpace: 'nowrap',
-              letterSpacing: '-0.01em'
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.backgroundColor = '#d13d00';
-              e.target.style.transform = 'translateY(-1px)';
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.backgroundColor = '#E94A02';
-              e.target.style.transform = 'translateY(0)';
-            }}
-          >
-            <LogIn size={16} />
-            B2B Login
           </button>
         </div>
 
@@ -317,30 +287,6 @@ const HeaderB2C = () => {
             >
               <Package size={18} />
               My Orders
-            </button>
-            <button
-              onClick={() => {
-                navigate('/login');
-                setIsMenuOpen(false);
-              }}
-              style={{
-                backgroundColor: 'white',
-                color: '#020034',
-                border: 'none',
-                borderRadius: '8px',
-                padding: '0.75rem 1.5rem',
-                fontSize: '0.95rem',
-                fontWeight: '600',
-                cursor: 'pointer',
-                marginTop: '0.5rem',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.5rem'
-              }}
-            >
-              <LogIn size={18} />
-              B2B Login
             </button>
           </nav>
         </div>

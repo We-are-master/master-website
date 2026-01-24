@@ -447,12 +447,18 @@ const B2CBooking = () => {
   };
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f9fafb' }}>
+    <div style={{ 
+      minHeight: '100vh', 
+      backgroundColor: '#fbfbfd',
+      overflowX: 'hidden',
+      width: '100%',
+      maxWidth: '100vw'
+    }}>
       {/* Header */}
       <div style={{
-        backgroundColor: 'white',
-        borderBottom: '1px solid #e5e7eb',
-        padding: '1rem 0'
+        backgroundColor: '#fbfbfd',
+        borderBottom: '1px solid rgba(0,0,0,0.06)',
+        padding: '1.25rem 0'
       }}>
         <div className="container">
           <button
@@ -463,13 +469,17 @@ const B2CBooking = () => {
               gap: '0.5rem',
               backgroundColor: 'transparent',
               border: 'none',
-              color: '#2001AF',
+              color: '#1d1d1f',
               cursor: 'pointer',
-              fontSize: '1rem',
-              fontWeight: '500'
+              fontSize: '0.9375rem',
+              fontWeight: '400',
+              transition: 'color 0.2s ease',
+              letterSpacing: '-0.01em'
             }}
+            onMouseEnter={(e) => e.target.style.color = '#E94A02'}
+            onMouseLeave={(e) => e.target.style.color = '#1d1d1f'}
           >
-            <ArrowLeft size={20} />
+            <ArrowLeft size={18} />
             Back
           </button>
         </div>
@@ -567,49 +577,56 @@ const B2CBooking = () => {
         {/* Step 2: Postcode */}
         {step === 2 && (
           <div style={{
-            maxWidth: '500px',
+            maxWidth: '600px',
             margin: '0 auto',
             backgroundColor: 'white',
-            borderRadius: '1rem',
+            borderRadius: '12px',
             padding: '3rem',
-            boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+            boxShadow: '0 2px 8px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06)',
+            border: '1px solid rgba(0,0,0,0.06)'
           }}>
             <h1 style={{
-              fontSize: '2rem',
-              fontWeight: '700',
-              color: '#2001AF',
-              marginBottom: '0.5rem',
-              textAlign: 'center'
+              fontSize: 'clamp(2rem, 4vw, 2.5rem)',
+              fontWeight: '600',
+              color: '#1d1d1f',
+              marginBottom: '0.75rem',
+              textAlign: 'center',
+              letterSpacing: '-0.03em',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
             }}>
               Enter your postcode
             </h1>
             {jobDescription && (
               <p style={{
-                color: '#6b7280',
+                color: '#86868b',
                 textAlign: 'center',
                 marginBottom: '0.5rem',
-                fontSize: '0.95rem',
-                fontStyle: 'italic'
+                fontSize: '0.9375rem',
+                fontWeight: '400'
               }}>
-                Service: <strong>{jobDescription}</strong>
+                Service: <strong style={{ color: '#E94A02', fontWeight: '600' }}>{jobDescription}</strong>
               </p>
             )}
             <p style={{
-              color: '#6b7280',
+              color: '#86868b',
               textAlign: 'center',
-              marginBottom: '2rem'
+              marginBottom: '2.5rem',
+              fontSize: '1rem',
+              lineHeight: '1.5',
+              fontWeight: '400'
             }}>
               We need your location to show available services
             </p>
 
             <form onSubmit={handlePostcodeSubmit}>
-              <div style={{ marginBottom: '1.5rem' }}>
+              <div style={{ marginBottom: '2rem' }}>
                 <label style={{
                   display: 'block',
                   fontSize: '0.875rem',
-                  fontWeight: '600',
-                  color: '#374151',
-                  marginBottom: '0.5rem'
+                  fontWeight: '500',
+                  color: '#1d1d1f',
+                  marginBottom: '0.75rem',
+                  letterSpacing: '-0.01em'
                 }}>
                   Postcode
                 </label>
@@ -619,14 +636,15 @@ const B2CBooking = () => {
                     style={{
                       display: 'flex',
                       alignItems: 'center',
-                      border: '2px solid #e5e7eb',
-                      borderRadius: '0.5rem',
-                      padding: '0.5rem',
-                      transition: 'border-color 0.3s ease',
-                      width: '100%'
+                      border: '1px solid rgba(0,0,0,0.2)',
+                      borderRadius: '8px',
+                      padding: '0.875rem 1rem',
+                      transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                      width: '100%',
+                      backgroundColor: 'white'
                     }}
                   >
-                    <MapPin size={20} style={{ color: '#6b7280', margin: '0 0.75rem', flexShrink: 0 }} />
+                    <MapPin size={20} style={{ color: '#86868b', marginRight: '0.75rem', flexShrink: 0 }} />
                     <input
                       ref={postcodeInputRef}
                       type="text"
@@ -652,7 +670,10 @@ const B2CBooking = () => {
                       }}
                       onBlur={(e) => {
                         const container = document.getElementById('postcode-container');
-                        if (container) container.style.borderColor = '#e5e7eb';
+                        if (container) {
+                          container.style.borderColor = 'rgba(0,0,0,0.2)'
+                          container.style.boxShadow = 'none'
+                        }
                         // Extract postcode from final value if user typed manually
                         if (ready && autocompleteValue) {
                           const postcodeMatch = autocompleteValue.match(/[A-Z]{1,2}[0-9]{1,2}[A-Z]?\s?[0-9][A-Z]{2}/i);
@@ -668,14 +689,18 @@ const B2CBooking = () => {
                         flex: 1,
                         border: 'none',
                         outline: 'none',
-                        fontSize: '1.125rem',
+                        fontSize: '1rem',
                         fontFamily: 'inherit',
                         background: 'transparent',
-                        minWidth: 0
+                        minWidth: 0,
+                        color: '#1d1d1f'
                       }}
                       onFocus={(e) => {
                         const container = document.getElementById('postcode-container');
-                        if (container) container.style.borderColor = '#2001AF';
+                        if (container) {
+                          container.style.borderColor = '#E94A02'
+                          container.style.boxShadow = '0 0 0 3px rgba(233, 74, 2, 0.1)'
+                        }
                         if (ready) {
                           setShowSuggestions(true);
                         }
@@ -694,9 +719,9 @@ const B2CBooking = () => {
                       left: 0,
                       right: 0,
                       backgroundColor: 'white',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '0.5rem',
-                      boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                      border: '1px solid rgba(0,0,0,0.1)',
+                      borderRadius: '8px',
+                      boxShadow: '0 8px 24px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.08)',
                       zIndex: 1000,
                       maxHeight: '300px',
                       overflowY: 'auto',
@@ -707,25 +732,27 @@ const B2CBooking = () => {
                           key={suggestion.place_id}
                           onClick={() => handleSelectSuggestion(suggestion)}
                           style={{
-                            padding: '0.75rem 1rem',
+                            padding: '0.875rem 1rem',
                             cursor: 'pointer',
-                            borderBottom: '1px solid #f3f4f6',
-                            transition: 'background-color 0.2s'
+                            borderBottom: '1px solid rgba(0,0,0,0.06)',
+                            transition: 'background-color 0.2s ease'
                           }}
-                          onMouseEnter={(e) => e.target.style.backgroundColor = '#f9fafb'}
+                          onMouseEnter={(e) => e.target.style.backgroundColor = '#f5f5f7'}
                           onMouseLeave={(e) => e.target.style.backgroundColor = 'white'}
                         >
                           <div style={{
-                            fontSize: '0.875rem',
+                            fontSize: '0.9375rem',
                             fontWeight: '500',
-                            color: '#111827',
-                            marginBottom: '0.25rem'
+                            color: '#1d1d1f',
+                            marginBottom: '0.25rem',
+                            letterSpacing: '-0.01em'
                           }}>
                             {suggestion.structured_formatting.main_text}
                           </div>
                           <div style={{
-                            fontSize: '0.75rem',
-                            color: '#6b7280'
+                            fontSize: '0.8125rem',
+                            color: '#86868b',
+                            fontWeight: '400'
                           }}>
                             {suggestion.structured_formatting.secondary_text}
                           </div>
@@ -735,9 +762,10 @@ const B2CBooking = () => {
                   )}
                 </div>
                 <p style={{
-                  fontSize: '0.75rem',
-                  color: '#6b7280',
-                  marginTop: '0.5rem'
+                  fontSize: '0.8125rem',
+                  color: '#86868b',
+                  marginTop: '0.75rem',
+                  fontWeight: '400'
                 }}>
                   Enter a UK postcode (e.g., SW1A 1AA, M1 1AA, B33 8TH)
                 </p>
@@ -748,29 +776,37 @@ const B2CBooking = () => {
                 disabled={loading}
                 style={{
                   width: '100%',
-                  backgroundColor: loading ? '#9ca3af' : '#2001AF',
+                  backgroundColor: loading ? '#9ca3af' : '#E94A02',
                   color: 'white',
                   border: 'none',
-                  borderRadius: '0.5rem',
+                  borderRadius: '8px',
                   padding: '1rem 2rem',
-                  fontSize: '1.125rem',
-                  fontWeight: '600',
+                  fontSize: '1rem',
+                  fontWeight: '500',
                   cursor: loading ? 'not-allowed' : 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '0.5rem',
-                  transition: 'all 0.3s ease'
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  letterSpacing: '-0.01em',
+                  opacity: loading ? 0.6 : 1
                 }}
-                onMouseOver={(e) => {
-                  if (!loading) e.target.style.backgroundColor = '#1a0199';
+                onMouseEnter={(e) => {
+                  if (!loading) {
+                    e.target.style.backgroundColor = '#d13d00'
+                    e.target.style.transform = 'scale(1.01)'
+                  }
                 }}
-                onMouseOut={(e) => {
-                  if (!loading) e.target.style.backgroundColor = '#2001AF';
+                onMouseLeave={(e) => {
+                  if (!loading) {
+                    e.target.style.backgroundColor = '#E94A02'
+                    e.target.style.transform = 'scale(1)'
+                  }
                 }}
               >
                 {loading ? 'Loading...' : "Let's go!"}
-                {!loading && <ArrowLeft size={20} style={{ transform: 'rotate(180deg)' }} />}
+                {!loading && <ArrowLeft size={18} style={{ transform: 'rotate(180deg)' }} />}
               </button>
             </form>
           </div>
