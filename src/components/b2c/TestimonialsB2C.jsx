@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Star, Quote } from 'lucide-react';
+import { Star, Quote, MessageCircle, ArrowRight } from 'lucide-react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -186,7 +186,7 @@ const TestimonialsB2C = () => {
             maxWidth: '600px',
             margin: '0 auto'
           }}>
-            Real reviews from real customers across London
+            Real reviews from real customers across London.
           </p>
         </div>
 
@@ -238,7 +238,7 @@ const TestimonialsB2C = () => {
                 });
               }}
             >
-              {/* Quote Icon */}
+              {/* Message Bubble with Number */}
               <div 
                 className="quote-icon"
                 style={{
@@ -247,15 +247,18 @@ const TestimonialsB2C = () => {
                   right: '1.5rem',
                   width: '48px',
                   height: '48px',
-                  backgroundColor: 'rgba(233, 74, 2, 0.1)',
+                  backgroundColor: '#E94A02',
                   borderRadius: '12px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: '#E94A02'
+                  color: 'white',
+                  fontWeight: '700',
+                  fontSize: '1rem',
+                  boxShadow: '0 4px 12px rgba(233, 74, 2, 0.3)'
                 }}
               >
-                <Quote size={24} />
+                90
               </div>
 
               {/* Rating */}
@@ -320,6 +323,58 @@ const TestimonialsB2C = () => {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* CTA Section */}
+        <div style={{
+          textAlign: 'center',
+          marginTop: '4rem'
+        }}>
+          <button
+            onClick={() => {
+              // Handle CTA action - can navigate to booking or scroll to search
+              const heroSection = document.querySelector('.hero-search-container');
+              if (heroSection) {
+                heroSection.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
+            style={{
+              backgroundColor: '#E94A02',
+              color: 'white',
+              border: 'none',
+              borderRadius: '16px',
+              padding: '1.5rem 4rem',
+              fontSize: 'clamp(1.125rem, 2vw, 1.5rem)',
+              fontWeight: '800',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '1rem',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              transition: 'all 0.3s ease',
+              boxShadow: '0 8px 30px rgba(233, 74, 2, 0.3)'
+            }}
+            onMouseEnter={(e) => {
+              gsap.to(e.target, {
+                backgroundColor: '#d13d00',
+                scale: 1.05,
+                boxShadow: '0 12px 40px rgba(233, 74, 2, 0.4)',
+                duration: 0.3
+              });
+            }}
+            onMouseLeave={(e) => {
+              gsap.to(e.target, {
+                backgroundColor: '#E94A02',
+                scale: 1,
+                boxShadow: '0 8px 30px rgba(233, 74, 2, 0.3)',
+                duration: 0.3
+              });
+            }}
+          >
+            <span>Let's Book a Job Now</span>
+            <ArrowRight size={24} />
+          </button>
         </div>
 
       </div>

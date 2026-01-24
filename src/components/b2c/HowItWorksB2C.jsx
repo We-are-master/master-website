@@ -118,7 +118,7 @@ const HowItWorksB2C = () => {
       number: 1,
       icon: <Search size={32} />,
       title: 'Describe the job',
-      description: 'Tell us what you need, we\'ll get you an instant price.',
+      description: "Explain what you need and we'll handle the rest.",
       color: '#3b82f6',
       image: 'https://images.unsplash.com/photo-1551434678-e076c223a692?w=400&h=300&fit=crop'
     },
@@ -126,7 +126,7 @@ const HowItWorksB2C = () => {
       number: 2,
       icon: <CreditCard size={32} />,
       title: 'Create your booking',
-      description: 'See the price upfront, choose your time slot, and confirm.',
+      description: 'Transparent pricing, clear options, no hidden costs.',
       color: '#10b981',
       image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=300&fit=crop'
     },
@@ -134,7 +134,7 @@ const HowItWorksB2C = () => {
       number: 3,
       icon: <UserCheck size={32} />,
       title: 'Get it done!',
-      description: 'We\'ll match you with a vetted local tradesperson to get the job done.',
+      description: 'We will match you internally with a trusted local professional, it will be managed by Master.',
       color: '#E94A02',
       image: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=300&fit=crop&auto=format'
     }
@@ -209,7 +209,7 @@ const HowItWorksB2C = () => {
             letterSpacing: '-0.02em',
             lineHeight: '1.2'
           }}>
-            We can all agree that life's easier when you know what you're paying.
+            Know the price. Book with confidence.
           </h2>
           <p style={{
             fontSize: 'clamp(1.125rem, 2vw, 1.5rem)',
@@ -218,15 +218,15 @@ const HowItWorksB2C = () => {
             maxWidth: '700px',
             margin: '0 auto'
           }}>
-            With Master, you'll see the{' '}
+            We believe property maintenance should be simple. That's why you see the{' '}
             <span style={{
               color: '#FFD700',
               fontWeight: '700',
               textShadow: '0 2px 10px rgba(255, 215, 0, 0.3)'
             }}>
-              cost upfront
+              price upfront
             </span>
-            {' '}before you book. So you can get the job sorted without the guesswork.
+            {' '}— before you commit.
           </p>
         </div>
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Tag, Clock, Shield, Package, CreditCard, CheckCircle, Sparkles } from 'lucide-react';
+import { Tag, Clock, Shield, Package, CreditCard, CheckCircle, Sparkles, Users, Award } from 'lucide-react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -166,6 +166,20 @@ const WhyChooseB2C = () => {
       description: 'Trusted brand with years of experience and thousands of happy customers.',
       color: '#E94A02',
       gradient: 'linear-gradient(135deg, #E94A02 0%, #d13d00 100%)'
+    },
+    {
+      icon: <Shield size={28} />,
+      title: '£5M Insurance',
+      description: 'Comprehensive insurance coverage for complete peace of mind on every job.',
+      color: '#6366f1',
+      gradient: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)'
+    },
+    {
+      icon: <Award size={28} />,
+      title: 'Master Club',
+      description: 'Exclusive membership benefits, priority booking, and special discounts.',
+      color: '#ec4899',
+      gradient: 'linear-gradient(135deg, #ec4899 0%, #db2777 100%)'
     }
   ];
 

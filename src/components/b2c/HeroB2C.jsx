@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, ArrowRight, Sparkles, Shield, Clock, Star } from 'lucide-react';
+import { Search, ArrowRight, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -25,14 +25,11 @@ const HeroB2C = () => {
   const bgCircle2Ref = useRef(null);
 
   const services = [
-    'TV mounting',
-    'Plumbing repair',
-    'Electrical work',
-    'Deep cleaning',
-    'Furniture assembly',
-    'Handyman services',
-    'Light fitting',
-    'Painting walls'
+    'Painting',
+    'Handyman',
+    'Cleaning',
+    'Plumber',
+    'Electricians'
   ];
 
   // Typing effect for placeholder
@@ -342,6 +339,17 @@ const HeroB2C = () => {
               textShadow: '0 4px 20px rgba(0,0,0,0.3)'
             }}
           >
+            <span style={{
+              color: 'white'
+            }}>
+              Trusted local professionals.
+            </span>
+            <br />
+            <span style={{
+              color: 'white'
+            }}>
+              Booked the right way for{' '}
+            </span>
             <span
               style={{
                 background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
@@ -353,11 +361,10 @@ const HeroB2C = () => {
             >
               {services[currentServiceIndex]}
             </span>
-            <br />
             <span style={{
               color: 'white'
             }}>
-              done right
+              .
             </span>
           </h1>
 
@@ -375,7 +382,7 @@ const HeroB2C = () => {
               marginRight: 'auto'
             }}
           >
-            Professional tradespeople at your doorstep. Book in minutes, get instant pricing, and enjoy peace of mind.
+            Professional tradespeople at your doorstep. Book in minutes, get instant pricing, and enjoy peace of mind. All in one platform.
           </p>
 
           {/* Search Bar */}
@@ -617,51 +624,39 @@ const HeroB2C = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '2rem',
+              gap: '1.5rem',
               flexWrap: 'wrap',
               marginTop: '3rem'
             }}
           >
             {[
-              { icon: <Shield size={24} />, text: 'Fully Insured', color: '#10b981' },
-              { icon: <Clock size={24} />, text: 'Same Day Service', color: '#3b82f6' },
-              { icon: <Star size={24} />, text: '4.9★ Rated', color: '#fbbf24' }
-            ].map((item, index) => (
+              'Fully vetted & insured professionals',
+              'Clear scopes and pricing',
+              'Dedicated operations team',
+              'Built for homes, landlords & businesses'
+            ].map((text, index) => (
               <div
                 key={index}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.75rem',
+                  gap: '0.5rem',
                   backgroundColor: 'rgba(255, 255, 255, 0.1)',
                   backdropFilter: 'blur(10px)',
-                  padding: '0.75rem 1.5rem',
+                  padding: '0.75rem 1.25rem',
                   borderRadius: '12px',
                   border: '1px solid rgba(255, 255, 255, 0.2)',
                   color: 'white',
                   fontSize: '0.95rem',
-                  fontWeight: '600',
-                  cursor: 'pointer'
-                }}
-                onMouseEnter={(e) => {
-                  gsap.to(e.currentTarget, {
-                    scale: 1.1,
-                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                    duration: 0.3
-                  });
-                }}
-                onMouseLeave={(e) => {
-                  gsap.to(e.currentTarget, {
-                    scale: 1,
-                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                    duration: 0.3
-                  });
+                  fontWeight: '500'
                 }}
               >
-                <div style={{ color: item.color }}>
-                  {item.icon}
-                </div>
-                <span>{item.text}</span>
+                <span style={{ 
+                  color: '#10b981',
+                  fontSize: '1.1rem',
+                  fontWeight: 'bold'
+                }}>✔</span>
+                <span>{text}</span>
               </div>
             ))}
           </div>

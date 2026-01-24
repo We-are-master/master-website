@@ -4,6 +4,8 @@ import PopularServicesB2C from '../components/b2c/PopularServicesB2C';
 import TestimonialsB2C from '../components/b2c/TestimonialsB2C';
 import HowItWorksB2C from '../components/b2c/HowItWorksB2C';
 import WhyChooseB2C from '../components/b2c/WhyChooseB2C';
+import WhyMasterExistsB2C from '../components/b2c/WhyMasterExistsB2C';
+import MasterClubB2C from '../components/b2c/MasterClubB2C';
 
 const B2CHome = () => {
   return (
@@ -15,10 +17,12 @@ const B2CHome = () => {
       position: 'relative'
     }}>
       <HeroB2C />
-      <PopularServicesB2C />
-      <TestimonialsB2C />
       <HowItWorksB2C />
+      <PopularServicesB2C />
       <WhyChooseB2C />
+      <WhyMasterExistsB2C />
+      <MasterClubB2C />
+      <TestimonialsB2C />
     </div>
   );
 };
