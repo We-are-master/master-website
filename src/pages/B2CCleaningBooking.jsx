@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import { toast } from 'react-toastify';
 import './B2CCleaningBooking.css';
 import usePlacesAutocomplete, { getGeocode, getLatLng } from 'use-places-autocomplete';
+import { SEO } from '../components/SEO';
 
 // This is a simplified React version of the cleaning booking form
 // The full implementation would require Stripe integration and Google Places API
@@ -257,8 +258,14 @@ const B2CCleaningBooking = () => {
   };
 
   return (
-    <div className="mcx">
-      <div className="wrap">
+    <>
+      <SEO 
+        title="Book Cleaning Service - Master Services"
+        description="Book professional cleaning services in London. Same-day service available. Vetted professionals, fully insured, trusted by 500+ businesses."
+        keywords="book cleaning service, professional cleaning London, same-day cleaning, house cleaning, office cleaning"
+      />
+      <div className="mcx">
+        <div className="wrap">
         {/* Header */}
         <div style={{
           backgroundColor: 'white',
@@ -829,6 +836,7 @@ const B2CCleaningBooking = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

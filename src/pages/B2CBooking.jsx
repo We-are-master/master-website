@@ -6,6 +6,7 @@ import { supabase } from '../lib/supabase';
 import { matchServicesWithAI, normalizeServiceQuery } from '../lib/openai';
 import { getServices, searchServices } from '../lib/services';
 import usePlacesAutocomplete, { getGeocode, getLatLng } from 'use-places-autocomplete';
+import { SEO } from '../components/SEO';
 
 /**
  * Get service-specific image based on category and service name
@@ -448,9 +449,15 @@ const B2CBooking = () => {
   };
 
   return (
-    <div style={{ 
-      minHeight: '100vh', 
-      backgroundColor: '#fbfbfd',
+    <>
+      <SEO 
+        title="Book a Service - Master Services"
+        description="Book your property maintenance or cleaning service with Master Services. Easy online booking, same-day service available, vetted professionals."
+        keywords="book property maintenance, book cleaning service, online booking, same-day service booking"
+      />
+      <div style={{ 
+        minHeight: '100vh', 
+        backgroundColor: '#fbfbfd',
       overflowX: 'hidden',
       width: '100%',
       maxWidth: '100vw'
@@ -1132,6 +1139,7 @@ const B2CBooking = () => {
         )}
       </div>
     </div>
+    </>
   );
 };
 

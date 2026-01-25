@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /login
+Disallow: /forgot-password
+Disallow: /new-request
+Disallow: /request/
+Disallow: /my-requests
+Disallow: /settings
+Disallow: /checkout
+Disallow: /checkout-success
+Disallow: /customer-login
+Disallow: /my-orders
+
+# Sitemap
+Sitemap: https://wearemaster.com/sitemap.xml
+
+# Crawl-delay
+Crawl-delay: 1

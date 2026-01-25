@@ -14,6 +14,7 @@ export default defineConfig({
         manualChunks: {
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
           'ui-vendor': ['lucide-react'],
+          'gsap-vendor': ['gsap'],
           'supabase-vendor': ['@supabase/supabase-js'],
           'stripe-vendor': ['@stripe/stripe-js', '@stripe/react-stripe-js'],
           'maps-vendor': ['@react-google-maps/api', 'use-places-autocomplete'],
@@ -21,6 +22,18 @@ export default defineConfig({
         }
       }
     },
-    chunkSizeWarningLimit: 1000
+    chunkSizeWarningLimit: 1000,
+    // Enable minification and compression
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true, // Remove console.log in production
+        drop_debugger: true
+      }
+    },
+    // Optimize chunk size
+    cssCodeSplit: true,
+    // Source maps for better debugging (disable in production for smaller bundles)
+    sourcemap: false
   }
 })

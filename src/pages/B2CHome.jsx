@@ -1,14 +1,123 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import HeroB2C from '../components/b2c/HeroB2C';
-import PopularServicesB2C from '../components/b2c/PopularServicesB2C';
-import TestimonialsB2C from '../components/b2c/TestimonialsB2C';
-import HowItWorksB2C from '../components/b2c/HowItWorksB2C';
-import WhyChooseB2C from '../components/b2c/WhyChooseB2C';
-import WhyMasterExistsB2C from '../components/b2c/WhyMasterExistsB2C';
-import MasterClubB2C from '../components/b2c/MasterClubB2C';
+import { SEO } from '../components/SEO';
+
+// Lazy load components below the fold for better initial load performance
+const PopularServicesB2C = lazy(() => import('../components/b2c/PopularServicesB2C'));
+const HowItWorksB2C = lazy(() => import('../components/b2c/HowItWorksB2C'));
+const WhyChooseB2C = lazy(() => import('../components/b2c/WhyChooseB2C'));
+const WhyMasterExistsB2C = lazy(() => import('../components/b2c/WhyMasterExistsB2C'));
+const MasterClubB2C = lazy(() => import('../components/b2c/MasterClubB2C'));
+const TestimonialsB2C = lazy(() => import('../components/b2c/TestimonialsB2C'));
+
+// Loading placeholder component
+const SectionPlaceholder = () => (
+  <div style={{ 
+    minHeight: '400px', 
+    display: 'flex', 
+    alignItems: 'center', 
+    justifyContent: 'center',
+    backgroundColor: '#ffffff'
+  }}>
+    <div style={{
+      width: '40px',
+      height: '40px',
+      border: '3px solid #e5e7eb',
+      borderTopColor: '#E94A02',
+      borderRadius: '50%',
+      animation: 'spin 0.8s linear infinite'
+    }} />
+    <style>{`
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+    `}</style>
+  </div>
+);
 
 const B2CHome = () => {
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
+    name: 'Master Services',
+    image: 'https://wearemaster.com/favicon.png',
+    '@id': 'https://wearemaster.com',
+    url: 'https://wearemaster.com',
+    telephone: '+447983182332',
+    email: 'hello@wearemaster.com',
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: '124 City Rd',
+      addressLocality: 'London',
+      postalCode: 'EC1V 2NX',
+      addressCountry: 'GB'
+    },
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: '51.5275',
+      longitude: '-0.0876'
+    },
+    priceRange: '$$',
+    openingHoursSpecification: [
+      {
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+        opens: '08:00',
+        closes: '18:00'
+      },
+      {
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: ['Saturday', 'Sunday'],
+        opens: '08:00',
+        closes: '17:00'
+      }
+    ],
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: '4.8',
+      reviewCount: '500'
+    },
+    sameAs: [
+      'https://www.facebook.com/wearemaster',
+      'https://www.linkedin.com/company/wearemaster'
+    ],
+    hasOfferCatalog: {
+      '@type': 'OfferCatalog',
+      name: 'Property Maintenance Services',
+      itemListElement: [
+        {
+          '@type': 'Offer',
+          itemOffered: {
+            '@type': 'Service',
+            name: 'Professional Cleaning Services',
+            description: 'Professional cleaning services for homes and businesses in London'
+          }
+        },
+        {
+          '@type': 'Offer',
+          itemOffered: {
+            '@type': 'Service',
+            name: 'Property Maintenance',
+            description: 'Comprehensive property maintenance and repair services'
+          }
+        },
+        {
+          '@type': 'Offer',
+          itemOffered: {
+            '@type': 'Service',
+            name: 'Trades Services',
+            description: 'Professional trades services including plumbing, electrical, and more'
+          }
+        }
+      ]
+    }
+  };
+
   return (
+    <>
+      <SEO 
+        structuredData={structuredData}
+      />
     <div style={{ 
       backgroundColor: '#ffffff',
       width: '100%',
@@ -17,13 +126,26 @@ const B2CHome = () => {
       position: 'relative'
     }}>
       <HeroB2C />
-      <HowItWorksB2C />
-      <PopularServicesB2C />
-      <WhyChooseB2C />
-      <WhyMasterExistsB2C />
-      <MasterClubB2C />
-      <TestimonialsB2C />
+      <Suspense fallback={<SectionPlaceholder />}>
+        <HowItWorksB2C />
+      </Suspense>
+      <Suspense fallback={<SectionPlaceholder />}>
+        <PopularServicesB2C />
+      </Suspense>
+      <Suspense fallback={<SectionPlaceholder />}>
+        <WhyChooseB2C />
+      </Suspense>
+      <Suspense fallback={<SectionPlaceholder />}>
+        <WhyMasterExistsB2C />
+      </Suspense>
+      <Suspense fallback={<SectionPlaceholder />}>
+        <MasterClubB2C />
+      </Suspense>
+      <Suspense fallback={<SectionPlaceholder />}>
+        <TestimonialsB2C />
+      </Suspense>
     </div>
+    </>
   );
 };
 

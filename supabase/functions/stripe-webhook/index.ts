@@ -1,19 +1,47 @@
 // Supabase Edge Function: stripe-webhook
 // This function handles Stripe webhook events (payment confirmations, etc.)
 // Uses the existing booking_website table
+// Enterprise-grade security implementation
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import Stripe from 'https://esm.sh/stripe@14.10.0?target=deno'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.0'
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, stripe-signature',
-}
+import {
+  validateRequest,
+  logSecurityEvent,
+  getCorsHeaders,
+  sanitizeString,
+  validateEmail,
+} from '../_shared/security.ts'
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response('ok', { headers: getCorsHeaders(req.headers.get('origin')) })
+  }
+
+  // Security validation (webhooks have different rate limits)
+  const validation = await validateRequest(req, {
+    requireBody: true,
+    rateLimitType: 'webhook',
+    maxPayloadSize: 5 * 1024 * 1024, // 5MB for webhooks
+  })
+
+  if (!validation.valid) {
+    logSecurityEvent('webhook_validation_failed', {
+      error: validation.error,
+      ip: validation.clientIP,
+    }, 'high')
+    
+    return new Response(
+      JSON.stringify({ error: validation.error }),
+      {
+        status: validation.status || 400,
+        headers: {
+          ...validation.headers,
+          'Content-Type': 'application/json',
+        },
+      }
+    )
   }
 
   try {
@@ -40,28 +68,54 @@ serve(async (req) => {
     // Get the signature from headers
     const signature = req.headers.get('stripe-signature')
     if (!signature) {
+      logSecurityEvent('webhook_missing_signature', {
+        ip: validation.clientIP,
+      }, 'critical')
+      
       return new Response(
         JSON.stringify({ error: 'Missing stripe-signature header' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        {
+          status: 400,
+          headers: {
+            ...validation.headers,
+            'Content-Type': 'application/json',
+          },
+        }
       )
     }
 
-    // Get the raw body
+    // Get the raw body (already validated for size)
     const body = await req.text()
 
-    // Verify the webhook signature
+    // Verify the webhook signature (CRITICAL SECURITY CHECK)
     let event: Stripe.Event
     try {
       event = stripe.webhooks.constructEvent(body, signature, webhookSecret)
     } catch (err) {
-      console.error('Webhook signature verification failed:', err.message)
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error'
+      
+      logSecurityEvent('webhook_signature_verification_failed', {
+        error: errorMessage,
+        ip: validation.clientIP,
+      }, 'critical')
+      
       return new Response(
-        JSON.stringify({ error: `Webhook Error: ${err.message}` }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: 'Webhook signature verification failed' }),
+        {
+          status: 400,
+          headers: {
+            ...validation.headers,
+            'Content-Type': 'application/json',
+          },
+        }
       )
     }
 
-    console.log(`Received webhook event: ${event.type}`)
+    logSecurityEvent('webhook_received', {
+      event_type: event.type,
+      event_id: event.id,
+      ip: validation.clientIP,
+    }, 'low')
 
     // Handle different event types
     switch (event.type) {
@@ -97,13 +151,30 @@ serve(async (req) => {
           }
         } else {
           // Create new booking from webhook (fallback if not created during checkout)
-          // Parse address if provided as single string
-          const addressParts = (metadata.customer_address || '').split(', ')
+          // Parse and sanitize address if provided as single string
+          const addressParts = (metadata.customer_address || '').split(', ').map(part => sanitizeString(part, 200))
           
           // Parse scheduled_dates from metadata (comma-separated string)
-          let preferredDates = null
+          let preferredDates: string[] | null = null
           if (metadata.scheduled_dates) {
-            preferredDates = metadata.scheduled_dates.split(', ').filter(d => d.trim())
+            preferredDates = metadata.scheduled_dates
+              .split(', ')
+              .filter(d => d.trim())
+              .slice(0, 10) // Limit to 10 dates
+          }
+          
+          // Validate and sanitize email
+          let customerEmail = 'unknown@email.com'
+          if (metadata.customer_email) {
+            const emailVal = validateEmail(metadata.customer_email)
+            if (emailVal.valid && emailVal.sanitized) {
+              customerEmail = emailVal.sanitized
+            }
+          } else if (paymentIntent.receipt_email) {
+            const emailVal = validateEmail(paymentIntent.receipt_email)
+            if (emailVal.valid && emailVal.sanitized) {
+              customerEmail = emailVal.sanitized
+            }
           }
           
           const { data, error } = await supabase
@@ -113,18 +184,20 @@ serve(async (req) => {
               status: 'confirmed',
               amount: paymentIntent.amount / 100, // Convert from pence to pounds
               currency: paymentIntent.currency,
-              customer_name: metadata.customer_name || 'Unknown',
-              customer_email: metadata.customer_email || paymentIntent.receipt_email || 'unknown@email.com',
-              customer_phone: metadata.customer_phone || null,
+              customer_name: metadata.customer_name ? sanitizeString(metadata.customer_name, 200) : 'Unknown',
+              customer_email: customerEmail,
+              customer_phone: metadata.customer_phone ? sanitizeString(metadata.customer_phone, 50) : null,
               address_line1: addressParts[0] || null,
               city: addressParts.length > 1 ? addressParts[addressParts.length - 2] : null,
-              postcode: metadata.postcode || (addressParts.length > 0 ? addressParts[addressParts.length - 1] : 'Unknown'),
-              service_id: metadata.service_id || null,
-              service_name: metadata.service_name || 'Service',
-              service_category: metadata.service_category || null,
-              job_description: metadata.job_description || null,
+              postcode: metadata.postcode ? sanitizeString(metadata.postcode, 20) : (addressParts.length > 0 ? addressParts[addressParts.length - 1] : 'Unknown'),
+              service_id: metadata.service_id ? sanitizeString(metadata.service_id, 100) : null,
+              service_name: metadata.service_name ? sanitizeString(metadata.service_name, 200) : 'Service',
+              service_category: metadata.service_category ? sanitizeString(metadata.service_category, 100) : null,
+              job_description: metadata.job_description ? sanitizeString(metadata.job_description, 5000) : null,
               preferred_dates: preferredDates,
-              preferred_time_slots: metadata.scheduled_time_slots ? metadata.scheduled_time_slots.split(', ').filter(s => s.trim()) : [],
+              preferred_time_slots: metadata.scheduled_time_slots
+                ? metadata.scheduled_time_slots.split(', ').filter(s => s.trim()).slice(0, 10)
+                : [],
               payment_status: 'paid',
               paid_at: new Date().toISOString(),
               source: 'website',
@@ -206,14 +279,32 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({ received: true }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      {
+        status: 200,
+        headers: {
+          ...validation.headers,
+          'Content-Type': 'application/json',
+        },
+      }
     )
 
   } catch (error) {
-    console.error('Webhook error:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    
+    logSecurityEvent('webhook_error', {
+      error: errorMessage,
+      ip: validation.clientIP,
+    }, 'high')
+    
     return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      JSON.stringify({ error: 'Webhook processing failed' }),
+      {
+        status: 500,
+        headers: {
+          ...validation.headers,
+          'Content-Type': 'application/json',
+        },
+      }
     )
   }
 })

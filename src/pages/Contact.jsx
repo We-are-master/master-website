@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { Phone, Mail, MapPin, Send, Clock, CheckCircle, ArrowRight } from 'lucide-react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { SEO } from '../components/SEO'
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger)
@@ -176,14 +177,63 @@ const Contact = () => {
     }
   ]
 
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'ContactPage',
+    mainEntity: {
+      '@type': 'Organization',
+      name: 'Master Services',
+      url: 'https://wearemaster.com',
+      contactPoint: [
+        {
+          '@type': 'ContactPoint',
+          telephone: '+447983182332',
+          contactType: 'Customer Service',
+          areaServed: 'GB',
+          availableLanguage: 'English'
+        },
+        {
+          '@type': 'ContactPoint',
+          email: 'hello@wearemaster.com',
+          contactType: 'Customer Service',
+          areaServed: 'GB',
+          availableLanguage: 'English'
+        }
+      ],
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: '124 City Rd',
+        addressLocality: 'London',
+        postalCode: 'EC1V 2NX',
+        addressCountry: 'GB'
+      },
+      openingHoursSpecification: [
+        {
+          '@type': 'OpeningHoursSpecification',
+          dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+          opens: '08:00',
+          closes: '18:00'
+        },
+        {
+          '@type': 'OpeningHoursSpecification',
+          dayOfWeek: ['Saturday', 'Sunday'],
+          opens: '08:00',
+          closes: '17:00'
+        }
+      ]
+    }
+  };
+
   return (
-    <div style={{ 
-      backgroundColor: '#ffffff', 
-      minHeight: '100vh',
-      overflowX: 'hidden',
-      width: '100%',
-      maxWidth: '100vw'
-    }}>
+    <>
+      <SEO structuredData={structuredData} />
+      <div style={{ 
+        backgroundColor: '#ffffff', 
+        minHeight: '100vh',
+        overflowX: 'hidden',
+        width: '100%',
+        maxWidth: '100vw'
+      }}>
       {/* Hero Section */}
       <section 
         ref={heroRef}
@@ -762,6 +812,7 @@ const Contact = () => {
         </div>
       </section>
     </div>
+    </>
   )
 }
 

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, ArrowRight, AlertCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { validateEmail, checkRateLimit } from '../lib/security';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -28,20 +29,53 @@ const Login = () => {
     setLoading(true);
     setError('');
 
+    // Check rate limit for login attempts (stricter - 5 attempts per 15 minutes)
+    const rateLimit = checkRateLimit('auth:login', 5, 900000);
+    if (!rateLimit.allowed) {
+      setError(`Too many login attempts. Please wait ${Math.ceil((rateLimit.resetTime - Date.now()) / 1000)} seconds before trying again.`);
+      setLoading(false);
+      return;
+    }
+
+    // Validate email
+    const emailValidation = validateEmail(formData.email);
+    if (!emailValidation.valid) {
+      setError(emailValidation.error || 'Please enter a valid email address');
+      setLoading(false);
+      return;
+    }
+
+    // Validate password (basic check)
+    if (!formData.password || formData.password.length < 6) {
+      setError('Password must be at least 6 characters long');
+      setLoading(false);
+      return;
+    }
+
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
-        email: formData.email,
+        email: emailValidation.sanitized,
         password: formData.password,
       });
 
-      if (error) throw error;
+      if (error) {
+        // Don't expose internal error details
+        if (error.message?.includes('Invalid login credentials') || error.message?.includes('Email not confirmed')) {
+          setError('Invalid email or password. Please check your credentials.');
+        } else if (error.message?.includes('rate limit') || error.message?.includes('429')) {
+          setError('Too many login attempts. Please try again later.');
+        } else {
+          setError('Failed to sign in. Please check your credentials.');
+        }
+        return;
+      }
 
       if (data.user) {
         // Redirect to dashboard on successful login
         navigate('/dashboard');
       }
     } catch (error) {
-      setError(error.message || 'Failed to sign in. Please check your credentials.');
+      setError('Failed to sign in. Please check your credentials.');
     } finally {
       setLoading(false);
     }

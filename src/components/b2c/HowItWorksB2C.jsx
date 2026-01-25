@@ -113,6 +113,19 @@ const HowItWorksB2C = () => {
     return () => ctx.revert();
   }, []);
 
+  // Helper function to get optimized image URL
+  const getOptimizedImage = (baseUrl) => {
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    const width = isMobile ? 400 : 500;
+    const url = new URL(baseUrl);
+    url.searchParams.set('w', width.toString());
+    url.searchParams.set('h', Math.round(width * 0.75).toString());
+    url.searchParams.set('fit', 'crop');
+    url.searchParams.set('auto', 'format');
+    url.searchParams.set('q', '75');
+    return url.toString();
+  };
+
   const steps = [
     {
       number: 1,
@@ -120,7 +133,7 @@ const HowItWorksB2C = () => {
       title: 'Describe the job',
       description: "Explain what you need and we'll handle the rest.",
       color: '#3b82f6',
-      image: 'https://images.unsplash.com/photo-1551434678-e076c223a692?w=400&h=300&fit=crop'
+      image: 'https://images.unsplash.com/photo-1551434678-e076c223a692'
     },
     {
       number: 2,
@@ -128,7 +141,7 @@ const HowItWorksB2C = () => {
       title: 'Create your booking',
       description: 'Transparent pricing, clear options, no hidden costs.',
       color: '#10b981',
-      image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=300&fit=crop'
+      image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d'
     },
     {
       number: 3,
@@ -136,7 +149,7 @@ const HowItWorksB2C = () => {
       title: 'Get it done!',
       description: 'We will match you internally with a trusted local professional, it will be managed by Master.',
       color: '#E94A02',
-      image: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=300&fit=crop&auto=format'
+      image: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952'
     }
   ];
 
@@ -320,8 +333,13 @@ const HowItWorksB2C = () => {
                   </div>
                 ) : (
                   <img
-                    src={step.image}
+                    src={getOptimizedImage(step.image)}
                     alt={step.title}
+                    loading="lazy"
+                    decoding="async"
+                    fetchpriority={step.number === 1 ? "high" : "low"}
+                    width="400"
+                    height="300"
                     onError={() => {
                       setImageErrors(prev => ({ ...prev, [step.number]: true }));
                     }}

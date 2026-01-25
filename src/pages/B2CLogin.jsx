@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Mail, ArrowRight, Loader2, CheckCircle, AlertCircle, ArrowLeft, KeyRound } from 'lucide-react';
 import { gsap } from 'gsap';
 import { supabase } from '../lib/supabase';
+import { validateEmail, checkRateLimit } from '../lib/security';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin();
@@ -35,23 +36,27 @@ const B2CLogin = () => {
     }
   }, [step]);
 
-  // Validate email format
-  const isValidEmail = (email) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  };
-
-  // Send OTP code to email
+  // Send OTP code to email with security checks
   const handleSendCode = async (e) => {
     e.preventDefault();
     setError('');
+
+    // Check rate limit (5 requests per minute for auth)
+    const rateLimit = checkRateLimit('auth:send-otp', 5, 60000);
+    if (!rateLimit.allowed) {
+      setError(`Too many requests. Please wait ${Math.ceil((rateLimit.resetTime - Date.now()) / 1000)} seconds before trying again.`);
+      return;
+    }
 
     if (!email.trim()) {
       setError('Please enter your email');
       return;
     }
 
-    if (!isValidEmail(email)) {
-      setError('Please enter a valid email address');
+    // Use secure email validation
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.valid) {
+      setError(emailValidation.error || 'Please enter a valid email address');
       return;
     }
 
@@ -59,46 +64,85 @@ const B2CLogin = () => {
 
     try {
       const { error: signInError } = await supabase.auth.signInWithOtp({
-        email: email.trim().toLowerCase(),
+        email: emailValidation.sanitized,
         options: {
           shouldCreateUser: true, // Allow new users
         }
       });
 
       if (signInError) {
-        throw signInError;
+        // Don't expose internal error details
+        if (signInError.message?.includes('rate limit') || signInError.message?.includes('429')) {
+          setError('Too many requests. Please try again later.');
+        } else {
+          setError('Failed to send verification code. Please try again.');
+        }
+        return;
       }
 
       setStep('code');
       startResendCooldown();
     } catch (err) {
-      setError(err.message || 'Failed to send verification code. Please try again.');
+      setError('Failed to send verification code. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  // Verify OTP code
+  // Verify OTP code with security checks
   const handleVerifyCode = async (e) => {
     e.preventDefault();
     setError('');
 
-    if (!code.trim() || code.length !== 6) {
+    // Check rate limit for verification (stricter - 10 attempts per 5 minutes)
+    const rateLimit = checkRateLimit('auth:verify-otp', 10, 300000);
+    if (!rateLimit.allowed) {
+      setError(`Too many verification attempts. Please wait ${Math.ceil((rateLimit.resetTime - Date.now()) / 1000)} seconds before trying again.`);
+      return;
+    }
+
+    // Validate code format (6 digits only)
+    const codeTrimmed = code.trim();
+    if (!codeTrimmed || codeTrimmed.length !== 6) {
       setError('Please enter the 6-digit code');
+      return;
+    }
+
+    // Validate code contains only digits
+    if (!/^\d{6}$/.test(codeTrimmed)) {
+      setError('Code must contain only numbers');
       return;
     }
 
     setLoading(true);
 
     try {
+      // Use validated email from previous step
+      const emailValidation = validateEmail(email);
+      if (!emailValidation.valid || !emailValidation.sanitized) {
+        setError('Invalid email. Please start over.');
+        setStep('email');
+        return;
+      }
+
       const { data, error: verifyError } = await supabase.auth.verifyOtp({
-        email: email.trim().toLowerCase(),
-        token: code.trim(),
+        email: emailValidation.sanitized,
+        token: codeTrimmed,
         type: 'email'
       });
 
       if (verifyError) {
-        throw verifyError;
+        // Don't expose internal error details
+        if (verifyError.message?.includes('expired')) {
+          setError('Code has expired. Please request a new one.');
+        } else if (verifyError.message?.includes('invalid') || verifyError.message?.includes('token')) {
+          setError('Invalid code. Please check and try again.');
+        } else if (verifyError.message?.includes('rate limit') || verifyError.message?.includes('429')) {
+          setError('Too many attempts. Please try again later.');
+        } else {
+          setError('Failed to verify code. Please try again.');
+        }
+        return;
       }
 
       if (data?.session) {
@@ -109,13 +153,7 @@ const B2CLogin = () => {
         }, 1500);
       }
     } catch (err) {
-      if (err.message?.includes('expired')) {
-        setError('Code has expired. Please request a new one.');
-      } else if (err.message?.includes('invalid')) {
-        setError('Invalid code. Please check and try again.');
-      } else {
-        setError(err.message || 'Failed to verify code. Please try again.');
-      }
+      setError('Failed to verify code. Please try again.');
     } finally {
       setLoading(false);
     }

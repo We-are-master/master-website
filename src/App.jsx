@@ -6,6 +6,7 @@ import HeaderB2C from './components/b2c/HeaderB2C'
 import FooterB2C from './components/b2c/FooterB2C'
 import CookieConsent from './components/CookieConsent'
 import { SecurityHeaders } from './middleware/SecurityHeaders'
+import { SEO } from './components/SEO'
 import Hero from './components/Hero'
 import Services from './components/Services'
 import Features from './components/Features'
@@ -62,6 +63,11 @@ function AppContent() {
         {/* B2B Routes - Moved to /b2b path */}
         <Route path="/b2b" element={
           <>
+            <SEO 
+              title="B2B Property Maintenance Services - Master Services"
+              description="Enterprise property maintenance solutions for businesses. Streamlined operations, technology-driven matching, and exceptional service standards. Trusted by 500+ businesses."
+              keywords="B2B property maintenance, business maintenance services, enterprise maintenance solutions, commercial property management"
+            />
             <Hero />
             <Services />
             <Features />

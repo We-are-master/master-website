@@ -296,6 +296,7 @@ const TestimonialsB2C = () => {
                   src={testimonial.avatar}
                   alt={testimonial.name}
                   loading="lazy"
+                  decoding="async"
                   width="56"
                   height="56"
                   style={{

@@ -3,6 +3,7 @@ import { Users, Shield, Star, Award, CheckCircle, Target, Zap, ArrowRight, Phone
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { Link } from 'react-router-dom'
+import { SEO } from '../components/SEO'
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger)
@@ -199,14 +200,45 @@ const About = () => {
     }
   ]
 
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'AboutPage',
+    mainEntity: {
+      '@type': 'Organization',
+      name: 'Master Services',
+      url: 'https://wearemaster.com',
+      logo: 'https://wearemaster.com/favicon.png',
+      description: 'London\'s leading property maintenance platform, serving over 500 businesses with 240+ vetted professionals.',
+      foundingDate: '2020',
+      numberOfEmployees: {
+        '@type': 'QuantitativeValue',
+        value: '240+'
+      },
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: '4.8',
+        reviewCount: '500'
+      },
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: '124 City Rd',
+        addressLocality: 'London',
+        postalCode: 'EC1V 2NX',
+        addressCountry: 'GB'
+      }
+    }
+  };
+
   return (
-    <div style={{ 
-      backgroundColor: '#ffffff', 
-      minHeight: '100vh',
-      overflowX: 'hidden',
-      width: '100%',
-      maxWidth: '100vw'
-    }}>
+    <>
+      <SEO structuredData={structuredData} />
+      <div style={{ 
+        backgroundColor: '#ffffff', 
+        minHeight: '100vh',
+        overflowX: 'hidden',
+        width: '100%',
+        maxWidth: '100vw'
+      }}>
       {/* Hero Section */}
       <section 
         ref={heroRef}
@@ -744,6 +776,7 @@ const About = () => {
         </div>
       </section>
     </div>
+    </>
   )
 }
 

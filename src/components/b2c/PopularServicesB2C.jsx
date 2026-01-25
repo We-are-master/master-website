@@ -67,61 +67,76 @@ const PopularServicesB2C = () => {
     return () => ctx.revert();
   }, []);
 
+  // Helper function to get optimized image URL for mobile/desktop
+  const getOptimizedImage = (baseUrl) => {
+    // For mobile, use smaller images (400px width), for desktop use 600px
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    const width = isMobile ? 400 : 600;
+    // Remove existing width/height params and add optimized ones
+    const url = new URL(baseUrl);
+    url.searchParams.set('w', width.toString());
+    url.searchParams.set('h', Math.round(width * 0.67).toString());
+    url.searchParams.set('fit', 'crop');
+    url.searchParams.set('auto', 'format');
+    url.searchParams.set('q', '75'); // Quality 75% for better compression
+    return url.toString();
+  };
+
   const popularServices = [
     {
       icon: <Tv size={32} />,
       title: 'TV mounting',
       description: 'Professional TV installation and mounting service',
-      image: 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=600&h=400&fit=crop',
+      image: 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1',
       color: '#3b82f6'
     },
     {
       icon: <Wrench size={32} />,
       title: 'Odd jobs',
       description: 'General handyman services for your home',
-      image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600&h=400&fit=crop',
+      image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158',
       color: '#f59e0b'
     },
     {
       icon: <Package size={32} />,
       title: 'Flatpack assembly',
       description: 'Furniture assembly and installation',
-      image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=600&h=400&fit=crop',
+      image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7',
       color: '#10b981'
     },
     {
       icon: <Lightbulb size={32} />,
       title: 'Light fitting replacement',
       description: 'Professional light installation and replacement',
-      image: 'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=600&h=400&fit=crop',
+      image: 'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0',
       color: '#fbbf24'
     },
     {
       icon: <Sparkles size={32} />,
       title: 'Cleaning services',
       description: 'Deep clean, end of tenancy, and more',
-      image: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=600&h=400&fit=crop',
+      image: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952',
       color: '#8b5cf6'
     },
     {
       icon: <Droplets size={32} />,
       title: 'Plumbing',
       description: 'Emergency repairs and installations',
-      image: 'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=600&h=400&fit=crop',
+      image: 'https://images.unsplash.com/photo-1621905252507-b35492cc74b4',
       color: '#06b6d4'
     },
     {
       icon: <Zap size={32} />,
       title: 'Electrical',
       description: 'Safe and certified electrical work',
-      image: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=600&h=400&fit=crop',
+      image: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e',
       color: '#f59e0b'
     },
     {
       icon: <Hammer size={32} />,
       title: 'Carpentry',
       description: 'Custom woodwork and repairs',
-      image: 'https://images.unsplash.com/photo-1504148455328-c376907d081c?w=600&h=400&fit=crop',
+      image: 'https://images.unsplash.com/photo-1504148455328-c376907d081c',
       color: '#dc2626'
     }
   ];
@@ -285,9 +300,14 @@ const PopularServicesB2C = () => {
                 backgroundColor: '#f3f4f6'
               }}>
                 <img
-                  src={service.image}
+                  src={getOptimizedImage(service.image)}
                   alt={service.title}
                   className="service-image"
+                  loading="lazy"
+                  decoding="async"
+                  fetchpriority={index < 4 ? "high" : "low"}
+                  width="400"
+                  height="267"
                   style={{
                     width: '100%',
                     height: '100%',
