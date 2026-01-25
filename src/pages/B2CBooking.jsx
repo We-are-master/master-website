@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, MapPin, Search, CheckCircle, Clock, Shield, Star } from 'lucide-react';
+import { toast } from 'react-toastify';
 import { supabase } from '../lib/supabase';
 import { matchServicesWithAI, normalizeServiceQuery } from '../lib/openai';
 import { getServices, searchServices } from '../lib/services';
@@ -322,7 +323,7 @@ const B2CBooking = () => {
     const trimmedPostcode = valueToValidate.trim();
     
     if (!trimmedPostcode) {
-      alert('Please enter a postcode');
+      toast.error('Please enter a postcode');
       return;
     }
 
@@ -333,7 +334,7 @@ const B2CBooking = () => {
     // Basic UK postcode validation (more lenient)
     const postcodePattern = /^[A-Z]{1,2}[0-9]{1,2}[A-Z]?\s?[0-9][A-Z]{2}$/i;
     if (!postcodePattern.test(finalPostcode)) {
-      alert('Please enter a valid UK postcode (e.g., SW1A 1AA, M1 1AA)');
+      toast.error('Please enter a valid UK postcode (e.g., SW1A 1AA, M1 1AA)');
       return;
     }
 

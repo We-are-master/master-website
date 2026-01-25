@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
+import { toast } from 'react-toastify';
 import './B2CCleaningBooking.css';
 import usePlacesAutocomplete, { getGeocode, getLatLng } from 'use-places-autocomplete';
 
@@ -161,7 +162,7 @@ const B2CCleaningBooking = () => {
 
   const handleStep1Continue = () => {
     if (!state.addressPicked.trim()) {
-      alert('Please enter/select your address.');
+      toast.error('Please enter/select your address.');
       return;
     }
     setStep(2);
@@ -169,7 +170,7 @@ const B2CCleaningBooking = () => {
 
   const handleStep2Continue = () => {
     if (!state.cleanType) {
-      alert('Select a cleaning type.');
+      toast.error('Select a cleaning type.');
       return;
     }
     setStep(3);
@@ -178,11 +179,11 @@ const B2CCleaningBooking = () => {
   const handleStep3Continue = () => {
     const { firstName, phone, email, address, date, slot } = state.contact;
     if (!firstName || !phone || !email || !address || !date || !slot) {
-      alert('Please complete your details and choose date & time.');
+      toast.error('Please complete your details and choose date & time.');
       return;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
-      alert('Please enter a valid email address.');
+      toast.error('Please enter a valid email address.');
       return;
     }
     setStep(4);
@@ -722,7 +723,7 @@ const B2CCleaningBooking = () => {
                         className="btn orange"
                         onClick={() => {
                           const total = calculatePrice();
-                          alert(`Booking confirmed! Total: £${total.toFixed(2)}\n\n(In production, this would integrate with Stripe payment processing)`);
+                          toast.success(`Booking confirmed! Total: £${total.toFixed(2)}`);
                           navigate('/');
                         }}
                       >

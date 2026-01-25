@@ -22,6 +22,7 @@ import {
   Loader2
 } from 'lucide-react';
 import logo from '../assets/logo.png';
+import { toast } from 'react-toastify';
 import { supabase } from '../lib/supabase';
 
 const RequestDetails = () => {
@@ -278,7 +279,7 @@ const RequestDetails = () => {
         setActiveTab('photos');
       }
     } catch (error) {
-      alert('Failed to upload images. Please try again.');
+      toast.error('Failed to upload images. Please try again.');
     } finally {
       setUploading(false);
       // Reset file input

@@ -1,9 +1,12 @@
 import React from 'react'
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 import HeaderB2B from './components/HeaderB2B'
 import HeaderB2C from './components/b2c/HeaderB2C'
 import FooterB2C from './components/b2c/FooterB2C'
 import CookieConsent from './components/CookieConsent'
+import { SecurityHeaders } from './middleware/SecurityHeaders'
 import Hero from './components/Hero'
 import Services from './components/Services'
 import Features from './components/Features'
@@ -40,6 +43,7 @@ function AppContent() {
 
   return (
     <div className="App">
+      <SecurityHeaders />
       {isB2C ? <HeaderB2C /> : <HeaderB2B />}
       <Routes>
         {/* B2C Routes - Now the default homepage */}
@@ -79,6 +83,18 @@ function AppContent() {
       </Routes>
       {isB2C ? <FooterB2C /> : <Footer />}
       <CookieConsent />
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </div>
   );
 }

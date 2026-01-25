@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, CheckCircle, Shield, Loader2, AlertCircle, Clock, Upload, X, Plus, Minus, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
+import { toast } from 'react-toastify';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { getStripe, createPaymentIntentViaSupabase } from '../lib/stripe';
 
@@ -371,7 +372,7 @@ const B2CCheckout = () => {
 
     // Limit to 5 photos
     if (uploadedPhotos.length + files.length > 5) {
-      alert('You can upload a maximum of 5 photos');
+      toast.error('You can upload a maximum of 5 photos');
       return;
     }
 
@@ -380,13 +381,13 @@ const B2CCheckout = () => {
     files.forEach(file => {
       // Validate file type
       if (!file.type.startsWith('image/')) {
-        alert('Please upload only image files');
+        toast.error('Please upload only image files');
         return;
       }
 
       // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        alert('Each photo must be less than 5MB');
+        toast.error('Each photo must be less than 5MB');
         return;
       }
 
