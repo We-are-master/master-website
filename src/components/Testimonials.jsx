@@ -105,6 +105,9 @@ const Testimonials = () => {
                 <img
                   src={testimonial.image}
                   alt={testimonial.name}
+                  loading="lazy"
+                  width="48"
+                  height="48"
                   style={{
                     width: '48px',
                     height: '48px',

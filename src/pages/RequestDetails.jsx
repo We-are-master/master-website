@@ -674,10 +674,13 @@ const RequestDetails = () => {
                           <img
                             src={image}
                             alt={`Request photo ${index + 1}`}
-                              onError={(e) => {
+                            loading="lazy"
+                            width="200"
+                            height="150"
+                            onError={(e) => {
 ('Error loading image:', image);
-                                e.target.style.display = 'none';
-                              }}
+                              e.target.style.display = 'none';
+                            }}
                             style={{
                               width: '100%',
                               height: '150px',

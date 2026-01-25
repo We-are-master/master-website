@@ -9,11 +9,12 @@
     <title>Master Services - Professional Property Maintenance Services</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"></noscript>
     <!-- Google Maps API will be loaded dynamically -->
     
-    <!-- Meta Pixel Code -->
-    <script>
+    <!-- Meta Pixel Code - Deferred -->
+    <script defer>
     !function(f,b,e,v,n,t,s)
     {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
     n.callMethod.apply(n,arguments):n.queue.push(arguments)};
@@ -27,11 +28,11 @@
     </script>
     <!-- End Meta Pixel Code -->
     
-    <!-- Zoho PageSense -->
-    <script src="https://cdn-eu.pagesense.io/js/20106057743/76827fe18c2846bea774d285f2ddb2f0.js"></script>
+    <!-- Zoho PageSense - Deferred -->
+    <script src="https://cdn-eu.pagesense.io/js/20106057743/76827fe18c2846bea774d285f2ddb2f0.js" defer></script>
     
-    <!-- Microsoft Clarity -->
-    <script type="text/javascript">
+    <!-- Microsoft Clarity - Deferred -->
+    <script type="text/javascript" defer>
     (function(c,l,a,r,i,t,y){
         c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
         t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
@@ -39,8 +40,8 @@
     })(window, document, "clarity", "script", "np97wn3zh3");
     </script>
     
-    <!-- Zoho SalesIQ Chat Widget -->
-    <script>window.$zoho=window.$zoho || {};$zoho.salesiq=$zoho.salesiq||{ready:function(){}}</script>
+    <!-- Zoho SalesIQ Chat Widget - Already has defer -->
+    <script defer>window.$zoho=window.$zoho || {};$zoho.salesiq=$zoho.salesiq||{ready:function(){}}</script>
     <script id="zsiqscript" src="https://salesiq.zoho.eu/widget?wc=siq3e404450ccb37370f74ba15ecf5f6530793df23072c7a0654214923253a62e753b59e057da4886fa69acdcce754303f3" defer></script>
   </head>
   <body>

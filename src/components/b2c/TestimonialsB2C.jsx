@@ -295,6 +295,9 @@ const TestimonialsB2C = () => {
                 <img
                   src={testimonial.avatar}
                   alt={testimonial.name}
+                  loading="lazy"
+                  width="56"
+                  height="56"
                   style={{
                     width: '56px',
                     height: '56px',

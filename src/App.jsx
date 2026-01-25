@@ -1,7 +1,6 @@
 import React from 'react'
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
 import HeaderB2B from './components/HeaderB2B'
 import HeaderB2C from './components/b2c/HeaderB2C'
 import FooterB2C from './components/b2c/FooterB2C'
