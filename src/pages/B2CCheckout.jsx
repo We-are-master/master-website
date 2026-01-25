@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, CheckCircle, Shield, Loader2, AlertCircle, Clock, Upload, X, Plus, Minus, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Shield, Loader2, AlertCircle, Clock, Upload, X, Plus, Minus, Calendar, ChevronLeft, ChevronRight, Lock, Sparkles, Star } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { getStripe, createPaymentIntentViaSupabase } from '../lib/stripe';
 
-// Payment Form Component (used inside Elements provider)
+// Enhanced Payment Form Component with premium UX
 const PaymentForm = ({ onSuccess, clientSecret }) => {
   const stripe = useStripe();
   const elements = useElements();
@@ -52,26 +52,37 @@ const PaymentForm = ({ onSuccess, clientSecret }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} style={{ width: '100%' }}>
       {error && (
         <div style={{
-          backgroundColor: '#fee2e2',
-          border: '1px solid #fca5a5',
-          borderRadius: '0.5rem',
-          padding: '0.75rem',
-          marginBottom: '1rem',
+          backgroundColor: '#fef2f2',
+          border: '1px solid #fecaca',
+          borderRadius: '12px',
+          padding: '1rem',
+          marginBottom: '1.5rem',
           display: 'flex',
           alignItems: 'center',
-          gap: '0.5rem',
-          color: '#dc2626'
+          gap: '0.75rem',
+          color: '#dc2626',
+          animation: 'slideIn 0.3s ease-out'
         }}>
           <AlertCircle size={20} />
-          <span>{error}</span>
+          <span style={{ fontSize: '0.875rem', fontWeight: '500' }}>{error}</span>
         </div>
       )}
       
-      <div style={{ marginBottom: '1.5rem' }}>
-        <PaymentElement />
+      <div style={{ 
+        marginBottom: '1.5rem',
+        padding: '1.5rem',
+        backgroundColor: '#fafafa',
+        borderRadius: '12px',
+        border: '1px solid #e5e7eb'
+      }}>
+        <PaymentElement 
+          options={{
+            layout: 'tabs'
+          }}
+        />
       </div>
 
       <button
@@ -79,37 +90,64 @@ const PaymentForm = ({ onSuccess, clientSecret }) => {
         disabled={!stripe || loading}
         style={{
           width: '100%',
-          backgroundColor: loading ? '#9ca3af' : '#E94A02',
+          background: loading 
+            ? '#9ca3af' 
+            : 'linear-gradient(135deg, #E94A02 0%, #d13d00 100%)',
           color: 'white',
           border: 'none',
-          borderRadius: '0.5rem',
-          padding: '1rem',
-          fontSize: '1.125rem',
+          borderRadius: '12px',
+          padding: '1.125rem 1.5rem',
+          fontSize: '1rem',
           fontWeight: '600',
           cursor: loading ? 'not-allowed' : 'pointer',
-          transition: 'all 0.3s ease',
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           marginBottom: '1rem',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: '0.5rem'
+          gap: '0.75rem',
+          boxShadow: loading ? 'none' : '0 4px 12px rgba(233, 74, 2, 0.3)',
+          position: 'relative',
+          overflow: 'hidden'
         }}
-        onMouseOver={(e) => {
-          if (!loading) e.target.style.backgroundColor = '#d13d00';
+        onMouseEnter={(e) => {
+          if (!loading) {
+            e.target.style.transform = 'translateY(-2px)';
+            e.target.style.boxShadow = '0 6px 20px rgba(233, 74, 2, 0.4)';
+          }
         }}
-        onMouseOut={(e) => {
-          if (!loading) e.target.style.backgroundColor = '#E94A02';
+        onMouseLeave={(e) => {
+          if (!loading) {
+            e.target.style.transform = 'translateY(0)';
+            e.target.style.boxShadow = '0 4px 12px rgba(233, 74, 2, 0.3)';
+          }
         }}
       >
         {loading ? (
           <>
             <Loader2 size={20} style={{ animation: 'spin 1s linear infinite' }} />
-            Processing...
+            <span>Processing payment...</span>
           </>
         ) : (
-          'Pay now'
+          <>
+            <Lock size={18} />
+            <span>Complete Payment</span>
+          </>
         )}
       </button>
+
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '0.5rem',
+        fontSize: '0.75rem',
+        color: '#6b7280',
+        marginTop: '0.75rem'
+      }}>
+        <Shield size={14} />
+        <span>Secured by Stripe • Your payment is encrypted</span>
+      </div>
     </form>
   );
 };
@@ -183,18 +221,7 @@ const B2CCheckout = () => {
     today.setHours(0, 0, 0, 0);
     const checkDate = new Date(date);
     checkDate.setHours(0, 0, 0, 0);
-    // Disable past dates and today (need at least 1 day notice)
     return checkDate <= today;
-  };
-
-  const formatDate = (date) => {
-    if (!date) return '';
-    return date.toLocaleDateString('en-GB', { 
-      weekday: 'long', 
-      day: 'numeric', 
-      month: 'long', 
-      year: 'numeric' 
-    });
   };
 
   const formatDateShort = (date) => {
@@ -231,14 +258,11 @@ const B2CCheckout = () => {
       setSelectedDates(prev => {
         const alreadySelected = prev.some(d => isSameDay(d, newDate));
         if (alreadySelected) {
-          // Remove date if already selected
           return prev.filter(d => !isSameDay(d, newDate));
         } else {
-          // Add date (max 5 dates)
           if (prev.length >= 5) {
             return prev;
           }
-          // Sort dates chronologically
           return [...prev, newDate].sort((a, b) => a - b);
         }
       });
@@ -276,7 +300,7 @@ const B2CCheckout = () => {
     setPaymentError(null);
 
     try {
-      const amount = Math.round((totalPrice || service.price || 0) * 100); // Convert to pence
+      const amount = Math.round((totalPrice || service.price || 0) * 100);
       
       if (amount <= 0) {
         setPaymentError('Invalid service price');
@@ -284,7 +308,6 @@ const B2CCheckout = () => {
         return;
       }
 
-      // Build job description including hourly details
       let fullJobDescription = jobDescription || '';
       if (isHourlyService) {
         fullJobDescription = `[${selectedHours} hour(s) booked] ${hourlyJobDescription || jobDescription || ''}`;
@@ -312,7 +335,6 @@ const B2CCheckout = () => {
           scheduled_dates: selectedDates.map(d => d.toISOString().split('T')[0]).join(', '),
           scheduled_time_slots: selectedTimeSlots.join(', '),
         },
-        // Pre-create booking record in database
         booking_data: {
           customer_name: customerDetails?.fullName || '',
           customer_email: customerDetails?.email || '',
@@ -336,14 +358,12 @@ const B2CCheckout = () => {
 
       setClientSecret(paymentData.clientSecret);
       
-      // Scroll to payment section after payment intent is created
       setTimeout(() => {
         if (paymentSectionRef.current) {
           paymentSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
       }, 100);
     } catch (err) {
-      // Show more detailed error in development
       const errorMessage = import.meta.env.DEV 
         ? `Failed to initialize payment: ${err.message}` 
         : 'Failed to initialize payment. Please try again.';
@@ -354,7 +374,6 @@ const B2CCheckout = () => {
   };
 
   useEffect(() => {
-    // Update postcode from location state
     if (postcode) {
       setCustomerDetails(prev => ({ ...prev, postcode }));
     }
@@ -370,7 +389,6 @@ const B2CCheckout = () => {
     const files = Array.from(e.target.files);
     if (files.length === 0) return;
 
-    // Limit to 5 photos
     if (uploadedPhotos.length + files.length > 5) {
       toast.error('You can upload a maximum of 5 photos');
       return;
@@ -379,13 +397,11 @@ const B2CCheckout = () => {
     setUploading(true);
 
     files.forEach(file => {
-      // Validate file type
       if (!file.type.startsWith('image/')) {
         toast.error('Please upload only image files');
         return;
       }
 
-      // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
         toast.error('Each photo must be less than 5MB');
         return;
@@ -404,7 +420,6 @@ const B2CCheckout = () => {
     });
 
     setUploading(false);
-    // Reset input
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -453,12 +468,10 @@ const B2CCheckout = () => {
       errors.hourlyTerms = 'You must acknowledge the hourly rate terms';
     }
 
-    // For hourly services, require a job description
     if (isHourlyService && !hourlyJobDescription.trim()) {
       errors.hourlyJobDescription = 'Please describe the work you need done';
     }
 
-    // Require at least 2 dates
     if (selectedDates.length < 2) {
       errors.date = 'Please select at least 2 preferred dates';
     }
@@ -474,7 +487,6 @@ const B2CCheckout = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setCustomerDetails(prev => ({ ...prev, [name]: value }));
-    // Clear error when user starts typing
     if (formErrors[name]) {
       setFormErrors(prev => ({ ...prev, [name]: '' }));
     }
@@ -482,9 +494,7 @@ const B2CCheckout = () => {
 
   const handlePaymentSuccess = (paymentIntent) => {
     setPaymentSuccess(true);
-    // Scroll to top to show success message
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    // Redirect to success page after a short delay
     setTimeout(() => {
       navigate('/checkout-success', {
         state: {
@@ -514,19 +524,16 @@ const B2CCheckout = () => {
            (!isHourlyService || (agreedToHourlyTerms && hourlyJobDescription.trim()));
   };
 
-  // Auto-scroll to payment section when form becomes valid
   useEffect(() => {
     const formValid = isFormValid();
     if (formValid && !hasScrolledToPayment && !clientSecret) {
       setHasScrolledToPayment(true);
-      // Small delay to ensure smooth UX
       setTimeout(() => {
         if (paymentSectionRef.current) {
           paymentSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
       }, 300);
     }
-    // Reset if form becomes invalid again
     if (!formValid && hasScrolledToPayment) {
       setHasScrolledToPayment(false);
     }
@@ -543,28 +550,46 @@ const B2CCheckout = () => {
       }}>
         <div style={{
           backgroundColor: 'white',
-          borderRadius: '1rem',
-          padding: '3rem',
+          borderRadius: '24px',
+          padding: '4rem 3rem',
           textAlign: 'center',
-          boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+          boxShadow: '0 20px 60px rgba(0,0,0,0.1)',
+          maxWidth: '500px',
+          animation: 'fadeInUp 0.5s ease-out'
         }}>
-          <CheckCircle size={64} style={{ color: '#10b981', marginBottom: '1rem' }} />
-          <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#111827', marginBottom: '0.5rem' }}>
+          <div style={{
+            width: '80px',
+            height: '80px',
+            backgroundColor: '#10b981',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            margin: '0 auto 1.5rem'
+          }}>
+            <CheckCircle size={48} style={{ color: 'white' }} />
+          </div>
+          <h2 style={{ fontSize: '1.75rem', fontWeight: '700', color: '#111827', marginBottom: '0.5rem' }}>
             Payment Successful!
           </h2>
-          <p style={{ color: '#6b7280' }}>Redirecting to confirmation page...</p>
+          <p style={{ color: '#6b7280', fontSize: '1rem' }}>Redirecting to confirmation page...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f9fafb' }}>
-      {/* Header */}
+    <div style={{ minHeight: '100vh', backgroundColor: '#fafafa' }}>
+      {/* Minimalist Header */}
       <div style={{
-        backgroundColor: '#020034',
-        padding: '1.25rem 0',
-        boxShadow: '0 2px 10px rgba(0,0,0,0.2)'
+        backgroundColor: 'white',
+        borderBottom: '1px solid #e5e7eb',
+        padding: '1rem 0',
+        position: 'sticky',
+        top: 0,
+        zIndex: 100,
+        backdropFilter: 'blur(10px)',
+        backgroundColor: 'rgba(255, 255, 255, 0.95)'
       }}>
         <div className="container">
           <button
@@ -575,134 +600,166 @@ const B2CCheckout = () => {
               gap: '0.5rem',
               backgroundColor: 'transparent',
               border: 'none',
-              color: 'white',
+              color: '#6b7280',
               cursor: 'pointer',
-              fontSize: '1rem',
+              fontSize: '0.9375rem',
               fontWeight: '500',
-              transition: 'opacity 0.3s ease'
+              transition: 'all 0.2s ease',
+              padding: '0.5rem 0'
             }}
-            onMouseEnter={(e) => e.target.style.opacity = '0.7'}
-            onMouseLeave={(e) => e.target.style.opacity = '1'}
+            onMouseEnter={(e) => {
+              e.target.style.color = '#020034';
+              e.target.style.transform = 'translateX(-4px)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.color = '#6b7280';
+              e.target.style.transform = 'translateX(0)';
+            }}
           >
-            <ArrowLeft size={20} />
+            <ArrowLeft size={18} />
             Back
           </button>
         </div>
       </div>
 
-      <div className="container" style={{ padding: '3rem 0' }}>
+      <div className="container" style={{ padding: '2rem 0 4rem' }}>
         <div style={{
           maxWidth: '1200px',
           margin: '0 auto',
           display: 'grid',
-          gridTemplateColumns: '1fr 420px',
-          gap: '2.5rem'
+          gridTemplateColumns: '1fr 400px',
+          gap: '3rem',
+          alignItems: 'start'
         }}>
-          {/* Left: Service Details & Customer Form */}
+          {/* Left: Main Form */}
           <div>
+            {/* Progress Indicator */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              marginBottom: '2rem',
+              paddingBottom: '1.5rem',
+              borderBottom: '1px solid #e5e7eb'
+            }}>
+              <div style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
+                backgroundColor: isFormValid() ? '#10b981' : '#e5e7eb',
+                color: isFormValid() ? 'white' : '#9ca3af',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontWeight: '600',
+                fontSize: '0.875rem',
+                transition: 'all 0.3s ease'
+              }}>
+                {isFormValid() ? <CheckCircle size={18} /> : '1'}
+              </div>
+              <div style={{ flex: 1, height: '2px', backgroundColor: '#e5e7eb', position: 'relative' }}>
+                <div style={{
+                  width: isFormValid() ? '100%' : '0%',
+                  height: '100%',
+                  backgroundColor: '#10b981',
+                  transition: 'width 0.5s ease'
+                }} />
+              </div>
+              <div style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
+                backgroundColor: clientSecret ? '#10b981' : '#e5e7eb',
+                color: clientSecret ? 'white' : '#9ca3af',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontWeight: '600',
+                fontSize: '0.875rem',
+                transition: 'all 0.3s ease'
+              }}>
+                {clientSecret ? <CheckCircle size={18} /> : '2'}
+              </div>
+              <span style={{ fontSize: '0.875rem', color: '#6b7280', fontWeight: '500' }}>
+                {isFormValid() ? 'Details' : 'Details'} → {clientSecret ? 'Payment' : 'Payment'}
+              </span>
+            </div>
+
             <h1 style={{
-              fontSize: '2.5rem',
+              fontSize: '2rem',
               fontWeight: '700',
               color: '#020034',
-              marginBottom: '2rem',
-              lineHeight: '1.2'
+              marginBottom: '0.5rem',
+              lineHeight: '1.2',
+              letterSpacing: '-0.02em'
             }}>
               Complete your booking
             </h1>
+            <p style={{
+              fontSize: '1rem',
+              color: '#6b7280',
+              marginBottom: '2.5rem'
+            }}>
+              Just a few details to finalize your service
+            </p>
 
-            {/* Service Summary Card */}
+            {/* Service Summary - Compact */}
             <div style={{
               backgroundColor: 'white',
-              borderRadius: '1rem',
+              borderRadius: '16px',
               padding: '1.5rem',
-              boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-              marginBottom: '1.5rem',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+              marginBottom: '2rem',
               border: '1px solid #e5e7eb'
             }}>
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.75rem',
-                marginBottom: '1rem'
+                justifyContent: 'space-between'
               }}>
-                <div style={{
-                  width: '48px',
-                  height: '48px',
-                  backgroundColor: '#020034',
-                  borderRadius: '0.5rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'white',
-                  fontSize: '1.5rem',
-                  fontWeight: '700',
-                  flexShrink: 0
-                }}>
-                  {service.title?.charAt(0) || 'S'}
-                </div>
-                <div>
-                  <h2 style={{
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                  <div style={{
+                    width: '48px',
+                    height: '48px',
+                    backgroundColor: '#f0f4ff',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#2001AF',
                     fontSize: '1.25rem',
                     fontWeight: '700',
-                    color: '#111827',
-                    margin: 0
+                    flexShrink: 0
                   }}>
-                    {service.title}
-                  </h2>
-                  {service.category && (
-                    <span style={{
-                      fontSize: '0.8rem',
-                      color: '#6b7280'
+                    {service.title?.charAt(0) || 'S'}
+                  </div>
+                  <div>
+                    <h3 style={{
+                      fontSize: '1.125rem',
+                      fontWeight: '600',
+                      color: '#111827',
+                      margin: 0,
+                      marginBottom: '0.25rem'
                     }}>
-                      {service.category}
-                    </span>
-                  )}
+                      {service.title}
+                    </h3>
+                    {service.category && (
+                      <span style={{
+                        fontSize: '0.8125rem',
+                        color: '#6b7280'
+                      }}>
+                        {service.category}
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </div>
-              <p style={{
-                color: '#6b7280',
-                lineHeight: '1.6',
-                marginBottom: '0.75rem',
-                fontSize: '0.9rem'
-              }}>
-                {service.description}
-              </p>
-              {jobDescription && (
                 <div style={{
-                  backgroundColor: '#f9fafb',
-                  borderRadius: '0.5rem',
-                  padding: '0.75rem',
-                  marginTop: '0.75rem'
+                  fontSize: '1.5rem',
+                  fontWeight: '700',
+                  color: '#020034'
                 }}>
-                  <p style={{
-                    fontSize: '0.8rem',
-                    fontWeight: '600',
-                    color: '#374151',
-                    marginBottom: '0.25rem'
-                  }}>
-                    Your request:
-                  </p>
-                  <p style={{
-                    color: '#6b7280',
-                    fontSize: '0.875rem',
-                    margin: 0
-                  }}>
-                    {jobDescription}
-                  </p>
+                  £{totalPrice.toFixed(2)}
                 </div>
-              )}
-              <div style={{
-                marginTop: '0.75rem',
-                paddingTop: '0.75rem',
-                borderTop: '1px solid #e5e7eb',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                color: '#6b7280',
-                fontSize: '0.8rem'
-              }}>
-                <Shield size={14} />
-                <span>Vetted and insured professional</span>
               </div>
             </div>
 
@@ -710,11 +767,12 @@ const B2CCheckout = () => {
             {isHourlyService && (
               <div style={{
                 backgroundColor: 'white',
-                borderRadius: '1rem',
+                borderRadius: '16px',
                 padding: '2rem',
-                boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-                marginBottom: '1.5rem',
-                border: '2px solid #f59e0b'
+                boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                marginBottom: '2rem',
+                border: '1px solid #fef3c7',
+                background: 'linear-gradient(135deg, #ffffff 0%, #fffbeb 100%)'
               }}>
                 <div style={{
                   display: 'flex',
@@ -724,12 +782,12 @@ const B2CCheckout = () => {
                 }}>
                   <Clock size={24} style={{ color: '#d97706' }} />
                   <h3 style={{
-                    fontSize: '1.25rem',
+                    fontSize: '1.125rem',
                     fontWeight: '700',
                     color: '#92400e',
                     margin: 0
                   }}>
-                    Hourly Rate Service - £{service.price}/hour
+                    Hourly Rate Service
                   </h3>
                 </div>
 
@@ -754,11 +812,11 @@ const B2CCheckout = () => {
                       onClick={() => setSelectedHours(prev => Math.max(1, prev - 1))}
                       disabled={selectedHours <= 1}
                       style={{
-                        width: '48px',
-                        height: '48px',
-                        borderRadius: '50%',
+                        width: '44px',
+                        height: '44px',
+                        borderRadius: '12px',
                         border: '2px solid #e5e7eb',
-                        backgroundColor: selectedHours <= 1 ? '#f3f4f6' : 'white',
+                        backgroundColor: selectedHours <= 1 ? '#f9fafb' : 'white',
                         color: selectedHours <= 1 ? '#9ca3af' : '#374151',
                         cursor: selectedHours <= 1 ? 'not-allowed' : 'pointer',
                         display: 'flex',
@@ -767,14 +825,14 @@ const B2CCheckout = () => {
                         transition: 'all 0.2s ease'
                       }}
                     >
-                      <Minus size={20} />
+                      <Minus size={18} />
                     </button>
                     <div style={{
-                      minWidth: '120px',
+                      flex: 1,
                       textAlign: 'center',
-                      padding: '0.75rem 1.5rem',
+                      padding: '1rem',
                       backgroundColor: '#fef3c7',
-                      borderRadius: '0.5rem',
+                      borderRadius: '12px',
                       border: '2px solid #f59e0b'
                     }}>
                       <span style={{
@@ -797,11 +855,11 @@ const B2CCheckout = () => {
                       onClick={() => setSelectedHours(prev => Math.min(8, prev + 1))}
                       disabled={selectedHours >= 8}
                       style={{
-                        width: '48px',
-                        height: '48px',
-                        borderRadius: '50%',
+                        width: '44px',
+                        height: '44px',
+                        borderRadius: '12px',
                         border: '2px solid #e5e7eb',
-                        backgroundColor: selectedHours >= 8 ? '#f3f4f6' : 'white',
+                        backgroundColor: selectedHours >= 8 ? '#f9fafb' : 'white',
                         color: selectedHours >= 8 ? '#9ca3af' : '#374151',
                         cursor: selectedHours >= 8 ? 'not-allowed' : 'pointer',
                         display: 'flex',
@@ -810,16 +868,9 @@ const B2CCheckout = () => {
                         transition: 'all 0.2s ease'
                       }}
                     >
-                      <Plus size={20} />
+                      <Plus size={18} />
                     </button>
                   </div>
-                  <p style={{
-                    fontSize: '0.8rem',
-                    color: '#6b7280',
-                    marginTop: '0.5rem'
-                  }}>
-                    Minimum 1 hour, maximum 8 hours per booking
-                  </p>
                 </div>
 
                 {/* Job Description */}
@@ -841,32 +892,28 @@ const B2CCheckout = () => {
                         setFormErrors(prev => ({ ...prev, hourlyJobDescription: '' }));
                       }
                     }}
-                    placeholder="Please describe in detail what you need help with. Include any specific requirements, materials needed, or special considerations..."
+                    placeholder="Please describe in detail what you need help with..."
                     style={{
                       width: '100%',
-                      minHeight: '120px',
-                      padding: '1rem',
+                      minHeight: '100px',
+                      padding: '0.875rem',
                       border: `2px solid ${formErrors.hourlyJobDescription ? '#ef4444' : '#e5e7eb'}`,
-                      borderRadius: '0.5rem',
-                      fontSize: '1rem',
+                      borderRadius: '12px',
+                      fontSize: '0.9375rem',
                       fontFamily: 'inherit',
                       resize: 'vertical',
                       outline: 'none',
-                      transition: 'border-color 0.3s ease'
+                      transition: 'border-color 0.2s ease',
+                      backgroundColor: 'white'
                     }}
                     onFocus={(e) => e.target.style.borderColor = '#2001AF'}
                     onBlur={(e) => e.target.style.borderColor = formErrors.hourlyJobDescription ? '#ef4444' : '#e5e7eb'}
                   />
                   {formErrors.hourlyJobDescription && (
-                    <p style={{ color: '#ef4444', fontSize: '0.8rem', marginTop: '0.25rem' }}>{formErrors.hourlyJobDescription}</p>
+                    <p style={{ color: '#ef4444', fontSize: '0.8125rem', marginTop: '0.5rem' }}>
+                      {formErrors.hourlyJobDescription}
+                    </p>
                   )}
-                  <p style={{
-                    fontSize: '0.8rem',
-                    color: '#6b7280',
-                    marginTop: '0.5rem'
-                  }}>
-                    The more details you provide, the better our professional can prepare for the job.
-                  </p>
                 </div>
 
                 {/* Photo Upload */}
@@ -880,19 +927,10 @@ const B2CCheckout = () => {
                   }}>
                     Upload photos (optional)
                   </label>
-                  <p style={{
-                    fontSize: '0.8rem',
-                    color: '#6b7280',
-                    marginBottom: '0.75rem'
-                  }}>
-                    Photos help our professionals understand the job better. You can upload up to 5 photos.
-                  </p>
-
-                  {/* Photo Preview Grid */}
                   {uploadedPhotos.length > 0 && (
                     <div style={{
                       display: 'grid',
-                      gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))',
+                      gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))',
                       gap: '0.75rem',
                       marginBottom: '1rem'
                     }}>
@@ -902,7 +940,7 @@ const B2CCheckout = () => {
                           style={{
                             position: 'relative',
                             aspectRatio: '1',
-                            borderRadius: '0.5rem',
+                            borderRadius: '8px',
                             overflow: 'hidden',
                             border: '2px solid #e5e7eb'
                           }}
@@ -942,8 +980,6 @@ const B2CCheckout = () => {
                       ))}
                     </div>
                   )}
-
-                  {/* Upload Button */}
                   {uploadedPhotos.length < 5 && (
                     <div>
                       <input
@@ -964,8 +1000,8 @@ const B2CCheckout = () => {
                           gap: '0.75rem',
                           padding: '1rem',
                           border: '2px dashed #d1d5db',
-                          borderRadius: '0.5rem',
-                          backgroundColor: '#f9fafb',
+                          borderRadius: '12px',
+                          backgroundColor: '#fafafa',
                           cursor: 'pointer',
                           transition: 'all 0.2s ease'
                         }}
@@ -975,59 +1011,16 @@ const B2CCheckout = () => {
                         }}
                         onMouseLeave={(e) => {
                           e.currentTarget.style.borderColor = '#d1d5db';
-                          e.currentTarget.style.backgroundColor = '#f9fafb';
+                          e.currentTarget.style.backgroundColor = '#fafafa';
                         }}
                       >
-                        {uploading ? (
-                          <Loader2 size={20} style={{ animation: 'spin 1s linear infinite', color: '#6b7280' }} />
-                        ) : (
-                          <Upload size={20} style={{ color: '#6b7280' }} />
-                        )}
-                        <span style={{ color: '#6b7280', fontWeight: '500' }}>
-                          {uploading ? 'Uploading...' : 'Click to upload photos'}
-                        </span>
-                        <span style={{ color: '#9ca3af', fontSize: '0.8rem' }}>
-                          ({5 - uploadedPhotos.length} remaining)
+                        <Upload size={20} style={{ color: '#6b7280' }} />
+                        <span style={{ color: '#6b7280', fontWeight: '500', fontSize: '0.875rem' }}>
+                          Click to upload photos
                         </span>
                       </label>
                     </div>
                   )}
-                </div>
-
-                {/* Price Summary */}
-                <div style={{
-                  marginTop: '1.5rem',
-                  padding: '1rem',
-                  backgroundColor: '#fef3c7',
-                  borderRadius: '0.5rem',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center'
-                }}>
-                  <div>
-                    <p style={{ color: '#92400e', fontSize: '0.9rem', margin: 0 }}>
-                      {selectedHours} {selectedHours === 1 ? 'hour' : 'hours'} × £{service.price}/hour
-                    </p>
-                  </div>
-                  <div style={{
-                    fontSize: '1.5rem',
-                    fontWeight: '700',
-                    color: '#92400e'
-                  }}>
-                    £{totalPrice.toFixed(2)}
-                  </div>
-                </div>
-
-                {/* Info Note */}
-                <div style={{
-                  marginTop: '1rem',
-                  padding: '0.75rem',
-                  backgroundColor: '#fef2f2',
-                  borderRadius: '0.5rem',
-                  fontSize: '0.8rem',
-                  color: '#dc2626'
-                }}>
-                  <strong>Note:</strong> If additional time is needed, you will be informed and charged at the same hourly rate. Our professional will confirm before any extra work.
                 </div>
               </div>
             )}
@@ -1035,14 +1028,14 @@ const B2CCheckout = () => {
             {/* Customer Details Form */}
             <div style={{
               backgroundColor: 'white',
-              borderRadius: '1rem',
+              borderRadius: '16px',
               padding: '2rem',
-              boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-              marginBottom: '1.5rem',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+              marginBottom: '2rem',
               border: '1px solid #e5e7eb'
             }}>
               <h3 style={{
-                fontSize: '1.25rem',
+                fontSize: '1.125rem',
                 fontWeight: '700',
                 color: '#111827',
                 marginBottom: '1.5rem',
@@ -1050,10 +1043,10 @@ const B2CCheckout = () => {
                 alignItems: 'center',
                 gap: '0.5rem'
               }}>
-                📋 Your Details
+                Your Details
               </h3>
 
-              <div style={{ display: 'grid', gap: '1rem' }}>
+              <div style={{ display: 'grid', gap: '1.25rem' }}>
                 {/* Full Name */}
                 <div>
                   <label style={{
@@ -1075,16 +1068,19 @@ const B2CCheckout = () => {
                       width: '100%',
                       padding: '0.875rem 1rem',
                       border: `2px solid ${formErrors.fullName ? '#ef4444' : '#e5e7eb'}`,
-                      borderRadius: '0.5rem',
-                      fontSize: '1rem',
+                      borderRadius: '12px',
+                      fontSize: '0.9375rem',
                       outline: 'none',
-                      transition: 'border-color 0.3s ease'
+                      transition: 'border-color 0.2s ease',
+                      backgroundColor: 'white'
                     }}
                     onFocus={(e) => e.target.style.borderColor = '#2001AF'}
                     onBlur={(e) => e.target.style.borderColor = formErrors.fullName ? '#ef4444' : '#e5e7eb'}
                   />
                   {formErrors.fullName && (
-                    <p style={{ color: '#ef4444', fontSize: '0.8rem', marginTop: '0.25rem' }}>{formErrors.fullName}</p>
+                    <p style={{ color: '#ef4444', fontSize: '0.8125rem', marginTop: '0.5rem' }}>
+                      {formErrors.fullName}
+                    </p>
                   )}
                 </div>
 
@@ -1110,16 +1106,19 @@ const B2CCheckout = () => {
                         width: '100%',
                         padding: '0.875rem 1rem',
                         border: `2px solid ${formErrors.email ? '#ef4444' : '#e5e7eb'}`,
-                        borderRadius: '0.5rem',
-                        fontSize: '1rem',
+                        borderRadius: '12px',
+                        fontSize: '0.9375rem',
                         outline: 'none',
-                        transition: 'border-color 0.3s ease'
+                        transition: 'border-color 0.2s ease',
+                        backgroundColor: 'white'
                       }}
                       onFocus={(e) => e.target.style.borderColor = '#2001AF'}
                       onBlur={(e) => e.target.style.borderColor = formErrors.email ? '#ef4444' : '#e5e7eb'}
                     />
                     {formErrors.email && (
-                      <p style={{ color: '#ef4444', fontSize: '0.8rem', marginTop: '0.25rem' }}>{formErrors.email}</p>
+                      <p style={{ color: '#ef4444', fontSize: '0.8125rem', marginTop: '0.5rem' }}>
+                        {formErrors.email}
+                      </p>
                     )}
                   </div>
                   <div>
@@ -1142,16 +1141,19 @@ const B2CCheckout = () => {
                         width: '100%',
                         padding: '0.875rem 1rem',
                         border: `2px solid ${formErrors.phone ? '#ef4444' : '#e5e7eb'}`,
-                        borderRadius: '0.5rem',
-                        fontSize: '1rem',
+                        borderRadius: '12px',
+                        fontSize: '0.9375rem',
                         outline: 'none',
-                        transition: 'border-color 0.3s ease'
+                        transition: 'border-color 0.2s ease',
+                        backgroundColor: 'white'
                       }}
                       onFocus={(e) => e.target.style.borderColor = '#2001AF'}
                       onBlur={(e) => e.target.style.borderColor = formErrors.phone ? '#ef4444' : '#e5e7eb'}
                     />
                     {formErrors.phone && (
-                      <p style={{ color: '#ef4444', fontSize: '0.8rem', marginTop: '0.25rem' }}>{formErrors.phone}</p>
+                      <p style={{ color: '#ef4444', fontSize: '0.8125rem', marginTop: '0.5rem' }}>
+                        {formErrors.phone}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -1159,88 +1161,19 @@ const B2CCheckout = () => {
                 {/* Address Section */}
                 <div style={{
                   marginTop: '0.5rem',
-                  paddingTop: '1rem',
+                  paddingTop: '1.5rem',
                   borderTop: '1px solid #e5e7eb'
                 }}>
                   <h4 style={{
-                    fontSize: '1rem',
+                    fontSize: '0.9375rem',
                     fontWeight: '600',
                     color: '#374151',
-                    marginBottom: '1rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem'
+                    marginBottom: '1rem'
                   }}>
-                    📍 Service Address
+                    Service Address
                   </h4>
 
-                  {/* Address Line 1 */}
-                  <div style={{ marginBottom: '1rem' }}>
-                    <label style={{
-                      display: 'block',
-                      fontSize: '0.875rem',
-                      fontWeight: '600',
-                      color: '#374151',
-                      marginBottom: '0.5rem'
-                    }}>
-                      Address Line 1 *
-                    </label>
-                    <input
-                      type="text"
-                      name="addressLine1"
-                      value={customerDetails.addressLine1}
-                      onChange={handleInputChange}
-                      placeholder="123 High Street"
-                      style={{
-                        width: '100%',
-                        padding: '0.875rem 1rem',
-                        border: `2px solid ${formErrors.addressLine1 ? '#ef4444' : '#e5e7eb'}`,
-                        borderRadius: '0.5rem',
-                        fontSize: '1rem',
-                        outline: 'none',
-                        transition: 'border-color 0.3s ease'
-                      }}
-                      onFocus={(e) => e.target.style.borderColor = '#2001AF'}
-                      onBlur={(e) => e.target.style.borderColor = formErrors.addressLine1 ? '#ef4444' : '#e5e7eb'}
-                    />
-                    {formErrors.addressLine1 && (
-                      <p style={{ color: '#ef4444', fontSize: '0.8rem', marginTop: '0.25rem' }}>{formErrors.addressLine1}</p>
-                    )}
-                  </div>
-
-                  {/* Address Line 2 */}
-                  <div style={{ marginBottom: '1rem' }}>
-                    <label style={{
-                      display: 'block',
-                      fontSize: '0.875rem',
-                      fontWeight: '600',
-                      color: '#374151',
-                      marginBottom: '0.5rem'
-                    }}>
-                      Address Line 2 <span style={{ color: '#9ca3af', fontWeight: '400' }}>(optional)</span>
-                    </label>
-                    <input
-                      type="text"
-                      name="addressLine2"
-                      value={customerDetails.addressLine2}
-                      onChange={handleInputChange}
-                      placeholder="Flat 2, Building A"
-                      style={{
-                        width: '100%',
-                        padding: '0.875rem 1rem',
-                        border: '2px solid #e5e7eb',
-                        borderRadius: '0.5rem',
-                        fontSize: '1rem',
-                        outline: 'none',
-                        transition: 'border-color 0.3s ease'
-                      }}
-                      onFocus={(e) => e.target.style.borderColor = '#2001AF'}
-                      onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
-                    />
-                  </div>
-
-                  {/* City & Postcode Row */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div style={{ display: 'grid', gap: '1rem' }}>
                     <div>
                       <label style={{
                         display: 'block',
@@ -1249,30 +1182,34 @@ const B2CCheckout = () => {
                         color: '#374151',
                         marginBottom: '0.5rem'
                       }}>
-                        City *
+                        Address Line 1 *
                       </label>
                       <input
                         type="text"
-                        name="city"
-                        value={customerDetails.city}
+                        name="addressLine1"
+                        value={customerDetails.addressLine1}
                         onChange={handleInputChange}
-                        placeholder="London"
+                        placeholder="123 High Street"
                         style={{
                           width: '100%',
                           padding: '0.875rem 1rem',
-                          border: `2px solid ${formErrors.city ? '#ef4444' : '#e5e7eb'}`,
-                          borderRadius: '0.5rem',
-                          fontSize: '1rem',
+                          border: `2px solid ${formErrors.addressLine1 ? '#ef4444' : '#e5e7eb'}`,
+                          borderRadius: '12px',
+                          fontSize: '0.9375rem',
                           outline: 'none',
-                          transition: 'border-color 0.3s ease'
+                          transition: 'border-color 0.2s ease',
+                          backgroundColor: 'white'
                         }}
                         onFocus={(e) => e.target.style.borderColor = '#2001AF'}
-                        onBlur={(e) => e.target.style.borderColor = formErrors.city ? '#ef4444' : '#e5e7eb'}
+                        onBlur={(e) => e.target.style.borderColor = formErrors.addressLine1 ? '#ef4444' : '#e5e7eb'}
                       />
-                      {formErrors.city && (
-                        <p style={{ color: '#ef4444', fontSize: '0.8rem', marginTop: '0.25rem' }}>{formErrors.city}</p>
+                      {formErrors.addressLine1 && (
+                        <p style={{ color: '#ef4444', fontSize: '0.8125rem', marginTop: '0.5rem' }}>
+                          {formErrors.addressLine1}
+                        </p>
                       )}
                     </div>
+
                     <div>
                       <label style={{
                         display: 'block',
@@ -1281,30 +1218,101 @@ const B2CCheckout = () => {
                         color: '#374151',
                         marginBottom: '0.5rem'
                       }}>
-                        Postcode *
+                        Address Line 2 <span style={{ color: '#9ca3af', fontWeight: '400' }}>(optional)</span>
                       </label>
                       <input
                         type="text"
-                        name="postcode"
-                        value={customerDetails.postcode}
+                        name="addressLine2"
+                        value={customerDetails.addressLine2}
                         onChange={handleInputChange}
-                        placeholder="SW1A 1AA"
+                        placeholder="Flat 2, Building A"
                         style={{
                           width: '100%',
                           padding: '0.875rem 1rem',
-                          border: `2px solid ${formErrors.postcode ? '#ef4444' : '#e5e7eb'}`,
-                          borderRadius: '0.5rem',
-                          fontSize: '1rem',
+                          border: '2px solid #e5e7eb',
+                          borderRadius: '12px',
+                          fontSize: '0.9375rem',
                           outline: 'none',
-                          transition: 'border-color 0.3s ease',
-                          textTransform: 'uppercase'
+                          transition: 'border-color 0.2s ease',
+                          backgroundColor: 'white'
                         }}
                         onFocus={(e) => e.target.style.borderColor = '#2001AF'}
-                        onBlur={(e) => e.target.style.borderColor = formErrors.postcode ? '#ef4444' : '#e5e7eb'}
+                        onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
                       />
-                      {formErrors.postcode && (
-                        <p style={{ color: '#ef4444', fontSize: '0.8rem', marginTop: '0.25rem' }}>{formErrors.postcode}</p>
-                      )}
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                      <div>
+                        <label style={{
+                          display: 'block',
+                          fontSize: '0.875rem',
+                          fontWeight: '600',
+                          color: '#374151',
+                          marginBottom: '0.5rem'
+                        }}>
+                          City *
+                        </label>
+                        <input
+                          type="text"
+                          name="city"
+                          value={customerDetails.city}
+                          onChange={handleInputChange}
+                          placeholder="London"
+                          style={{
+                            width: '100%',
+                            padding: '0.875rem 1rem',
+                            border: `2px solid ${formErrors.city ? '#ef4444' : '#e5e7eb'}`,
+                            borderRadius: '12px',
+                            fontSize: '0.9375rem',
+                            outline: 'none',
+                            transition: 'border-color 0.2s ease',
+                            backgroundColor: 'white'
+                          }}
+                          onFocus={(e) => e.target.style.borderColor = '#2001AF'}
+                          onBlur={(e) => e.target.style.borderColor = formErrors.city ? '#ef4444' : '#e5e7eb'}
+                        />
+                        {formErrors.city && (
+                          <p style={{ color: '#ef4444', fontSize: '0.8125rem', marginTop: '0.5rem' }}>
+                            {formErrors.city}
+                          </p>
+                        )}
+                      </div>
+                      <div>
+                        <label style={{
+                          display: 'block',
+                          fontSize: '0.875rem',
+                          fontWeight: '600',
+                          color: '#374151',
+                          marginBottom: '0.5rem'
+                        }}>
+                          Postcode *
+                        </label>
+                        <input
+                          type="text"
+                          name="postcode"
+                          value={customerDetails.postcode}
+                          onChange={handleInputChange}
+                          placeholder="SW1A 1AA"
+                          style={{
+                            width: '100%',
+                            padding: '0.875rem 1rem',
+                            border: `2px solid ${formErrors.postcode ? '#ef4444' : '#e5e7eb'}`,
+                            borderRadius: '12px',
+                            fontSize: '0.9375rem',
+                            outline: 'none',
+                            transition: 'border-color 0.2s ease',
+                            backgroundColor: 'white',
+                            textTransform: 'uppercase'
+                          }}
+                          onFocus={(e) => e.target.style.borderColor = '#2001AF'}
+                          onBlur={(e) => e.target.style.borderColor = formErrors.postcode ? '#ef4444' : '#e5e7eb'}
+                        />
+                        {formErrors.postcode && (
+                          <p style={{ color: '#ef4444', fontSize: '0.8125rem', marginTop: '0.5rem' }}>
+                            {formErrors.postcode}
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1314,14 +1322,14 @@ const B2CCheckout = () => {
             {/* Date & Time Selection */}
             <div style={{
               backgroundColor: 'white',
-              borderRadius: '1rem',
+              borderRadius: '16px',
               padding: '2rem',
-              boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-              marginBottom: '1.5rem',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+              marginBottom: '2rem',
               border: '1px solid #e5e7eb'
             }}>
               <h3 style={{
-                fontSize: '1.25rem',
+                fontSize: '1.125rem',
                 fontWeight: '700',
                 color: '#111827',
                 marginBottom: '1.5rem',
@@ -1329,7 +1337,7 @@ const B2CCheckout = () => {
                 alignItems: 'center',
                 gap: '0.5rem'
               }}>
-                <Calendar size={24} style={{ color: '#E94A02' }} />
+                <Calendar size={20} style={{ color: '#E94A02' }} />
                 Select Date & Time
               </h3>
 
@@ -1344,18 +1352,12 @@ const B2CCheckout = () => {
                 }}>
                   Preferred Dates * <span style={{ fontWeight: '400', color: '#6b7280' }}>(select at least 2)</span>
                 </label>
-                <p style={{
-                  fontSize: '0.8rem',
-                  color: '#6b7280',
-                  marginBottom: '0.75rem'
-                }}>
-                  Please select 2-5 dates that work for you. We'll confirm the best available date.
-                </p>
                 
                 <div style={{
                   border: `2px solid ${formErrors.date ? '#ef4444' : '#e5e7eb'}`,
-                  borderRadius: '0.75rem',
-                  overflow: 'hidden'
+                  borderRadius: '16px',
+                  overflow: 'hidden',
+                  backgroundColor: 'white'
                 }}>
                   {/* Calendar Header */}
                   <div style={{
@@ -1375,17 +1377,18 @@ const B2CCheckout = () => {
                         color: 'white',
                         cursor: 'pointer',
                         padding: '0.5rem',
-                        borderRadius: '0.25rem',
+                        borderRadius: '8px',
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'center'
+                        justifyContent: 'center',
+                        transition: 'background-color 0.2s ease'
                       }}
                       onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.1)'}
                       onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
                     >
                       <ChevronLeft size={20} />
                     </button>
-                    <span style={{ fontWeight: '600', fontSize: '1rem' }}>
+                    <span style={{ fontWeight: '600', fontSize: '0.9375rem' }}>
                       {currentMonth.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}
                     </span>
                     <button
@@ -1397,10 +1400,11 @@ const B2CCheckout = () => {
                         color: 'white',
                         cursor: 'pointer',
                         padding: '0.5rem',
-                        borderRadius: '0.25rem',
+                        borderRadius: '8px',
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'center'
+                        justifyContent: 'center',
+                        transition: 'background-color 0.2s ease'
                       }}
                       onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.1)'}
                       onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
@@ -1439,12 +1443,10 @@ const B2CCheckout = () => {
                       const { daysInMonth, startingDay } = getDaysInMonth(currentMonth);
                       const days = [];
                       
-                      // Empty cells for days before the first of the month
                       for (let i = 0; i < startingDay; i++) {
                         days.push(<div key={`empty-${i}`} style={{ padding: '0.5rem' }} />);
                       }
                       
-                      // Days of the month
                       for (let day = 1; day <= daysInMonth; day++) {
                         const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
                         const disabled = isDateDisabled(date);
@@ -1461,14 +1463,13 @@ const B2CCheckout = () => {
                               padding: '0.75rem',
                               textAlign: 'center',
                               border: isSelected ? '2px solid #E94A02' : 'none',
-                              borderRadius: '0.5rem',
+                              borderRadius: '8px',
                               cursor: disabled || (!isSelected && !canSelectMore) ? 'not-allowed' : 'pointer',
-                              backgroundColor: isSelected ? '#E94A02' : disabled ? '#f3f4f6' : 'transparent',
+                              backgroundColor: isSelected ? '#E94A02' : disabled ? '#f9fafb' : 'transparent',
                               color: isSelected ? 'white' : disabled ? '#d1d5db' : '#374151',
                               fontWeight: isSelected ? '600' : '400',
                               transition: 'all 0.2s ease',
-                              fontSize: '0.875rem',
-                              position: 'relative'
+                              fontSize: '0.875rem'
                             }}
                             onMouseEnter={(e) => {
                               if (!disabled && !isSelected && canSelectMore) {
@@ -1494,16 +1495,18 @@ const B2CCheckout = () => {
                 </div>
 
                 {formErrors.date && (
-                  <p style={{ color: '#ef4444', fontSize: '0.8rem', marginTop: '0.5rem' }}>{formErrors.date}</p>
+                  <p style={{ color: '#ef4444', fontSize: '0.8125rem', marginTop: '0.5rem' }}>
+                    {formErrors.date}
+                  </p>
                 )}
 
                 {/* Selected Dates Display */}
                 {selectedDates.length > 0 && (
                   <div style={{
-                    marginTop: '0.75rem',
+                    marginTop: '1rem',
                     padding: '1rem',
                     backgroundColor: selectedDates.length >= 2 ? '#f0fdf4' : '#fef3c7',
-                    borderRadius: '0.5rem',
+                    borderRadius: '12px',
                     border: `1px solid ${selectedDates.length >= 2 ? '#bbf7d0' : '#fcd34d'}`
                   }}>
                     <div style={{
@@ -1514,7 +1517,7 @@ const B2CCheckout = () => {
                     }}>
                       <span style={{ 
                         color: selectedDates.length >= 2 ? '#166534' : '#92400e', 
-                        fontSize: '0.85rem', 
+                        fontSize: '0.8125rem', 
                         fontWeight: '600',
                         display: 'flex',
                         alignItems: 'center',
@@ -1527,12 +1530,6 @@ const B2CCheckout = () => {
                         )}
                         {selectedDates.length} date{selectedDates.length !== 1 ? 's' : ''} selected
                         {selectedDates.length < 2 && ' (select at least 2)'}
-                      </span>
-                      <span style={{ 
-                        color: '#6b7280', 
-                        fontSize: '0.75rem' 
-                      }}>
-                        {5 - selectedDates.length} remaining
                       </span>
                     </div>
                     <div style={{
@@ -1549,9 +1546,9 @@ const B2CCheckout = () => {
                             gap: '0.5rem',
                             backgroundColor: 'white',
                             border: '1px solid #e5e7eb',
-                            borderRadius: '0.5rem',
+                            borderRadius: '8px',
                             padding: '0.5rem 0.75rem',
-                            fontSize: '0.85rem'
+                            fontSize: '0.8125rem'
                           }}
                         >
                           <Calendar size={14} style={{ color: '#E94A02' }} />
@@ -1602,13 +1599,6 @@ const B2CCheckout = () => {
                 }}>
                   Preferred Time Slots * <span style={{ fontWeight: '400', color: '#6b7280' }}>(select all that work)</span>
                 </label>
-                <p style={{
-                  fontSize: '0.8rem',
-                  color: '#6b7280',
-                  marginBottom: '0.75rem'
-                }}>
-                  Select one or more time slots that work for you.
-                </p>
 
                 <div style={{
                   display: 'grid',
@@ -1636,7 +1626,7 @@ const B2CCheckout = () => {
                         style={{
                           padding: '1rem',
                           border: `2px solid ${isSelected ? '#E94A02' : '#e5e7eb'}`,
-                          borderRadius: '0.75rem',
+                          borderRadius: '12px',
                           backgroundColor: isSelected ? '#fff5f0' : 'white',
                           cursor: 'pointer',
                           textAlign: 'left',
@@ -1672,7 +1662,7 @@ const B2CCheckout = () => {
                               {slot.period}
                             </div>
                             <div style={{
-                              fontSize: '1rem',
+                              fontSize: '0.9375rem',
                               fontWeight: '600',
                               color: isSelected ? '#E94A02' : '#374151'
                             }}>
@@ -1689,29 +1679,22 @@ const B2CCheckout = () => {
                 </div>
 
                 {formErrors.timeSlot && (
-                  <p style={{ color: '#ef4444', fontSize: '0.8rem', marginTop: '0.5rem' }}>{formErrors.timeSlot}</p>
+                  <p style={{ color: '#ef4444', fontSize: '0.8125rem', marginTop: '0.5rem' }}>
+                    {formErrors.timeSlot}
+                  </p>
                 )}
-
-                <p style={{
-                  fontSize: '0.8rem',
-                  color: '#6b7280',
-                  marginTop: '0.75rem'
-                }}>
-                  Our professional will arrive within one of your selected time windows. We'll confirm the exact time via email.
-                </p>
               </div>
             </div>
 
             {/* Terms & Conditions */}
             <div style={{
               backgroundColor: 'white',
-              borderRadius: '1rem',
+              borderRadius: '16px',
               padding: '1.5rem',
-              boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-              marginBottom: '1.5rem',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+              marginBottom: '2rem',
               border: '1px solid #e5e7eb'
             }}>
-              {/* Hourly Terms Checkbox */}
               {isHourlyService && (
                 <div style={{ marginBottom: '1rem' }}>
                   <label style={{
@@ -1738,7 +1721,7 @@ const B2CCheckout = () => {
                       }}
                     />
                     <span style={{
-                      fontSize: '0.9rem',
+                      fontSize: '0.875rem',
                       color: '#374151',
                       lineHeight: '1.5'
                     }}>
@@ -1747,12 +1730,13 @@ const B2CCheckout = () => {
                     </span>
                   </label>
                   {formErrors.hourlyTerms && (
-                    <p style={{ color: '#ef4444', fontSize: '0.8rem', marginTop: '0.5rem', marginLeft: '28px' }}>{formErrors.hourlyTerms}</p>
+                    <p style={{ color: '#ef4444', fontSize: '0.8125rem', marginTop: '0.5rem', marginLeft: '28px' }}>
+                      {formErrors.hourlyTerms}
+                    </p>
                   )}
                 </div>
               )}
 
-              {/* General Terms Checkbox */}
               <div>
                 <label style={{
                   display: 'flex',
@@ -1778,7 +1762,7 @@ const B2CCheckout = () => {
                     }}
                   />
                   <span style={{
-                    fontSize: '0.9rem',
+                    fontSize: '0.875rem',
                     color: '#374151',
                     lineHeight: '1.5'
                   }}>
@@ -1788,87 +1772,82 @@ const B2CCheckout = () => {
                   </span>
                 </label>
                 {formErrors.terms && (
-                  <p style={{ color: '#ef4444', fontSize: '0.8rem', marginTop: '0.5rem', marginLeft: '28px' }}>{formErrors.terms}</p>
+                  <p style={{ color: '#ef4444', fontSize: '0.8125rem', marginTop: '0.5rem', marginLeft: '28px' }}>
+                    {formErrors.terms}
+                  </p>
                 )}
               </div>
             </div>
 
-            {/* Trust indicators */}
+            {/* Trust Indicators */}
             <div style={{
               backgroundColor: 'white',
-              borderRadius: '1rem',
+              borderRadius: '16px',
               padding: '1.5rem',
-              boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
               border: '1px solid #e5e7eb'
             }}>
-              <h3 style={{
-                fontSize: '1rem',
-                fontWeight: '700',
-                color: '#111827',
-                marginBottom: '1rem'
-              }}>
-                Why book with Master?
-              </h3>
               <div style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(2, 1fr)',
-                gap: '0.75rem'
+                gap: '1rem'
               }}>
                 {[
-                  'Instant pricing',
-                  'Vetted professionals',
-                  'Secure payment',
-                  'Satisfaction guaranteed'
+                  { icon: <Sparkles size={18} />, text: 'Instant pricing' },
+                  { icon: <Shield size={18} />, text: 'Vetted professionals' },
+                  { icon: <Lock size={18} />, text: 'Secure payment' },
+                  { icon: <Star size={18} />, text: 'Satisfaction guaranteed' }
                 ].map((item, index) => (
                   <div key={index} style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.5rem',
-                    padding: '0.5rem',
-                    backgroundColor: '#f9fafb',
-                    borderRadius: '0.5rem',
-                    fontSize: '0.85rem'
+                    gap: '0.75rem',
+                    padding: '0.75rem',
+                    backgroundColor: '#fafafa',
+                    borderRadius: '12px',
+                    fontSize: '0.875rem'
                   }}>
-                    <CheckCircle size={16} style={{ color: '#10b981', flexShrink: 0 }} />
-                    <span style={{ color: '#374151' }}>{item}</span>
+                    <div style={{ color: '#2001AF' }}>
+                      {item.icon}
+                    </div>
+                    <span style={{ color: '#374151', fontWeight: '500' }}>{item.text}</span>
                   </div>
                 ))}
               </div>
             </div>
-
           </div>
 
-          {/* Right: Booking Summary */}
+          {/* Right: Sticky Order Summary */}
           <div ref={paymentSectionRef}>
             <div style={{
               backgroundColor: 'white',
-              borderRadius: '1rem',
-              padding: '1.5rem',
-              boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+              borderRadius: '20px',
+              padding: '2rem',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
               position: 'sticky',
-              top: '2rem',
-              border: '2px solid #e5e7eb'
+              top: '6rem',
+              border: '1px solid #e5e7eb'
             }}>
               <h2 style={{
                 fontSize: '1.25rem',
                 fontWeight: '700',
                 color: '#111827',
-                marginBottom: '1rem',
-                paddingBottom: '0.75rem',
-                borderBottom: '2px solid #e5e7eb'
+                marginBottom: '1.5rem',
+                paddingBottom: '1rem',
+                borderBottom: '2px solid #f3f4f6'
               }}>
                 Order Summary
               </h2>
 
               {/* Service Details */}
-              <div style={{ marginBottom: '1rem' }}>
+              <div style={{ marginBottom: '1.5rem' }}>
                 <div style={{
                   display: 'flex',
                   justifyContent: 'space-between',
-                  marginBottom: '0.5rem'
+                  marginBottom: '0.75rem'
                 }}>
-                  <span style={{ color: '#6b7280', fontSize: '0.9rem' }}>Service</span>
-                  <span style={{ fontWeight: '600', color: '#111827', fontSize: '0.9rem', textAlign: 'right', maxWidth: '180px' }}>
+                  <span style={{ color: '#6b7280', fontSize: '0.875rem' }}>Service</span>
+                  <span style={{ fontWeight: '600', color: '#111827', fontSize: '0.875rem', textAlign: 'right', maxWidth: '180px' }}>
                     {service.title}
                   </span>
                 </div>
@@ -1879,8 +1858,8 @@ const B2CCheckout = () => {
                       justifyContent: 'space-between',
                       marginBottom: '0.5rem'
                     }}>
-                      <span style={{ color: '#6b7280', fontSize: '0.9rem' }}>Rate</span>
-                      <span style={{ fontWeight: '600', color: '#111827', fontSize: '0.9rem' }}>
+                      <span style={{ color: '#6b7280', fontSize: '0.875rem' }}>Rate</span>
+                      <span style={{ fontWeight: '600', color: '#111827', fontSize: '0.875rem' }}>
                         £{parseFloat(service.price).toFixed(2)}/hour
                       </span>
                     </div>
@@ -1889,8 +1868,8 @@ const B2CCheckout = () => {
                       justifyContent: 'space-between',
                       marginBottom: '0.5rem'
                     }}>
-                      <span style={{ color: '#6b7280', fontSize: '0.9rem' }}>Hours</span>
-                      <span style={{ fontWeight: '600', color: '#d97706', fontSize: '0.9rem' }}>
+                      <span style={{ color: '#6b7280', fontSize: '0.875rem' }}>Hours</span>
+                      <span style={{ fontWeight: '600', color: '#d97706', fontSize: '0.875rem' }}>
                         {selectedHours} {selectedHours === 1 ? 'hour' : 'hours'}
                       </span>
                     </div>
@@ -1901,8 +1880,8 @@ const B2CCheckout = () => {
                     justifyContent: 'space-between',
                     marginBottom: '0.5rem'
                   }}>
-                    <span style={{ color: '#6b7280', fontSize: '0.9rem' }}>Price</span>
-                    <span style={{ fontWeight: '600', color: '#111827', fontSize: '0.9rem' }}>
+                    <span style={{ color: '#6b7280', fontSize: '0.875rem' }}>Price</span>
+                    <span style={{ fontWeight: '600', color: '#111827', fontSize: '0.875rem' }}>
                       {service.priceType === 'from' && 'From '}
                       £{parseFloat(service.price).toFixed(2)}
                       {service.priceUnit && <span style={{ fontWeight: '400', color: '#6b7280' }}> {service.priceUnit}</span>}
@@ -1914,47 +1893,35 @@ const B2CCheckout = () => {
                   justifyContent: 'space-between',
                   marginBottom: '0.5rem'
                 }}>
-                  <span style={{ color: '#6b7280', fontSize: '0.9rem' }}>Location</span>
-                  <span style={{ color: '#111827', fontSize: '0.9rem' }}>{customerDetails.postcode || postcode}</span>
+                  <span style={{ color: '#6b7280', fontSize: '0.875rem' }}>Location</span>
+                  <span style={{ color: '#111827', fontSize: '0.875rem' }}>{customerDetails.postcode || postcode}</span>
                 </div>
-                {isHourlyService && uploadedPhotos.length > 0 && (
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    marginBottom: '0.5rem'
-                  }}>
-                    <span style={{ color: '#6b7280', fontSize: '0.9rem' }}>Photos</span>
-                    <span style={{ color: '#10b981', fontSize: '0.9rem' }}>
-                      {uploadedPhotos.length} attached
-                    </span>
-                  </div>
-                )}
               </div>
 
               {/* Date & Time Summary */}
               {(selectedDates.length > 0 || selectedTimeSlots.length > 0) && (
                 <div style={{
                   backgroundColor: selectedDates.length >= 2 && selectedTimeSlots.length > 0 ? '#f0fdf4' : '#fef3c7',
-                  borderRadius: '0.5rem',
-                  padding: '0.75rem',
-                  marginBottom: '1rem',
+                  borderRadius: '12px',
+                  padding: '1rem',
+                  marginBottom: '1.5rem',
                   border: `1px solid ${selectedDates.length >= 2 && selectedTimeSlots.length > 0 ? '#bbf7d0' : '#fcd34d'}`
                 }}>
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
                     gap: '0.5rem',
-                    marginBottom: '0.5rem'
+                    marginBottom: '0.75rem'
                   }}>
                     <Calendar size={16} style={{ color: selectedDates.length >= 2 ? '#16a34a' : '#d97706' }} />
-                    <span style={{ fontWeight: '600', color: selectedDates.length >= 2 ? '#166534' : '#92400e', fontSize: '0.85rem' }}>
+                    <span style={{ fontWeight: '600', color: selectedDates.length >= 2 ? '#166534' : '#92400e', fontSize: '0.8125rem' }}>
                       Preferred Dates ({selectedDates.length})
                     </span>
                   </div>
                   {selectedDates.length > 0 && (
-                    <div style={{ marginBottom: selectedTimeSlots.length > 0 ? '0.5rem' : 0 }}>
+                    <div style={{ marginBottom: selectedTimeSlots.length > 0 ? '0.75rem' : 0 }}>
                       {selectedDates.slice(0, 3).map((date, index) => (
-                        <p key={index} style={{ color: selectedDates.length >= 2 ? '#166534' : '#92400e', fontSize: '0.8rem', margin: '0 0 0.25rem 0' }}>
+                        <p key={index} style={{ color: selectedDates.length >= 2 ? '#166534' : '#92400e', fontSize: '0.75rem', margin: '0 0 0.25rem 0' }}>
                           • {date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })}
                         </p>
                       ))}
@@ -1967,12 +1934,12 @@ const B2CCheckout = () => {
                   )}
                   {selectedTimeSlots.length > 0 && (
                     <div style={{
-                      paddingTop: '0.5rem',
+                      paddingTop: '0.75rem',
                       borderTop: '1px solid rgba(0,0,0,0.1)'
                     }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
                         <Clock size={14} style={{ color: selectedDates.length >= 2 ? '#16a34a' : '#d97706' }} />
-                        <span style={{ fontWeight: '600', color: selectedDates.length >= 2 ? '#166534' : '#92400e', fontSize: '0.8rem' }}>
+                        <span style={{ fontWeight: '600', color: selectedDates.length >= 2 ? '#166534' : '#92400e', fontSize: '0.75rem' }}>
                           Time Slots ({selectedTimeSlots.length})
                         </span>
                       </div>
@@ -1986,76 +1953,31 @@ const B2CCheckout = () => {
                 </div>
               )}
 
-              {/* Customer Summary (shows when filled) */}
-              {customerDetails.fullName && (
-                <div style={{
-                  backgroundColor: '#f9fafb',
-                  borderRadius: '0.5rem',
-                  padding: '0.75rem',
-                  marginBottom: '1rem',
-                  fontSize: '0.85rem'
-                }}>
-                  <p style={{ fontWeight: '600', color: '#374151', marginBottom: '0.25rem' }}>Contact Details:</p>
-                  <p style={{ color: '#6b7280', margin: '0 0 0.25rem 0' }}>{customerDetails.fullName}</p>
-                  {customerDetails.email && <p style={{ color: '#6b7280', margin: '0 0 0.25rem 0' }}>{customerDetails.email}</p>}
-                  {customerDetails.phone && <p style={{ color: '#6b7280', margin: 0 }}>{customerDetails.phone}</p>}
-                </div>
-              )}
-
-              {/* Hourly Job Description in Summary */}
-              {isHourlyService && hourlyJobDescription && (
-                <div style={{
-                  backgroundColor: '#f9fafb',
-                  borderRadius: '0.5rem',
-                  padding: '0.75rem',
-                  marginBottom: '1rem',
-                  fontSize: '0.85rem'
-                }}>
-                  <p style={{ fontWeight: '600', color: '#374151', marginBottom: '0.25rem' }}>Job Description:</p>
-                  <p style={{ color: '#6b7280', margin: 0, whiteSpace: 'pre-wrap', lineHeight: '1.4' }}>
-                    {hourlyJobDescription.length > 100 ? hourlyJobDescription.substring(0, 100) + '...' : hourlyJobDescription}
-                  </p>
-                </div>
-              )}
-
-              {/* Hourly Notice in Summary */}
-              {isHourlyService && (
-                <div style={{
-                  backgroundColor: '#fef3c7',
-                  borderRadius: '0.5rem',
-                  padding: '0.75rem',
-                  marginBottom: '1rem',
-                  fontSize: '0.8rem',
-                  color: '#92400e'
-                }}>
-                  <strong>⏱️ Note:</strong> Additional time may be charged if the job takes longer than {selectedHours} {selectedHours === 1 ? 'hour' : 'hours'}.
-                </div>
-              )}
-
               {/* Total */}
               <div style={{
-                borderTop: '2px solid #e5e7eb',
-                paddingTop: '1rem',
-                marginBottom: '1rem'
+                borderTop: '2px solid #f3f4f6',
+                paddingTop: '1.5rem',
+                marginBottom: '1.5rem'
               }}>
                 <div style={{
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
                   backgroundColor: '#020034',
-                  padding: '1rem',
-                  borderRadius: '0.5rem',
+                  padding: '1.25rem',
+                  borderRadius: '16px',
                   color: 'white'
                 }}>
                   <span style={{
-                    fontSize: '1rem',
+                    fontSize: '0.9375rem',
                     fontWeight: '600'
                   }}>
                     {isHourlyService ? `Total (${selectedHours}h)` : 'Total'}
                   </span>
                   <span style={{
-                    fontSize: '1.75rem',
-                    fontWeight: '700'
+                    fontSize: '2rem',
+                    fontWeight: '700',
+                    letterSpacing: '-0.02em'
                   }}>
                     £{totalPrice.toFixed(2)}
                   </span>
@@ -2067,10 +1989,10 @@ const B2CCheckout = () => {
                 <div style={{
                   backgroundColor: '#fef2f2',
                   border: '1px solid #fecaca',
-                  borderRadius: '0.5rem',
-                  padding: '0.75rem',
+                  borderRadius: '12px',
+                  padding: '1rem',
                   marginBottom: '1rem',
-                  fontSize: '0.85rem',
+                  fontSize: '0.8125rem',
                   color: '#dc2626',
                   display: 'flex',
                   alignItems: 'center',
@@ -2086,13 +2008,14 @@ const B2CCheckout = () => {
                 <div style={{
                   backgroundColor: '#fee2e2',
                   border: '1px solid #fca5a5',
-                  borderRadius: '0.5rem',
-                  padding: '0.75rem',
+                  borderRadius: '12px',
+                  padding: '1rem',
                   marginBottom: '1rem',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.5rem',
-                  color: '#dc2626'
+                  color: '#dc2626',
+                  fontSize: '0.8125rem'
                 }}>
                   <AlertCircle size={16} />
                   {paymentError}
@@ -2102,19 +2025,18 @@ const B2CCheckout = () => {
               {/* Payment Section */}
               {stripePromise && isFormValid() && clientSecret ? (
                 <>
-                  {/* Payment Form Header */}
                   <div style={{
                     backgroundColor: '#f0fdf4',
                     border: '1px solid #bbf7d0',
-                    borderRadius: '0.5rem',
-                    padding: '0.75rem',
-                    marginBottom: '1rem',
+                    borderRadius: '12px',
+                    padding: '1rem',
+                    marginBottom: '1.5rem',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.5rem'
+                    gap: '0.75rem'
                   }}>
-                    <CheckCircle size={18} style={{ color: '#16a34a' }} />
-                    <span style={{ color: '#166534', fontSize: '0.85rem', fontWeight: '500' }}>
+                    <CheckCircle size={20} style={{ color: '#16a34a' }} />
+                    <span style={{ color: '#166534', fontSize: '0.8125rem', fontWeight: '500' }}>
                       Details confirmed! Complete your payment below.
                     </span>
                   </div>
@@ -2127,6 +2049,7 @@ const B2CCheckout = () => {
                         theme: 'stripe',
                         variables: {
                           colorPrimary: '#E94A02',
+                          borderRadius: '12px',
                         },
                       },
                     }}
@@ -2143,43 +2066,45 @@ const B2CCheckout = () => {
                   disabled={creatingPaymentIntent}
                   style={{
                     width: '100%',
-                    background: creatingPaymentIntent ? '#9ca3af' : 'linear-gradient(135deg, #E94A02 0%, #d13d00 100%)',
+                    background: creatingPaymentIntent 
+                      ? '#9ca3af' 
+                      : 'linear-gradient(135deg, #E94A02 0%, #d13d00 100%)',
                     color: 'white',
                     border: 'none',
-                    borderRadius: '0.75rem',
-                    padding: '1.25rem',
-                    fontSize: '1.125rem',
-                    fontWeight: '700',
+                    borderRadius: '12px',
+                    padding: '1.125rem 1.5rem',
+                    fontSize: '1rem',
+                    fontWeight: '600',
                     cursor: creatingPaymentIntent ? 'not-allowed' : 'pointer',
                     marginBottom: '1rem',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: '0.75rem',
-                    boxShadow: creatingPaymentIntent ? 'none' : '0 4px 15px rgba(233, 74, 2, 0.4)',
-                    transition: 'all 0.3s ease'
+                    boxShadow: creatingPaymentIntent ? 'none' : '0 4px 12px rgba(233, 74, 2, 0.3)',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
                   }}
                   onMouseEnter={(e) => {
                     if (!creatingPaymentIntent) {
                       e.target.style.transform = 'translateY(-2px)';
-                      e.target.style.boxShadow = '0 6px 20px rgba(233, 74, 2, 0.5)';
+                      e.target.style.boxShadow = '0 6px 20px rgba(233, 74, 2, 0.4)';
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (!creatingPaymentIntent) {
                       e.target.style.transform = 'translateY(0)';
-                      e.target.style.boxShadow = '0 4px 15px rgba(233, 74, 2, 0.4)';
+                      e.target.style.boxShadow = '0 4px 12px rgba(233, 74, 2, 0.3)';
                     }
                   }}
                 >
                   {creatingPaymentIntent ? (
                     <>
-                      <Loader2 size={24} style={{ animation: 'spin 1s linear infinite' }} />
+                      <Loader2 size={20} style={{ animation: 'spin 1s linear infinite' }} />
                       Preparing secure payment...
                     </>
                   ) : (
                     <>
-                      <Shield size={22} />
+                      <Lock size={18} />
                       Proceed to Payment
                     </>
                   )}
@@ -2189,43 +2114,62 @@ const B2CCheckout = () => {
                   onClick={validateForm}
                   style={{
                     width: '100%',
-                    backgroundColor: '#d1d5db',
+                    backgroundColor: '#e5e7eb',
                     color: '#6b7280',
                     border: 'none',
-                    borderRadius: '0.75rem',
-                    padding: '1.25rem',
-                    fontSize: '1.125rem',
+                    borderRadius: '12px',
+                    padding: '1.125rem 1.5rem',
+                    fontSize: '1rem',
                     fontWeight: '600',
                     cursor: 'pointer',
-                    marginBottom: '1rem'
+                    marginBottom: '1rem',
+                    transition: 'all 0.2s ease'
                   }}
                 >
                   Complete all fields to continue
                 </button>
               ) : (
                 <div style={{
-                  padding: '1rem',
+                  padding: '1.5rem',
                   textAlign: 'center',
                   color: '#6b7280'
                 }}>
-                  <Loader2 size={20} style={{ animation: 'spin 1s linear infinite', margin: '0 auto' }} />
-                  <p style={{ marginTop: '0.5rem', fontSize: '0.9rem' }}>Loading...</p>
+                  <Loader2 size={24} style={{ animation: 'spin 1s linear infinite', margin: '0 auto' }} />
+                  <p style={{ marginTop: '0.75rem', fontSize: '0.875rem' }}>Loading payment system...</p>
                 </div>
               )}
 
-              <p style={{
-                fontSize: '0.75rem',
-                color: '#6b7280',
-                textAlign: 'center',
-                margin: 0,
+              {/* Trust Badge */}
+              <div style={{
+                marginTop: '1.5rem',
+                paddingTop: '1.5rem',
+                borderTop: '1px solid #e5e7eb',
                 display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.5rem'
+                flexDirection: 'column',
+                gap: '0.75rem',
+                alignItems: 'center'
               }}>
-                <Shield size={12} />
-                Secure payment • No hidden fees
-              </p>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  fontSize: '0.75rem',
+                  color: '#6b7280'
+                }}>
+                  <Shield size={14} />
+                  <span>Secure payment • No hidden fees</span>
+                </div>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  fontSize: '0.75rem',
+                  color: '#6b7280'
+                }}>
+                  <Lock size={14} />
+                  <span>256-bit SSL encryption</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -2236,8 +2180,28 @@ const B2CCheckout = () => {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
         }
+        @keyframes slideIn {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
         @media (max-width: 968px) {
-          div[style*="grid-template-columns: 1fr 420px"] {
+          div[style*="grid-template-columns: 1fr 400px"] {
             grid-template-columns: 1fr !important;
           }
           div[style*="position: sticky"] {
