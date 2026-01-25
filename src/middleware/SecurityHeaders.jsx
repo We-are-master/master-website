@@ -31,7 +31,7 @@ export function SecurityHeaders() {
     // Content Security Policy (via meta tag - note: limited compared to HTTP header)
     addMetaTag(
       'Content-Security-Policy',
-      "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://maps.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://api.stripe.com https://*.supabase.co https://maps.googleapis.com; frame-src https://js.stripe.com;"
+      "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://maps.googleapis.com https://connect.facebook.net https://cdn-eu.pagesense.io https://www.clarity.ms https://salesiq.zoho.eu; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://api.stripe.com https://*.supabase.co https://supabase.wearemaster.com https://api.openai.com https://maps.googleapis.com https://connect.facebook.net https://www.facebook.com https://www.clarity.ms https://salesiq.zoho.eu; frame-src https://js.stripe.com;"
     )
 
     // Referrer Policy
