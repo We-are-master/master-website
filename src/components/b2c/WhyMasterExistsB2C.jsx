@@ -66,12 +66,13 @@ const WhyMasterExistsB2C = () => {
       ref={sectionRef}
       style={{
         padding: '6rem 0',
-        background: 'linear-gradient(135deg, #020034 0%, #2001AF 100%)',
+        background: '#020034',
         color: 'white',
         position: 'relative',
         overflow: 'hidden',
         width: '100%',
-        maxWidth: '100vw'
+        maxWidth: '100vw',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
       }}
     >
       {/* Decorative Background Elements */}
@@ -118,7 +119,8 @@ const WhyMasterExistsB2C = () => {
               marginBottom: '3rem',
               color: 'white',
               letterSpacing: '-0.02em',
-              lineHeight: '1.2'
+              lineHeight: '1.2',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
             }}
           >
             Stop chasing trades. Start getting jobs done properly.
@@ -138,7 +140,8 @@ const WhyMasterExistsB2C = () => {
               color: 'rgba(255,255,255,0.95)',
               lineHeight: '1.8',
               marginBottom: '1.5rem',
-              fontWeight: '500'
+              fontWeight: '500',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
             }}>
               Finding reliable trades shouldn't feel like a gamble.
             </p>
@@ -147,7 +150,8 @@ const WhyMasterExistsB2C = () => {
               fontSize: 'clamp(1rem, 1.8vw, 1.25rem)',
               color: 'rgba(255,255,255,0.9)',
               lineHeight: '1.8',
-              marginBottom: '1.5rem'
+              marginBottom: '1.5rem',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
             }}>
               Most platforms simply pass you a contact and step away.
             </p>
@@ -160,7 +164,8 @@ const WhyMasterExistsB2C = () => {
                 fontSize: 'clamp(1rem, 1.8vw, 1.25rem)',
                 color: 'rgba(255,255,255,0.9)',
                 lineHeight: '1.8',
-                marginBottom: '0.75rem'
+                marginBottom: '0.75rem',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
               }}>
                 No clear scope.
               </p>
@@ -168,7 +173,8 @@ const WhyMasterExistsB2C = () => {
                 fontSize: 'clamp(1rem, 1.8vw, 1.25rem)',
                 color: 'rgba(255,255,255,0.9)',
                 lineHeight: '1.8',
-                marginBottom: '0.75rem'
+                marginBottom: '0.75rem',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
               }}>
                 No real accountability.
               </p>
@@ -176,7 +182,8 @@ const WhyMasterExistsB2C = () => {
                 fontSize: 'clamp(1rem, 1.8vw, 1.25rem)',
                 color: 'rgba(255,255,255,0.9)',
                 lineHeight: '1.8',
-                marginBottom: '0.75rem'
+                marginBottom: '0.75rem',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
               }}>
                 Prices change.
               </p>
@@ -184,7 +191,8 @@ const WhyMasterExistsB2C = () => {
                 fontSize: 'clamp(1rem, 1.8vw, 1.25rem)',
                 color: 'rgba(255,255,255,0.9)',
                 lineHeight: '1.8',
-                marginBottom: '0.75rem'
+                marginBottom: '0.75rem',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
               }}>
                 Quality varies.
               </p>
@@ -192,7 +200,8 @@ const WhyMasterExistsB2C = () => {
                 fontSize: 'clamp(1rem, 1.8vw, 1.25rem)',
                 color: 'rgba(255,255,255,0.9)',
                 lineHeight: '1.8',
-                marginBottom: '1.5rem'
+                marginBottom: '1.5rem',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
               }}>
                 And when something goes wrong, you're left chasing answers.
               </p>
@@ -203,7 +212,8 @@ const WhyMasterExistsB2C = () => {
               color: 'rgba(255,255,255,0.95)',
               lineHeight: '1.8',
               marginBottom: '2rem',
-              fontWeight: '600'
+              fontWeight: '600',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
             }}>
               Master exists to change that.
             </p>
@@ -212,7 +222,8 @@ const WhyMasterExistsB2C = () => {
               fontSize: 'clamp(1rem, 1.8vw, 1.25rem)',
               color: 'rgba(255,255,255,0.9)',
               lineHeight: '1.8',
-              marginBottom: '1.5rem'
+              marginBottom: '1.5rem',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
             }}>
               We don't just connect you to a tradesperson — we manage the job properly.
             </p>
@@ -221,7 +232,8 @@ const WhyMasterExistsB2C = () => {
               fontSize: 'clamp(1rem, 1.8vw, 1.25rem)',
               color: 'rgba(255,255,255,0.9)',
               lineHeight: '1.8',
-              marginBottom: '2rem'
+              marginBottom: '2rem',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
             }}>
               From the moment you book to the final checks, Master stays accountable for delivery,
               quality, and communication.
@@ -235,7 +247,8 @@ const WhyMasterExistsB2C = () => {
                 fontSize: 'clamp(1rem, 1.8vw, 1.25rem)',
                 color: 'rgba(255,255,255,0.9)',
                 lineHeight: '1.8',
-                marginBottom: '0.75rem'
+                marginBottom: '0.75rem',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
               }}>
                 Every job follows a clear process.
               </p>
@@ -243,7 +256,8 @@ const WhyMasterExistsB2C = () => {
                 fontSize: 'clamp(1rem, 1.8vw, 1.25rem)',
                 color: 'rgba(255,255,255,0.9)',
                 lineHeight: '1.8',
-                marginBottom: '0.75rem'
+                marginBottom: '0.75rem',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
               }}>
                 Every professional is vetted and insured.
               </p>
@@ -251,7 +265,8 @@ const WhyMasterExistsB2C = () => {
                 fontSize: 'clamp(1rem, 1.8vw, 1.25rem)',
                 color: 'rgba(255,255,255,0.9)',
                 lineHeight: '1.8',
-                marginBottom: '0.75rem'
+                marginBottom: '0.75rem',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
               }}>
                 Every booking has defined scope and pricing.
               </p>
@@ -266,7 +281,8 @@ const WhyMasterExistsB2C = () => {
                 color: 'rgba(255,255,255,0.9)',
                 lineHeight: '1.8',
                 marginBottom: '0.75rem',
-                fontWeight: '600'
+                fontWeight: '600',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
               }}>
                 No guesswork.
               </p>
@@ -275,7 +291,8 @@ const WhyMasterExistsB2C = () => {
                 color: 'rgba(255,255,255,0.9)',
                 lineHeight: '1.8',
                 marginBottom: '0.75rem',
-                fontWeight: '600'
+                fontWeight: '600',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
               }}>
                 No disappearing contractors.
               </p>
@@ -284,7 +301,8 @@ const WhyMasterExistsB2C = () => {
                 color: 'rgba(255,255,255,0.9)',
                 lineHeight: '1.8',
                 marginBottom: '1.5rem',
-                fontWeight: '600'
+                fontWeight: '600',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
               }}>
                 No chaos.
               </p>
@@ -297,7 +315,8 @@ const WhyMasterExistsB2C = () => {
               fontWeight: '700',
               textAlign: 'center',
               marginTop: '2rem',
-              textShadow: '0 2px 10px rgba(255, 215, 0, 0.3)'
+              textShadow: '0 2px 10px rgba(255, 215, 0, 0.3)',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
             }}>
               Just property services, done the right way.
             </p>

@@ -126,6 +126,20 @@ serve(async (req) => {
         // Extract metadata from payment intent
         const metadata = paymentIntent.metadata || {}
 
+        // Get customer email for confirmation email
+        let customerEmail = 'unknown@email.com'
+        if (metadata.customer_email) {
+          const emailVal = validateEmail(metadata.customer_email)
+          if (emailVal.valid && emailVal.sanitized) {
+            customerEmail = emailVal.sanitized
+          }
+        } else if (paymentIntent.receipt_email) {
+          const emailVal = validateEmail(paymentIntent.receipt_email)
+          if (emailVal.valid && emailVal.sanitized) {
+            customerEmail = emailVal.sanitized
+          }
+        }
+
         // First try to find existing booking by stripe_payment_intent_id
         const { data: existingBooking } = await supabase
           .from('booking_website')
@@ -148,6 +162,27 @@ serve(async (req) => {
             console.error('Error updating booking:', error)
           } else {
             console.log(`Booking confirmed: ${existingBooking.booking_ref}`)
+            
+            // Send confirmation email
+            try {
+              await fetch(`${supabaseUrl}/functions/v1/send-email`, {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${supabaseServiceKey}`,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  template: 'booking_confirmed',
+                  to: customerEmail,
+                  data: {
+                    name: metadata.customer_name || 'there',
+                    bookingRef: existingBooking.booking_ref || paymentIntent.id.slice(-8).toUpperCase(),
+                  },
+                }),
+              })
+            } catch (emailErr) {
+              console.warn('Failed to send confirmation email:', emailErr)
+            }
           }
         } else {
           // Create new booking from webhook (fallback if not created during checkout)
@@ -216,6 +251,16 @@ serve(async (req) => {
         const paymentIntent = event.data.object as Stripe.PaymentIntent
         console.log(`PaymentIntent failed: ${paymentIntent.id}`)
 
+        // Get customer email for failure email
+        const metadata = paymentIntent.metadata || {}
+        let customerEmail = null
+        if (metadata.customer_email) {
+          const emailVal = validateEmail(metadata.customer_email)
+          if (emailVal.valid && emailVal.sanitized) {
+            customerEmail = emailVal.sanitized
+          }
+        }
+
         // Update booking status to failed
         const { error } = await supabase
           .from('booking_website')
@@ -228,6 +273,29 @@ serve(async (req) => {
 
         if (error) {
           console.error('Error updating failed booking:', error)
+        }
+
+        // Send payment failed email
+        if (customerEmail) {
+          try {
+            await fetch(`${supabaseUrl}/functions/v1/send-email`, {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${supabaseServiceKey}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                template: 'payment_failed',
+                to: customerEmail,
+                data: {
+                  name: metadata.customer_name || 'there',
+                  retryUrl: `https://www.wearemaster.com/checkout?payment_intent=${paymentIntent.id}`,
+                },
+              }),
+            })
+          } catch (emailErr) {
+            console.warn('Failed to send payment failed email:', emailErr)
+          }
         }
         break
       }
@@ -268,6 +336,239 @@ serve(async (req) => {
 
           if (error) {
             console.error('Error updating refunded booking:', error)
+          }
+        }
+        break
+      }
+
+      case 'customer.subscription.created':
+      case 'customer.subscription.updated': {
+        const subscription = event.data.object as Stripe.Subscription
+        console.log(`Subscription ${event.type}: ${subscription.id}`)
+
+        // Only handle website subscriptions (check metadata)
+        const metadata = subscription.metadata || {}
+        if (metadata.source !== 'website') {
+          console.log(`Skipping subscription ${subscription.id} - not from website`)
+          break
+        }
+
+        // Get customer email from metadata or customer object
+        let customerEmail = metadata.customer_email
+        if (!customerEmail && subscription.customer) {
+          try {
+            const customer = await stripe.customers.retrieve(subscription.customer as string)
+            if (customer && !customer.deleted && customer.email) {
+              const emailVal = validateEmail(customer.email)
+              if (emailVal.valid && emailVal.sanitized) {
+                customerEmail = emailVal.sanitized
+              }
+            }
+          } catch (err) {
+            console.error('Error retrieving customer:', err)
+          }
+        }
+
+        if (!customerEmail) {
+          console.warn(`No customer email found for subscription ${subscription.id}`)
+          break
+        }
+
+        // Upsert subscription in website table
+        const { error } = await supabase
+          .from('master_club_subscriptions_website')
+          .upsert({
+            stripe_subscription_id: subscription.id,
+            stripe_customer_id: subscription.customer as string,
+            customer_email: customerEmail.toLowerCase(),
+            status: subscription.status,
+            current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
+            current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+            cancel_at_period_end: subscription.cancel_at_period_end,
+            source: 'website',
+            updated_at: new Date().toISOString(),
+          }, {
+            onConflict: 'stripe_subscription_id',
+          })
+
+        if (error) {
+          console.error('Error upserting subscription:', error)
+        } else {
+          console.log(`Subscription ${subscription.id} synced to website table`)
+
+          // Send welcome email if this is a new subscription
+          if (event.type === 'customer.subscription.created') {
+            try {
+              await fetch(`${supabaseUrl}/functions/v1/send-email`, {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${supabaseServiceKey}`,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  template: 'subscription_welcome',
+                  to: customerEmail,
+                  data: {
+                    name: metadata.customer_name || customerEmail.split('@')[0],
+                  },
+                }),
+              })
+            } catch (emailErr) {
+              console.warn('Failed to send subscription welcome email:', emailErr)
+            }
+          }
+        }
+        break
+      }
+
+      case 'customer.subscription.deleted': {
+        const subscription = event.data.object as Stripe.Subscription
+        console.log(`Subscription deleted: ${subscription.id}`)
+
+        // Only handle website subscriptions
+        const metadata = subscription.metadata || {}
+        if (metadata.source !== 'website') {
+          console.log(`Skipping subscription ${subscription.id} - not from website`)
+          break
+        }
+
+        // Update subscription status to canceled
+        const { error } = await supabase
+          .from('master_club_subscriptions_website')
+          .update({
+            status: 'canceled',
+            cancel_at_period_end: false,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('stripe_subscription_id', subscription.id)
+
+        if (error) {
+          console.error('Error updating deleted subscription:', error)
+        } else {
+          console.log(`Subscription ${subscription.id} marked as canceled`)
+
+          // Send cancellation email
+          let customerEmail = metadata.customer_email
+          if (!customerEmail && subscription.customer) {
+            try {
+              const customer = await stripe.customers.retrieve(subscription.customer as string)
+              if (customer && !customer.deleted && customer.email) {
+                const emailVal = validateEmail(customer.email)
+                if (emailVal.valid && emailVal.sanitized) {
+                  customerEmail = emailVal.sanitized
+                }
+              }
+            } catch (err) {
+              console.error('Error retrieving customer:', err)
+            }
+          }
+
+          if (customerEmail) {
+            try {
+              await fetch(`${supabaseUrl}/functions/v1/send-email`, {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${supabaseServiceKey}`,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  template: 'subscription_cancelled',
+                  to: customerEmail,
+                  data: {
+                    name: metadata.customer_name || customerEmail.split('@')[0],
+                  },
+                }),
+              })
+            } catch (emailErr) {
+              console.warn('Failed to send subscription cancellation email:', emailErr)
+            }
+          }
+        }
+        break
+      }
+
+      case 'invoice.payment_succeeded': {
+        const invoice = event.data.object as Stripe.Invoice
+        console.log(`Invoice payment succeeded: ${invoice.id}`)
+
+        // Only handle subscription invoices from website
+        if (invoice.subscription) {
+          const subscriptionId = invoice.subscription as string
+          
+          // Check if this is a website subscription
+          const { data: websiteSubscription } = await supabase
+            .from('master_club_subscriptions_website')
+            .select('customer_email, customer_name')
+            .eq('stripe_subscription_id', subscriptionId)
+            .single()
+
+          if (websiteSubscription) {
+            // This is a website subscription - update period dates
+            const subscription = await stripe.subscriptions.retrieve(subscriptionId)
+            
+            await supabase
+              .from('master_club_subscriptions_website')
+              .update({
+                current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
+                current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+                status: subscription.status,
+                updated_at: new Date().toISOString(),
+              })
+              .eq('stripe_subscription_id', subscriptionId)
+
+            console.log(`Website subscription ${subscriptionId} period updated`)
+          }
+        }
+        break
+      }
+
+      case 'invoice.payment_failed': {
+        const invoice = event.data.object as Stripe.Invoice
+        console.log(`Invoice payment failed: ${invoice.id}`)
+
+        // Only handle subscription invoices from website
+        if (invoice.subscription) {
+          const subscriptionId = invoice.subscription as string
+          
+          // Check if this is a website subscription
+          const { data: websiteSubscription } = await supabase
+            .from('master_club_subscriptions_website')
+            .select('customer_email, customer_name')
+            .eq('stripe_subscription_id', subscriptionId)
+            .single()
+
+          if (websiteSubscription) {
+            // Update subscription status
+            await supabase
+              .from('master_club_subscriptions_website')
+              .update({
+                status: 'past_due',
+                updated_at: new Date().toISOString(),
+              })
+              .eq('stripe_subscription_id', subscriptionId)
+
+            // Send payment failed email
+            if (websiteSubscription.customer_email) {
+              try {
+                await fetch(`${supabaseUrl}/functions/v1/send-email`, {
+                  method: 'POST',
+                  headers: {
+                    'Authorization': `Bearer ${supabaseServiceKey}`,
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                    template: 'payment_failed',
+                    to: websiteSubscription.customer_email,
+                    data: {
+                      name: websiteSubscription.customer_name || websiteSubscription.customer_email.split('@')[0],
+                      retryUrl: `https://www.wearemaster.com/my-bookings`,
+                    },
+                  }),
+                })
+              } catch (emailErr) {
+                console.warn('Failed to send subscription payment failed email:', emailErr)
+              }
+            }
           }
         }
         break

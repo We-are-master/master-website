@@ -78,6 +78,15 @@ export async function createPaymentIntentViaSupabase(paymentData) {
       source: 'website', // Important: webhook uses this to identify website payments
     };
 
+    // Log request for debugging (only in development)
+    if (import.meta.env.DEV) {
+      console.log('[Payment] Creating payment intent:', {
+        amount: paymentData.amount,
+        currency: paymentData.currency || 'gbp',
+        hasBookingData: !!paymentData.booking_data
+      });
+    }
+
     const { data, error } = await supabase.functions.invoke('create-payment-intent', {
       body: {
         amount: paymentData.amount,
@@ -88,16 +97,41 @@ export async function createPaymentIntentViaSupabase(paymentData) {
       }
     });
 
-
+    // Enhanced error handling
     if (error) {
+      console.error('[Payment] Supabase function error:', error);
+      
+      // Handle specific error types
       if (error.message?.includes('not found') || error.message?.includes('404')) {
         throw new Error('Payment service not available. Please contact support. (Edge Function not deployed)');
       }
-      throw new Error(error.message || 'Failed to create payment intent');
+      
+      if (error.message?.includes('503') || error.message?.includes('Service Unavailable')) {
+        throw new Error('Payment service is temporarily unavailable. Please try again in a moment.');
+      }
+      
+      if (error.message?.includes('timeout') || error.message?.includes('Timeout')) {
+        throw new Error('Payment request timed out. Please try again.');
+      }
+      
+      // Check if it's a network error
+      if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
+        throw new Error('Network error. Please check your connection and try again.');
+      }
+      
+      throw new Error(error.message || 'Failed to create payment intent. Please try again.');
     }
 
     if (!data || !data.clientSecret) {
+      console.error('[Payment] Invalid response:', data);
       throw new Error('Invalid response from payment service. Please try again.');
+    }
+
+    if (import.meta.env.DEV) {
+      console.log('[Payment] Payment intent created successfully:', {
+        id: data.id,
+        hasClientSecret: !!data.clientSecret
+      });
     }
 
     return {
@@ -105,9 +139,48 @@ export async function createPaymentIntentViaSupabase(paymentData) {
       paymentIntentId: data.id
     };
   } catch (error) {
+    console.error('[Payment] Error creating payment intent:', error);
+    
+    // Handle specific error types
     if (error.message?.includes('FunctionsHttpError') || error.message?.includes('FunctionsRelayError')) {
       throw new Error('Payment service error. Please try again or contact support.');
     }
+    
+    // Re-throw with user-friendly message if it's already formatted
+    if (error.message && !error.message.includes('[Payment]')) {
+      throw error;
+    }
+    
+    // Default error message
+    throw new Error('Failed to initialize payment. Please try again.');
+  }
+}
+
+/**
+ * Verify PaymentIntent status from Stripe
+ * @param {string} clientSecret - PaymentIntent client secret
+ * @returns {Promise<Object>} PaymentIntent with status
+ */
+export async function verifyPaymentIntentStatus(clientSecret) {
+  try {
+    const stripe = await getStripe();
+    if (!stripe) {
+      throw new Error('Stripe is not configured');
+    }
+
+    const { paymentIntent, error } = await stripe.retrievePaymentIntent(clientSecret);
+    
+    if (error) {
+      throw new Error(error.message || 'Failed to verify payment status');
+    }
+
+    return {
+      status: paymentIntent.status,
+      id: paymentIntent.id,
+      paymentIntent: paymentIntent
+    };
+  } catch (error) {
+    console.error('[Payment] Error verifying payment status:', error);
     throw error;
   }
 }

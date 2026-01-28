@@ -66,7 +66,7 @@ const WhyChooseB2C = () => {
           card.addEventListener('mouseenter', () => {
             gsap.to(card, {
               y: -8,
-              boxShadow: '0 20px 40px rgba(0,0,0,0.12)',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(255, 107, 0, 0.3)',
               duration: 0.4,
               ease: 'power2.out'
             });
@@ -83,7 +83,7 @@ const WhyChooseB2C = () => {
           card.addEventListener('mouseleave', () => {
             gsap.to(card, {
               y: 0,
-              boxShadow: '0 2px 8px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.08)',
               duration: 0.3
             });
             if (icon) {
@@ -129,36 +129,36 @@ const WhyChooseB2C = () => {
       icon: <Tag size={28} />,
       title: 'Instant Pricing',
       description: 'See the cost upfront before you book. No hidden fees, no surprises.',
-      color: '#3b82f6',
-      gradient: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)'
+      color: '#E94A02',
+      gradient: 'linear-gradient(135deg, #E94A02 0%, #d13d00 100%)'
     },
     {
       icon: <Clock size={28} />,
       title: 'Fast & Convenient',
       description: 'Book in minutes, get it done quickly. Same-day service available.',
-      color: '#10b981',
-      gradient: 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
+      color: '#E94A02',
+      gradient: 'linear-gradient(135deg, #E94A02 0%, #d13d00 100%)'
     },
     {
       icon: <Shield size={28} />,
       title: 'Checked Tradespeople',
       description: 'All professionals are vetted, insured, and background-checked.',
-      color: '#8b5cf6',
-      gradient: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)'
+      color: '#E94A02',
+      gradient: 'linear-gradient(135deg, #E94A02 0%, #d13d00 100%)'
     },
     {
       icon: <Package size={28} />,
       title: 'Bundle Tasks Easily',
       description: 'Add multiple jobs to one booking and save time and money.',
-      color: '#f59e0b',
-      gradient: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)'
+      color: '#E94A02',
+      gradient: 'linear-gradient(135deg, #E94A02 0%, #d13d00 100%)'
     },
     {
       icon: <CreditCard size={28} />,
       title: 'Secure Payments',
       description: 'Safe and secure payment processing with industry-leading encryption.',
-      color: '#ef4444',
-      gradient: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'
+      color: '#E94A02',
+      gradient: 'linear-gradient(135deg, #E94A02 0%, #d13d00 100%)'
     },
     {
       icon: <CheckCircle size={28} />,
@@ -171,15 +171,15 @@ const WhyChooseB2C = () => {
       icon: <Shield size={28} />,
       title: '£5M Insurance',
       description: 'Comprehensive insurance coverage for complete peace of mind on every job.',
-      color: '#6366f1',
-      gradient: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)'
+      color: '#E94A02',
+      gradient: 'linear-gradient(135deg, #E94A02 0%, #d13d00 100%)'
     },
     {
       icon: <Award size={28} />,
       title: 'Master Club',
       description: 'Exclusive membership benefits, priority booking, and special discounts.',
-      color: '#ec4899',
-      gradient: 'linear-gradient(135deg, #ec4899 0%, #db2777 100%)'
+      color: '#E94A02',
+      gradient: 'linear-gradient(135deg, #E94A02 0%, #d13d00 100%)'
     }
   ];
 
@@ -188,11 +188,12 @@ const WhyChooseB2C = () => {
       ref={sectionRef}
       style={{
         padding: '8rem 0',
-        background: '#fbfbfd',
+        background: '#020034',
         position: 'relative',
         overflow: 'hidden',
         width: '100%',
-        maxWidth: '100vw'
+        maxWidth: '100vw',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
       }}
     >
       {/* Subtle Background */}
@@ -202,7 +203,7 @@ const WhyChooseB2C = () => {
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundImage: 'linear-gradient(rgba(0,0,0,0.01) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.01) 1px, transparent 1px)',
+        backgroundImage: 'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)',
         backgroundSize: '60px 60px',
         opacity: 0.5
       }}></div>
@@ -231,7 +232,8 @@ const WhyChooseB2C = () => {
             borderRadius: '50px',
             fontSize: '0.875rem',
             fontWeight: '600',
-            marginBottom: '1.5rem'
+            marginBottom: '1.5rem',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
           }}>
             <Sparkles size={16} />
             <span>Why choose us</span>
@@ -240,7 +242,7 @@ const WhyChooseB2C = () => {
             fontSize: 'clamp(2.5rem, 5vw, 3.5rem)',
             fontWeight: '600',
             marginBottom: '1.5rem',
-            color: '#1d1d1f',
+            color: 'white',
             letterSpacing: '-0.04em',
             fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
           }}>
@@ -248,12 +250,13 @@ const WhyChooseB2C = () => {
           </h2>
           <p style={{
             fontSize: 'clamp(1.125rem, 2vw, 1.375rem)',
-            color: '#86868b',
+            color: 'rgba(255,255,255,0.7)',
             maxWidth: '700px',
             margin: '0 auto',
             lineHeight: '1.5',
             letterSpacing: '-0.01em',
-            fontWeight: '400'
+            fontWeight: '400',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
           }}>
             The Master brand you know & trust, with the ease of booking online.
           </p>
@@ -274,13 +277,14 @@ const WhyChooseB2C = () => {
               key={index}
               className="benefit-card"
               style={{
-                backgroundColor: 'white',
+                backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                backdropFilter: 'blur(20px)',
                 borderRadius: '12px',
                 padding: '2rem',
-                color: '#1d1d1f',
+                color: 'white',
                 textAlign: 'left',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06)',
-                border: '1px solid rgba(0,0,0,0.06)',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.08)',
+                border: '1px solid rgba(255,255,255,0.1)',
                 position: 'relative',
                 overflow: 'hidden',
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
@@ -318,16 +322,18 @@ const WhyChooseB2C = () => {
                 fontSize: '1.25rem',
                 fontWeight: '600',
                 marginBottom: '0.75rem',
-                color: '#1d1d1f',
-                letterSpacing: '-0.02em'
+                color: 'white',
+                letterSpacing: '-0.02em',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
               }}>
                 {benefit.title}
               </h3>
               <p style={{
-                color: '#86868b',
+                color: 'rgba(255,255,255,0.7)',
                 lineHeight: '1.5',
                 fontSize: '0.9375rem',
-                fontWeight: '400'
+                fontWeight: '400',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
               }}>
                 {benefit.description}
               </p>
@@ -346,16 +352,17 @@ const WhyChooseB2C = () => {
             maxWidth: '1000px',
             margin: '5rem auto 0',
             padding: '3rem',
-            backgroundColor: 'white',
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            backdropFilter: 'blur(20px)',
             borderRadius: '12px',
-            boxShadow: '0 4px 16px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04)',
-            border: '1px solid rgba(0,0,0,0.06)'
+            boxShadow: '0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.08)',
+            border: '1px solid rgba(255,255,255,0.1)'
           }}
         >
           {[
-            { number: '10,000+', label: 'Happy Customers', color: '#3b82f6' },
-            { number: '4.9★', label: 'Average Rating', color: '#fbbf24' },
-            { number: '24/7', label: 'Support Available', color: '#10b981' },
+            { number: '10,000+', label: 'Happy Customers', color: '#E94A02' },
+            { number: '4.9★', label: 'Average Rating', color: '#E94A02' },
+            { number: '24/7', label: 'Support Available', color: '#E94A02' },
             { number: '500+', label: 'Vetted Professionals', color: '#E94A02' }
           ].map((stat, index) => (
             <div
@@ -377,9 +384,10 @@ const WhyChooseB2C = () => {
               </div>
               <div style={{
                 fontSize: '0.875rem',
-                color: '#86868b',
+                color: 'rgba(255,255,255,0.7)',
                 fontWeight: '400',
-                letterSpacing: '-0.01em'
+                letterSpacing: '-0.01em',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
               }}>
                 {stat.label}
               </div>

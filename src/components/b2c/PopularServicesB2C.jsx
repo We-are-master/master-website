@@ -88,56 +88,56 @@ const PopularServicesB2C = () => {
       title: 'TV mounting',
       description: 'Professional TV installation and mounting service',
       image: 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1',
-      color: '#3b82f6'
+      color: '#E94A02'
     },
     {
       icon: <Wrench size={32} />,
       title: 'Odd jobs',
       description: 'General handyman services for your home',
       image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158',
-      color: '#f59e0b'
+      color: '#E94A02'
     },
     {
       icon: <Package size={32} />,
       title: 'Flatpack assembly',
       description: 'Furniture assembly and installation',
       image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7',
-      color: '#10b981'
+      color: '#E94A02'
     },
     {
       icon: <Lightbulb size={32} />,
       title: 'Light fitting replacement',
       description: 'Professional light installation and replacement',
       image: 'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0',
-      color: '#fbbf24'
+      color: '#E94A02'
     },
     {
       icon: <Sparkles size={32} />,
       title: 'Cleaning services',
       description: 'Deep clean, end of tenancy, and more',
       image: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952',
-      color: '#8b5cf6'
+      color: '#E94A02'
     },
     {
       icon: <Droplets size={32} />,
       title: 'Plumbing',
       description: 'Emergency repairs and installations',
       image: 'https://images.unsplash.com/photo-1621905252507-b35492cc74b4',
-      color: '#06b6d4'
+      color: '#E94A02'
     },
     {
       icon: <Zap size={32} />,
       title: 'Electrical',
       description: 'Safe and certified electrical work',
       image: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e',
-      color: '#f59e0b'
+      color: '#E94A02'
     },
     {
       icon: <Hammer size={32} />,
       title: 'Carpentry',
       description: 'Custom woodwork and repairs',
       image: 'https://images.unsplash.com/photo-1504148455328-c376907d081c',
-      color: '#dc2626'
+      color: '#E94A02'
     }
   ];
 
@@ -166,11 +166,12 @@ const PopularServicesB2C = () => {
       ref={sectionRef}
       style={{ 
         padding: '8rem 0',
-        backgroundColor: '#ffffff',
+        backgroundColor: '#020034',
         position: 'relative',
         overflow: 'hidden',
         width: '100%',
-        maxWidth: '100vw'
+        maxWidth: '100vw',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
       }}
       >
       {/* Subtle Background Pattern */}
@@ -180,7 +181,7 @@ const PopularServicesB2C = () => {
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundImage: 'linear-gradient(rgba(0,0,0,0.01) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.01) 1px, transparent 1px)',
+        backgroundImage: 'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)',
         backgroundSize: '60px 60px',
         opacity: 0.5
       }}></div>
@@ -196,7 +197,7 @@ const PopularServicesB2C = () => {
           <h2 style={{
             fontSize: 'clamp(2.5rem, 5vw, 3.5rem)',
             fontWeight: '600',
-            color: '#1d1d1f',
+            color: 'white',
             marginBottom: '1.5rem',
             letterSpacing: '-0.04em',
             fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
@@ -205,12 +206,13 @@ const PopularServicesB2C = () => {
           </h2>
           <p style={{
             fontSize: 'clamp(1.125rem, 2vw, 1.375rem)',
-            color: '#86868b',
+            color: 'rgba(255,255,255,0.7)',
             maxWidth: '640px',
             margin: '0 auto',
             lineHeight: '1.5',
             letterSpacing: '-0.01em',
-            fontWeight: '400'
+            fontWeight: '400',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
           }}>
             From quick fixes to major installations, we've got you covered
           </p>
@@ -231,11 +233,11 @@ const PopularServicesB2C = () => {
               key={index}
               className="service-card"
               onClick={(e) => handleServiceClick(service, e)}
-              onMouseEnter={(e) => {
+                onMouseEnter={(e) => {
                 setHoveredIndex(index);
                 gsap.to(e.currentTarget, {
                   y: -4,
-                  boxShadow: '0 8px 24px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.08)',
+                  boxShadow: '0 12px 40px rgba(0,0,0,0.2)',
                   duration: 0.3,
                   ease: 'cubic-bezier(0.4, 0, 0.2, 1)'
                 });
@@ -261,7 +263,7 @@ const PopularServicesB2C = () => {
                 setHoveredIndex(null);
                 gsap.to(e.currentTarget, {
                   y: 0,
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06)',
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
                   duration: 0.3
                 });
                 const icon = e.currentTarget.querySelector('.service-icon');
@@ -284,9 +286,9 @@ const PopularServicesB2C = () => {
                 cursor: 'pointer',
                 borderRadius: '12px',
                 overflow: 'hidden',
-                backgroundColor: 'white',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06)',
-                border: '1px solid rgba(0,0,0,0.06)',
+                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+                border: '1px solid rgba(255,255,255,0.2)',
                 position: 'relative',
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
               }}
@@ -321,7 +323,7 @@ const PopularServicesB2C = () => {
                   left: 0,
                   right: 0,
                   bottom: 0,
-                  background: `linear-gradient(135deg, ${service.color}40 0%, transparent 100%)`
+                  background: 'linear-gradient(135deg, rgba(233, 74, 2, 0.15) 0%, transparent 100%)'
                 }}></div>
                 {/* Icon Badge */}
                 <div 
@@ -353,16 +355,18 @@ const PopularServicesB2C = () => {
                   fontWeight: '600',
                   color: '#1d1d1f',
                   marginBottom: '0.5rem',
-                  letterSpacing: '-0.01em'
+                  letterSpacing: '-0.01em',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
                 }}>
                   {service.title}
                 </h3>
                 <p style={{
-                  color: '#86868b',
+                  color: '#6b7280',
                   fontSize: '0.9375rem',
                   lineHeight: '1.5',
                   marginBottom: '1rem',
-                  fontWeight: '400'
+                  fontWeight: '400',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
                 }}>
                   {service.description}
                 </p>
@@ -373,7 +377,8 @@ const PopularServicesB2C = () => {
                   color: service.color,
                   fontWeight: '500',
                   fontSize: '0.875rem',
-                  letterSpacing: '-0.01em'
+                  letterSpacing: '-0.01em',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
                 }}>
                   <span>Book now</span>
                   <ArrowRight size={16} />

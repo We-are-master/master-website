@@ -188,7 +188,7 @@ const HeaderB2C = () => {
           </Link>
         </nav>
 
-        {/* Right Side: My Orders */}
+        {/* Right Side: My Bookings */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
@@ -225,7 +225,7 @@ const HeaderB2C = () => {
             }}
           >
             <Package size={14} />
-            My Orders
+            My Bookings
           </button>
         </div>
 
@@ -286,7 +286,7 @@ const HeaderB2C = () => {
               }}
             >
               <Package size={18} />
-              My Orders
+              My Bookings
             </button>
           </nav>
         </div>

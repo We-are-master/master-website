@@ -6,18 +6,17 @@ import { SEO } from '../components/SEO';
 const PopularServicesB2C = lazy(() => import('../components/b2c/PopularServicesB2C'));
 const HowItWorksB2C = lazy(() => import('../components/b2c/HowItWorksB2C'));
 const WhyChooseB2C = lazy(() => import('../components/b2c/WhyChooseB2C'));
-const WhyMasterExistsB2C = lazy(() => import('../components/b2c/WhyMasterExistsB2C'));
 const MasterClubB2C = lazy(() => import('../components/b2c/MasterClubB2C'));
 const TestimonialsB2C = lazy(() => import('../components/b2c/TestimonialsB2C'));
 
 // Loading placeholder component
-const SectionPlaceholder = () => (
+  const SectionPlaceholder = () => (
   <div style={{ 
     minHeight: '400px', 
     display: 'flex', 
     alignItems: 'center', 
     justifyContent: 'center',
-    backgroundColor: '#ffffff'
+    backgroundColor: '#020034'
   }}>
     <div style={{
       width: '40px',
@@ -119,11 +118,12 @@ const B2CHome = () => {
         structuredData={structuredData}
       />
     <div style={{ 
-      backgroundColor: '#ffffff',
+      backgroundColor: '#020034',
       width: '100%',
       maxWidth: '100vw',
       overflowX: 'hidden',
-      position: 'relative'
+      position: 'relative',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
     }}>
       <HeroB2C />
       <Suspense fallback={<SectionPlaceholder />}>
@@ -134,9 +134,6 @@ const B2CHome = () => {
       </Suspense>
       <Suspense fallback={<SectionPlaceholder />}>
         <WhyChooseB2C />
-      </Suspense>
-      <Suspense fallback={<SectionPlaceholder />}>
-        <WhyMasterExistsB2C />
       </Suspense>
       <Suspense fallback={<SectionPlaceholder />}>
         <MasterClubB2C />

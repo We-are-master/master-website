@@ -12,7 +12,7 @@ html {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', 'Inter', 'Segoe UI', 'Roboto', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -23,6 +23,11 @@ body {
   position: relative;
   font-feature-settings: 'kern' 1;
   font-kerning: normal;
+}
+
+/* Ensure all elements inherit SF Pro Display */
+*, *::before, *::after {
+  font-family: inherit;
 }
 
 #root {

@@ -147,7 +147,7 @@ const B2CLogin = () => {
 
       if (data?.session) {
         setStep('success');
-        // Redirect to my orders page after short delay
+        // Redirect to my bookings page after short delay
         setTimeout(() => {
           navigate('/my-orders');
         }, 1500);

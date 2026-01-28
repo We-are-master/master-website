@@ -78,7 +78,7 @@ const HowItWorksB2C = () => {
           step.addEventListener('mouseenter', () => {
             gsap.to(step, {
               y: -12,
-              boxShadow: '0 30px 80px rgba(0,0,0,0.3)',
+              boxShadow: '0 30px 80px rgba(0,0,0,0.4)',
               duration: 0.4,
               ease: 'power2.out'
             });
@@ -95,7 +95,7 @@ const HowItWorksB2C = () => {
           step.addEventListener('mouseleave', () => {
             gsap.to(step, {
               y: 0,
-              boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
               duration: 0.4
             });
             if (stepNumber) {
@@ -132,7 +132,7 @@ const HowItWorksB2C = () => {
       icon: <Search size={32} />,
       title: 'Describe the job',
       description: "Explain what you need and we'll handle the rest.",
-      color: '#3b82f6',
+      color: '#E94A02',
       image: 'https://images.unsplash.com/photo-1551434678-e076c223a692'
     },
     {
@@ -140,7 +140,7 @@ const HowItWorksB2C = () => {
       icon: <CreditCard size={32} />,
       title: 'Create your booking',
       description: 'Transparent pricing, clear options, no hidden costs.',
-      color: '#10b981',
+      color: '#E94A02',
       image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d'
     },
     {
@@ -158,12 +158,13 @@ const HowItWorksB2C = () => {
       ref={sectionRef}
       style={{
         padding: '6rem 0',
-        background: 'linear-gradient(135deg, #020034 0%, #2001AF 100%)',
+        background: '#020034',
         color: 'white',
         position: 'relative',
         overflow: 'hidden',
         width: '100%',
-        maxWidth: '100vw'
+        maxWidth: '100vw',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
       }}
     >
       {/* Animated Background */}
@@ -209,7 +210,8 @@ const HowItWorksB2C = () => {
             fontSize: '0.875rem',
             fontWeight: '600',
             marginBottom: '1.5rem',
-            border: '1px solid rgba(255, 255, 255, 0.2)'
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
           }}>
             <CheckCircle size={16} />
             <span>Simple & Transparent</span>
@@ -220,7 +222,8 @@ const HowItWorksB2C = () => {
             marginBottom: '1.5rem',
             color: 'white',
             letterSpacing: '-0.02em',
-            lineHeight: '1.2'
+            lineHeight: '1.2',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
           }}>
             Know the price. Book with confidence.
           </h2>
@@ -229,13 +232,14 @@ const HowItWorksB2C = () => {
             color: 'rgba(255,255,255,0.9)',
             lineHeight: '1.7',
             maxWidth: '700px',
-            margin: '0 auto'
+            margin: '0 auto',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
           }}>
             We believe property maintenance should be simple. That's why you see the{' '}
             <span style={{
-              color: '#FFD700',
+              color: '#FF6B00',
               fontWeight: '700',
-              textShadow: '0 2px 10px rgba(255, 215, 0, 0.3)'
+              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
             }}>
               price upfront
             </span>
@@ -258,12 +262,13 @@ const HowItWorksB2C = () => {
               key={index}
               className="step-card"
               style={{
-                backgroundColor: 'white',
+                backgroundColor: 'rgba(255, 255, 255, 0.95)',
                 borderRadius: '24px',
                 padding: '2.5rem',
-                color: '#111827',
+                color: '#1d1d1f',
                 position: 'relative',
-                boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
+                boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+                border: '1px solid rgba(255,255,255,0.2)',
                 cursor: 'pointer'
               }}
             >
@@ -284,7 +289,8 @@ const HowItWorksB2C = () => {
                   color: 'white',
                   fontWeight: '800',
                   fontSize: '1.5rem',
-                  boxShadow: `0 8px 20px ${step.color}40`
+                  boxShadow: `0 8px 20px ${step.color}40`,
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
                 }}
               >
                 {step.number}
@@ -319,7 +325,7 @@ const HowItWorksB2C = () => {
                 justifyContent: 'center',
                 background: imageErrors[step.number] 
                   ? `linear-gradient(135deg, ${step.color}15 0%, ${step.color}08 100%)`
-                  : 'transparent'
+                  : '#f3f4f6'
               }}>
                 {imageErrors[step.number] ? (
                   <div style={{
@@ -356,8 +362,9 @@ const HowItWorksB2C = () => {
                 fontSize: '1.75rem',
                 fontWeight: '800',
                 marginBottom: '1rem',
-                color: '#020034',
-                letterSpacing: '-0.01em'
+                color: '#1d1d1f',
+                letterSpacing: '-0.01em',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
               }}>
                 {step.title}
               </h3>
@@ -365,7 +372,8 @@ const HowItWorksB2C = () => {
                 color: '#6b7280',
                 lineHeight: '1.7',
                 fontSize: '1.05rem',
-                marginBottom: '1.5rem'
+                marginBottom: '1.5rem',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
               }}>
                 {step.description}
               </p>
@@ -377,7 +385,8 @@ const HowItWorksB2C = () => {
                   gap: '0.5rem',
                   color: step.color,
                   fontWeight: '700',
-                  fontSize: '0.95rem'
+                  fontSize: '0.95rem',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
                 }}>
                   <span>Next step</span>
                   <ArrowRight size={18} />

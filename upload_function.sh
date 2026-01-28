@@ -1,3 +1,8 @@
+#!/bin/bash
+# Script para fazer upload da função create-payment-intent
+
+ssh root@168.231.112.159 << 'ENDSSH'
+cat > /root/supabase/docker/volumes/functions/create-payment-intent/index.ts << 'ENDFILE'
 // Supabase Edge Function: create-payment-intent
 // This function creates a Stripe PaymentIntent and saves booking data to the database
 // Enterprise-grade security implementation
@@ -175,25 +180,8 @@ serve(async (req) => {
     }
 
     // Create PaymentIntent with sanitized data
-    // Klarna enabled for testing - configured for inline/embedded checkout
-    const paymentIntentConfig: {
-      amount: number
-      currency: string
-      payment_method_types: string[]
-      metadata: Record<string, string>
-      receipt_email?: string
-      shipping?: {
-        name: string
-        address: {
-          line1?: string
-          line2?: string | null
-          city?: string | null
-          postal_code?: string
-          country: string
-        }
-      }
-      [key: string]: unknown // Allow additional properties
-    } = {
+    // Klarna will be automatically available when payment_method_types includes 'klarna'
+    const paymentIntent = await stripe.paymentIntents.create({
       amount: amountInPence,
       currency: currency,
       payment_method_types: ['card', 'klarna'],
@@ -203,42 +191,9 @@ serve(async (req) => {
         timestamp: new Date().toISOString(),
         client_ip: validation.clientIP || 'unknown',
       },
+      // Optional: Add receipt email if provided
       ...(customerEmail && { receipt_email: customerEmail }),
-    }
-
-    // Add shipping info if available (helps Klarna work inline)
-    if (body.booking_data) {
-      const bookingData = body.booking_data as Record<string, unknown>
-      const customerName = bookingData.customer_name && typeof bookingData.customer_name === 'string'
-        ? bookingData.customer_name
-        : 'Customer'
-      const addressLine1 = bookingData.address_line1 && typeof bookingData.address_line1 === 'string'
-        ? bookingData.address_line1
-        : null
-      const city = bookingData.city && typeof bookingData.city === 'string'
-        ? bookingData.city
-        : null
-      const postcode = bookingData.postcode && typeof bookingData.postcode === 'string'
-        ? bookingData.postcode
-        : null
-
-      if (addressLine1 && postcode) {
-        paymentIntentConfig.shipping = {
-          name: customerName,
-          address: {
-            line1: addressLine1,
-            line2: bookingData.address_line2 && typeof bookingData.address_line2 === 'string'
-              ? bookingData.address_line2
-              : null,
-            city: city || null,
-            postal_code: postcode,
-            country: 'GB', // Default to GB, adjust if needed
-          },
-        }
-      }
-    }
-
-    const paymentIntent = await stripe.paymentIntents.create(paymentIntentConfig)
+    })
 
     logSecurityEvent('payment_intent_created', {
       payment_intent_id: paymentIntent.id,
@@ -426,3 +381,6 @@ serve(async (req) => {
     )
   }
 })
+ENDFILE
+echo "Função atualizada com sucesso"
+ENDSSH

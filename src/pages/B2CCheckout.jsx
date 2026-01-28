@@ -2,8 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, CheckCircle, Shield, Loader2, AlertCircle, Clock, Upload, X, Plus, Minus, Calendar, ChevronLeft, ChevronRight, Lock, Sparkles, Star } from 'lucide-react';
 import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { getStripe, createPaymentIntentViaSupabase } from '../lib/stripe';
+import { trackAbandonedCheckout } from '../lib/email';
+import SubscriptionUpsell from '../components/b2c/SubscriptionUpsell';
 
 // Enhanced Payment Form Component with premium UX
 const PaymentForm = ({ onSuccess, clientSecret }) => {
@@ -36,13 +39,69 @@ const PaymentForm = ({ onSuccess, clientSecret }) => {
         confirmParams: {
           return_url: `${window.location.origin}/checkout-success`,
         },
-        redirect: 'if_required'
+        redirect: 'never', // Try to keep everything inline - Klarna may still redirect for authentication
       });
 
       if (confirmError) {
         setError(confirmError.message);
-      } else if (paymentIntent && paymentIntent.status === 'succeeded') {
-        onSuccess(paymentIntent);
+        setLoading(false);
+        return;
+      }
+
+      // CRITICAL: Verify payment status before showing success
+      // When Klarna redirects and user closes, paymentIntent may exist but status is not 'succeeded'
+      if (!paymentIntent) {
+        // No paymentIntent returned - payment was likely cancelled
+        setError('Payment was not completed. Please try again.');
+        setLoading(false);
+        return;
+      }
+
+      // Verify the actual status - only proceed if payment is actually succeeded
+      if (paymentIntent.status === 'succeeded') {
+        // Double-check by retrieving the latest status from Stripe
+        try {
+          const { paymentIntent: verifiedIntent, error: verifyError } = await stripe.retrievePaymentIntent(clientSecret);
+          
+          if (verifyError) {
+            setError('Unable to verify payment status. Please contact support.');
+            setLoading(false);
+            return;
+          }
+
+          // Only show success if verified status is succeeded
+          if (verifiedIntent.status === 'succeeded') {
+            onSuccess(verifiedIntent);
+          } else {
+            setError(`Payment status: ${verifiedIntent.status}. Payment was not completed.`);
+            setLoading(false);
+          }
+        } catch (verifyErr) {
+          console.error('[Payment] Verification error:', verifyErr);
+          setError('Unable to verify payment status. Please contact support.');
+          setLoading(false);
+        }
+      } else if (paymentIntent.status === 'requires_action' || paymentIntent.status === 'processing') {
+        // Payment is still processing or requires action - don't show success yet
+        setError('Payment is being processed. Please wait...');
+        setLoading(false);
+        // Optionally: poll for status update
+        setTimeout(async () => {
+          try {
+            const { paymentIntent: updatedIntent } = await stripe.retrievePaymentIntent(clientSecret);
+            if (updatedIntent?.status === 'succeeded') {
+              onSuccess(updatedIntent);
+            } else {
+              setError(`Payment status: ${updatedIntent?.status || 'unknown'}. Please check back in a moment or contact support.`);
+            }
+          } catch (err) {
+            setError('Unable to verify payment status. Please contact support.');
+          }
+        }, 3000);
+      } else {
+        // Payment failed, cancelled, or other non-success status
+        setError(`Payment was not completed. Status: ${paymentIntent.status}. Please try again.`);
+        setLoading(false);
       }
     } catch (err) {
       setError('An unexpected error occurred. Please try again.');
@@ -80,7 +139,35 @@ const PaymentForm = ({ onSuccess, clientSecret }) => {
       }}>
         <PaymentElement 
           options={{
-            layout: 'tabs'
+            layout: 'tabs',
+            paymentMethodTypes: ['card', 'klarna'],
+            // Try to keep Klarna inline - some flows may still redirect for authentication
+            business: {
+              name: 'Master'
+            },
+            terms: {
+              card: 'always',
+              klarna: 'always'
+            },
+            fields: {
+              billingDetails: {
+                name: 'auto',
+                email: 'auto',
+                phone: 'auto',
+                address: {
+                  line1: 'auto',
+                  line2: 'auto',
+                  city: 'auto',
+                  state: 'auto',
+                  postalCode: 'auto',
+                  country: 'auto'
+                }
+              }
+            },
+            wallets: {
+              applePay: 'auto',
+              googlePay: 'auto'
+            }
           }}
         />
       </div>
@@ -157,6 +244,7 @@ const B2CCheckout = () => {
   const location = useLocation();
   const { service, postcode, jobDescription } = location.state || {};
   const [stripePromise, setStripePromise] = useState(null);
+  const [stripeInstance, setStripeInstance] = useState(null);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [clientSecret, setClientSecret] = useState(null);
   const [paymentError, setPaymentError] = useState(null);
@@ -189,6 +277,9 @@ const B2CCheckout = () => {
   const [selectedDates, setSelectedDates] = useState([]);
   const [selectedTimeSlots, setSelectedTimeSlots] = useState([]);
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  
+  // Subscription upsell state
+  const [showSubscriptionUpsell, setShowSubscriptionUpsell] = useState(true);
 
   // Check if service is hourly
   const isHourlyService = service?.priceType === 'hourly' || 
@@ -283,11 +374,18 @@ const B2CCheckout = () => {
 
   useEffect(() => {
     const initStripe = async () => {
-      const stripe = await getStripe();
-      if (!stripe) {
-        setPaymentError('Stripe is not configured. Please contact support.');
+      try {
+        const stripe = await getStripe();
+        if (!stripe) {
+          setPaymentError('Stripe is not configured. Please contact support.');
+          return;
+        }
+        setStripePromise(stripe);
+        setStripeInstance(stripe);
+      } catch (error) {
+        console.error('[Checkout] Error initializing Stripe:', error);
+        setPaymentError('Failed to load payment system. Please refresh the page.');
       }
-      setStripePromise(stripe);
     };
     initStripe();
   }, []);
@@ -364,10 +462,20 @@ const B2CCheckout = () => {
         }
       }, 100);
     } catch (err) {
-      const errorMessage = import.meta.env.DEV 
-        ? `Failed to initialize payment: ${err.message}` 
-        : 'Failed to initialize payment. Please try again.';
+      console.error('[Checkout] Payment intent creation error:', err);
+      
+      // Use the error message from the function if available
+      const errorMessage = err.message || 'Failed to initialize payment. Please try again.';
       setPaymentError(errorMessage);
+      
+      // Log to console in development for debugging
+      if (import.meta.env.DEV) {
+        console.error('[Checkout] Full error details:', {
+          message: err.message,
+          stack: err.stack,
+          name: err.name
+        });
+      }
     } finally {
       setCreatingPaymentIntent(false);
     }
@@ -493,6 +601,12 @@ const B2CCheckout = () => {
   };
 
   const handlePaymentSuccess = (paymentIntent) => {
+    // Only show success if payment is verified as succeeded
+    if (paymentIntent.status !== 'succeeded') {
+      setPaymentError(`Payment status: ${paymentIntent.status}. Payment was not completed.`);
+      return;
+    }
+
     setPaymentSuccess(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setTimeout(() => {
@@ -503,6 +617,7 @@ const B2CCheckout = () => {
           jobDescription,
           customerDetails,
           paymentIntentId: paymentIntent.id,
+          clientSecret: clientSecret, // Pass clientSecret for verification
           scheduledDates: selectedDates.map(d => d.toISOString()),
           scheduledTimeSlots: selectedTimeSlots,
           timeSlotLabels: selectedTimeSlots.map(id => timeSlots.find(s => s.id === id)?.label).filter(Boolean)
@@ -538,6 +653,53 @@ const B2CCheckout = () => {
       setHasScrolledToPayment(false);
     }
   }, [customerDetails, selectedDates, selectedTimeSlots, agreedToTerms, agreedToHourlyTerms, hourlyJobDescription, hasScrolledToPayment, clientSecret]);
+
+  // Track abandoned checkout when user leaves without completing payment
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      // Only track if user has started checkout (has email and clientSecret but payment not succeeded)
+      if (customerDetails.email && clientSecret && !paymentSuccess) {
+        // Use sendBeacon for reliable tracking even when page is closing
+        const checkoutData = {
+          email: customerDetails.email,
+          name: customerDetails.fullName,
+          service: service.title,
+          amount: totalPrice,
+          clientSecret: clientSecret,
+          paymentIntentId: clientSecret.split('_secret_')[0],
+        };
+        
+        // Track asynchronously (fire and forget)
+        trackAbandonedCheckout(checkoutData).catch(err => {
+          console.warn('[Checkout] Failed to track abandoned checkout:', err);
+        });
+      }
+    };
+
+    // Track on page unload
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    // Also track when navigating away (React Router)
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      
+      // Track on component unmount if checkout was started but not completed
+      if (customerDetails.email && clientSecret && !paymentSuccess) {
+        const checkoutData = {
+          email: customerDetails.email,
+          name: customerDetails.fullName,
+          service: service.title,
+          amount: totalPrice,
+          clientSecret: clientSecret,
+          paymentIntentId: clientSecret.split('_secret_')[0],
+        };
+        
+        trackAbandonedCheckout(checkoutData).catch(err => {
+          console.warn('[Checkout] Failed to track abandoned checkout:', err);
+        });
+      }
+    };
+  }, [customerDetails.email, customerDetails.fullName, clientSecret, paymentSuccess, service.title, totalPrice]);
 
   if (paymentSuccess) {
     return (
@@ -579,10 +741,9 @@ const B2CCheckout = () => {
   }
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#fafafa' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#fafafa', overflowX: 'hidden' }}>
       {/* Minimalist Header */}
       <div style={{
-        backgroundColor: 'white',
         borderBottom: '1px solid #e5e7eb',
         padding: '1rem 0',
         position: 'sticky',
@@ -622,14 +783,15 @@ const B2CCheckout = () => {
         </div>
       </div>
 
-      <div className="container" style={{ padding: '2rem 0 4rem' }}>
+      <div className="container" style={{ padding: '2rem 0 4rem', overflowX: 'hidden' }}>
         <div style={{
           maxWidth: '1200px',
           margin: '0 auto',
           display: 'grid',
           gridTemplateColumns: '1fr 400px',
           gap: '3rem',
-          alignItems: 'start'
+          alignItems: 'start',
+          position: 'relative'
         }}>
           {/* Left: Main Form */}
           <div>
@@ -1819,13 +1981,28 @@ const B2CCheckout = () => {
 
           {/* Right: Sticky Order Summary */}
           <div ref={paymentSectionRef}>
+            {/* Master Club Subscription Upsell */}
+            {showSubscriptionUpsell && customerDetails.email && (
+              <SubscriptionUpsell
+                customerEmail={customerDetails.email}
+                customerName={customerDetails.fullName}
+                onDismiss={() => setShowSubscriptionUpsell(false)}
+                onSuccess={() => {
+                  setShowSubscriptionUpsell(false);
+                  toast.success('Welcome to Master Club! You now have access to member pricing.');
+                }}
+              />
+            )}
+            
             <div style={{
               backgroundColor: 'white',
               borderRadius: '20px',
               padding: '2rem',
               boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
               position: 'sticky',
-              top: '6rem',
+              top: '5rem',
+              maxHeight: 'calc(100vh - 6rem)',
+              overflowY: 'auto',
               border: '1px solid #e5e7eb'
             }}>
               <h2 style={{
@@ -2023,7 +2200,7 @@ const B2CCheckout = () => {
               )}
 
               {/* Payment Section */}
-              {stripePromise && isFormValid() && clientSecret ? (
+              {stripeInstance && isFormValid() && clientSecret ? (
                 <>
                   <div style={{
                     backgroundColor: '#f0fdf4',
@@ -2042,7 +2219,7 @@ const B2CCheckout = () => {
                   </div>
                   
                   <Elements 
-                    stripe={stripePromise} 
+                    stripe={stripeInstance} 
                     options={{
                       clientSecret,
                       appearance: {
@@ -2052,6 +2229,7 @@ const B2CCheckout = () => {
                           borderRadius: '12px',
                         },
                       },
+                      locale: 'en-GB'
                     }}
                   >
                     <PaymentForm
@@ -2060,7 +2238,7 @@ const B2CCheckout = () => {
                     />
                   </Elements>
                 </>
-              ) : stripePromise && isFormValid() && !clientSecret ? (
+              ) : stripeInstance && isFormValid() && !clientSecret ? (
                 <button
                   onClick={createPaymentIntent}
                   disabled={creatingPaymentIntent}
@@ -2109,7 +2287,7 @@ const B2CCheckout = () => {
                     </>
                   )}
                 </button>
-              ) : stripePromise && !isFormValid() ? (
+              ) : stripeInstance && !isFormValid() ? (
                 <button
                   onClick={validateForm}
                   style={{
@@ -2207,6 +2385,32 @@ const B2CCheckout = () => {
           div[style*="position: sticky"] {
             position: relative !important;
             top: 0 !important;
+            max-height: none !important;
+            overflow-y: visible !important;
+          }
+        }
+        
+        /* Fix scroll issues on desktop */
+        @media (min-width: 969px) {
+          html, body {
+            overflow-x: hidden;
+          }
+          div[style*="maxHeight: calc(100vh - 6rem)"] {
+            scrollbar-width: thin;
+            scrollbar-color: #d1d5db transparent;
+          }
+          div[style*="maxHeight: calc(100vh - 6rem)"]::-webkit-scrollbar {
+            width: 6px;
+          }
+          div[style*="maxHeight: calc(100vh - 6rem)"]::-webkit-scrollbar-track {
+            background: transparent;
+          }
+          div[style*="maxHeight: calc(100vh - 6rem)"]::-webkit-scrollbar-thumb {
+            background-color: #d1d5db;
+            border-radius: 3px;
+          }
+          div[style*="maxHeight: calc(100vh - 6rem)"]::-webkit-scrollbar-thumb:hover {
+            background-color: #9ca3af;
           }
         }
       `}</style>

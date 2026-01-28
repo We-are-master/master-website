@@ -89,25 +89,25 @@ const MasterClubB2C = () => {
       icon: <Crown size={24} />,
       title: 'Private member rates up to 50% OFF on every book',
       description: 'Fixed prices reserved exclusively for members.',
-      color: '#fbbf24'
+      color: '#E94A02'
     },
     {
       icon: <Clock size={24} />,
       title: 'Priority booking',
       description: 'Jump the queue for standard and urgent jobs.',
-      color: '#3b82f6'
+      color: '#E94A02'
     },
     {
       icon: <Shield size={24} />,
       title: 'Reduced emergency fees',
       description: 'Lower call-out fees when timing really matters.',
-      color: '#10b981'
+      color: '#E94A02'
     },
     {
       icon: <CheckCircle size={24} />,
       title: 'Insurance included',
       description: 'Fully vetted, insured professionals on every job.',
-      color: '#8b5cf6'
+      color: '#E94A02'
     },
     {
       icon: <Infinity size={24} />,
@@ -120,13 +120,15 @@ const MasterClubB2C = () => {
   return (
     <section 
       ref={sectionRef}
+      data-section="master-club"
       style={{
         padding: '6rem 0',
-        background: 'linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)',
+        background: '#020034',
         position: 'relative',
         overflow: 'hidden',
         width: '100%',
-        maxWidth: '100vw'
+        maxWidth: '100vw',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
       }}
     >
       {/* Decorative Background */}
@@ -136,7 +138,9 @@ const MasterClubB2C = () => {
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundImage: 'radial-gradient(circle at 20% 30%, rgba(233, 74, 2, 0.05) 0%, transparent 50%), radial-gradient(circle at 80% 70%, rgba(251, 191, 36, 0.05) 0%, transparent 50%)'
+        backgroundImage: 'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)',
+        backgroundSize: '60px 60px',
+        opacity: 0.5
       }}></div>
 
       <div className="container" style={{ 
@@ -162,13 +166,16 @@ const MasterClubB2C = () => {
               display: 'inline-flex',
               alignItems: 'center',
               gap: '0.5rem',
-              backgroundColor: 'rgba(251, 191, 36, 0.1)',
-              color: '#f59e0b',
+              backgroundColor: 'rgba(255, 255, 255, 0.05)',
+              backdropFilter: 'blur(20px)',
+              color: 'rgba(255, 255, 255, 0.8)',
               padding: '0.5rem 1.25rem',
               borderRadius: '50px',
               fontSize: '0.875rem',
               fontWeight: '600',
-              marginBottom: '1.5rem'
+              marginBottom: '1.5rem',
+              border: '1px solid rgba(255,255,255,0.1)',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
             }}>
               <Crown size={16} />
               <span>Master Club</span>
@@ -178,21 +185,23 @@ const MasterClubB2C = () => {
               fontSize: 'clamp(2rem, 4vw, 3rem)',
               fontWeight: '800',
               marginBottom: '1.5rem',
-              color: '#020034',
+              color: 'white',
               letterSpacing: '-0.02em',
               lineHeight: '1.3',
               maxWidth: '900px',
-              margin: '0 auto 1.5rem'
+              margin: '0 auto 1.5rem',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
             }}>
               The Master Club gives you access to private member rates that are not available to the public.
             </h2>
             
             <p style={{
               fontSize: 'clamp(1.125rem, 2vw, 1.5rem)',
-              color: '#6b7280',
+              color: 'rgba(255,255,255,0.7)',
               lineHeight: '1.7',
               maxWidth: '800px',
-              margin: '0 auto'
+              margin: '0 auto',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
             }}>
               No vouchers.<br />
               No fake discounts.<br />
@@ -207,9 +216,10 @@ const MasterClubB2C = () => {
             <h3 style={{
               fontSize: 'clamp(1.5rem, 3vw, 2rem)',
               fontWeight: '700',
-              color: '#020034',
+              color: 'white',
               marginBottom: '2rem',
-              textAlign: 'center'
+              textAlign: 'center',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
             }}>
               What members get
             </h3>
@@ -228,11 +238,12 @@ const MasterClubB2C = () => {
                 <div
                   key={index}
                   style={{
-                    backgroundColor: 'white',
+                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                    backdropFilter: 'blur(20px)',
                     borderRadius: '20px',
                     padding: '2rem',
-                    boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                    border: '1px solid rgba(0,0,0,0.05)',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.08)',
+                    border: '1px solid rgba(255,255,255,0.1)',
                     display: 'flex',
                     gap: '1.25rem',
                     alignItems: 'flex-start',
@@ -241,14 +252,14 @@ const MasterClubB2C = () => {
                   onMouseEnter={(e) => {
                     gsap.to(e.currentTarget, {
                       y: -4,
-                      boxShadow: '0 12px 30px rgba(0,0,0,0.12)',
+                      boxShadow: '0 12px 30px rgba(0,0,0,0.5), 0 0 0 1px rgba(255, 107, 0, 0.3)',
                       duration: 0.3
                     });
                   }}
                   onMouseLeave={(e) => {
                     gsap.to(e.currentTarget, {
                       y: 0,
-                      boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                      boxShadow: '0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.08)',
                       duration: 0.3
                     });
                   }}
@@ -270,17 +281,19 @@ const MasterClubB2C = () => {
                     <h4 style={{
                       fontSize: '1.125rem',
                       fontWeight: '700',
-                      color: '#020034',
+                      color: 'white',
                       marginBottom: '0.5rem',
-                      lineHeight: '1.4'
+                      lineHeight: '1.4',
+                      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
                     }}>
                       {benefit.title}
                     </h4>
                     <p style={{
                       fontSize: '0.95rem',
-                      color: '#6b7280',
+                      color: 'rgba(255,255,255,0.7)',
                       lineHeight: '1.6',
-                      margin: 0
+                      margin: 0,
+                      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
                     }}>
                       {benefit.description}
                     </p>
@@ -294,11 +307,12 @@ const MasterClubB2C = () => {
           <div 
             ref={pricingRef}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: 'rgba(255, 255, 255, 0.05)',
+              backdropFilter: 'blur(20px)',
               borderRadius: '24px',
               padding: '3rem',
-              boxShadow: '0 20px 60px rgba(0,0,0,0.1)',
-              border: '2px solid rgba(233, 74, 2, 0.1)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.08)',
+              border: '2px solid rgba(255, 107, 0, 0.2)',
               textAlign: 'center',
               maxWidth: '600px',
               margin: '0 auto'
@@ -309,31 +323,35 @@ const MasterClubB2C = () => {
             }}>
               <div style={{
                 fontSize: '0.875rem',
-                color: '#6b7280',
+                color: 'rgba(255,255,255,0.7)',
                 fontWeight: '600',
                 marginBottom: '0.5rem',
                 textTransform: 'uppercase',
-                letterSpacing: '0.05em'
+                letterSpacing: '0.05em',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
               }}>
                 Pricing
               </div>
               <div style={{
                 fontSize: 'clamp(2rem, 4vw, 3rem)',
                 fontWeight: '900',
-                color: '#020034',
+                color: 'white',
                 marginBottom: '0.5rem',
-                lineHeight: '1.2'
+                lineHeight: '1.2',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
               }}>
                 From £9.99 <span style={{
                   fontSize: 'clamp(1rem, 2vw, 1.25rem)',
                   fontWeight: '600',
-                  color: '#6b7280'
+                  color: 'rgba(255,255,255,0.7)',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
                 }}>/ month</span>
               </div>
               <p style={{
                 fontSize: '1rem',
-                color: '#6b7280',
-                margin: 0
+                color: 'rgba(255,255,255,0.7)',
+                margin: 0,
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
               }}>
                 Cancel anytime. No long-term commitment.
               </p>
@@ -345,7 +363,7 @@ const MasterClubB2C = () => {
                 console.log('Join Master Club clicked');
               }}
               style={{
-                backgroundColor: '#E94A02',
+                backgroundColor: '#FF6B00',
                 color: 'white',
                 border: 'none',
                 borderRadius: '16px',
@@ -357,21 +375,22 @@ const MasterClubB2C = () => {
                 alignItems: 'center',
                 gap: '0.75rem',
                 transition: 'all 0.3s ease',
-                boxShadow: '0 4px 20px rgba(233, 74, 2, 0.3)'
+                boxShadow: '0 4px 20px rgba(255, 107, 0, 0.3)',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
               }}
               onMouseEnter={(e) => {
                 gsap.to(e.target, {
-                  backgroundColor: '#d13d00',
+                  backgroundColor: '#E94A02',
                   scale: 1.05,
-                  boxShadow: '0 6px 30px rgba(233, 74, 2, 0.4)',
+                  boxShadow: '0 6px 30px rgba(255, 107, 0, 0.4)',
                   duration: 0.3
                 });
               }}
               onMouseLeave={(e) => {
                 gsap.to(e.target, {
-                  backgroundColor: '#E94A02',
+                  backgroundColor: '#FF6B00',
                   scale: 1,
-                  boxShadow: '0 4px 20px rgba(233, 74, 2, 0.3)',
+                  boxShadow: '0 4px 20px rgba(255, 107, 0, 0.3)',
                   duration: 0.3
                 });
               }}

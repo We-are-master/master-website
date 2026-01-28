@@ -121,31 +121,24 @@ const TestimonialsB2C = () => {
       ref={sectionRef}
       style={{
         padding: '6rem 0',
-        background: 'linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)',
+        background: '#020034',
         position: 'relative',
         overflow: 'hidden',
         width: '100%',
-        maxWidth: '100vw'
+        maxWidth: '100vw',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
       }}
     >
       {/* Decorative Elements */}
       <div style={{
         position: 'absolute',
-        top: '-100px',
-        right: '-100px',
-        width: '400px',
-        height: '400px',
-        background: 'radial-gradient(circle, rgba(233, 74, 2, 0.05) 0%, transparent 70%)',
-        borderRadius: '50%'
-      }}></div>
-      <div style={{
-        position: 'absolute',
-        bottom: '-150px',
-        left: '-150px',
-        width: '500px',
-        height: '500px',
-        background: 'radial-gradient(circle, rgba(32, 1, 175, 0.05) 0%, transparent 70%)',
-        borderRadius: '50%'
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundImage: 'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)',
+        backgroundSize: '60px 60px',
+        opacity: 0.5
       }}></div>
 
       <div className="container" style={{ 
@@ -160,13 +153,16 @@ const TestimonialsB2C = () => {
             display: 'inline-flex',
             alignItems: 'center',
             gap: '0.5rem',
-            backgroundColor: 'rgba(233, 74, 2, 0.1)',
-            color: '#E94A02',
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            backdropFilter: 'blur(20px)',
+            color: 'rgba(255, 255, 255, 0.8)',
             padding: '0.5rem 1.25rem',
             borderRadius: '50px',
             fontSize: '0.875rem',
             fontWeight: '600',
-            marginBottom: '1.5rem'
+            marginBottom: '1.5rem',
+            border: '1px solid rgba(255,255,255,0.1)',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
           }}>
             <Star size={16} style={{ fill: 'currentColor' }} />
             <span>Trusted by thousands</span>
@@ -174,17 +170,19 @@ const TestimonialsB2C = () => {
           <h2 style={{
             fontSize: 'clamp(2rem, 4vw, 3rem)',
             fontWeight: '800',
-            color: '#020034',
+            color: 'white',
             marginBottom: '1rem',
-            letterSpacing: '-0.02em'
+            letterSpacing: '-0.02em',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
           }}>
             Hear from people who've used Master
           </h2>
           <p style={{
             fontSize: '1.25rem',
-            color: '#6b7280',
+            color: 'rgba(255,255,255,0.7)',
             maxWidth: '600px',
-            margin: '0 auto'
+            margin: '0 auto',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
           }}>
             Real reviews from real customers across London.
           </p>
@@ -203,18 +201,19 @@ const TestimonialsB2C = () => {
             <div
               key={index}
               style={{
-                backgroundColor: 'white',
+                backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                backdropFilter: 'blur(20px)',
                 borderRadius: '20px',
                 padding: '2rem',
-                boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                border: '1px solid rgba(0,0,0,0.05)',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.08)',
+                border: '1px solid rgba(255,255,255,0.1)',
                 position: 'relative',
                 cursor: 'pointer'
               }}
               onMouseEnter={(e) => {
                 gsap.to(e.currentTarget, {
                   y: -8,
-                  boxShadow: '0 12px 40px rgba(0,0,0,0.15)',
+                  boxShadow: '0 12px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(255, 107, 0, 0.3)',
                   duration: 0.4,
                   ease: 'power2.out'
                 });
@@ -228,7 +227,7 @@ const TestimonialsB2C = () => {
               onMouseLeave={(e) => {
                 gsap.to(e.currentTarget, {
                   y: 0,
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.08)',
                   duration: 0.4
                 });
                 gsap.to(e.currentTarget.querySelector('.quote-icon'), {
@@ -247,7 +246,7 @@ const TestimonialsB2C = () => {
                   right: '1.5rem',
                   width: '48px',
                   height: '48px',
-                  backgroundColor: '#E94A02',
+                  backgroundColor: '#FF6B00',
                   borderRadius: '12px',
                   display: 'flex',
                   alignItems: 'center',
@@ -255,7 +254,7 @@ const TestimonialsB2C = () => {
                   color: 'white',
                   fontWeight: '700',
                   fontSize: '1rem',
-                  boxShadow: '0 4px 12px rgba(233, 74, 2, 0.3)'
+                  boxShadow: '0 4px 12px rgba(255, 107, 0, 0.3)'
                 }}
               >
                 90
@@ -275,11 +274,12 @@ const TestimonialsB2C = () => {
 
               {/* Content */}
               <p style={{
-                color: '#374151',
+                color: 'rgba(255,255,255,0.9)',
                 lineHeight: '1.7',
                 marginBottom: '1.5rem',
                 fontSize: '1rem',
-                fontStyle: 'italic'
+                fontStyle: 'italic',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
               }}>
                 "{testimonial.content}"
               </p>
@@ -290,7 +290,7 @@ const TestimonialsB2C = () => {
                 alignItems: 'center',
                 gap: '1rem',
                 paddingTop: '1rem',
-                borderTop: '1px solid #f3f4f6'
+                borderTop: '1px solid rgba(255,255,255,0.1)'
               }}>
                 <img
                   src={testimonial.avatar}
@@ -304,22 +304,24 @@ const TestimonialsB2C = () => {
                     height: '56px',
                     borderRadius: '50%',
                     objectFit: 'cover',
-                    border: '3px solid #f3f4f6'
+                    border: '3px solid rgba(255,255,255,0.1)'
                   }}
                 />
                 <div>
                   <p style={{
                     fontWeight: '700',
-                    color: '#020034',
+                    color: 'white',
                     margin: 0,
-                    fontSize: '1rem'
+                    fontSize: '1rem',
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
                   }}>
                     {testimonial.name}
                   </p>
                   <p style={{
-                    color: '#6b7280',
+                    color: 'rgba(255,255,255,0.7)',
                     margin: '0.25rem 0 0 0',
-                    fontSize: '0.875rem'
+                    fontSize: '0.875rem',
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
                   }}>
                     {testimonial.location}
                   </p>
@@ -343,7 +345,7 @@ const TestimonialsB2C = () => {
               }
             }}
             style={{
-              backgroundColor: '#E94A02',
+              backgroundColor: '#FF6B00',
               color: 'white',
               border: 'none',
               borderRadius: '16px',
@@ -357,21 +359,22 @@ const TestimonialsB2C = () => {
               textTransform: 'uppercase',
               letterSpacing: '0.05em',
               transition: 'all 0.3s ease',
-              boxShadow: '0 8px 30px rgba(233, 74, 2, 0.3)'
+              boxShadow: '0 8px 30px rgba(255, 107, 0, 0.3)',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
             }}
             onMouseEnter={(e) => {
               gsap.to(e.target, {
-                backgroundColor: '#d13d00',
+                backgroundColor: '#E94A02',
                 scale: 1.05,
-                boxShadow: '0 12px 40px rgba(233, 74, 2, 0.4)',
+                boxShadow: '0 12px 40px rgba(255, 107, 0, 0.4)',
                 duration: 0.3
               });
             }}
             onMouseLeave={(e) => {
               gsap.to(e.target, {
-                backgroundColor: '#E94A02',
+                backgroundColor: '#FF6B00',
                 scale: 1,
-                boxShadow: '0 8px 30px rgba(233, 74, 2, 0.3)',
+                boxShadow: '0 8px 30px rgba(255, 107, 0, 0.3)',
                 duration: 0.3
               });
             }}
