@@ -6,7 +6,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { getStripe, createPaymentIntentViaSupabase } from '../lib/stripe';
 import { trackAbandonedCheckout } from '../lib/email';
-import SubscriptionUpsell from '../components/b2c/SubscriptionUpsell';
+import SubscriptionUpsell, { SUBSCRIPTION_PRICE } from '../components/b2c/SubscriptionUpsell';
+import { checkSubscription } from '../lib/subscription';
 
 // Enhanced Payment Form Component with premium UX
 const PaymentForm = ({ onSuccess, clientSecret }) => {
@@ -278,8 +279,10 @@ const B2CCheckout = () => {
   const [selectedTimeSlots, setSelectedTimeSlots] = useState([]);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   
-  // Subscription upsell state
-  const [showSubscriptionUpsell, setShowSubscriptionUpsell] = useState(true);
+  // Subscription upsell: show checkbox when user has no subscription; checked = add £9.99 to total
+  const [hasSubscription, setHasSubscription] = useState(null); // null = loading, true/false = from API
+  const [addSubscriptionToOrder, setAddSubscriptionToOrder] = useState(true); // default checked when no subscription
+  const [showSubscriptionUpsell, setShowSubscriptionUpsell] = useState(true); // dismiss banner
 
   // Check if service is hourly
   const isHourlyService = service?.priceType === 'hourly' || 
@@ -372,6 +375,36 @@ const B2CCheckout = () => {
     ? parseFloat(service?.price || 0) * selectedHours 
     : parseFloat(service?.price || 0);
 
+  // Order total: service + optional Master Club first month
+  const orderTotal = totalPrice + (addSubscriptionToOrder ? SUBSCRIPTION_PRICE : 0);
+
+  // Check subscription status when email is available
+  useEffect(() => {
+    if (!customerDetails.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerDetails.email)) {
+      setHasSubscription(null);
+      return;
+    }
+    let cancelled = false;
+    setHasSubscription(null);
+    checkSubscription(customerDetails.email)
+      .then((result) => {
+        if (cancelled) return;
+        const has = result?.has_subscription ?? false;
+        setHasSubscription(has);
+        if (has) setAddSubscriptionToOrder(false);
+      })
+      .catch(() => {
+        if (!cancelled) setHasSubscription(false);
+      });
+    return () => { cancelled = true; };
+  }, [customerDetails.email]);
+
+  // When subscription add-on is toggled, clear payment intent so amount is recalculated
+  const handleAddSubscriptionChange = (checked) => {
+    setAddSubscriptionToOrder(checked);
+    if (clientSecret) setClientSecret(null);
+  };
+
   useEffect(() => {
     const initStripe = async () => {
       try {
@@ -398,7 +431,7 @@ const B2CCheckout = () => {
     setPaymentError(null);
 
     try {
-      const amount = Math.round((totalPrice || service.price || 0) * 100);
+      const amount = Math.round((orderTotal || totalPrice || service.price || 0) * 100);
       
       if (amount <= 0) {
         setPaymentError('Invalid service price');
@@ -419,6 +452,7 @@ const B2CCheckout = () => {
         currency: 'gbp',
         metadata: {
           source: 'website',
+          add_subscription: addSubscriptionToOrder ? 'true' : 'false',
           service_id: service.id || service.originalService?.id,
           service_name: service.title,
           service_category: service.category || '',
@@ -664,7 +698,7 @@ const B2CCheckout = () => {
           email: customerDetails.email,
           name: customerDetails.fullName,
           service: service.title,
-          amount: totalPrice,
+          amount: orderTotal,
           clientSecret: clientSecret,
           paymentIntentId: clientSecret.split('_secret_')[0],
         };
@@ -689,7 +723,7 @@ const B2CCheckout = () => {
           email: customerDetails.email,
           name: customerDetails.fullName,
           service: service.title,
-          amount: totalPrice,
+          amount: orderTotal,
           clientSecret: clientSecret,
           paymentIntentId: clientSecret.split('_secret_')[0],
         };
@@ -699,7 +733,7 @@ const B2CCheckout = () => {
         });
       }
     };
-  }, [customerDetails.email, customerDetails.fullName, clientSecret, paymentSuccess, service.title, totalPrice]);
+  }, [customerDetails.email, customerDetails.fullName, clientSecret, paymentSuccess, service.title, orderTotal]);
 
   if (paymentSuccess) {
     return (
@@ -1981,16 +2015,13 @@ const B2CCheckout = () => {
 
           {/* Right: Sticky Order Summary */}
           <div ref={paymentSectionRef}>
-            {/* Master Club Subscription Upsell */}
-            {showSubscriptionUpsell && customerDetails.email && (
+            {/* Master Club checkbox upsell: add £9.99 to total when checked */}
+            {showSubscriptionUpsell && customerDetails.email && hasSubscription === false && (
               <SubscriptionUpsell
-                customerEmail={customerDetails.email}
-                customerName={customerDetails.fullName}
+                checked={addSubscriptionToOrder}
+                onChange={handleAddSubscriptionChange}
                 onDismiss={() => setShowSubscriptionUpsell(false)}
-                onSuccess={() => {
-                  setShowSubscriptionUpsell(false);
-                  toast.success('Welcome to Master Club! You now have access to member pricing.');
-                }}
+                disabled={!!clientSecret}
               />
             )}
             
@@ -2130,6 +2161,27 @@ const B2CCheckout = () => {
                 </div>
               )}
 
+              {/* Master Club add-on line */}
+              {addSubscriptionToOrder && (
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: '0.75rem',
+                  padding: '0.75rem',
+                  backgroundColor: 'rgba(233, 74, 2, 0.08)',
+                  borderRadius: '12px',
+                  border: '1px solid rgba(233, 74, 2, 0.2)'
+                }}>
+                  <span style={{ color: '#92400e', fontSize: '0.875rem', fontWeight: '500' }}>
+                    Master Club (first month)
+                  </span>
+                  <span style={{ fontWeight: '600', color: '#b45309', fontSize: '0.9375rem' }}>
+                    £{SUBSCRIPTION_PRICE.toFixed(2)}
+                  </span>
+                </div>
+              )}
+
               {/* Total */}
               <div style={{
                 borderTop: '2px solid #f3f4f6',
@@ -2156,7 +2208,7 @@ const B2CCheckout = () => {
                     fontWeight: '700',
                     letterSpacing: '-0.02em'
                   }}>
-                    £{totalPrice.toFixed(2)}
+                    £{orderTotal.toFixed(2)}
                   </span>
                 </div>
               </div>

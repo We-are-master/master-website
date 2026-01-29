@@ -227,6 +227,7 @@ const HeroB2C = () => {
   return (
     <div 
       ref={heroRef}
+      className="hero-b2c"
       style={{
         position: 'relative',
         minHeight: '100vh',
@@ -262,7 +263,7 @@ const HeroB2C = () => {
         zIndex: 1
       }}></div>
 
-      <div className="container" style={{ 
+      <div className="container hero-b2c-inner" style={{ 
         position: 'relative', 
         zIndex: 3,
         padding: '2rem 0',
@@ -488,6 +489,19 @@ const HeroB2C = () => {
                   @keyframes blink {
                     0%, 50% { opacity: 1; }
                     51%, 100% { opacity: 0; }
+                  }
+                  
+                  @media (max-width: 768px) {
+                    .hero-b2c {
+                      align-items: flex-start !important;
+                      padding-top: 50px !important;
+                      padding-bottom: 2rem !important;
+                      min-height: auto !important;
+                    }
+                    .hero-b2c-inner {
+                      padding-top: 0.5rem !important;
+                      padding-bottom: 1.5rem !important;
+                    }
                   }
                   
                   @media (max-width: 640px) {
