@@ -87,56 +87,56 @@ const PopularServicesB2C = () => {
       icon: <Tv size={32} />,
       title: 'TV mounting',
       description: 'Professional TV installation and mounting service',
-      image: 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1',
+      image: '/Tv Mount.png',
       color: '#E94A02'
     },
     {
       icon: <Wrench size={32} />,
       title: 'Odd jobs',
       description: 'General handyman services for your home',
-      image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158',
+      image: '/Odd Jobs.png',
       color: '#E94A02'
     },
     {
       icon: <Package size={32} />,
       title: 'Flatpack assembly',
       description: 'Furniture assembly and installation',
-      image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7',
+      image: '/Flat Assemble.png',
       color: '#E94A02'
     },
     {
       icon: <Lightbulb size={32} />,
       title: 'Light fitting replacement',
       description: 'Professional light installation and replacement',
-      image: 'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0',
+      image: '/Light Fitting.png',
       color: '#E94A02'
     },
     {
       icon: <Sparkles size={32} />,
       title: 'Cleaning services',
       description: 'Deep clean, end of tenancy, and more',
-      image: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952',
+      image: '/Cleaning.png',
       color: '#E94A02'
     },
     {
       icon: <Droplets size={32} />,
       title: 'Plumbing',
       description: 'Emergency repairs and installations',
-      image: 'https://images.unsplash.com/photo-1621905252507-b35492cc74b4',
+      image: '/Plumber.png',
       color: '#E94A02'
     },
     {
       icon: <Zap size={32} />,
       title: 'Electrical',
       description: 'Safe and certified electrical work',
-      image: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e',
+      image: '/electrician.png',
       color: '#E94A02'
     },
     {
       icon: <Hammer size={32} />,
       title: 'Carpentry',
       description: 'Custom woodwork and repairs',
-      image: 'https://images.unsplash.com/photo-1504148455328-c376907d081c',
+      image: '/7.png',
       color: '#E94A02'
     }
   ];
@@ -302,7 +302,7 @@ const PopularServicesB2C = () => {
                 backgroundColor: '#f3f4f6'
               }}>
                 <img
-                  src={getOptimizedImage(service.image)}
+                  src={service.image.startsWith('/') ? service.image : getOptimizedImage(service.image)}
                   alt={service.title}
                   className="service-image"
                   loading="lazy"
