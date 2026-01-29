@@ -375,8 +375,16 @@ const B2CCheckout = () => {
     ? parseFloat(service?.price || 0) * selectedHours 
     : parseFloat(service?.price || 0);
 
-  // Order total: service + optional Master Club first month
-  const orderTotal = totalPrice + (addSubscriptionToOrder ? SUBSCRIPTION_PRICE : 0);
+  // Subscription offer (discount + Master Club) only applies when email is entered and upsell checkbox is visible and checked
+  const subscriptionOfferActive = Boolean(
+    customerDetails.email &&
+    hasSubscription === false &&
+    addSubscriptionToOrder
+  );
+  const memberDiscount = subscriptionOfferActive ? totalPrice * 0.3 : 0;
+  const orderTotal = subscriptionOfferActive
+    ? totalPrice * 0.7 + SUBSCRIPTION_PRICE
+    : totalPrice;
 
   // Check subscription status when email is available
   useEffect(() => {
@@ -2161,8 +2169,26 @@ const B2CCheckout = () => {
                 </div>
               )}
 
-              {/* Master Club add-on line */}
-              {addSubscriptionToOrder && (
+              {/* Member discount (30%) — only after email entered and upsell checkbox checked */}
+              {subscriptionOfferActive && memberDiscount > 0 && (
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: '0.5rem',
+                  padding: '0.5rem 0'
+                }}>
+                  <span style={{ color: '#15803d', fontSize: '0.875rem', fontWeight: '500' }}>
+                    Member discount (30%)
+                  </span>
+                  <span style={{ fontWeight: '600', color: '#15803d', fontSize: '0.9375rem' }}>
+                    -£{memberDiscount.toFixed(2)}
+                  </span>
+                </div>
+              )}
+
+              {/* Master Club add-on line — only when subscription offer is active */}
+              {subscriptionOfferActive && (
                 <div style={{
                   display: 'flex',
                   justifyContent: 'space-between',

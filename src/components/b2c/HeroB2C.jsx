@@ -317,13 +317,13 @@ const HeroB2C = () => {
               display: 'block',
               marginBottom: '0.25rem'
             }}>
-              Trusted local professionals.
+              The right way to book local professionals.
             </span>
             <span style={{
               color: 'rgba(255, 255, 255, 0.6)',
               fontWeight: '400'
             }}>
-              Booked the right way for{' '}
+              For{' '}
             </span>
             <span
               style={{
