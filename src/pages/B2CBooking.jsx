@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, MapPin, Search, CheckCircle, Clock, Shield, Star } from 'lucide-react';
+import { ArrowLeft, MapPin, Search, CheckCircle, Clock, Shield, Star, Trash2, Check } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { supabase } from '../lib/supabase';
 import { matchServicesWithAI, normalizeServiceQuery } from '../lib/openai';
@@ -103,19 +103,18 @@ const getServiceImage = (service) => {
   return imageOptions[0];
 };
 
+/** Brand font used across the site */
+const BRAND_FONT = '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif';
+
 /**
- * Get category color
+ * Get category color – brand orange tint
  */
 const getCategoryColor = (category) => {
-  const colors = {
-    'Cleaning': { bg: '#ecfdf5', text: '#059669', border: '#a7f3d0' },
-    'Certificates': { bg: '#eff6ff', text: '#2563eb', border: '#bfdbfe' },
-    'Plumbing/Electrician': { bg: '#fef3c7', text: '#d97706', border: '#fcd34d' },
-    'Multi Trader': { bg: '#fce7f3', text: '#db2777', border: '#fbcfe8' },
-    'Carpenter': { bg: '#fed7aa', text: '#c2410c', border: '#fdba74' },
-    'Painter': { bg: '#e0e7ff', text: '#4f46e5', border: '#c7d2fe' }
+  return {
+    bg: 'rgba(233, 74, 2, 0.12)',
+    text: '#E94A02',
+    border: 'rgba(233, 74, 2, 0.3)'
   };
-  return colors[category] || { bg: '#f3f4f6', text: '#6b7280', border: '#e5e7eb' };
 };
 
 const B2CBooking = () => {
@@ -130,9 +129,33 @@ const B2CBooking = () => {
   const [availableServices, setAvailableServices] = useState([]);
   const [loading, setLoading] = useState(hasServiceAndPostcodeFromState);
   const [selectedService, setSelectedService] = useState(null);
+  const [cart, setCart] = useState([]); // { service, quantity }[]
   const [isGoogleLoaded, setIsGoogleLoaded] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const postcodeInputRef = useRef(null);
+
+  const BOOKING_FEE = 5;
+
+  const addToCart = (service) => {
+    setCart((prev) => {
+      const existing = prev.find((item) => item.service.id === service.id);
+      if (existing) {
+        return prev.map((item) =>
+          item.service.id === service.id ? { ...item, quantity: item.quantity + 1 } : item
+        );
+      }
+      return [...prev, { service, quantity: 1 }];
+    });
+  };
+
+  const removeFromCart = (serviceId) => {
+    setCart((prev) => prev.filter((item) => item.service.id !== serviceId));
+  };
+
+  const isInCart = (serviceId) => cart.some((item) => item.service.id === serviceId);
+
+  const cartSubtotal = cart.reduce((sum, item) => sum + (parseFloat(item.service.price) || 0) * item.quantity, 0);
+  const cartTotal = cartSubtotal + BOOKING_FEE;
 
   // When arriving from home with both service + postcode: load services and show step 3 (no postcode step)
   useEffect(() => {
@@ -502,21 +525,18 @@ const B2CBooking = () => {
     }
   };
 
-  const handleServiceSelect = (service) => {
-    setSelectedService(service);
-    // Check if service is cleaning-related
+  const handleContinueToCheckout = () => {
+    if (cart.length === 0) return;
+    const service = cart[0].service;
     const cleaningKeywords = ['cleaning', 'clean', 'deep clean', 'end of tenancy', 'upholstery'];
-    const isCleaning = cleaningKeywords.some(keyword => 
-      service.title.toLowerCase().includes(keyword) || 
+    const isCleaning = cleaningKeywords.some(keyword =>
+      service.title.toLowerCase().includes(keyword) ||
       jobDescription.toLowerCase().includes(keyword)
     );
-    
     if (isCleaning) {
-      // Navigate to cleaning-specific booking form
-      navigate('/cleaning-booking', { state: { service, postcode, jobDescription } });
+      navigate('/cleaning-booking', { state: { service, postcode, jobDescription, services: cart } });
     } else {
-      // Navigate to standard checkout
-      navigate('/checkout', { state: { service, postcode, jobDescription } });
+      navigate('/checkout', { state: { service, postcode, jobDescription, services: cart } });
     }
   };
 
@@ -892,79 +912,147 @@ const B2CBooking = () => {
           </div>
         )}
 
-        {/* Step 3: Available Services */}
+        {/* Step 3: Available Services - Cart + Summary layout */}
         {step === 3 && (
-          <div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', fontFamily: BRAND_FONT }}>
             {/* Header with search info */}
-            <div style={{ 
-              marginBottom: '2rem',
+            <div style={{
               display: 'flex',
-              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
               gap: '1rem'
             }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                flexWrap: 'wrap',
-                gap: '1rem'
-              }}>
-                <div>
-                  <h1 style={{
-                    fontSize: '2rem',
-                    fontWeight: '700',
-                    color: '#2001AF',
-                    marginBottom: '0.5rem'
-                  }}>
-                    {loading ? 'Loading services...' : `${availableServices.length} services found`}
-                  </h1>
-                  <p style={{ color: '#6b7280', margin: 0 }}>
-                    {jobDescription && (
-                      <>Searching for "<strong>{jobDescription}</strong>" in </>
-                    )}
-                    <strong>{postcode}</strong>
-                  </p>
-                </div>
-                
-                {/* Trust badges */}
+              <div>
+                <h1 style={{
+                  fontSize: '2rem',
+                  fontWeight: '700',
+                  color: '#2001AF',
+                  marginBottom: '0.5rem'
+                }}>
+                  {loading ? 'Loading services...' : `${availableServices.length} services found`}
+                </h1>
+                <p style={{ color: '#6b7280', margin: 0 }}>
+                  {jobDescription && (
+                    <>Searching for "<strong>{jobDescription}</strong>" in </>
+                  )}
+                  <strong>{postcode}</strong>
+                </p>
+              </div>
+              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
                 <div style={{
                   display: 'flex',
-                  gap: '1rem',
-                  flexWrap: 'wrap'
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  padding: '0.5rem 1rem',
+                  backgroundColor: '#ecfdf5',
+                  borderRadius: '2rem',
+                  fontSize: '0.875rem',
+                  color: '#059669',
+                  fontWeight: '500'
                 }}>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    padding: '0.5rem 1rem',
-                    backgroundColor: '#ecfdf5',
-                    borderRadius: '2rem',
-                    fontSize: '0.875rem',
-                    color: '#059669',
-                    fontWeight: '500'
-                  }}>
-                    <Shield size={16} />
-                    Fully Insured
-                  </div>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    padding: '0.5rem 1rem',
-                    backgroundColor: '#fef3c7',
-                    borderRadius: '2rem',
-                    fontSize: '0.875rem',
-                    color: '#d97706',
-                    fontWeight: '500'
-                  }}>
-                    <CheckCircle size={16} />
-                    Vetted Pros
-                  </div>
+                  <Shield size={16} />
+                  Fully Insured
+                </div>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  padding: '0.5rem 1rem',
+                  backgroundColor: '#fef3c7',
+                  borderRadius: '2rem',
+                  fontSize: '0.875rem',
+                  color: '#d97706',
+                  fontWeight: '500'
+                }}>
+                  <CheckCircle size={16} />
+                  Vetted Pros
                 </div>
               </div>
             </div>
 
-            {/* Services Grid */}
+            <div style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '2rem',
+              alignItems: 'start'
+            }}>
+              {/* Left: Your services (cart) + Other services grid */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', flex: '1', minWidth: '280px' }}>
+                {/* Your services - selected items */}
+                {cart.length > 0 && (
+                  <div style={{
+                    backgroundColor: 'white',
+                    borderRadius: '1rem',
+                    padding: '1.5rem',
+                    boxShadow: '0 4px 6px rgba(0,0,0,0.07)',
+                    border: '1px solid #e5e7eb',
+                    fontFamily: BRAND_FONT
+                  }}>
+                    <h2 style={{
+                      fontSize: '1.25rem',
+                      fontWeight: '700',
+                      color: '#111827',
+                      marginBottom: '1rem',
+                      fontFamily: BRAND_FONT
+                    }}>
+                      Your services
+                    </h2>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                      {cart.map(({ service, quantity }) => (
+                        <div
+                          key={service.id}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '1rem',
+                            padding: '0.75rem',
+                            backgroundColor: '#f9fafb',
+                            borderRadius: '0.5rem'
+                          }}
+                        >
+                          <img
+                            src={service.image}
+                            alt=""
+                            style={{ width: 56, height: 56, borderRadius: 8, objectFit: 'cover' }}
+                          />
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontWeight: '600', color: '#111827' }}>{service.title}</div>
+                            <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+                              {quantity} × £{(parseFloat(service.price) || 0).toFixed(2)} = £{((parseFloat(service.price) || 0) * quantity).toFixed(2)}
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => removeFromCart(service.id)}
+                            style={{
+                              padding: '0.5rem',
+                              border: 'none',
+                              background: 'transparent',
+                              color: '#6b7280',
+                              cursor: 'pointer',
+                              borderRadius: 8
+                            }}
+                            aria-label="Remove"
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Other services homeowners add */}
+                <h2 style={{
+                  fontSize: '1.25rem',
+                  fontWeight: '700',
+                  color: '#111827',
+                  marginBottom: '0.5rem',
+                  fontFamily: BRAND_FONT
+                }}>
+                  Other services homeowners add
+                </h2>
             {loading ? (
               <div style={{
                 display: 'flex',
@@ -986,41 +1074,31 @@ const B2CBooking = () => {
             ) : (
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
               gap: '1.5rem'
             }}>
               {availableServices.map((service) => {
                 const categoryColors = getCategoryColor(service.category);
-                
+                const added = isInCart(service.id);
                 return (
                   <div
                     key={service.id}
-                    onClick={() => handleServiceSelect(service)}
                     style={{
                       backgroundColor: 'white',
                       borderRadius: '1rem',
                       overflow: 'hidden',
                       boxShadow: '0 4px 6px rgba(0,0,0,0.07)',
-                      cursor: 'pointer',
                       transition: 'all 0.3s ease',
-                      border: '1px solid #e5e7eb'
-                    }}
-                    onMouseOver={(e) => {
-                      e.currentTarget.style.transform = 'translateY(-5px)';
-                      e.currentTarget.style.boxShadow = '0 20px 40px rgba(32, 1, 175, 0.15)';
-                      e.currentTarget.style.borderColor = '#2001AF';
-                    }}
-                    onMouseOut={(e) => {
-                      e.currentTarget.style.transform = 'translateY(0)';
-                      e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.07)';
-                      e.currentTarget.style.borderColor = '#e5e7eb';
+                      border: '1px solid #e5e7eb',
+                      display: 'flex',
+                      flexDirection: 'column'
                     }}
                   >
                     {/* Header with category badge and price - No image */}
                     <div style={{
                       width: '100%',
                       height: '100px',
-                      background: 'linear-gradient(135deg, #2001AF 0%, #4F46E5 50%, #7C3AED 100%)',
+                      background: 'linear-gradient(135deg, #2001AF 0%, #1a0199 100%)',
                       overflow: 'hidden',
                       position: 'relative',
                       display: 'flex',
@@ -1045,7 +1123,8 @@ const B2CBooking = () => {
                         borderRadius: '2rem',
                         fontSize: '0.75rem',
                         fontWeight: '600',
-                        border: `1px solid ${categoryColors.border}`
+                        border: `1px solid ${categoryColors.border}`,
+                        fontFamily: BRAND_FONT
                       }}>
                         {service.category}
                       </div>
@@ -1060,7 +1139,8 @@ const B2CBooking = () => {
                         borderRadius: '0.5rem',
                         fontSize: '1.125rem',
                         fontWeight: '700',
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                        fontFamily: BRAND_FONT
                       }}>
                         {service.priceType === 'from' && <span style={{ fontSize: '0.75rem', fontWeight: '400' }}>From </span>}
                         £{typeof service.price === 'number' ? service.price.toFixed(2) : parseFloat(service.price || 0).toFixed(2)}
@@ -1075,7 +1155,8 @@ const B2CBooking = () => {
                         fontWeight: '700',
                         color: '#111827',
                         margin: '0 0 0.5rem 0',
-                        lineHeight: '1.3'
+                        lineHeight: '1.3',
+                        fontFamily: BRAND_FONT
                       }}>
                         {service.title}
                       </h3>
@@ -1089,7 +1170,8 @@ const B2CBooking = () => {
                         display: '-webkit-box',
                         WebkitLineClamp: 2,
                         WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden'
+                        overflow: 'hidden',
+                        fontFamily: BRAND_FONT
                       }}>
                         {service.description}
                       </p>
@@ -1097,10 +1179,11 @@ const B2CBooking = () => {
                       {/* Ideal For */}
                       {service.idealFor && (
                         <p style={{
-                          color: '#059669',
+                          color: '#E94A02',
                           fontSize: '0.8rem',
                           marginBottom: '0.75rem',
-                          fontStyle: 'italic'
+                          fontStyle: 'italic',
+                          fontFamily: BRAND_FONT
                         }}>
                           ✓ Ideal for: {service.idealFor}
                         </p>
@@ -1109,12 +1192,13 @@ const B2CBooking = () => {
                       {/* Notes */}
                       {service.notes && (
                         <p style={{
-                          color: '#9ca3af',
+                          color: '#6b7280',
                           fontSize: '0.75rem',
                           marginBottom: '0.75rem',
                           padding: '0.5rem',
                           backgroundColor: '#f9fafb',
-                          borderRadius: '0.25rem'
+                          borderRadius: '0.25rem',
+                          fontFamily: BRAND_FONT
                         }}>
                           ℹ️ {service.notes}
                         </p>
@@ -1160,34 +1244,50 @@ const B2CBooking = () => {
                         )}
                       </div>
 
-                      {/* CTA Button */}
-                      <button style={{
-                        width: '100%',
-                        backgroundColor: '#2001AF',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '0.5rem',
-                        padding: '0.875rem',
-                        fontSize: '0.95rem',
-                        fontWeight: '600',
-                        cursor: 'pointer',
-                        transition: 'all 0.3s ease',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '0.5rem'
-                      }}
-                      onMouseOver={(e) => {
-                        e.target.style.backgroundColor = '#1a0199';
-                        e.target.style.transform = 'scale(1.02)';
-                      }}
-                      onMouseOut={(e) => {
-                        e.target.style.backgroundColor = '#2001AF';
-                        e.target.style.transform = 'scale(1)';
-                      }}
+                      {/* Add to booking / Task added */}
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); addToCart(service); }}
+                        style={{
+                          width: '100%',
+                          backgroundColor: isInCart(service.id) ? '#E94A02' : '#2001AF',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '0.5rem',
+                          padding: '0.875rem',
+                          fontSize: '0.95rem',
+                          fontWeight: '600',
+                          cursor: isInCart(service.id) ? 'default' : 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '0.5rem',
+                          fontFamily: BRAND_FONT
+                        }}
+                        onMouseOver={(e) => {
+                          if (!isInCart(service.id)) {
+                            e.target.style.backgroundColor = '#1a0199';
+                            e.target.style.transform = 'scale(1.02)';
+                          }
+                        }}
+                        onMouseOut={(e) => {
+                          if (!isInCart(service.id)) {
+                            e.target.style.backgroundColor = '#2001AF';
+                            e.target.style.transform = 'scale(1)';
+                          }
+                        }}
                       >
-                        Book Now
-                        <ArrowLeft size={16} style={{ transform: 'rotate(180deg)' }} />
+                        {isInCart(service.id) ? (
+                          <>
+                            <Check size={18} />
+                            Task added
+                          </>
+                        ) : (
+                          <>
+                            Add to booking
+                            <ArrowLeft size={16} style={{ transform: 'rotate(180deg)' }} />
+                          </>
+                        )}
                       </button>
                     </div>
                   </div>
@@ -1196,37 +1296,154 @@ const B2CBooking = () => {
             </div>
             )}
 
-            {/* No results message */}
-            {!loading && availableServices.length === 0 && (
+                {/* No results - inside left column */}
+                {!loading && availableServices.length === 0 && (
+                  <div style={{
+                    textAlign: 'center',
+                    padding: '3rem 2rem',
+                    backgroundColor: 'white',
+                    borderRadius: '1rem',
+                    boxShadow: '0 4px 6px rgba(0,0,0,0.05)',
+                    border: '1px solid #e5e7eb'
+                  }}>
+                    <Search size={48} style={{ color: '#9ca3af', marginBottom: '1rem' }} />
+                    <h3 style={{ color: '#374151', marginBottom: '0.5rem' }}>No services found</h3>
+                    <p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
+                      Try searching with different keywords or browse our categories
+                    </p>
+                    <button
+                      onClick={() => setStep(1)}
+                      style={{
+                        backgroundColor: '#2001AF',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '0.5rem',
+                        padding: '0.75rem 1.5rem',
+                        fontSize: '1rem',
+                        fontWeight: '600',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Try Again
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Right: Your summary (sticky) */}
               <div style={{
-                textAlign: 'center',
-                padding: '4rem 2rem',
+                position: 'sticky',
+                top: '1.5rem',
+                width: '100%',
+                maxWidth: '380px',
+                minWidth: '280px',
                 backgroundColor: 'white',
                 borderRadius: '1rem',
-                boxShadow: '0 4px 6px rgba(0,0,0,0.05)'
+                padding: '1.5rem',
+                boxShadow: '0 4px 6px rgba(0,0,0,0.07)',
+                border: '1px solid #e5e7eb',
+                alignSelf: 'start',
+                fontFamily: BRAND_FONT
               }}>
-                <Search size={48} style={{ color: '#9ca3af', marginBottom: '1rem' }} />
-                <h3 style={{ color: '#374151', marginBottom: '0.5rem' }}>No services found</h3>
-                <p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
-                  Try searching with different keywords or browse our categories
-                </p>
-                <button
-                  onClick={() => setStep(1)}
-                  style={{
-                    backgroundColor: '#2001AF',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '0.5rem',
-                    padding: '0.75rem 1.5rem',
-                    fontSize: '1rem',
-                    fontWeight: '600',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Try Again
-                </button>
+                <h2 style={{
+                  fontSize: '1.25rem',
+                  fontWeight: '700',
+                  color: '#111827',
+                  marginBottom: '1rem',
+                  fontFamily: BRAND_FONT
+                }}>
+                  Your summary
+                </h2>
+                {cart.length === 0 ? (
+                  <p style={{ color: '#6b7280', fontSize: '0.9375rem', margin: 0 }}>
+                    Add services from the list to see your total.
+                  </p>
+                ) : (
+                  <>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1rem' }}>
+                      {cart.map(({ service, quantity }) => {
+                        const lineTotal = (parseFloat(service.price) || 0) * quantity;
+                        return (
+                          <div
+                            key={service.id}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              gap: '0.5rem',
+                              fontSize: '0.9375rem'
+                            }}
+                          >
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <span style={{ color: '#111827' }}>{quantity}× {service.title}</span>
+                              <span style={{ color: '#6b7280', fontWeight: '600' }}> £{lineTotal.toFixed(2)}</span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => removeFromCart(service.id)}
+                              style={{
+                                padding: '0.25rem',
+                                border: 'none',
+                                background: 'transparent',
+                                color: '#9ca3af',
+                                cursor: 'pointer'
+                              }}
+                              aria-label="Remove"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9375rem', color: '#6b7280' }}>
+                        <span>Subtotal</span>
+                        <span>£{cartSubtotal.toFixed(2)}</span>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9375rem', color: '#6b7280' }}>
+                        <span>Booking fee</span>
+                        <span>£{BOOKING_FEE.toFixed(2)}</span>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.125rem', fontWeight: '700', color: '#2001AF', marginTop: '0.5rem', fontFamily: BRAND_FONT }}>
+                        <span>Total</span>
+                        <span>£{cartTotal.toFixed(2)}</span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleContinueToCheckout}
+                      style={{
+                        width: '100%',
+                        marginTop: '1.25rem',
+                        backgroundColor: '#E94A02',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '0.5rem',
+                        padding: '1rem 1.5rem',
+                        fontSize: '1rem',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.5rem',
+                        fontFamily: BRAND_FONT
+                      }}
+                      onMouseOver={(e) => {
+                        e.target.style.backgroundColor = '#d13d00';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.backgroundColor = '#E94A02';
+                      }}
+                    >
+                      Continue to Checkout
+                      <ArrowLeft size={18} style={{ transform: 'rotate(180deg)' }} />
+                    </button>
+                  </>
+                )}
               </div>
-            )}
+            </div>
           </div>
         )}
       </div>
