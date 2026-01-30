@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, MapPin, Search, CheckCircle, Clock, Shield, Star, Trash2, Check } from 'lucide-react';
+import { ArrowLeft, MapPin, Search, CheckCircle, Clock, Shield, Trash2, Check } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { supabase } from '../lib/supabase';
 import { matchServicesWithAI, normalizeServiceQuery } from '../lib/openai';
@@ -971,22 +971,25 @@ const B2CBooking = () => {
               </div>
             </div>
 
-            <div style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: '2rem',
-              alignItems: 'start'
-            }}>
+            <div
+              className="booking-step3-layout"
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: '2rem',
+                alignItems: 'start'
+              }}
+            >
               {/* Left: Your services (cart) + Other services grid */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', flex: '1', minWidth: '280px' }}>
+              <div className={`booking-step3-content${cart.length > 0 ? ' booking-step3-content-has-summary' : ''}`} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', flex: '1', minWidth: '280px' }}>
                 {/* Your services - selected items */}
                 {cart.length > 0 && (
                   <div style={{
                     backgroundColor: 'white',
-                    borderRadius: '1rem',
-                    padding: '1.5rem',
-                    boxShadow: '0 4px 6px rgba(0,0,0,0.07)',
-                    border: '1px solid #e5e7eb',
+                    borderRadius: '0.75rem',
+                    padding: '1.25rem',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+                    border: '1px solid #f3f4f6',
                     fontFamily: BRAND_FONT
                   }}>
                     <h2 style={{
@@ -1074,8 +1077,8 @@ const B2CBooking = () => {
             ) : (
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-              gap: '1.5rem'
+              gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+              gap: '1.25rem'
             }}>
               {availableServices.map((service) => {
                 const categoryColors = getCategoryColor(service.category);
@@ -1085,88 +1088,66 @@ const B2CBooking = () => {
                     key={service.id}
                     style={{
                       backgroundColor: 'white',
-                      borderRadius: '1rem',
+                      borderRadius: '0.75rem',
                       overflow: 'hidden',
-                      boxShadow: '0 4px 6px rgba(0,0,0,0.07)',
-                      transition: 'all 0.3s ease',
-                      border: '1px solid #e5e7eb',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+                      transition: 'box-shadow 0.2s ease',
+                      border: '1px solid #f3f4f6',
                       display: 'flex',
-                      flexDirection: 'column'
+                      flexDirection: 'column',
+                      fontFamily: BRAND_FONT
                     }}
                   >
-                    {/* Header with category badge and price - No image */}
+                    {/* Minimal header: category + price on one line */}
                     <div style={{
-                      width: '100%',
-                      height: '100px',
-                      background: 'linear-gradient(135deg, #2001AF 0%, #1a0199 100%)',
-                      overflow: 'hidden',
-                      position: 'relative',
                       display: 'flex',
                       alignItems: 'center',
-                      justifyContent: 'center'
+                      justifyContent: 'space-between',
+                      gap: '0.5rem',
+                      padding: '1rem 1.25rem 0',
+                      flexWrap: 'wrap'
                     }}>
-                      {/* Decorative pattern */}
-                      <div style={{
-                        position: 'absolute',
-                        inset: 0,
-                        opacity: 0.1,
-                        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-                      }} />
-                      {/* Category Badge */}
-                      <div style={{
-                        position: 'absolute',
-                        top: '0.75rem',
-                        left: '0.75rem',
-                        padding: '0.35rem 0.75rem',
+                      <span style={{
+                        padding: '0.25rem 0.6rem',
                         backgroundColor: categoryColors.bg,
                         color: categoryColors.text,
-                        borderRadius: '2rem',
+                        borderRadius: '1rem',
                         fontSize: '0.75rem',
                         fontWeight: '600',
                         border: `1px solid ${categoryColors.border}`,
                         fontFamily: BRAND_FONT
                       }}>
                         {service.category}
-                      </div>
-                      {/* Price Badge */}
-                      <div style={{
-                        position: 'absolute',
-                        bottom: '0.75rem',
-                        right: '0.75rem',
-                        padding: '0.5rem 1rem',
-                        backgroundColor: 'white',
-                        color: '#2001AF',
-                        borderRadius: '0.5rem',
+                      </span>
+                      <span style={{
                         fontSize: '1.125rem',
                         fontWeight: '700',
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                        color: '#2001AF',
                         fontFamily: BRAND_FONT
                       }}>
                         {service.priceType === 'from' && <span style={{ fontSize: '0.75rem', fontWeight: '400' }}>From </span>}
                         £{typeof service.price === 'number' ? service.price.toFixed(2) : parseFloat(service.price || 0).toFixed(2)}
-                      </div>
+                      </span>
                     </div>
 
                     {/* Content */}
-                    <div style={{ padding: '1.25rem' }}>
-                      {/* Title */}
+                    <div style={{ padding: '1rem 1.25rem 1.25rem' }}>
                       <h3 style={{
-                        fontSize: '1.125rem',
+                        fontSize: '1.0625rem',
                         fontWeight: '700',
                         color: '#111827',
                         margin: '0 0 0.5rem 0',
-                        lineHeight: '1.3',
+                        lineHeight: '1.35',
                         fontFamily: BRAND_FONT
                       }}>
                         {service.title}
                       </h3>
 
-                      {/* Description */}
                       <p style={{
                         color: '#6b7280',
-                        fontSize: '0.875rem',
-                        lineHeight: '1.5',
-                        marginBottom: '0.75rem',
+                        fontSize: '0.8125rem',
+                        lineHeight: '1.45',
+                        marginBottom: '1rem',
                         display: '-webkit-box',
                         WebkitLineClamp: 2,
                         WebkitBoxOrient: 'vertical',
@@ -1175,74 +1156,6 @@ const B2CBooking = () => {
                       }}>
                         {service.description}
                       </p>
-
-                      {/* Ideal For */}
-                      {service.idealFor && (
-                        <p style={{
-                          color: '#E94A02',
-                          fontSize: '0.8rem',
-                          marginBottom: '0.75rem',
-                          fontStyle: 'italic',
-                          fontFamily: BRAND_FONT
-                        }}>
-                          ✓ Ideal for: {service.idealFor}
-                        </p>
-                      )}
-
-                      {/* Notes */}
-                      {service.notes && (
-                        <p style={{
-                          color: '#6b7280',
-                          fontSize: '0.75rem',
-                          marginBottom: '0.75rem',
-                          padding: '0.5rem',
-                          backgroundColor: '#f9fafb',
-                          borderRadius: '0.25rem',
-                          fontFamily: BRAND_FONT
-                        }}>
-                          ℹ️ {service.notes}
-                        </p>
-                      )}
-
-                      {/* Stats row */}
-                      <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        paddingTop: '0.75rem',
-                        borderTop: '1px solid #f3f4f6',
-                        marginBottom: '1rem'
-                      }}>
-                        <div style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.25rem'
-                        }}>
-                          <Star size={14} style={{ color: '#fbbf24', fill: '#fbbf24' }} />
-                          <span style={{
-                            color: '#111827',
-                            fontWeight: '600',
-                            fontSize: '0.875rem'
-                          }}>
-                            {service.rating.toFixed(1)}
-                          </span>
-                          <span style={{
-                            color: '#9ca3af',
-                            fontSize: '0.8rem'
-                          }}>
-                            ({service.reviews} reviews)
-                          </span>
-                        </div>
-                        {service.priceUnit && (
-                          <span style={{
-                            color: '#6b7280',
-                            fontSize: '0.8rem',
-                            fontWeight: '500'
-                          }}>
-                            {service.priceUnit}
-                          </span>
-                        )}
-                      </div>
 
                       {/* Add to booking / Task added */}
                       <button
@@ -1330,119 +1243,117 @@ const B2CBooking = () => {
                 )}
               </div>
 
-              {/* Right: Your summary (sticky) */}
-              <div style={{
-                position: 'sticky',
-                top: '1.5rem',
-                width: '100%',
-                maxWidth: '380px',
-                minWidth: '280px',
-                backgroundColor: 'white',
-                borderRadius: '1rem',
-                padding: '1.5rem',
-                boxShadow: '0 4px 6px rgba(0,0,0,0.07)',
-                border: '1px solid #e5e7eb',
-                alignSelf: 'start',
-                fontFamily: BRAND_FONT
-              }}>
+              {/* Right: Your summary (sticky; fixed at bottom on mobile) – only when cart has items */}
+              {cart.length > 0 && (
+              <div
+                className="booking-summary-box"
+                style={{
+                  position: 'sticky',
+                  top: '1.5rem',
+                  width: '100%',
+                  maxWidth: '380px',
+                  minWidth: '280px',
+                  backgroundColor: 'white',
+                  borderRadius: '0.75rem',
+                  padding: '1rem 1.25rem',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                  border: '1px solid #f3f4f6',
+                  alignSelf: 'start',
+                  fontFamily: BRAND_FONT
+                }}
+              >
                 <h2 style={{
-                  fontSize: '1.25rem',
+                  fontSize: '0.9375rem',
                   fontWeight: '700',
                   color: '#111827',
-                  marginBottom: '1rem',
+                  marginBottom: '0.5rem',
                   fontFamily: BRAND_FONT
                 }}>
                   Your summary
                 </h2>
-                {cart.length === 0 ? (
-                  <p style={{ color: '#6b7280', fontSize: '0.9375rem', margin: 0 }}>
-                    Add services from the list to see your total.
-                  </p>
-                ) : (
-                  <>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1rem' }}>
-                      {cart.map(({ service, quantity }) => {
-                        const lineTotal = (parseFloat(service.price) || 0) * quantity;
-                        return (
-                          <div
-                            key={service.id}
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'space-between',
-                              gap: '0.5rem',
-                              fontSize: '0.9375rem'
-                            }}
-                          >
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <span style={{ color: '#111827' }}>{quantity}× {service.title}</span>
-                              <span style={{ color: '#6b7280', fontWeight: '600' }}> £{lineTotal.toFixed(2)}</span>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => removeFromCart(service.id)}
-                              style={{
-                                padding: '0.25rem',
-                                border: 'none',
-                                background: 'transparent',
-                                color: '#9ca3af',
-                                cursor: 'pointer'
-                              }}
-                              aria-label="Remove"
-                            >
-                              <Trash2 size={16} />
-                            </button>
-                          </div>
-                        );
-                      })}
-                    </div>
-                    <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9375rem', color: '#6b7280' }}>
-                        <span>Subtotal</span>
-                        <span>£{cartSubtotal.toFixed(2)}</span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem', marginBottom: '0.5rem' }}>
+                  {cart.map(({ service, quantity }) => {
+                    const lineTotal = (parseFloat(service.price) || 0) * quantity;
+                    return (
+                      <div
+                        key={service.id}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          gap: '0.375rem',
+                          fontSize: '0.8125rem'
+                        }}
+                      >
+                        <div style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          <span style={{ color: '#111827' }}>{quantity}× {service.title}</span>
+                          <span style={{ color: '#6b7280', fontWeight: '600', marginLeft: '0.25rem' }}>£{lineTotal.toFixed(2)}</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeFromCart(service.id)}
+                          style={{
+                            padding: '0.2rem',
+                            border: 'none',
+                            background: 'transparent',
+                            color: '#9ca3af',
+                            cursor: 'pointer',
+                            flexShrink: 0
+                          }}
+                          aria-label="Remove"
+                        >
+                          <Trash2 size={14} />
+                        </button>
                       </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9375rem', color: '#6b7280' }}>
-                        <span>Booking fee</span>
-                        <span>£{BOOKING_FEE.toFixed(2)}</span>
-                      </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.125rem', fontWeight: '700', color: '#2001AF', marginTop: '0.5rem', fontFamily: BRAND_FONT }}>
-                        <span>Total</span>
-                        <span>£{cartTotal.toFixed(2)}</span>
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={handleContinueToCheckout}
-                      style={{
-                        width: '100%',
-                        marginTop: '1.25rem',
-                        backgroundColor: '#E94A02',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '0.5rem',
-                        padding: '1rem 1.5rem',
-                        fontSize: '1rem',
-                        fontWeight: '600',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '0.5rem',
-                        fontFamily: BRAND_FONT
-                      }}
-                      onMouseOver={(e) => {
-                        e.target.style.backgroundColor = '#d13d00';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.target.style.backgroundColor = '#E94A02';
-                      }}
-                    >
-                      Continue to Checkout
-                      <ArrowLeft size={18} style={{ transform: 'rotate(180deg)' }} />
-                    </button>
-                  </>
-                )}
+                    );
+                  })}
+                </div>
+                <div style={{ borderTop: '1px solid #f3f4f6', paddingTop: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8125rem', color: '#6b7280' }}>
+                    <span>Subtotal</span>
+                    <span>£{cartSubtotal.toFixed(2)}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8125rem', color: '#6b7280' }}>
+                    <span>Booking fee</span>
+                    <span>£{BOOKING_FEE.toFixed(2)}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '1rem', fontWeight: '700', color: '#2001AF', marginTop: '0.25rem', fontFamily: BRAND_FONT }}>
+                    <span>Total</span>
+                    <span>£{cartTotal.toFixed(2)}</span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleContinueToCheckout}
+                  style={{
+                    width: '100%',
+                    marginTop: '0.75rem',
+                    backgroundColor: '#E94A02',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '0.5rem',
+                    padding: '0.75rem 1rem',
+                    fontSize: '0.9375rem',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.375rem',
+                    fontFamily: BRAND_FONT
+                  }}
+                  onMouseOver={(e) => {
+                    e.target.style.backgroundColor = '#d13d00';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = '#E94A02';
+                  }}
+                >
+                  Continue to Checkout
+                  <ArrowLeft size={16} style={{ transform: 'rotate(180deg)' }} />
+                </button>
               </div>
+              )}
             </div>
           </div>
         )}

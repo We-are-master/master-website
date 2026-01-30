@@ -83,6 +83,9 @@ jspm_packages/
 # DynamoDB Local files
 .dynamodb/
 
+# Email template previews (local only, do not push)
+public/email-templates/
+
 # Documentation and SQL files
 *.md
 *.sql
