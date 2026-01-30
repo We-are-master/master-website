@@ -57,13 +57,37 @@ body {
   }
 }
 
-/* B2C Booking step 3: sticky summary at bottom on mobile (only when cart has items) */
+/* B2C Booking step 3: responsive layout and sticky summary on mobile */
+.booking-step3-wrap {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+.booking-step3-layout {
+  max-width: 100%;
+  min-width: 0;
+}
+.booking-step3-content {
+  min-width: 0 !important; /* allow shrink on narrow viewports */
+}
+.booking-step3-services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
 @media (max-width: 768px) {
   .booking-step3-layout {
     flex-direction: column !important;
+    gap: 1rem !important;
   }
   .booking-step3-content.booking-step3-content-has-summary {
     padding-bottom: 240px !important; /* space for fixed summary + CTA (compact) */
+  }
+  .booking-step3-services-grid {
+    grid-template-columns: 1fr !important; /* single column, no min 280px overflow */
+    gap: 1rem !important;
+  }
+  .booking-step3-title {
+    font-size: 1.375rem !important;
   }
   .booking-summary-box {
     position: fixed !important;
@@ -81,6 +105,11 @@ body {
     box-shadow: 0 -4px 20px rgba(0,0,0,0.08) !important;
     z-index: 100;
     padding-bottom: env(safe-area-inset-bottom, 1rem) !important;
+  }
+}
+@media (max-width: 480px) {
+  .booking-step3-title {
+    font-size: 1.25rem !important;
   }
 }
 

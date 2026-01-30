@@ -914,7 +914,7 @@ const B2CBooking = () => {
 
         {/* Step 3: Available Services - Cart + Summary layout */}
         {step === 3 && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', fontFamily: BRAND_FONT }}>
+          <div className="booking-step3-wrap" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', fontFamily: BRAND_FONT, width: '100%', minWidth: 0 }}>
             {/* Header with search info */}
             <div style={{
               display: 'flex',
@@ -924,7 +924,7 @@ const B2CBooking = () => {
               gap: '1rem'
             }}>
               <div>
-                <h1 style={{
+                <h1 className="booking-step3-title" style={{
                   fontSize: '2rem',
                   fontWeight: '700',
                   color: '#2001AF',
@@ -981,7 +981,7 @@ const B2CBooking = () => {
               }}
             >
               {/* Left: Your services (cart) + Other services grid */}
-              <div className={`booking-step3-content${cart.length > 0 ? ' booking-step3-content-has-summary' : ''}`} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', flex: '1', minWidth: '280px' }}>
+              <div className={`booking-step3-content${cart.length > 0 ? ' booking-step3-content-has-summary' : ''}`} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', flex: '1' }}>
                 {/* Your services - selected items */}
                 {cart.length > 0 && (
                   <div style={{
@@ -1075,11 +1075,7 @@ const B2CBooking = () => {
                 <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
               </div>
             ) : (
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-              gap: '1.25rem'
-            }}>
+            <div className="booking-step3-services-grid">
               {availableServices.map((service) => {
                 const categoryColors = getCategoryColor(service.category);
                 const added = isInCart(service.id);
@@ -1252,7 +1248,7 @@ const B2CBooking = () => {
                   top: '1.5rem',
                   width: '100%',
                   maxWidth: '380px',
-                  minWidth: '280px',
+                  minWidth: 0,
                   backgroundColor: 'white',
                   borderRadius: '0.75rem',
                   padding: '1rem 1.25rem',

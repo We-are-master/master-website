@@ -510,9 +510,7 @@ const B2CCheckout = () => {
       setClientSecret(paymentData.clientSecret);
       
       setTimeout(() => {
-        if (paymentSectionRef.current) {
-          paymentSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }, 100);
     } catch (err) {
       console.error('[Checkout] Payment intent creation error:', err);
@@ -697,9 +695,7 @@ const B2CCheckout = () => {
     if (formValid && !hasScrolledToPayment && !clientSecret) {
       setHasScrolledToPayment(true);
       setTimeout(() => {
-        if (paymentSectionRef.current) {
-          paymentSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }, 300);
     }
     if (!formValid && hasScrolledToPayment) {
