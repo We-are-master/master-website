@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, ArrowRight, Sparkles } from 'lucide-react';
+import { Search, ArrowRight, Sparkles, MapPin } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -9,9 +9,19 @@ if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
 
+// UK postcode validation (lenient)
+const isValidUKPostcode = (value) => {
+  const trimmed = (value || '').trim().toUpperCase().replace(/\s+/g, ' ');
+  const match = trimmed.match(/[A-Z]{1,2}[0-9]{1,2}[A-Z]?\s?[0-9][A-Z]{2}/i);
+  return match && match[0].length >= 5;
+};
+
 const HeroB2C = () => {
   const navigate = useNavigate();
+  const [heroStep, setHeroStep] = useState('service'); // 'service' | 'postcode'
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedService, setSelectedService] = useState('');
+  const [postcodeError, setPostcodeError] = useState('');
   const [currentServiceIndex, setCurrentServiceIndex] = useState(0);
   const [displayedText, setDisplayedText] = useState('');
   const [isTyping, setIsTyping] = useState(true);
@@ -200,28 +210,51 @@ const HeroB2C = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    if (searchTerm.trim()) {
-      // Animate button click
-      gsap.to(e.target, {
-        scale: 0.95,
-        duration: 0.1,
-        yoyo: true,
-        repeat: 1,
-        ease: 'power2.inOut',
-        onComplete: () => {
-          // Check if search term is cleaning-related
-          const searchLower = searchTerm.toLowerCase();
-          const isCleaning = searchLower.includes('cleaning') || searchLower.includes('clean') || 
-                            searchLower.includes('deep clean') || searchLower.includes('end of tenancy') ||
-                            searchLower.includes('upholstery');
-          if (isCleaning) {
-            navigate('/cleaning-booking', { state: { jobDescription: searchTerm } });
-          } else {
-            navigate('/booking', { state: { service: searchTerm } });
+    if (heroStep === 'service') {
+      if (searchTerm.trim()) {
+        gsap.to(e.target, {
+          scale: 0.95,
+          duration: 0.1,
+          yoyo: true,
+          repeat: 1,
+          ease: 'power2.inOut',
+          onComplete: () => {
+            setSelectedService(searchTerm.trim());
+            setSearchTerm('');
+            setHeroStep('postcode');
           }
-        }
-      });
+        });
+      }
+      return;
     }
+    // heroStep === 'postcode'
+    const postcodeRaw = searchTerm.trim();
+    if (!postcodeRaw) return;
+    const postcodeMatch = postcodeRaw.toUpperCase().replace(/\s+/g, ' ').match(/[A-Z]{1,2}[0-9]{1,2}[A-Z]?\s?[0-9][A-Z]{2}/i);
+    const postcode = postcodeMatch ? postcodeMatch[0].trim() : postcodeRaw.toUpperCase().replace(/[^A-Z0-9\s]/g, '').trim();
+    if (!isValidUKPostcode(postcode)) {
+      setPostcodeError('Please enter a valid UK postcode (e.g. SW1A 1AA, M1 1AA)');
+      return;
+    }
+    setPostcodeError('');
+    gsap.to(e.target, {
+      scale: 0.95,
+      duration: 0.1,
+      yoyo: true,
+      repeat: 1,
+      ease: 'power2.inOut',
+      onComplete: () => {
+        const searchLower = selectedService.toLowerCase();
+        const isCleaning = searchLower.includes('cleaning') || searchLower.includes('clean') ||
+          searchLower.includes('deep clean') || searchLower.includes('end of tenancy') ||
+          searchLower.includes('upholstery');
+        if (isCleaning) {
+          navigate('/cleaning-booking', { state: { jobDescription: selectedService, postcode } });
+        } else {
+          navigate('/booking', { state: { service: selectedService, postcode } });
+        }
+      }
+    });
   };
 
   return (
@@ -403,7 +436,7 @@ const HeroB2C = () => {
                 padding: '0 1.25rem',
                 color: 'rgba(255, 255, 255, 0.5)'
               }}>
-                <Search size={20} />
+                {heroStep === 'service' ? <Search size={20} /> : <MapPin size={20} />}
               </div>
               <div style={{
                 flex: 1,
@@ -418,7 +451,7 @@ const HeroB2C = () => {
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder=""
+                  placeholder={heroStep === 'postcode' ? 'e.g. SW1A 1AA, M1 1AA' : ''}
                   style={{
                     width: '100%',
                     border: 'none',
@@ -433,8 +466,8 @@ const HeroB2C = () => {
                     minWidth: 0
                   }}
                 />
-                {/* AI Typing Placeholder */}
-                {!searchTerm && (
+                {/* AI Typing Placeholder (only when service step and empty) */}
+                {heroStep === 'service' && !searchTerm && (
                   <div style={{
                     position: 'absolute',
                     left: '0.5rem',
@@ -598,11 +631,48 @@ const HeroB2C = () => {
                   });
                 }}
               >
-                <span>Get instant price</span>
+                <span>{heroStep === 'service' ? 'Continue' : 'Get instant price'}</span>
                 <ArrowRight size={18} />
               </button>
             </div>
+            {postcodeError && (
+              <p style={{ color: '#f87171', fontSize: '0.875rem', marginTop: '0.5rem', marginBottom: 0 }}>
+                {postcodeError}
+              </p>
+            )}
           </form>
+
+          {/* Postcode step: show selected service + change link */}
+          {heroStep === 'postcode' && (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.5rem',
+              flexWrap: 'wrap',
+              marginTop: '-1rem',
+              marginBottom: '1rem'
+            }}>
+              <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>
+                Service: <strong style={{ color: '#E94A02' }}>{selectedService}</strong>
+              </span>
+              <button
+                type="button"
+                onClick={() => { setHeroStep('service'); setSearchTerm(''); setSelectedService(''); setPostcodeError(''); }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'rgba(255,255,255,0.7)',
+                  fontSize: '0.875rem',
+                  textDecoration: 'underline',
+                  cursor: 'pointer',
+                  padding: 0
+                }}
+              >
+                Change service
+              </button>
+            </div>
+          )}
 
           {/* Trust Indicators */}
           <div 

@@ -122,24 +122,96 @@ const B2CBooking = () => {
   const navigate = useNavigate();
   const location = useLocation();
   // If service is provided, start at step 2 (postcode), otherwise start at step 1 (description)
-  const [step, setStep] = useState(location.state?.service ? 2 : 1);
-  const [jobDescription, setJobDescription] = useState('');
-  const [postcode, setPostcode] = useState('');
+  // When both service and postcode come from home, go straight to step 3 (services list)
+  const hasServiceAndPostcodeFromState = !!(location.state?.service && location.state?.postcode);
+  const [step, setStep] = useState(hasServiceAndPostcodeFromState ? 3 : (location.state?.service ? 2 : 1));
+  const [jobDescription, setJobDescription] = useState(location.state?.service || '');
+  const [postcode, setPostcode] = useState(location.state?.postcode || '');
   const [availableServices, setAvailableServices] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(hasServiceAndPostcodeFromState);
   const [selectedService, setSelectedService] = useState(null);
   const [isGoogleLoaded, setIsGoogleLoaded] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const postcodeInputRef = useRef(null);
 
-  // Initialize with service from navigation if available
+  // When arriving from home with both service + postcode: load services and show step 3 (no postcode step)
   useEffect(() => {
-    if (location.state?.service) {
-      setJobDescription(location.state.service);
-      // If service is provided, skip description step and go to postcode
-      setStep(2);
-    }
-  }, [location.state]);
+    const serviceFromState = location.state?.service;
+    const postcodeFromState = location.state?.postcode;
+    if (!serviceFromState || !postcodeFromState) return;
+
+    setJobDescription(serviceFromState);
+    setPostcode(postcodeFromState);
+    setLoading(true);
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const allServices = await getServices();
+        let servicesFromDB = allServices;
+        const jobDesc = String(serviceFromState).trim();
+
+        if (jobDesc) {
+          const normalizedQuery = normalizeServiceQuery(jobDesc);
+          const originalQuery = jobDesc.toLowerCase();
+          try {
+            const aiMatched = await matchServicesWithAI(originalQuery, allServices);
+            if (aiMatched && aiMatched.length > 0) {
+              servicesFromDB = aiMatched;
+            } else {
+              let dbSearch = await searchServices(originalQuery);
+              if ((!dbSearch || dbSearch.length === 0) && normalizedQuery !== originalQuery) {
+                dbSearch = await searchServices(normalizedQuery);
+              }
+              servicesFromDB = dbSearch && dbSearch.length > 0 ? dbSearch : allServices;
+            }
+          } catch {
+            let dbSearch = await searchServices(originalQuery);
+            if ((!dbSearch || dbSearch.length === 0) && normalizedQuery !== originalQuery) {
+              dbSearch = await searchServices(normalizedQuery);
+            }
+            servicesFromDB = dbSearch && dbSearch.length > 0 ? dbSearch : allServices;
+          }
+        }
+
+        const transformedServices = servicesFromDB.map(service => {
+          const price = service.price
+            ? parseFloat(service.price)
+            : (service.master_price ? parseFloat(service.master_price) : 0);
+          const serviceName = service.service || service.service_name || 'Service';
+          return {
+            id: service.id,
+            title: serviceName,
+            description: service.description || 'Professional service',
+            price,
+            priceType: service.price_type || 'fixed',
+            priceUnit: service.price_unit || service.unit || '',
+            idealFor: service.ideal_for || '',
+            notes: service.notes || '',
+            duration: service.duration_estimate || service.duration || '1-2 hours',
+            rating: 4.8 + (Math.random() * 0.2),
+            reviews: Math.floor(Math.random() * 500) + 200,
+            image: getServiceImage(service),
+            category: service.category,
+            keywords: service.keywords || [],
+            originalService: service
+          };
+        });
+
+        if (!cancelled) {
+          setAvailableServices(transformedServices.length === 0 ? mockServices : transformedServices);
+        }
+      } catch {
+        if (!cancelled) setAvailableServices(mockServices);
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+          setStep(3);
+        }
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [location.state?.service, location.state?.postcode]);
 
   // Load Google Maps script dynamically
   useEffect(() => {
@@ -844,7 +916,7 @@ const B2CBooking = () => {
                     color: '#2001AF',
                     marginBottom: '0.5rem'
                   }}>
-                    {availableServices.length} services found
+                    {loading ? 'Loading services...' : `${availableServices.length} services found`}
                   </h1>
                   <p style={{ color: '#6b7280', margin: 0 }}>
                     {jobDescription && (
@@ -893,6 +965,25 @@ const B2CBooking = () => {
             </div>
 
             {/* Services Grid */}
+            {loading ? (
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minHeight: '200px',
+                gap: '1rem'
+              }}>
+                <div style={{
+                  width: '40px',
+                  height: '40px',
+                  border: '3px solid #e5e7eb',
+                  borderTopColor: '#E94A02',
+                  borderRadius: '50%',
+                  animation: 'spin 0.8s linear infinite'
+                }} />
+                <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+              </div>
+            ) : (
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
@@ -1103,9 +1194,10 @@ const B2CBooking = () => {
                 );
               })}
             </div>
+            )}
 
             {/* No results message */}
-            {availableServices.length === 0 && (
+            {!loading && availableServices.length === 0 && (
               <div style={{
                 textAlign: 'center',
                 padding: '4rem 2rem',

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { ArrowRight, CheckCircle, Search, CreditCard, UserCheck } from 'lucide-react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -12,7 +12,6 @@ const HowItWorksB2C = () => {
   const titleRef = useRef(null);
   const stepsRef = useRef(null);
   const bgRef = useRef(null);
-  const [imageErrors, setImageErrors] = useState({});
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -113,43 +112,27 @@ const HowItWorksB2C = () => {
     return () => ctx.revert();
   }, []);
 
-  // Helper function to get optimized image URL
-  const getOptimizedImage = (baseUrl) => {
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-    const width = isMobile ? 400 : 500;
-    const url = new URL(baseUrl);
-    url.searchParams.set('w', width.toString());
-    url.searchParams.set('h', Math.round(width * 0.75).toString());
-    url.searchParams.set('fit', 'crop');
-    url.searchParams.set('auto', 'format');
-    url.searchParams.set('q', '75');
-    return url.toString();
-  };
-
   const steps = [
     {
       number: 1,
-      icon: <Search size={32} />,
+      icon: <Search size={40} />,
       title: 'Describe the job',
       description: "Explain what you need and we'll handle the rest.",
-      color: '#E94A02',
-      image: 'https://images.unsplash.com/photo-1551434678-e076c223a692'
+      color: '#E94A02'
     },
     {
       number: 2,
-      icon: <CreditCard size={32} />,
+      icon: <CreditCard size={40} />,
       title: 'Create your booking',
       description: 'Transparent pricing, clear options, no hidden costs.',
-      color: '#E94A02',
-      image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d'
+      color: '#E94A02'
     },
     {
       number: 3,
-      icon: <UserCheck size={32} />,
+      icon: <UserCheck size={40} />,
       title: 'Get it done!',
       description: 'We will match you internally with a trusted local professional, it will be managed by Master.',
-      color: '#E94A02',
-      image: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952'
+      color: '#E94A02'
     }
   ];
 
@@ -237,7 +220,7 @@ const HowItWorksB2C = () => {
           }}>
             We believe property maintenance should be simple. That's why you see the{' '}
             <span style={{
-              color: '#FF6B00',
+              color: '#E94A02',
               fontWeight: '700',
               fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
             }}>
@@ -298,10 +281,10 @@ const HowItWorksB2C = () => {
 
               {/* Icon */}
               <div style={{
-                width: '80px',
-                height: '80px',
+                width: '100px',
+                height: '100px',
                 backgroundColor: `${step.color}15`,
-                borderRadius: '20px',
+                borderRadius: '24px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -310,52 +293,6 @@ const HowItWorksB2C = () => {
                 marginTop: '1rem'
               }}>
                 {step.icon}
-              </div>
-
-              {/* Image */}
-              <div style={{
-                width: '100%',
-                height: '180px',
-                borderRadius: '16px',
-                overflow: 'hidden',
-                marginBottom: '1.5rem',
-                backgroundColor: '#f3f4f6',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: imageErrors[step.number] 
-                  ? `linear-gradient(135deg, ${step.color}15 0%, ${step.color}08 100%)`
-                  : '#f3f4f6'
-              }}>
-                {imageErrors[step.number] ? (
-                  <div style={{
-                    color: step.color,
-                    fontSize: '3rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}>
-                    {step.icon}
-                  </div>
-                ) : (
-                  <img
-                    src={getOptimizedImage(step.image)}
-                    alt={step.title}
-                    loading="lazy"
-                    decoding="async"
-                    fetchpriority={step.number === 1 ? "high" : "low"}
-                    width="400"
-                    height="300"
-                    onError={() => {
-                      setImageErrors(prev => ({ ...prev, [step.number]: true }));
-                    }}
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover'
-                    }}
-                  />
-                )}
               </div>
 
               <h3 style={{

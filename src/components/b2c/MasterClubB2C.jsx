@@ -252,7 +252,7 @@ const MasterClubB2C = () => {
                   onMouseEnter={(e) => {
                     gsap.to(e.currentTarget, {
                       y: -4,
-                      boxShadow: '0 12px 30px rgba(0,0,0,0.5), 0 0 0 1px rgba(255, 107, 0, 0.3)',
+                      boxShadow: '0 12px 30px rgba(0,0,0,0.5), 0 0 0 1px rgba(233, 74, 2, 0.3)',
                       duration: 0.3
                     });
                   }}
@@ -312,7 +312,7 @@ const MasterClubB2C = () => {
               borderRadius: '24px',
               padding: '3rem',
               boxShadow: '0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.08)',
-              border: '2px solid rgba(255, 107, 0, 0.2)',
+              border: '2px solid rgba(233, 74, 2, 0.2)',
               textAlign: 'center',
               maxWidth: '600px',
               margin: '0 auto'
@@ -363,7 +363,7 @@ const MasterClubB2C = () => {
                 console.log('Join Master Club clicked');
               }}
               style={{
-                backgroundColor: '#FF6B00',
+                backgroundColor: '#E94A02',
                 color: 'white',
                 border: 'none',
                 borderRadius: '16px',
@@ -375,22 +375,22 @@ const MasterClubB2C = () => {
                 alignItems: 'center',
                 gap: '0.75rem',
                 transition: 'all 0.3s ease',
-                boxShadow: '0 4px 20px rgba(255, 107, 0, 0.3)',
+                boxShadow: '0 4px 20px rgba(233, 74, 2, 0.3)',
                 fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
               }}
               onMouseEnter={(e) => {
                 gsap.to(e.target, {
-                  backgroundColor: '#E94A02',
+                  backgroundColor: '#d13d00',
                   scale: 1.05,
-                  boxShadow: '0 6px 30px rgba(255, 107, 0, 0.4)',
+                  boxShadow: '0 6px 30px rgba(233, 74, 2, 0.4)',
                   duration: 0.3
                 });
               }}
               onMouseLeave={(e) => {
                 gsap.to(e.target, {
-                  backgroundColor: '#FF6B00',
+                  backgroundColor: '#E94A02',
                   scale: 1,
-                  boxShadow: '0 4px 20px rgba(255, 107, 0, 0.3)',
+                  boxShadow: '0 4px 20px rgba(233, 74, 2, 0.3)',
                   duration: 0.3
                 });
               }}

@@ -213,7 +213,7 @@ const TestimonialsB2C = () => {
               onMouseEnter={(e) => {
                 gsap.to(e.currentTarget, {
                   y: -8,
-                  boxShadow: '0 12px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(255, 107, 0, 0.3)',
+                  boxShadow: '0 12px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(233, 74, 2, 0.3)',
                   duration: 0.4,
                   ease: 'power2.out'
                 });
@@ -246,7 +246,7 @@ const TestimonialsB2C = () => {
                   right: '1.5rem',
                   width: '48px',
                   height: '48px',
-                  backgroundColor: '#FF6B00',
+                  backgroundColor: '#E94A02',
                   borderRadius: '12px',
                   display: 'flex',
                   alignItems: 'center',
@@ -254,7 +254,7 @@ const TestimonialsB2C = () => {
                   color: 'white',
                   fontWeight: '700',
                   fontSize: '1rem',
-                  boxShadow: '0 4px 12px rgba(255, 107, 0, 0.3)'
+                  boxShadow: '0 4px 12px rgba(233, 74, 2, 0.3)'
                 }}
               >
                 90
@@ -345,7 +345,7 @@ const TestimonialsB2C = () => {
               }
             }}
             style={{
-              backgroundColor: '#FF6B00',
+              backgroundColor: '#E94A02',
               color: 'white',
               border: 'none',
               borderRadius: '16px',
@@ -359,22 +359,22 @@ const TestimonialsB2C = () => {
               textTransform: 'uppercase',
               letterSpacing: '0.05em',
               transition: 'all 0.3s ease',
-              boxShadow: '0 8px 30px rgba(255, 107, 0, 0.3)',
+              boxShadow: '0 8px 30px rgba(233, 74, 2, 0.3)',
               fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
             }}
             onMouseEnter={(e) => {
               gsap.to(e.target, {
-                backgroundColor: '#E94A02',
+                backgroundColor: '#d13d00',
                 scale: 1.05,
-                boxShadow: '0 12px 40px rgba(255, 107, 0, 0.4)',
+                boxShadow: '0 12px 40px rgba(233, 74, 2, 0.4)',
                 duration: 0.3
               });
             }}
             onMouseLeave={(e) => {
               gsap.to(e.target, {
-                backgroundColor: '#FF6B00',
+                backgroundColor: '#E94A02',
                 scale: 1,
-                boxShadow: '0 8px 30px rgba(255, 107, 0, 0.3)',
+                boxShadow: '0 8px 30px rgba(233, 74, 2, 0.3)',
                 duration: 0.3
               });
             }}

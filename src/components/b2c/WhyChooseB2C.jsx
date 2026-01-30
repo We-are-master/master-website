@@ -66,7 +66,7 @@ const WhyChooseB2C = () => {
           card.addEventListener('mouseenter', () => {
             gsap.to(card, {
               y: -8,
-              boxShadow: '0 20px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(255, 107, 0, 0.3)',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(233, 74, 2, 0.3)',
               duration: 0.4,
               ease: 'power2.out'
             });
