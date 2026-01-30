@@ -243,7 +243,13 @@ const PaymentForm = ({ onSuccess, clientSecret }) => {
 const B2CCheckout = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { service, postcode, jobDescription } = location.state || {};
+  const { service: serviceFromState, postcode, jobDescription, services: servicesFromState } = location.state || {};
+  // Support multiple services from booking page cart; fallback to single service
+  const servicesList = servicesFromState?.length
+    ? servicesFromState
+    : (serviceFromState ? [{ service: serviceFromState, quantity: 1 }] : []);
+  const service = servicesList[0]?.service ?? serviceFromState; // first service for hourly/metadata
+  const BOOKING_FEE = 5;
   const [stripePromise, setStripePromise] = useState(null);
   const [stripeInstance, setStripeInstance] = useState(null);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
@@ -284,10 +290,12 @@ const B2CCheckout = () => {
   const [addSubscriptionToOrder, setAddSubscriptionToOrder] = useState(true); // default checked when no subscription
   const [showSubscriptionUpsell, setShowSubscriptionUpsell] = useState(true); // dismiss banner
 
-  // Check if service is hourly
-  const isHourlyService = service?.priceType === 'hourly' || 
+  // Check if (single) service is hourly — only for single-service bookings
+  const isHourlyService = servicesList.length === 1 && (
+    service?.priceType === 'hourly' ||
     service?.priceUnit?.toLowerCase().includes('hour') ||
-    service?.title?.toLowerCase().includes('hourly');
+    service?.title?.toLowerCase().includes('hourly')
+  );
 
   // Time slots configuration
   const timeSlots = [
@@ -370,10 +378,11 @@ const B2CCheckout = () => {
     setSelectedDates(prev => prev.filter(d => !isSameDay(d, dateToRemove)));
   };
 
-  // Calculate total price for hourly services
-  const totalPrice = isHourlyService 
-    ? parseFloat(service?.price || 0) * selectedHours 
-    : parseFloat(service?.price || 0);
+  // Calculate total: multiple services (subtotal + booking fee) or single (price or hourly) + booking fee
+  const cartSubtotal = servicesList.reduce((sum, item) => sum + (parseFloat(item.service?.price) || 0) * (item.quantity || 1), 0);
+  const totalPrice = isHourlyService
+    ? parseFloat(service?.price || 0) * selectedHours + BOOKING_FEE
+    : cartSubtotal + BOOKING_FEE;
 
   // Subscription offer (discount + Master Club) only applies when email is entered and upsell checkbox is visible and checked
   const subscriptionOfferActive = Boolean(
@@ -464,6 +473,8 @@ const B2CCheckout = () => {
           service_id: service.id || service.originalService?.id,
           service_name: service.title,
           service_category: service.category || '',
+          services_count: servicesList.length.toString(),
+          services_names: servicesList.map(({ service: s, quantity }) => `${quantity}× ${s?.title}`).join('; '),
           postcode: customerDetails?.postcode || postcode || '',
           job_description: fullJobDescription,
           hours_booked: isHourlyService ? selectedHours.toString() : '',
@@ -529,7 +540,7 @@ const B2CCheckout = () => {
     }
   }, [postcode]);
 
-  if (!service) {
+  if (!servicesList.length) {
     navigate('/');
     return null;
   }
@@ -825,67 +836,92 @@ const B2CCheckout = () => {
         </div>
       </div>
 
-      <div className="container" style={{ padding: '2rem 0 4rem', overflowX: 'hidden' }}>
-        <div style={{
-          maxWidth: '1200px',
-          margin: '0 auto',
-          display: 'grid',
-          gridTemplateColumns: '1fr 400px',
-          gap: '3rem',
-          alignItems: 'start',
-          position: 'relative'
-        }}>
-          {/* Left: Main Form */}
-          <div>
-            {/* Progress Indicator */}
+      <div className="container checkout-page-container" style={{ padding: '2rem 0 4rem', overflowX: 'hidden' }}>
+        <div
+          className="checkout-grid"
+          style={{
+            maxWidth: '1200px',
+            margin: '0 auto',
+            display: 'grid',
+            gridTemplateColumns: 'minmax(0, 1fr) minmax(280px, 400px)',
+            gap: '3rem',
+            alignItems: 'start',
+            position: 'relative'
+          }}
+        >
+          {/* Left: Main Form — minWidth 0 so content can shrink on mobile */}
+          <div style={{ minWidth: 0 }}>
+            {/* Progress Indicator — fits in viewport on mobile, label below */}
             <div style={{
               display: 'flex',
+              flexWrap: 'wrap',
               alignItems: 'center',
               gap: '0.5rem',
               marginBottom: '2rem',
               paddingBottom: '1.5rem',
-              borderBottom: '1px solid #e5e7eb'
+              borderBottom: '1px solid #e5e7eb',
+              width: '100%',
+              maxWidth: '100%',
+              minWidth: 0,
+              boxSizing: 'border-box'
             }}>
               <div style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '50%',
-                backgroundColor: isFormValid() ? '#10b981' : '#e5e7eb',
-                color: isFormValid() ? 'white' : '#9ca3af',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
-                fontWeight: '600',
-                fontSize: '0.875rem',
-                transition: 'all 0.3s ease'
+                gap: '0.5rem',
+                flex: '1 1 auto',
+                minWidth: 0,
+                maxWidth: '100%'
               }}>
-                {isFormValid() ? <CheckCircle size={18} /> : '1'}
-              </div>
-              <div style={{ flex: 1, height: '2px', backgroundColor: '#e5e7eb', position: 'relative' }}>
                 <div style={{
-                  width: isFormValid() ? '100%' : '0%',
-                  height: '100%',
-                  backgroundColor: '#10b981',
-                  transition: 'width 0.5s ease'
-                }} />
+                  width: '28px',
+                  height: '28px',
+                  flexShrink: 0,
+                  borderRadius: '50%',
+                  backgroundColor: isFormValid() ? '#10b981' : '#e5e7eb',
+                  color: isFormValid() ? 'white' : '#9ca3af',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: '600',
+                  fontSize: '0.8125rem',
+                  transition: 'all 0.3s ease'
+                }}>
+                  {isFormValid() ? <CheckCircle size={16} /> : '1'}
+                </div>
+                <div style={{ flex: '1 1 0', minWidth: 0, maxWidth: '100%', height: '2px', backgroundColor: '#e5e7eb', position: 'relative' }}>
+                  <div style={{
+                    width: isFormValid() ? '100%' : '0%',
+                    height: '100%',
+                    backgroundColor: '#10b981',
+                    transition: 'width 0.5s ease'
+                  }} />
+                </div>
+                <div style={{
+                  width: '28px',
+                  height: '28px',
+                  flexShrink: 0,
+                  borderRadius: '50%',
+                  backgroundColor: clientSecret ? '#10b981' : '#e5e7eb',
+                  color: clientSecret ? 'white' : '#9ca3af',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: '600',
+                  fontSize: '0.8125rem',
+                  transition: 'all 0.3s ease'
+                }}>
+                  {clientSecret ? <CheckCircle size={16} /> : '2'}
+                </div>
               </div>
-              <div style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '50%',
-                backgroundColor: clientSecret ? '#10b981' : '#e5e7eb',
-                color: clientSecret ? 'white' : '#9ca3af',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontWeight: '600',
+              <span style={{
+                flexBasis: '100%',
                 fontSize: '0.875rem',
-                transition: 'all 0.3s ease'
+                color: '#6b7280',
+                fontWeight: '500',
+                marginTop: '0.25rem'
               }}>
-                {clientSecret ? <CheckCircle size={18} /> : '2'}
-              </div>
-              <span style={{ fontSize: '0.875rem', color: '#6b7280', fontWeight: '500' }}>
-                {isFormValid() ? 'Details' : 'Details'} → {clientSecret ? 'Payment' : 'Payment'}
+                Details → Payment
               </span>
             </div>
 
@@ -916,6 +952,7 @@ const B2CCheckout = () => {
               marginBottom: '2rem',
               border: '1px solid #e5e7eb'
             }}>
+              {servicesList.length === 1 ? (
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -965,6 +1002,74 @@ const B2CCheckout = () => {
                   £{totalPrice.toFixed(2)}
                 </div>
               </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                {servicesList.map(({ service: s, quantity }, index) => {
+                  const lineTotal = (parseFloat(s?.price) || 0) * (quantity || 1);
+                  return (
+                    <div
+                      key={s?.id || index}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '0.75rem',
+                        backgroundColor: '#f9fafb',
+                        borderRadius: '8px'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <div style={{
+                          width: '40px',
+                          height: '40px',
+                          backgroundColor: '#f0f4ff',
+                          borderRadius: '10px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: '#2001AF',
+                          fontSize: '1rem',
+                          fontWeight: '700'
+                        }}>
+                          {s.title?.charAt(0) || 'S'}
+                        </div>
+                        <div>
+                          <div style={{ fontWeight: '600', color: '#111827', fontSize: '0.9375rem' }}>{s.title}</div>
+                          {s.category && (
+                            <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>{s.category}</span>
+                          )}
+                          <div style={{ fontSize: '0.8125rem', color: '#6b7280' }}>
+                            {quantity} × £{(parseFloat(s?.price) || 0).toFixed(2)} = £{lineTotal.toFixed(2)}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  paddingTop: '0.5rem',
+                  borderTop: '1px solid #e5e7eb',
+                  marginTop: '0.25rem'
+                }}>
+                  <span style={{ color: '#6b7280', fontSize: '0.875rem' }}>Booking fee</span>
+                  <span style={{ fontWeight: '600', color: '#111827' }}>£{BOOKING_FEE.toFixed(2)}</span>
+                </div>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  fontSize: '1.25rem',
+                  fontWeight: '700',
+                  color: '#020034'
+                }}>
+                  <span>Total</span>
+                  <span>£{totalPrice.toFixed(2)}</span>
+                </div>
+              </div>
+            )}
             </div>
 
             {/* Hourly Service Form */}
@@ -2057,61 +2162,116 @@ const B2CCheckout = () => {
 
               {/* Service Details */}
               <div style={{ marginBottom: '1.5rem' }}>
-                <div style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  marginBottom: '0.75rem'
-                }}>
-                  <span style={{ color: '#6b7280', fontSize: '0.875rem' }}>Service</span>
-                  <span style={{ fontWeight: '600', color: '#111827', fontSize: '0.875rem', textAlign: 'right', maxWidth: '180px' }}>
-                    {service.title}
-                  </span>
-                </div>
-                {isHourlyService ? (
+                {servicesList.length === 1 ? (
                   <>
                     <div style={{
                       display: 'flex',
                       justifyContent: 'space-between',
-                      marginBottom: '0.5rem'
+                      marginBottom: '0.75rem'
                     }}>
-                      <span style={{ color: '#6b7280', fontSize: '0.875rem' }}>Rate</span>
-                      <span style={{ fontWeight: '600', color: '#111827', fontSize: '0.875rem' }}>
-                        £{parseFloat(service.price).toFixed(2)}/hour
+                      <span style={{ color: '#6b7280', fontSize: '0.875rem' }}>Service</span>
+                      <span style={{ fontWeight: '600', color: '#111827', fontSize: '0.875rem', textAlign: 'right', maxWidth: '180px' }}>
+                        {service.title}
                       </span>
                     </div>
+                    {isHourlyService ? (
+                      <>
+                        <div style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          marginBottom: '0.5rem'
+                        }}>
+                          <span style={{ color: '#6b7280', fontSize: '0.875rem' }}>Rate</span>
+                          <span style={{ fontWeight: '600', color: '#111827', fontSize: '0.875rem' }}>
+                            £{parseFloat(service.price).toFixed(2)}/hour
+                          </span>
+                        </div>
+                        <div style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          marginBottom: '0.5rem'
+                        }}>
+                          <span style={{ color: '#6b7280', fontSize: '0.875rem' }}>Hours</span>
+                          <span style={{ fontWeight: '600', color: '#d97706', fontSize: '0.875rem' }}>
+                            {selectedHours} {selectedHours === 1 ? 'hour' : 'hours'}
+                          </span>
+                        </div>
+                      </>
+                    ) : (
+                      <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        marginBottom: '0.5rem'
+                      }}>
+                        <span style={{ color: '#6b7280', fontSize: '0.875rem' }}>Price</span>
+                        <span style={{ fontWeight: '600', color: '#111827', fontSize: '0.875rem' }}>
+                          {service.priceType === 'from' && 'From '}
+                          £{parseFloat(service.price).toFixed(2)}
+                          {service.priceUnit && <span style={{ fontWeight: '400', color: '#6b7280' }}> {service.priceUnit}</span>}
+                        </span>
+                      </div>
+                    )}
                     <div style={{
                       display: 'flex',
                       justifyContent: 'space-between',
                       marginBottom: '0.5rem'
                     }}>
-                      <span style={{ color: '#6b7280', fontSize: '0.875rem' }}>Hours</span>
-                      <span style={{ fontWeight: '600', color: '#d97706', fontSize: '0.875rem' }}>
-                        {selectedHours} {selectedHours === 1 ? 'hour' : 'hours'}
-                      </span>
+                      <span style={{ color: '#6b7280', fontSize: '0.875rem' }}>Location</span>
+                      <span style={{ color: '#111827', fontSize: '0.875rem' }}>{customerDetails.postcode || postcode}</span>
                     </div>
                   </>
                 ) : (
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    marginBottom: '0.5rem'
-                  }}>
-                    <span style={{ color: '#6b7280', fontSize: '0.875rem' }}>Price</span>
-                    <span style={{ fontWeight: '600', color: '#111827', fontSize: '0.875rem' }}>
-                      {service.priceType === 'from' && 'From '}
-                      £{parseFloat(service.price).toFixed(2)}
-                      {service.priceUnit && <span style={{ fontWeight: '400', color: '#6b7280' }}> {service.priceUnit}</span>}
-                    </span>
-                  </div>
+                  <>
+                    {servicesList.map(({ service: s, quantity }, index) => {
+                      const lineTotal = (parseFloat(s?.price) || 0) * (quantity || 1);
+                      return (
+                        <div
+                          key={s?.id || index}
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            marginBottom: '0.5rem',
+                            fontSize: '0.875rem'
+                          }}
+                        >
+                          <span style={{ color: '#111827', maxWidth: '180px' }}>
+                            {quantity}× {s.title}
+                          </span>
+                          <span style={{ fontWeight: '600', color: '#111827' }}>£{lineTotal.toFixed(2)}</span>
+                        </div>
+                      );
+                    })}
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      marginBottom: '0.5rem',
+                      fontSize: '0.875rem',
+                      color: '#6b7280'
+                    }}>
+                      <span>Subtotal</span>
+                      <span>£{cartSubtotal.toFixed(2)}</span>
+                    </div>
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      marginBottom: '0.5rem',
+                      fontSize: '0.875rem',
+                      color: '#6b7280'
+                    }}>
+                      <span>Booking fee</span>
+                      <span>£{BOOKING_FEE.toFixed(2)}</span>
+                    </div>
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      marginBottom: '0.5rem',
+                      fontSize: '0.875rem'
+                    }}>
+                      <span style={{ color: '#6b7280' }}>Location</span>
+                      <span style={{ color: '#111827' }}>{customerDetails.postcode || postcode}</span>
+                    </div>
+                  </>
                 )}
-                <div style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  marginBottom: '0.5rem'
-                }}>
-                  <span style={{ color: '#6b7280', fontSize: '0.875rem' }}>Location</span>
-                  <span style={{ color: '#111827', fontSize: '0.875rem' }}>{customerDetails.postcode || postcode}</span>
-                </div>
               </div>
 
               {/* Date & Time Summary */}

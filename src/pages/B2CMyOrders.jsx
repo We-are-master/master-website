@@ -16,7 +16,6 @@ import {
   Phone,
   Mail,
   User,
-  Crown,
   Shield,
   Infinity,
   ArrowRight,
@@ -434,224 +433,62 @@ const B2CMyOrders = () => {
           />
         )}
 
-        {/* Subscription Missing Banner */}
+        {/* Subscription Missing Banner — clean style (like privacy policy) */}
         {user?.email && !hasSubscription && !checkingSubscription && showSubscriptionBanner && (
           <div style={{
-            backgroundColor: '#020034',
-            borderRadius: '16px',
-            padding: '2.5rem',
-            marginBottom: '2rem',
-            position: 'relative',
-            overflow: 'hidden',
-            border: '2px solid rgba(233, 74, 2, 0.3)',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.05)'
+            marginBottom: '1.5rem',
+            padding: '1rem 1.25rem',
+            backgroundColor: 'white',
+            borderRadius: '12px',
+            border: '1px solid #e5e7eb',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
           }}>
-            {/* Background Pattern */}
-            <div style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundImage: 'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)',
-              backgroundSize: '40px 40px',
-              zIndex: 1
-            }}></div>
-
-            {/* Close Button */}
-            <button
-              onClick={() => setShowSubscriptionBanner(false)}
-              style={{
-                position: 'absolute',
-                top: '1rem',
-                right: '1rem',
-                backgroundColor: 'rgba(255,255,255,0.1)',
-                border: 'none',
-                borderRadius: '8px',
-                width: '32px',
-                height: '32px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                color: 'rgba(255,255,255,0.8)',
-                zIndex: 3,
-                transition: 'all 0.2s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.backgroundColor = 'rgba(255,255,255,0.2)';
-                e.target.style.color = 'white';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.backgroundColor = 'rgba(255,255,255,0.1)';
-                e.target.style.color = 'rgba(255,255,255,0.8)';
-              }}
-            >
-              <X size={18} />
-            </button>
-
-            <div style={{ position: 'relative', zIndex: 2 }}>
-              {/* Header */}
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '1rem',
-                marginBottom: '1.5rem'
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
+              <p style={{
+                fontSize: '0.875rem',
+                color: '#374151',
+                lineHeight: '1.5',
+                margin: 0,
+                flex: 1,
+                minWidth: 0
               }}>
-                <div style={{
-                  width: '56px',
-                  height: '56px',
-                  borderRadius: '16px',
-                  backgroundColor: 'rgba(233, 74, 2, 0.2)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#E94A02',
-                  border: '2px solid rgba(233, 74, 2, 0.4)'
-                }}>
-                  <Crown size={28} />
-                </div>
-                <div style={{ flex: 1 }}>
-                  <h3 style={{
-                    fontSize: '1.5rem',
-                    fontWeight: '700',
-                    color: 'white',
-                    marginBottom: '0.25rem',
-                    letterSpacing: '-0.02em',
-                    fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
-                  }}>
-                    You're missing out on Master Club benefits
-                  </h3>
-                  <p style={{
-                    color: 'rgba(255,255,255,0.7)',
-                    fontSize: '0.9375rem',
-                    fontWeight: '400',
-                    fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
-                  }}>
-                    Join now and save up to 30% on every booking
-                  </p>
-                </div>
-              </div>
-
-              {/* Benefits Grid */}
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                gap: '1rem',
-                marginBottom: '2rem'
-              }}>
-                {[
-                  { icon: <Crown size={20} />, text: 'Up to 30% discount', color: '#E94A02' },
-                  { icon: <Clock size={20} />, text: 'Priority booking', color: '#E94A02' },
-                  { icon: <Shield size={20} />, text: 'Reduced emergency fees', color: '#E94A02' },
-                  { icon: <Infinity size={20} />, text: 'Unlimited use', color: '#E94A02' }
-                ].map((benefit, index) => (
-                  <div key={index} style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.75rem',
-                    backgroundColor: 'rgba(255,255,255,0.05)',
-                    padding: '1rem',
-                    borderRadius: '12px',
-                    border: '1px solid rgba(255,255,255,0.1)'
-                  }}>
-                    <div style={{ color: benefit.color, flexShrink: 0 }}>
-                      {benefit.icon}
-                    </div>
-                    <span style={{
-                      color: 'rgba(255,255,255,0.9)',
-                      fontSize: '0.875rem',
-                      fontWeight: '500',
-                      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
-                    }}>
-                      {benefit.text}
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Pricing & CTA */}
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: '1.5rem',
-                flexWrap: 'wrap',
-                backgroundColor: 'rgba(255,255,255,0.05)',
-                padding: '1.5rem',
-                borderRadius: '12px',
-                border: '1px solid rgba(255,255,255,0.1)'
-              }}>
-                <div>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'baseline',
-                    gap: '0.5rem',
-                    marginBottom: '0.5rem'
-                  }}>
-                    <span style={{
-                      fontSize: '2rem',
-                      fontWeight: '900',
-                      color: 'white',
-                      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
-                    }}>
-                      £9.99
-                    </span>
-                    <span style={{
-                      fontSize: '1rem',
-                      color: 'rgba(255,255,255,0.7)',
-                      fontWeight: '500',
-                      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
-                    }}>
-                      / month
-                    </span>
-                  </div>
-                  <p style={{
-                    color: 'rgba(255,255,255,0.7)',
-                    fontSize: '0.875rem',
-                    margin: 0,
-                    fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
-                  }}>
-                    Cancel anytime. No long-term commitment.
-                  </p>
-                </div>
+                <strong>Master Club</strong> — £9.99/month. Member benefits on every booking.{' '}
+                <a href="/#master-club" style={{ color: '#2001AF', textDecoration: 'underline' }}>Learn more</a>. Cancel anytime.
+              </p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
                 <button
+                  type="button"
                   onClick={() => navigate('/#master-club')}
                   style={{
                     backgroundColor: '#E94A02',
                     color: 'white',
                     border: 'none',
-                    borderRadius: '12px',
-                    padding: '1rem 2rem',
-                    fontSize: '1rem',
+                    borderRadius: '8px',
+                    padding: '0.5rem 1rem',
+                    fontSize: '0.875rem',
                     fontWeight: '600',
                     cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.75rem',
-                    transition: 'all 0.3s ease',
-                    fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif',
-                    whiteSpace: 'nowrap'
-                  }}
-                  onMouseEnter={(e) => {
-                    gsap.to(e.target, {
-                      backgroundColor: '#d13d00',
-                      scale: 1.05,
-                      boxShadow: '0 8px 24px rgba(233, 74, 2, 0.4)',
-                      duration: 0.3
-                    });
-                  }}
-                  onMouseLeave={(e) => {
-                    gsap.to(e.target, {
-                      backgroundColor: '#E94A02',
-                      scale: 1,
-                      boxShadow: 'none',
-                      duration: 0.3
-                    });
+                    fontFamily: 'inherit'
                   }}
                 >
-                  <span>Join Master Club</span>
-                  <ArrowRight size={20} />
+                  Join Master Club
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowSubscriptionBanner(false)}
+                  aria-label="Dismiss"
+                  style={{
+                    padding: '0.25rem 0',
+                    backgroundColor: 'transparent',
+                    border: 'none',
+                    fontSize: '0.8125rem',
+                    color: '#6b7280',
+                    cursor: 'pointer',
+                    textDecoration: 'underline'
+                  }}
+                >
+                  Remove
                 </button>
               </div>
             </div>

@@ -50,6 +50,13 @@ body {
   }
 }
 
+/* Checkout: single column on mobile so progress and summary fit */
+@media (max-width: 900px) {
+  .checkout-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
 /* Buttons */
 .btn {
   display: inline-flex;
