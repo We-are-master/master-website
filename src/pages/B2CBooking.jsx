@@ -1059,7 +1059,7 @@ const B2CBooking = () => {
                   </div>
                 )}
 
-                {/* Other services homeowners add */}
+                {/* More services to add (remove from "Your services" above) */}
                 <h2 style={{
                   fontSize: '1.25rem',
                   fontWeight: '700',
@@ -1067,7 +1067,7 @@ const B2CBooking = () => {
                   marginBottom: '0.5rem',
                   fontFamily: BRAND_FONT
                 }}>
-                  Other services homeowners add
+                  Add more services
                 </h2>
             {loading ? (
               <div style={{
