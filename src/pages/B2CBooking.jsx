@@ -304,6 +304,16 @@ const B2CBooking = () => {
     }
   }, [isGoogleLoaded, ready, init]);
 
+  // When step 3 has cart: add body class so App gets padding-bottom and footer isn't cut off by fixed summary
+  useEffect(() => {
+    if (step === 3 && cart.length > 0) {
+      document.body.classList.add('booking-step3-has-summary');
+    }
+    return () => {
+      document.body.classList.remove('booking-step3-has-summary');
+    };
+  }, [step, cart.length]);
+
   const handleSelectSuggestion = async (suggestion) => {
     const address = suggestion.description;
     setAutocompleteValue(address, false);
