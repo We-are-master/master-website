@@ -557,13 +557,16 @@ const B2CBooking = () => {
         description="Book your property maintenance or cleaning service with Master Services. Easy online booking, same-day service available, vetted professionals."
         keywords="book property maintenance, book cleaning service, online booking, same-day service booking"
       />
-      <div style={{ 
-        minHeight: '100vh', 
-        backgroundColor: '#fbfbfd',
-      overflowX: 'hidden',
-      width: '100%',
-      maxWidth: '100vw'
-    }}>
+      <div
+        className="booking-page-root"
+        style={{
+          minHeight: '100vh',
+          backgroundColor: '#fbfbfd',
+          overflowX: 'hidden',
+          width: '100%',
+          maxWidth: '100%'
+        }}
+      >
       {/* Header */}
       <div style={{
         backgroundColor: '#fbfbfd',
