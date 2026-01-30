@@ -94,6 +94,18 @@ body {
   gap: 1.25rem;
 }
 @media (max-width: 768px) {
+  /* Hide scrollbar on mobile so it doesn't appear cut off next to fixed summary */
+  html,
+  body {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
   .booking-step3-layout {
     flex-direction: column !important;
     gap: 1rem !important;
@@ -124,16 +136,21 @@ body {
     box-shadow: 0 -4px 20px rgba(0,0,0,0.08) !important;
     z-index: 100;
     padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px)) !important;
+    padding-right: env(safe-area-inset-right, 0px) !important;
     transform: translateZ(0);
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
+    overflow: hidden !important; /* evita barra/scroll entrando no canto */
   }
 }
 
-/* When booking step 3 has cart: add space at bottom so footer isn't cut off by fixed summary on mobile */
+/* When booking step 3 has cart: rodapé visível acima do summary fixo; sem bounce ao chegar no final */
 @media (max-width: 768px) {
+  body.booking-step3-has-summary {
+    overscroll-behavior-y: none; /* ao chegar no rodapé a tela fica fixa, não “samba” */
+  }
   body.booking-step3-has-summary .App {
-    padding-bottom: calc(260px + env(safe-area-inset-bottom, 0px)) !important;
+    padding-bottom: calc(280px + env(safe-area-inset-bottom, 0px)) !important; /* espaço para summary + rodapé visível */
   }
 }
 @media (max-width: 480px) {
