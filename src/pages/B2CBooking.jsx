@@ -117,6 +117,9 @@ const getCategoryColor = (category) => {
   };
 };
 
+/** Timeout for loading services (AI/DB can hang); after this we show fallback. */
+const SERVICES_LOAD_TIMEOUT_MS = 15000;
+
 const B2CBooking = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -168,7 +171,7 @@ const B2CBooking = () => {
     setLoading(true);
 
     let cancelled = false;
-    (async () => {
+    const loadPromise = (async () => {
       try {
         const jobDesc = String(serviceFromState).trim();
         let servicesFromDB;
@@ -231,6 +234,20 @@ const B2CBooking = () => {
         }
       }
     })();
+
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('timeout')), SERVICES_LOAD_TIMEOUT_MS)
+    );
+
+    Promise.race([loadPromise, timeoutPromise]).catch(() => {
+      if (!cancelled) {
+        setAvailableServices(mockServices);
+        setLoading(false);
+        setStep(3);
+        toast.info('Taking longer than usual – showing available services.');
+      }
+    });
+
     return () => { cancelled = true; };
   }, [location.state?.service, location.state?.postcode]);
 
@@ -446,81 +463,86 @@ const B2CBooking = () => {
     setPostcode(finalPostcode);
 
     setLoading(true);
-    
-    try {
-      let servicesFromDB;
-      
-      // Fast path: try DB search first (no OpenAI, no full getServices when we have a query)
-      if (jobDescription.trim()) {
-        const normalizedQuery = normalizeServiceQuery(jobDescription);
-        const originalQuery = jobDescription.trim().toLowerCase();
-        
-        let dbSearch = await searchServices(normalizedQuery);
-        if (!dbSearch?.length && normalizedQuery !== originalQuery) {
-          dbSearch = await searchServices(originalQuery);
-        }
-        
-        if (dbSearch?.length > 0) {
-          servicesFromDB = dbSearch;
-        } else {
-          // DB search returned nothing: fetch all and use AI as fallback
-          const allServices = await getServices();
-          try {
-            const aiMatched = await matchServicesWithAI(originalQuery, allServices);
-            servicesFromDB = (aiMatched?.length > 0) ? aiMatched : allServices;
-          } catch {
-            servicesFromDB = allServices;
+
+    const loadPromise = (async () => {
+      try {
+        let servicesFromDB;
+
+        // Fast path: try DB search first (no OpenAI, no full getServices when we have a query)
+        if (jobDescription.trim()) {
+          const normalizedQuery = normalizeServiceQuery(jobDescription);
+          const originalQuery = jobDescription.trim().toLowerCase();
+
+          let dbSearch = await searchServices(normalizedQuery);
+          if (!dbSearch?.length && normalizedQuery !== originalQuery) {
+            dbSearch = await searchServices(originalQuery);
           }
+
+          if (dbSearch?.length > 0) {
+            servicesFromDB = dbSearch;
+          } else {
+            // DB search returned nothing: fetch all and use AI as fallback
+            const allServices = await getServices();
+            try {
+              const aiMatched = await matchServicesWithAI(originalQuery, allServices);
+              servicesFromDB = (aiMatched?.length > 0) ? aiMatched : allServices;
+            } catch {
+              servicesFromDB = allServices;
+            }
+          }
+        } else {
+          servicesFromDB = await getServices();
         }
-      } else {
-        servicesFromDB = await getServices();
-      }
-      
-      // Transform Supabase services to match the expected format (V2 schema)
-      const transformedServices = servicesFromDB.map(service => {
-        // Get price from new schema (price) or fallback to old schema (master_price)
-        const price = service.price 
-          ? parseFloat(service.price) 
-          : (service.master_price ? parseFloat(service.master_price) : 0);
-        
-        // Get service name from new schema (service) or old schema (service_name)
-        const serviceName = service.service || service.service_name || 'Service';
-        
-        return {
-          id: service.id,
-          title: serviceName,
-          description: service.description || 'Professional service',
-          price: price,
-          priceType: service.price_type || 'fixed', // 'fixed', 'from', 'hourly', 'per_unit'
-          priceUnit: service.price_unit || service.unit || '',
-          idealFor: service.ideal_for || '',
-          notes: service.notes || '',
-          duration: service.duration_estimate || service.duration || '1-2 hours',
-          rating: 4.8 + (Math.random() * 0.2), // 4.8 - 5.0
-          reviews: Math.floor(Math.random() * 500) + 200,
-          image: getServiceImage(service),
-          category: service.category,
-          keywords: service.keywords || [],
-          originalService: service
-        };
-      });
-      
-      
-      // If no services found, use mock services as fallback
-      if (transformedServices.length === 0) {
+
+        // Transform Supabase services to match the expected format (V2 schema)
+        const transformedServices = servicesFromDB.map(service => {
+          const price = service.price
+            ? parseFloat(service.price)
+            : (service.master_price ? parseFloat(service.master_price) : 0);
+          const serviceName = service.service || service.service_name || 'Service';
+          return {
+            id: service.id,
+            title: serviceName,
+            description: service.description || 'Professional service',
+            price,
+            priceType: service.price_type || 'fixed',
+            priceUnit: service.price_unit || service.unit || '',
+            idealFor: service.ideal_for || '',
+            notes: service.notes || '',
+            duration: service.duration_estimate || service.duration || '1-2 hours',
+            rating: 4.8 + (Math.random() * 0.2),
+            reviews: Math.floor(Math.random() * 500) + 200,
+            image: getServiceImage(service),
+            category: service.category,
+            keywords: service.keywords || [],
+            originalService: service
+          };
+        });
+
+        if (transformedServices.length === 0) {
+          setAvailableServices(mockServices);
+        } else {
+          setAvailableServices(transformedServices);
+        }
+        setLoading(false);
+        setStep(3);
+      } catch {
         setAvailableServices(mockServices);
-      } else {
-        setAvailableServices(transformedServices);
+        setLoading(false);
+        setStep(3);
       }
-      
-      setLoading(false);
-      setStep(3);
-    } catch (error) {
-      // Fallback to mock services on error
+    })();
+
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('timeout')), SERVICES_LOAD_TIMEOUT_MS)
+    );
+
+    Promise.race([loadPromise, timeoutPromise]).catch(() => {
       setAvailableServices(mockServices);
       setLoading(false);
       setStep(3);
-    }
+      toast.info('Taking longer than usual – showing available services.');
+    });
   };
 
   const handleContinueToCheckout = () => {
@@ -1083,6 +1105,7 @@ const B2CBooking = () => {
                 return (
                   <div
                     key={service.id}
+                    className="booking-step3-service-card"
                     style={{
                       backgroundColor: 'white',
                       borderRadius: '0.75rem',
@@ -1090,8 +1113,6 @@ const B2CBooking = () => {
                       boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
                       transition: 'box-shadow 0.2s ease',
                       border: '1px solid #f3f4f6',
-                      display: 'flex',
-                      flexDirection: 'column',
                       fontFamily: BRAND_FONT
                     }}
                   >
@@ -1102,7 +1123,8 @@ const B2CBooking = () => {
                       justifyContent: 'space-between',
                       gap: '0.5rem',
                       padding: '1rem 1.25rem 0',
-                      flexWrap: 'wrap'
+                      flexWrap: 'wrap',
+                      flexShrink: 0
                     }}>
                       <span style={{
                         padding: '0.25rem 0.6rem',
@@ -1127,15 +1149,19 @@ const B2CBooking = () => {
                       </span>
                     </div>
 
-                    {/* Content */}
-                    <div style={{ padding: '1rem 1.25rem 1.25rem' }}>
+                    {/* Content: área flex para botão ficar sempre no fim e tamanho igual entre cards */}
+                    <div className="booking-step3-card-content" style={{ padding: '1rem 1.25rem 1.25rem' }}>
                       <h3 style={{
                         fontSize: '1.0625rem',
                         fontWeight: '700',
                         color: '#111827',
                         margin: '0 0 0.5rem 0',
                         lineHeight: '1.35',
-                        fontFamily: BRAND_FONT
+                        fontFamily: BRAND_FONT,
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden'
                       }}>
                         {service.title}
                       </h3>
@@ -1156,6 +1182,7 @@ const B2CBooking = () => {
 
                       {/* Add to booking / Task added */}
                       <button
+                        className="booking-step3-card-cta"
                         type="button"
                         onClick={(e) => { e.stopPropagation(); addToCart(service); }}
                         style={{
