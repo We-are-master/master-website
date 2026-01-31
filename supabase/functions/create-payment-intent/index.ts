@@ -113,13 +113,14 @@ serve(async (req) => {
     // Initialize Supabase
     const supabase = createClient(supabaseUrl!, supabaseServiceKey!)
 
-    // Parse and validate request body
+    // Parse and validate request body (metadata values can be string or boolean from client)
     const body = validation.body as {
       amount?: number | string
       currency?: string
-      metadata?: Record<string, string>
+      metadata?: Record<string, string | boolean>
       customer_email?: string
       booking_data?: Record<string, unknown>
+      add_subscription?: string | boolean
     }
 
     // Validate amount
@@ -185,13 +186,79 @@ serve(async (req) => {
       customerEmail = emailValidation.sanitized
     }
 
-    // Sanitize metadata
+    // Sanitize metadata (Stripe metadata values must be strings; accept string or boolean from client)
     const metadata: Record<string, string> = {}
     if (body.metadata) {
       for (const [key, value] of Object.entries(body.metadata)) {
-        if (typeof value === 'string' && key.length < 100 && value.length < 500) {
-          metadata[sanitizeString(key, 100)] = sanitizeString(value, 500)
+        if (key.length >= 100) continue
+        const strVal = value === true ? 'true' : value === false ? 'false' : typeof value === 'string' ? value : null
+        if (strVal !== null && strVal.length < 500) {
+          metadata[sanitizeString(key, 100)] = sanitizeString(strVal, 500)
         }
+      }
+    }
+
+    // Detect add_subscription from any source (string 'true' or boolean true) so we never miss it
+    const rawAddSub = body.metadata?.add_subscription ?? body.add_subscription ?? (body.booking_data as Record<string, unknown>)?.add_subscription
+    const addSubscription = rawAddSub === true || rawAddSub === 'true'
+    if (addSubscription && !customerEmail) {
+      // Fallback: use email from metadata or booking_data so we don't miss it
+      const fromMeta = body.metadata && typeof (body.metadata as Record<string, unknown>).customer_email === 'string'
+        ? (body.metadata as Record<string, unknown>).customer_email as string
+        : undefined
+      const fromBooking = body.booking_data && typeof (body.booking_data as Record<string, unknown>).customer_email === 'string'
+        ? (body.booking_data as Record<string, unknown>).customer_email as string
+        : undefined
+      const rawEmail = customerEmail || fromMeta || fromBooking
+      if (rawEmail) {
+        const emailValidation = validateEmail(rawEmail)
+        if (emailValidation.valid) customerEmail = emailValidation.sanitized
+      }
+    }
+    if (addSubscription && !customerEmail) {
+      return new Response(
+        JSON.stringify({ error: 'Email is required when adding a subscription.' }),
+        {
+          status: 400,
+          headers: {
+            ...validation.headers,
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+    }
+
+    let stripeCustomerId: string | undefined
+    if (addSubscription && customerEmail) {
+      try {
+        const existing = await stripe.customers.list({ email: customerEmail, limit: 1 })
+        if (existing.data.length > 0 && !existing.data[0].deleted) {
+          stripeCustomerId = existing.data[0].id
+        } else {
+          const customerName = (body.booking_data as Record<string, unknown>)?.customer_name
+          const name = typeof customerName === 'string' ? customerName.trim().slice(0, 200) : undefined
+          const newCustomer = await stripe.customers.create({
+            email: customerEmail,
+            name: name || undefined,
+            metadata: { source: 'website', created_via: 'create_payment_intent_subscription' },
+          })
+          stripeCustomerId = newCustomer.id
+        }
+      } catch (err) {
+        const errMsg = err instanceof Error ? err.message : String(err)
+        logSecurityEvent('stripe_customer_create_failed', { email: customerEmail, error: errMsg, ip: validation.clientIP }, 'high')
+        return new Response(
+          JSON.stringify({
+            error: 'Unable to set up subscription. Please try again or use checkout without subscription.',
+          }),
+          {
+            status: 502,
+            headers: {
+              ...validation.headers,
+              'Content-Type': 'application/json',
+            },
+          }
+        )
       }
     }
 
@@ -203,6 +270,7 @@ serve(async (req) => {
       payment_method_types: string[]
       metadata: Record<string, string>
       receipt_email?: string
+      customer?: string
       shipping?: {
         name: string
         address: {
@@ -213,7 +281,7 @@ serve(async (req) => {
           country: string
         }
       }
-      [key: string]: unknown // Allow additional properties
+      [key: string]: unknown
     } = {
       amount: amountInPence,
       currency: currency,
@@ -225,6 +293,7 @@ serve(async (req) => {
         client_ip: validation.clientIP || 'unknown',
       },
       ...(customerEmail && { receipt_email: customerEmail }),
+      ...(stripeCustomerId && { customer: stripeCustomerId }),
     }
 
     // Add shipping info if available (helps Klarna work inline)
@@ -259,7 +328,27 @@ serve(async (req) => {
       }
     }
 
+    // When add_subscription was requested we must have attached a Customer (enforced above)
+    if (addSubscription && !stripeCustomerId) {
+      logSecurityEvent('subscription_without_customer_blocked', { ip: validation.clientIP }, 'critical')
+      return new Response(
+        JSON.stringify({ error: 'Subscription requires a customer. Please try again.' }),
+        {
+          status: 500,
+          headers: { ...validation.headers, 'Content-Type': 'application/json' },
+        }
+      )
+    }
+
     const paymentIntent = await stripe.paymentIntents.create(paymentIntentConfig)
+
+    if (addSubscription) {
+      console.log('[create-payment-intent] subscription checkout – customer attached', {
+        payment_intent_id: paymentIntent.id,
+        has_customer: !!stripeCustomerId,
+        ts: new Date().toISOString(),
+      })
+    }
 
     logSecurityEvent('payment_intent_created', {
       payment_intent_id: paymentIntent.id,

@@ -92,7 +92,7 @@ export async function createPaymentIntentViaSupabase(paymentData) {
         amount: paymentData.amount,
         currency: paymentData.currency || 'gbp',
         metadata: metadata,
-        customer_email: paymentData.metadata?.customer_email,
+        customer_email: paymentData.metadata?.customer_email || paymentData.booking_data?.customer_email || undefined,
         booking_data: paymentData.booking_data || null, // Optional: pre-create booking record
       }
     });
