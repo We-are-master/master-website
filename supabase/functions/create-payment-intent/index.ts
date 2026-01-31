@@ -14,6 +14,7 @@ import {
   sanitizeString,
   logSecurityEvent,
   getCorsHeaders,
+  validateSupabaseEnv,
 } from '../_shared/security.ts'
 
 serve(async (req) => {
@@ -69,6 +70,18 @@ serve(async (req) => {
   }
 
   try {
+    // Log: pagamento iniciado
+    const bodyForLog = validation.body as { amount?: number; currency?: string }
+    const amountPence = typeof bodyForLog?.amount === 'number' ? bodyForLog.amount : 0
+    const currencyLog = bodyForLog?.currency || 'gbp'
+    console.log('[create-payment-intent] invoked', {
+      amount_pence: amountPence,
+      amount_gbp: (amountPence / 100).toFixed(2),
+      currency: currencyLog,
+      ip: validation.clientIP,
+      ts: new Date().toISOString(),
+    })
+
     // Get environment variables
     const stripeSecretKey = Deno.env.get('STRIPE_SECRET_KEY')
     const supabaseUrl = Deno.env.get('SUPABASE_URL')
@@ -79,9 +92,16 @@ serve(async (req) => {
       throw new Error('STRIPE_SECRET_KEY is not configured')
     }
 
-    if (!supabaseUrl || !supabaseServiceKey) {
-      logSecurityEvent('missing_supabase_config', { ip: validation.clientIP }, 'critical')
-      throw new Error('Supabase configuration missing')
+    const envCheck = validateSupabaseEnv(supabaseUrl, supabaseServiceKey)
+    if (!envCheck.valid) {
+      logSecurityEvent('invalid_supabase_config', { ip: validation.clientIP, error: envCheck.error }, 'critical')
+      return new Response(
+        JSON.stringify({ error: envCheck.error }),
+        {
+          status: 500,
+          headers: { ...getCorsHeaders(req.headers.get('origin')), 'Content-Type': 'application/json' },
+        }
+      )
     }
 
     // Initialize Stripe
@@ -91,7 +111,7 @@ serve(async (req) => {
     })
 
     // Initialize Supabase
-    const supabase = createClient(supabaseUrl, supabaseServiceKey)
+    const supabase = createClient(supabaseUrl!, supabaseServiceKey!)
 
     // Parse and validate request body
     const body = validation.body as {
@@ -122,7 +142,8 @@ serve(async (req) => {
       )
     }
 
-    const amountInPence = Math.round(amountValidation.value! * 100)
+    // Frontend sends amount in pence (GBP); do not multiply by 100
+    const amountInPence = Math.round(Number(amountValidation.value))
 
     // Validate currency
     const currency = (body.currency || 'gbp').toLowerCase()
@@ -370,6 +391,14 @@ serve(async (req) => {
         // Don't fail the whole request - payment intent was created successfully
       }
     }
+
+    // Log: pagamento criado com sucesso (antes de devolver resposta)
+    console.log('[create-payment-intent] success', {
+      payment_intent_id: paymentIntent.id,
+      amount_pence: paymentIntent.amount,
+      currency: paymentIntent.currency,
+      ts: new Date().toISOString(),
+    })
 
     // Return the client secret and payment intent ID
     return new Response(

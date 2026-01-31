@@ -10,6 +10,7 @@ import {
   sanitizeString,
   logSecurityEvent,
   getCorsHeaders,
+  validateSupabaseEnv,
 } from '../_shared/security.ts'
 
 serve(async (req) => {
@@ -31,7 +32,7 @@ serve(async (req) => {
 
   try {
     // Security validation
-    const validation = validateRequest(req)
+    const validation = await validateRequest(req)
     if (!validation.valid) {
       logSecurityEvent('invalid_request', { reason: validation.error }, 'medium')
       return new Response(
@@ -58,9 +59,10 @@ serve(async (req) => {
       )
     }
 
-    if (!supabaseUrl || !supabaseServiceKey) {
+    const envCheck = validateSupabaseEnv(supabaseUrl, supabaseServiceKey)
+    if (!envCheck.valid) {
       return new Response(
-        JSON.stringify({ error: 'Supabase configuration missing' }),
+        JSON.stringify({ error: envCheck.error }),
         {
           status: 500,
           headers: { ...getCorsHeaders(req.headers.get('origin')), 'Content-Type': 'application/json' },
@@ -70,7 +72,7 @@ serve(async (req) => {
 
     // Initialize Stripe and Supabase
     const stripe = new Stripe(stripeSecretKey, { apiVersion: '2024-11-20.acacia' })
-    const supabase = createClient(supabaseUrl, supabaseServiceKey)
+    const supabase = createClient(supabaseUrl!, supabaseServiceKey!)
 
     // Parse request body
     const body = await req.json()

@@ -5,6 +5,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import Stripe from 'https://esm.sh/stripe@14.10.0?target=deno'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.0'
+import { validateSupabaseEnv } from '../_shared/security.ts'
 
 // CORS headers for browser requests
 const corsHeaders = {
@@ -53,9 +54,16 @@ serve(async (req) => {
       throw new Error('STRIPE_SECRET_KEY is not configured')
     }
 
-    if (!supabaseUrl || !supabaseServiceKey) {
-      console.error('Supabase configuration missing')
-      throw new Error('Supabase configuration missing')
+    const envCheck = validateSupabaseEnv(supabaseUrl, supabaseServiceKey)
+    if (!envCheck.valid) {
+      console.error(envCheck.error)
+      return new Response(
+        JSON.stringify({ error: envCheck.error }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      )
     }
 
     // Initialize Stripe
@@ -65,7 +73,7 @@ serve(async (req) => {
     })
 
     // Initialize Supabase
-    const supabase = createClient(supabaseUrl, supabaseServiceKey)
+    const supabase = createClient(supabaseUrl!, supabaseServiceKey!)
 
     // Parse request body
     const body = await req.json() as {
@@ -87,7 +95,8 @@ serve(async (req) => {
       )
     }
 
-    const amountInPence = Math.round(Number(body.amount) * 100)
+    // Frontend sends amount in pence (GBP); do not multiply by 100
+    const amountInPence = Math.round(Number(body.amount))
 
     // Validate currency
     const currency = (body.currency || 'gbp').toLowerCase()

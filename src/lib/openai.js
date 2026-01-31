@@ -1,163 +1,43 @@
-// OpenAI integration for intelligent service matching
+// Service matching via Supabase Edge Function proxy (OpenAI key stays on server)
 
 /**
- * Uses OpenAI to match user search query with available services
+ * Uses AI to match user search query with available services.
+ * Calls Supabase Edge Function match-services-ai (proxy) – no OpenAI call from the client.
  * @param {string} userQuery - The user's search query
  * @param {Array} availableServices - Array of available services from database
- * @returns {Promise<Array>} Array of matched services with relevance scores
+ * @returns {Promise<Array>} Array of matched services
  */
 export async function matchServicesWithAI(userQuery, availableServices) {
   try {
-    const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
-    
-    if (!apiKey) {
+    if (typeof window === 'undefined' || !availableServices?.length) {
       return matchServicesBasic(userQuery, availableServices);
     }
 
-    // If OpenAI is not available, fall back to basic matching
-    if (typeof window === 'undefined' || !window.fetch) {
-      return matchServicesBasic(userQuery, availableServices);
-    }
-
-    // Create a compact service list for the prompt (V2 schema: 'service' field, 'keywords' array)
     const serviceList = availableServices.map(s => ({
       id: s.id,
       name: s.service || s.service_name || s.title || 'Unknown',
       category: s.category || '',
       keywords: s.keywords || [],
-      description: (s.description || '').substring(0, 100), // Limit description length
-      ideal_for: s.ideal_for || ''
+      description: (s.description || '').substring(0, 100),
+      ideal_for: s.ideal_for || '',
     }));
 
-
-    const prompt = `Match the user's service request with relevant services. BE PRECISE - prioritize exact matches.
-
-USER REQUEST: "${userQuery}"
-
-AVAILABLE SERVICES:
-${JSON.stringify(serviceList.slice(0, 100), null, 2)}
-
-CRITICAL RULES:
-1. PRIORITY ORDER (most important first):
-   - Services with EXACT keyword match (if user searches "tv mount", return services with keyword "tv mount")
-   - Services with service name containing the exact search terms
-   - Services with keywords containing the search terms
-   - Only include generic services (like "Carpenter") if NO specific matches exist
-
-2. EXAMPLES:
-   - "tv mount" → Return TV mounting/installation services, NOT generic carpentry
-   - "tap leak" → Return plumbing services, NOT general handyman
-   - "deep clean" → Return deep cleaning services, NOT general cleaning
-
-3. DO NOT return generic services (Carpenter, Handyman, etc.) when specific services match
-
-RETURN FORMAT: JSON array with service IDs and scores.
-Example: [{"id": "abc-123-uuid", "score": 0.95}, {"id": "def-456-uuid", "score": 0.85}]
-
-SCORING:
-- Exact keyword match: 0.95-1.0
-- Service name match: 0.85-0.94
-- Keyword contains match: 0.75-0.84
-- Generic/category match: 0.5-0.74 (only if no specific matches)
-
-Return up to 15 services, ordered by relevance. Return [] only if absolutely nothing matches.`;
-
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are a helpful service matching assistant. Match user queries with relevant services. Return a JSON array with service IDs and relevance scores. Always return valid JSON - use format: [{"id": "uuid", "score": 0.9}]. Be helpful and include services that match the user\'s intent.'
-          },
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
-        temperature: 0.2,
-        max_tokens: 2000
-      })
+    const { supabase } = await import('./supabase');
+    const { data, error } = await supabase.functions.invoke('match-services-ai', {
+      body: { userQuery: userQuery.trim().toLowerCase(), serviceList },
     });
 
-    if (!response.ok) {
+    if (error || !data?.matchedIds?.length) {
       return matchServicesBasic(userQuery, availableServices);
     }
 
-    const data = await response.json();
-    const content = data.choices[0]?.message?.content;
-    
-    
-    if (!content) {
-      return matchServicesBasic(userQuery, availableServices);
-    }
-
-    // Parse the JSON response
-    let matchedServices = [];
-    try {
-      // Clean the content - remove markdown code blocks if present
-      let cleanedContent = content.trim();
-      
-      // Remove markdown code blocks (```json ... ```)
-      if (cleanedContent.startsWith('```')) {
-        cleanedContent = cleanedContent.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '');
-      }
-      
-      // Try to find JSON array in the response
-      const jsonMatch = cleanedContent.match(/\[[\s\S]*?\]/);
-      if (jsonMatch) {
-        matchedServices = JSON.parse(jsonMatch[0]);
-      } else {
-        // Try parsing the whole content
-        matchedServices = JSON.parse(cleanedContent);
-      }
-      
-      // Validate that we got an array
-      if (!Array.isArray(matchedServices)) {
-        return matchServicesBasic(userQuery, availableServices);
-      }
-    } catch (parseError) {
-      return matchServicesBasic(userQuery, availableServices);
-    }
-
-    // If AI returned empty array, fall back to basic search
-    if (!matchedServices || matchedServices.length === 0) {
-      return matchServicesBasic(userQuery, availableServices);
-    }
-
-    // Map matched services back to full service objects
-    // Handle both formats: [{"id": "...", "score": 0.9}] or just ["id1", "id2"]
-    const matchedIds = matchedServices.map(m => {
-      if (typeof m === 'string') return m;
-      if (typeof m === 'object' && m.id) return m.id;
-      return null;
-    }).filter(id => id !== null);
-
-    if (matchedIds.length === 0) {
-      return matchServicesBasic(userQuery, availableServices);
-    }
-
+    const matchedIds = data.matchedIds;
     const matchedFullServices = availableServices
       .filter(s => matchedIds.includes(s.id))
-      .sort((a, b) => {
-        const aIndex = matchedIds.indexOf(a.id);
-        const bIndex = matchedIds.indexOf(b.id);
-        return aIndex - bIndex;
-      });
+      .sort((a, b) => matchedIds.indexOf(a.id) - matchedIds.indexOf(b.id));
 
-    
-    // If we found matches, return them. Otherwise fall back to basic search
-    if (matchedFullServices.length > 0) {
-      return matchedFullServices;
-    } else {
-      return matchServicesBasic(userQuery, availableServices);
-    }
-  } catch (error) {
+    return matchedFullServices.length > 0 ? matchedFullServices : matchServicesBasic(userQuery, availableServices);
+  } catch (_) {
     return matchServicesBasic(userQuery, availableServices);
   }
 }

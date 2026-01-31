@@ -7,6 +7,7 @@ import {
   validateRequest,
   validateEmail,
   getCorsHeaders,
+  validateSupabaseEnv,
 } from '../_shared/security.ts'
 
 serve(async (req) => {
@@ -28,7 +29,7 @@ serve(async (req) => {
 
   try {
     // Security validation
-    const validation = validateRequest(req)
+    const validation = await validateRequest(req)
     if (!validation.valid) {
       return new Response(
         JSON.stringify({ error: validation.error || 'Invalid request' }),
@@ -42,10 +43,10 @@ serve(async (req) => {
     // Get environment variables
     const supabaseUrl = Deno.env.get('SUPABASE_URL')
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
-
-    if (!supabaseUrl || !supabaseServiceKey) {
+    const envCheck = validateSupabaseEnv(supabaseUrl, supabaseServiceKey)
+    if (!envCheck.valid) {
       return new Response(
-        JSON.stringify({ error: 'Supabase configuration missing' }),
+        JSON.stringify({ error: envCheck.error }),
         {
           status: 500,
           headers: { ...getCorsHeaders(req.headers.get('origin')), 'Content-Type': 'application/json' },
@@ -54,7 +55,7 @@ serve(async (req) => {
     }
 
     // Initialize Supabase
-    const supabase = createClient(supabaseUrl, supabaseServiceKey)
+    const supabase = createClient(supabaseUrl!, supabaseServiceKey!)
 
     // Parse request body
     const body = await req.json()

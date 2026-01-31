@@ -12,6 +12,7 @@ import {
   getCorsHeaders,
   sanitizeString,
   validateEmail,
+  validateSupabaseEnv,
 } from '../_shared/security.ts'
 
 serve(async (req) => {
@@ -19,9 +20,9 @@ serve(async (req) => {
     return new Response('ok', { headers: getCorsHeaders(req.headers.get('origin')) })
   }
 
-  // Security validation (webhooks have different rate limits)
+  // Security validation (rate limit + size). Do NOT use requireBody: we need the raw body for Stripe signature verification.
   const validation = await validateRequest(req, {
-    requireBody: true,
+    requireBody: false,
     rateLimitType: 'webhook',
     maxPayloadSize: 5 * 1024 * 1024, // 5MB for webhooks
   })
@@ -54,8 +55,16 @@ serve(async (req) => {
       throw new Error('Stripe configuration missing')
     }
 
-    if (!supabaseUrl || !supabaseServiceKey) {
-      throw new Error('Supabase configuration missing')
+    const envCheck = validateSupabaseEnv(supabaseUrl, supabaseServiceKey)
+    if (!envCheck.valid) {
+      logSecurityEvent('invalid_supabase_config', { error: envCheck.error }, 'critical')
+      return new Response(
+        JSON.stringify({ error: envCheck.error }),
+        {
+          status: 500,
+          headers: { ...getCorsHeaders(req.headers.get('origin')), 'Content-Type': 'application/json' },
+        }
+      )
     }
 
     const stripe = new Stripe(stripeSecretKey, {
@@ -63,7 +72,7 @@ serve(async (req) => {
       httpClient: Stripe.createFetchHttpClient(),
     })
 
-    const supabase = createClient(supabaseUrl, supabaseServiceKey)
+    const supabase = createClient(supabaseUrl!, supabaseServiceKey!)
 
     // Get the signature from headers
     const signature = req.headers.get('stripe-signature')
@@ -242,6 +251,93 @@ serve(async (req) => {
             console.error('Error creating booking:', error)
           } else {
             console.log('New booking created from webhook:', data)
+          }
+        }
+
+        // If checkout had "Add Master Club" checked, create Stripe subscription (first month already paid in this PaymentIntent)
+        if (metadata.add_subscription === 'true') {
+          const paymentMethodId = typeof paymentIntent.payment_method === 'string'
+            ? paymentIntent.payment_method
+            : (paymentIntent.payment_method as Stripe.PaymentMethod)?.id
+          const customerName = metadata.customer_name ? sanitizeString(String(metadata.customer_name), 200) : undefined
+
+          if (paymentMethodId && customerEmail && customerEmail !== 'unknown@email.com') {
+            try {
+              const priceId = Deno.env.get('STRIPE_MASTER_CLUB_PRICE_ID')
+              if (!priceId || !priceId.startsWith('price_')) {
+                console.warn('STRIPE_MASTER_CLUB_PRICE_ID not set – skipping subscription creation')
+              } else {
+                // Check if customer already has active subscription (website table)
+                const { data: existingSub } = await supabase
+                  .from('master_club_subscriptions_website')
+                  .select('stripe_subscription_id')
+                  .eq('customer_email', customerEmail.toLowerCase())
+                  .in('status', ['active', 'trialing', 'past_due'])
+                  .maybeSingle()
+
+                if (existingSub?.stripe_subscription_id) {
+                  console.log(`Customer ${customerEmail} already has subscription – skip`)
+                } else {
+                  // Get or create Stripe customer
+                  let stripeCustomer: Stripe.Customer | null = null
+                  const { data: existingRow } = await supabase
+                    .from('master_club_subscriptions_website')
+                    .select('stripe_customer_id')
+                    .eq('customer_email', customerEmail.toLowerCase())
+                    .not('stripe_customer_id', 'is', null)
+                    .limit(1)
+                    .maybeSingle()
+
+                  if (existingRow?.stripe_customer_id) {
+                    try {
+                      stripeCustomer = await stripe.customers.retrieve(existingRow.stripe_customer_id) as Stripe.Customer
+                    } catch (_) {
+                      stripeCustomer = null
+                    }
+                  }
+                  if (!stripeCustomer || stripeCustomer.deleted) {
+                    stripeCustomer = await stripe.customers.create({
+                      email: customerEmail,
+                      name: customerName,
+                      metadata: { source: 'website', created_via: 'webhook_add_subscription' },
+                    })
+                  }
+
+                  try {
+                    await stripe.paymentMethods.attach(paymentMethodId, { customer: stripeCustomer.id })
+                  } catch (attachErr: unknown) {
+                    const msg = attachErr instanceof Error ? attachErr.message : String(attachErr)
+                    if (msg.includes('already been attached') || msg.includes('already attached')) {
+                      const pm = await stripe.paymentMethods.retrieve(paymentMethodId)
+                      const existingCustomerId = (pm as Stripe.PaymentMethod & { customer?: string })?.customer
+                      if (typeof existingCustomerId === 'string') {
+                        stripeCustomer = await stripe.customers.retrieve(existingCustomerId) as Stripe.Customer
+                      }
+                    } else {
+                      throw attachErr
+                    }
+                  }
+                  await stripe.customers.update(stripeCustomer.id, {
+                    invoice_settings: { default_payment_method: paymentMethodId },
+                  })
+
+                  const subscription = await stripe.subscriptions.create({
+                    customer: stripeCustomer.id,
+                    items: [{ price: priceId }],
+                    trial_period_days: 30,
+                    default_payment_method: paymentMethodId,
+                    metadata: {
+                      source: 'website',
+                      customer_email: customerEmail,
+                      customer_name: customerName || '',
+                    },
+                  })
+                  console.log(`Master Club subscription created from webhook: ${subscription.id} for ${customerEmail}`)
+                }
+              }
+            } catch (subErr) {
+              console.error('Error creating Master Club subscription from webhook:', subErr)
+            }
           }
         }
         break
@@ -596,9 +692,10 @@ serve(async (req) => {
       error: errorMessage,
       ip: validation.clientIP,
     }, 'high')
-    
+    console.error('[stripe-webhook] 500:', errorMessage)
+
     return new Response(
-      JSON.stringify({ error: 'Webhook processing failed' }),
+      JSON.stringify({ error: 'Webhook processing failed', details: errorMessage }),
       {
         status: 500,
         headers: {

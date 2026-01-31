@@ -144,6 +144,35 @@ export function getCorsHeaders(origin: string | null): Record<string, string> {
 }
 
 /**
+ * Validate Supabase env vars. Use in Edge Functions that create a Supabase client.
+ * Catches common mistakes (e.g. SUPABASE_URL pointing to storage) that cause "name resolution failed".
+ */
+export function validateSupabaseEnv(
+  supabaseUrl: string | undefined,
+  supabaseServiceKey: string | undefined
+): { valid: true } | { valid: false; error: string } {
+  if (!supabaseUrl || !supabaseServiceKey) {
+    return {
+      valid: false,
+      error: 'Supabase configuration missing (SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY required in Edge Functions env).',
+    }
+  }
+  if (supabaseUrl.includes('storage.')) {
+    return {
+      valid: false,
+      error: 'SUPABASE_URL must be the main API URL (e.g. https://supabase.wearemaster.com), not the storage subdomain. Fix SUPABASE_URL in the Edge Functions environment (e.g. supabase-project/.env) and restart the container.',
+    }
+  }
+  if (!supabaseUrl.startsWith('http://') && !supabaseUrl.startsWith('https://')) {
+    return {
+      valid: false,
+      error: 'SUPABASE_URL must be a valid URL (e.g. https://supabase.wearemaster.com).',
+    }
+  }
+  return { valid: true }
+}
+
+/**
  * Validate and sanitize email
  */
 export function validateEmail(email: string): { valid: boolean; sanitized?: string; error?: string } {
@@ -309,7 +338,12 @@ export function logSecurityEvent(
   }
   
   // In production, send to your logging service (e.g., Datadog, CloudWatch, etc.)
-  console.error(`[SECURITY ${severity.toUpperCase()}]`, JSON.stringify(logEntry))
+  // Use console.log for low (success/audit) so they don't appear as [Error] in logs
+  if (severity === 'low') {
+    console.log(`[SECURITY ${severity.toUpperCase()}]`, JSON.stringify(logEntry))
+  } else {
+    console.error(`[SECURITY ${severity.toUpperCase()}]`, JSON.stringify(logEntry))
+  }
   
   // For critical events, you might want to send alerts
   if (severity === 'critical') {

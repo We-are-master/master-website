@@ -9,6 +9,7 @@ import {
   logSecurityEvent,
   getCorsHeaders,
   validateEmail,
+  validateSupabaseEnv,
 } from '../_shared/security.ts'
 import { getEmailTemplate } from '../_shared/email-templates.ts'
 
@@ -45,15 +46,22 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
     const resendApiKey = Deno.env.get('RESEND_API_KEY')
 
-    if (!supabaseUrl || !supabaseServiceKey) {
-      throw new Error('Supabase configuration missing')
+    const envCheck = validateSupabaseEnv(supabaseUrl, supabaseServiceKey)
+    if (!envCheck.valid) {
+      return new Response(
+        JSON.stringify({ error: envCheck.error }),
+        {
+          status: 500,
+          headers: { ...validation.headers, 'Content-Type': 'application/json' },
+        }
+      )
     }
 
     if (!resendApiKey) {
       throw new Error('RESEND_API_KEY is not configured')
     }
 
-    const supabase = createClient(supabaseUrl, supabaseServiceKey)
+    const supabase = createClient(supabaseUrl!, supabaseServiceKey!)
     const body = await req.json()
 
     // Validate required fields

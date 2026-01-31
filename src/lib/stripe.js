@@ -100,26 +100,34 @@ export async function createPaymentIntentViaSupabase(paymentData) {
     // Enhanced error handling
     if (error) {
       console.error('[Payment] Supabase function error:', error);
+      // Use backend error message when available (e.g. from response body)
+      const backendMsg = error.context?.body?.error ?? error.context?.error ?? error.message;
       
-      // Handle specific error types
-      if (error.message?.includes('not found') || error.message?.includes('404')) {
-        throw new Error('Payment service not available. Please contact support. (Edge Function not deployed)');
+      if (backendMsg?.includes('not found') || backendMsg?.includes('404') ||
+          backendMsg?.includes('InvalidWorkerCreation') || backendMsg?.includes('worker boot error') ||
+          backendMsg?.includes('No such file or directory')) {
+        throw new Error('Payment service not available. Please contact support. (Edge Function not deployed or failed to start)');
       }
       
-      if (error.message?.includes('503') || error.message?.includes('Service Unavailable')) {
+      if (backendMsg?.includes('503') || backendMsg?.includes('Service Unavailable')) {
         throw new Error('Payment service is temporarily unavailable. Please try again in a moment.');
       }
       
-      if (error.message?.includes('timeout') || error.message?.includes('Timeout')) {
+      if (backendMsg?.includes('timeout') || backendMsg?.includes('Timeout')) {
         throw new Error('Payment request timed out. Please try again.');
       }
       
-      // Check if it's a network error
-      if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
+      if (backendMsg?.includes('Failed to fetch') || backendMsg?.includes('NetworkError')) {
         throw new Error('Network error. Please check your connection and try again.');
       }
       
-      throw new Error(error.message || 'Failed to create payment intent. Please try again.');
+      if (backendMsg?.includes('STRIPE_SECRET_KEY') || backendMsg?.includes('not configured')) {
+        throw new Error('Payment service is not configured on the server. Please contact support.');
+      }
+      if (backendMsg?.includes('SUPABASE_URL') || backendMsg?.includes('Supabase configuration')) {
+        throw new Error('Server configuration error: ' + (backendMsg || 'Supabase URL/keys missing or wrong. Contact support.'));
+      }
+      throw new Error(backendMsg || 'Failed to create payment intent. Please try again.');
     }
 
     if (!data || !data.clientSecret) {

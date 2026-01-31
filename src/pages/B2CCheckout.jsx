@@ -40,7 +40,7 @@ const PaymentForm = ({ onSuccess, clientSecret }) => {
         confirmParams: {
           return_url: `${window.location.origin}/checkout-success`,
         },
-        redirect: 'never', // Try to keep everything inline - Klarna may still redirect for authentication
+        redirect: 'if_required', // Only redirect when needed (e.g. 3DS, Klarna); otherwise stay on page
       });
 
       if (confirmError) {
@@ -72,6 +72,7 @@ const PaymentForm = ({ onSuccess, clientSecret }) => {
 
           // Only show success if verified status is succeeded
           if (verifiedIntent.status === 'succeeded') {
+            console.log('[Payment] pagamento confirmado', { paymentIntentId: verifiedIntent.id, status: verifiedIntent.status });
             onSuccess(verifiedIntent);
           } else {
             setError(`Payment status: ${verifiedIntent.status}. Payment was not completed.`);
@@ -91,6 +92,7 @@ const PaymentForm = ({ onSuccess, clientSecret }) => {
           try {
             const { paymentIntent: updatedIntent } = await stripe.retrievePaymentIntent(clientSecret);
             if (updatedIntent?.status === 'succeeded') {
+              console.log('[Payment] pagamento confirmado (após polling)', { paymentIntentId: updatedIntent.id, status: updatedIntent.status });
               onSuccess(updatedIntent);
             } else {
               setError(`Payment status: ${updatedIntent?.status || 'unknown'}. Please check back in a moment or contact support.`);
@@ -105,7 +107,9 @@ const PaymentForm = ({ onSuccess, clientSecret }) => {
         setLoading(false);
       }
     } catch (err) {
-      setError('An unexpected error occurred. Please try again.');
+      const msg = err?.message || 'An unexpected error occurred. Please try again.';
+      setError(msg);
+      console.error('[Payment] Confirm error:', err);
     } finally {
       setLoading(false);
     }
@@ -244,6 +248,37 @@ const B2CCheckout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { service: serviceFromState, postcode, jobDescription, services: servicesFromState } = location.state || {};
+
+  // Hide Zoho SalesIQ chat widget on checkout so "We're offline" popup doesn't cover the Continue button
+  useEffect(() => {
+    const hideZohoWidget = () => {
+      try {
+        if (typeof window !== 'undefined' && window.$zoho?.salesiq?.floatwindow) {
+          window.$zoho.salesiq.floatwindow.visible = 'hidden';
+        }
+        document.querySelectorAll('[id^="zsiq"], .zsiq_float, .zsiq_theme').forEach((el) => {
+          if (el?.style) el.style.setProperty('display', 'none', 'important');
+        });
+      } catch (_) {}
+    };
+    const showZohoWidget = () => {
+      try {
+        if (typeof window !== 'undefined' && window.$zoho?.salesiq?.floatwindow) {
+          window.$zoho.salesiq.floatwindow.visible = 'show';
+        }
+        document.querySelectorAll('[id^="zsiq"], .zsiq_float, .zsiq_theme').forEach((el) => {
+          if (el?.style) el.style.removeProperty('display');
+        });
+      } catch (_) {}
+    };
+    hideZohoWidget();
+    const t = setTimeout(hideZohoWidget, 1500);
+    return () => {
+      clearTimeout(t);
+      showZohoWidget();
+    };
+  }, []);
+
   // Support multiple services from booking page cart; fallback to single service
   const servicesList = servicesFromState?.length
     ? servicesFromState
@@ -449,6 +484,7 @@ const B2CCheckout = () => {
 
     try {
       const amount = Math.round((orderTotal || totalPrice || service.price || 0) * 100);
+      console.log('[Checkout] create-payment-intent iniciado', { amount_pence: amount, amount_gbp: (amount / 100).toFixed(2), currency: 'gbp' });
       
       if (amount <= 0) {
         setPaymentError('Invalid service price');
@@ -508,10 +544,7 @@ const B2CCheckout = () => {
       });
 
       setClientSecret(paymentData.clientSecret);
-      
-      setTimeout(() => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }, 100);
+      console.log('[Checkout] create-payment-intent ok', { paymentIntentId: paymentData.paymentIntentId, hasClientSecret: !!paymentData.clientSecret });
     } catch (err) {
       console.error('[Checkout] Payment intent creation error:', err);
       
@@ -652,6 +685,7 @@ const B2CCheckout = () => {
   };
 
   const handlePaymentSuccess = (paymentIntent) => {
+    console.log('[Checkout] pagamento concluído', { paymentIntentId: paymentIntent.id, status: paymentIntent.status });
     // Only show success if payment is verified as succeeded
     if (paymentIntent.status !== 'succeeded') {
       setPaymentError(`Payment status: ${paymentIntent.status}. Payment was not completed.`);
@@ -694,9 +728,6 @@ const B2CCheckout = () => {
     const formValid = isFormValid();
     if (formValid && !hasScrolledToPayment && !clientSecret) {
       setHasScrolledToPayment(true);
-      setTimeout(() => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }, 300);
     }
     if (!formValid && hasScrolledToPayment) {
       setHasScrolledToPayment(false);

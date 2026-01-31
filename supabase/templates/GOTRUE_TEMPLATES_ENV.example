@@ -1,0 +1,16 @@
+# Variáveis de ambiente para o Auth (GoTrue) – templates de email por ficheiro
+# Adicione estas linhas ao env do serviço auth no servidor (docker-compose ou .env do Auth).
+#
+# Onde sobem os templates:
+#   - O script deploy_auth_templates.sh envia os ficheiros para o servidor em:
+#     /root/supabase-project/volumes/auth/templates
+#   - No docker-compose o volume do Auth deve montar essa pasta DENTRO do container, ex.:
+#     volumes:
+#       - /root/supabase-project/volumes/auth/templates:/templates
+#   - O path que usas abaixo é o path DENTRO do container (ex.: /templates).
+#     Se montares noutro path (ex.: /var/lib/supabase/templates), troca /templates por esse path.
+
+GOTRUE_MAILER_TEMPLATES_CONFIRMATION=/templates/confirmation.html
+GOTRUE_MAILER_TEMPLATES_RECOVERY=/templates/recovery.html
+GOTRUE_MAILER_TEMPLATES_MAGIC_LINK=/templates/magic_link.html
+GOTRUE_MAILER_TEMPLATES_EMAIL_CHANGE=/templates/email_change.html

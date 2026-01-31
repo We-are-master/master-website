@@ -170,31 +170,29 @@ const B2CBooking = () => {
     let cancelled = false;
     (async () => {
       try {
-        const allServices = await getServices();
-        let servicesFromDB = allServices;
         const jobDesc = String(serviceFromState).trim();
+        let servicesFromDB;
 
         if (jobDesc) {
           const normalizedQuery = normalizeServiceQuery(jobDesc);
           const originalQuery = jobDesc.toLowerCase();
-          try {
-            const aiMatched = await matchServicesWithAI(originalQuery, allServices);
-            if (aiMatched && aiMatched.length > 0) {
-              servicesFromDB = aiMatched;
-            } else {
-              let dbSearch = await searchServices(originalQuery);
-              if ((!dbSearch || dbSearch.length === 0) && normalizedQuery !== originalQuery) {
-                dbSearch = await searchServices(normalizedQuery);
-              }
-              servicesFromDB = dbSearch && dbSearch.length > 0 ? dbSearch : allServices;
-            }
-          } catch {
-            let dbSearch = await searchServices(originalQuery);
-            if ((!dbSearch || dbSearch.length === 0) && normalizedQuery !== originalQuery) {
-              dbSearch = await searchServices(normalizedQuery);
-            }
-            servicesFromDB = dbSearch && dbSearch.length > 0 ? dbSearch : allServices;
+          let dbSearch = await searchServices(normalizedQuery);
+          if (!dbSearch?.length && normalizedQuery !== originalQuery) {
+            dbSearch = await searchServices(originalQuery);
           }
+          if (dbSearch?.length > 0) {
+            servicesFromDB = dbSearch;
+          } else {
+            const allServices = await getServices();
+            try {
+              const aiMatched = await matchServicesWithAI(originalQuery, allServices);
+              servicesFromDB = (aiMatched?.length > 0) ? aiMatched : allServices;
+            } catch {
+              servicesFromDB = allServices;
+            }
+          }
+        } else {
+          servicesFromDB = await getServices();
         }
 
         const transformedServices = servicesFromDB.map(service => {
@@ -450,42 +448,32 @@ const B2CBooking = () => {
     setLoading(true);
     
     try {
-      // Fetch all services from Supabase
-      const allServices = await getServices();
-      let servicesFromDB = allServices;
+      let servicesFromDB;
       
-      // If we have a job description, use AI to match services
+      // Fast path: try DB search first (no OpenAI, no full getServices when we have a query)
       if (jobDescription.trim()) {
         const normalizedQuery = normalizeServiceQuery(jobDescription);
         const originalQuery = jobDescription.trim().toLowerCase();
         
-        // Try AI matching first with original query
-        try {
-          const aiMatched = await matchServicesWithAI(originalQuery, allServices);
-          if (aiMatched && aiMatched.length > 0) {
-            servicesFromDB = aiMatched;
-          } else {
-            // AI returned empty, try database search with both original and normalized
-            let dbSearch = await searchServices(originalQuery);
-            if ((!dbSearch || dbSearch.length === 0) && normalizedQuery !== originalQuery) {
-              dbSearch = await searchServices(normalizedQuery);
-            }
-            
-            if (dbSearch && dbSearch.length > 0) {
-              servicesFromDB = dbSearch;
-            } else {
-              // No matches found - show all services but with a note
-              servicesFromDB = allServices;
-            }
-          }
-        } catch (aiError) {
-          // Fall back to database search with both queries
-          let dbSearch = await searchServices(originalQuery);
-          if ((!dbSearch || dbSearch.length === 0) && normalizedQuery !== originalQuery) {
-            dbSearch = await searchServices(normalizedQuery);
-          }
-          servicesFromDB = dbSearch && dbSearch.length > 0 ? dbSearch : allServices;
+        let dbSearch = await searchServices(normalizedQuery);
+        if (!dbSearch?.length && normalizedQuery !== originalQuery) {
+          dbSearch = await searchServices(originalQuery);
         }
+        
+        if (dbSearch?.length > 0) {
+          servicesFromDB = dbSearch;
+        } else {
+          // DB search returned nothing: fetch all and use AI as fallback
+          const allServices = await getServices();
+          try {
+            const aiMatched = await matchServicesWithAI(originalQuery, allServices);
+            servicesFromDB = (aiMatched?.length > 0) ? aiMatched : allServices;
+          } catch {
+            servicesFromDB = allServices;
+          }
+        }
+      } else {
+        servicesFromDB = await getServices();
       }
       
       // Transform Supabase services to match the expected format (V2 schema)

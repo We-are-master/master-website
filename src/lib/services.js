@@ -6,14 +6,24 @@ import { supabase } from './supabase';
 // Use v2 table
 const SERVICES_TABLE = 'services_v2';
 
+// In-memory cache for getServices (avoids refetch when AI fallback runs)
+const CACHE_TTL_MS = 2 * 60 * 1000; // 2 minutes
+let cache = { data: null, ts: 0 };
+
 /**
- * Get all active services
+ * Get all active services (cached for 2 min to speed up repeated searches)
  * @param {Object} filters - Optional filters
  * @param {string} filters.category - Filter by category
  * @returns {Promise<Array>} Array of services
  */
 export async function getServices(filters = {}) {
   try {
+    const now = Date.now();
+    const useCache = !filters.category && cache.data !== null && (now - cache.ts) < CACHE_TTL_MS;
+    if (useCache) {
+      return cache.data;
+    }
+
     let query = supabase
       .from(SERVICES_TABLE)
       .select('*')
@@ -32,7 +42,11 @@ export async function getServices(filters = {}) {
       throw error;
     }
 
-    return data || [];
+    const result = data || [];
+    if (!filters.category) {
+      cache = { data: result, ts: Date.now() };
+    }
+    return result;
   } catch (error) {
     return [];
   }
