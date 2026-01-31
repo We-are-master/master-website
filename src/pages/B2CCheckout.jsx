@@ -419,16 +419,24 @@ const B2CCheckout = () => {
     ? parseFloat(service?.price || 0) * selectedHours + BOOKING_FEE
     : cartSubtotal + BOOKING_FEE;
 
-  // Subscription offer (discount + Master Club) only applies when email is entered and upsell checkbox is visible and checked
+  // Existing member: 10% discount (no checkbox, no add-on)
+  const existingMemberDiscount = Boolean(customerDetails.email && hasSubscription === true)
+    ? totalPrice * 0.1
+    : 0;
+  // New sign-up offer: 30% discount + Master Club add-on when checkbox checked
   const subscriptionOfferActive = Boolean(
     customerDetails.email &&
     hasSubscription === false &&
     addSubscriptionToOrder
   );
-  const memberDiscount = subscriptionOfferActive ? totalPrice * 0.3 : 0;
-  const orderTotal = subscriptionOfferActive
-    ? totalPrice * 0.7 + SUBSCRIPTION_PRICE
-    : totalPrice;
+  const newMemberDiscount = subscriptionOfferActive ? totalPrice * 0.3 : 0;
+  const memberDiscount = existingMemberDiscount > 0 ? existingMemberDiscount : newMemberDiscount;
+  const orderTotal =
+    hasSubscription === true
+      ? totalPrice - existingMemberDiscount
+      : subscriptionOfferActive
+        ? totalPrice * 0.7 + SUBSCRIPTION_PRICE
+        : totalPrice;
 
   // Check subscription status when email is available
   useEffect(() => {
@@ -2362,8 +2370,8 @@ const B2CCheckout = () => {
                 </div>
               )}
 
-              {/* Member discount (30%) — only after email entered and upsell checkbox checked */}
-              {subscriptionOfferActive && memberDiscount > 0 && (
+              {/* Member discount — 10% when already subscribed, 30% when adding at checkout */}
+              {memberDiscount > 0 && (
                 <div style={{
                   display: 'flex',
                   justifyContent: 'space-between',
@@ -2372,7 +2380,7 @@ const B2CCheckout = () => {
                   padding: '0.5rem 0'
                 }}>
                   <span style={{ color: '#15803d', fontSize: '0.875rem', fontWeight: '500' }}>
-                    Member discount (30%)
+                    Member discount ({hasSubscription === true ? '10%' : '30%'})
                   </span>
                   <span style={{ fontWeight: '600', color: '#15803d', fontSize: '0.9375rem' }}>
                     -£{memberDiscount.toFixed(2)}
