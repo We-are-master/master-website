@@ -61,6 +61,11 @@ body {
   .container {
     padding: 0 1rem;
   }
+  /* Step 3: cards ocupam 100% da largura com margens laterais mínimas (igual painting) */
+  .container.booking-step3-container {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
 }
 
 /* Checkout: single column on mobile so progress and summary fit */
@@ -555,6 +560,10 @@ body {
     width: 100%;
     max-width: 100%;
     overflow-x: hidden;
+  }
+  .container.booking-step3-container {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
   }
   
   /* Show mobile menu button on mobile */

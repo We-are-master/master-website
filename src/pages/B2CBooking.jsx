@@ -608,7 +608,7 @@ const B2CBooking = () => {
         </div>
       </div>
 
-      <div className="container" style={{ padding: '2rem 0' }}>
+      <div className={`container${step === 3 ? ' booking-step3-container' : ''}`} style={{ padding: '2rem 0' }}>
         {/* Step 1: Job Description */}
         {step === 1 && (
           <div style={{
