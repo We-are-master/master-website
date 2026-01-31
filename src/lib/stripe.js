@@ -87,13 +87,17 @@ export async function createPaymentIntentViaSupabase(paymentData) {
       });
     }
 
+    const customerEmail = paymentData.metadata?.customer_email || paymentData.booking_data?.customer_email || undefined;
+    const addSubscription = metadata.add_subscription === 'true' || metadata.add_subscription === true;
+
     const { data, error } = await supabase.functions.invoke('create-payment-intent', {
       body: {
         amount: paymentData.amount,
         currency: paymentData.currency || 'gbp',
         metadata: metadata,
-        customer_email: paymentData.metadata?.customer_email || paymentData.booking_data?.customer_email || undefined,
-        booking_data: paymentData.booking_data || null, // Optional: pre-create booking record
+        customer_email: customerEmail,
+        add_subscription: addSubscription ? 'true' : 'false',
+        booking_data: paymentData.booking_data || null,
       }
     });
 

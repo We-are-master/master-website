@@ -198,9 +198,15 @@ serve(async (req) => {
       }
     }
 
-    // Detect add_subscription from any source (string 'true' or boolean true) so we never miss it
-    const rawAddSub = body.metadata?.add_subscription ?? body.add_subscription ?? (body.booking_data as Record<string, unknown>)?.add_subscription
+    // Prefer top-level body.add_subscription so frontend can guarantee it is received
+    const rawAddSub = body.add_subscription ?? body.metadata?.add_subscription ?? (body.booking_data as Record<string, unknown>)?.add_subscription
     const addSubscription = rawAddSub === true || rawAddSub === 'true'
+    console.log('[create-payment-intent] request', {
+      add_subscription: addSubscription,
+      raw_add_subscription: rawAddSub,
+      has_customer_email: !!customerEmail,
+      ts: new Date().toISOString(),
+    })
     if (addSubscription && !customerEmail) {
       // Fallback: use email from metadata or booking_data so we don't miss it
       const fromMeta = body.metadata && typeof (body.metadata as Record<string, unknown>).customer_email === 'string'

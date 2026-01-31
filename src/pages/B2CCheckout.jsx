@@ -483,8 +483,14 @@ const B2CCheckout = () => {
     setPaymentError(null);
 
     try {
+      if (addSubscriptionToOrder && (!customerDetails?.email?.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerDetails.email))) {
+        setPaymentError('Please enter a valid email address to add Master Club.');
+        setCreatingPaymentIntent(false);
+        return;
+      }
+
       const amount = Math.round((orderTotal || totalPrice || service.price || 0) * 100);
-      console.log('[Checkout] create-payment-intent iniciado', { amount_pence: amount, amount_gbp: (amount / 100).toFixed(2), currency: 'gbp' });
+      console.log('[Checkout] create-payment-intent iniciado', { amount_pence: amount, amount_gbp: (amount / 100).toFixed(2), currency: 'gbp', add_subscription: addSubscriptionToOrder });
       
       if (amount <= 0) {
         setPaymentError('Invalid service price');

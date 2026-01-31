@@ -15,16 +15,52 @@ import {
   validateSupabaseEnv,
 } from '../_shared/security.ts'
 
+/** Verify Stripe webhook signature manually (exact raw body + secret, no SDK normalization). */
+async function verifyStripeSignature(rawBody: string, signatureHeader: string, secret: string): Promise<boolean> {
+  const parts = signatureHeader.split(',')
+  let timestamp = ''
+  const v1Signatures: string[] = []
+  for (const part of parts) {
+    const [key, value] = part.split('=').map((s) => s.trim())
+    if (key === 't') timestamp = value ?? ''
+    if (key === 'v1' && value) v1Signatures.push(value)
+  }
+  if (!timestamp || v1Signatures.length === 0) return false
+  const payload = `${timestamp}.${rawBody}`
+  const key = await crypto.subtle.importKey(
+    'raw',
+    new TextEncoder().encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  )
+  const sigBuffer = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(payload))
+  const expectedHex = Array.from(new Uint8Array(sigBuffer))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('')
+  for (const v1 of v1Signatures) {
+    if (v1.length !== expectedHex.length) continue
+    let match = 0
+    for (let i = 0; i < v1.length; i++) match += v1[i] === expectedHex[i] ? 1 : 0
+    if (match === v1.length) return true
+  }
+  return false
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: getCorsHeaders(req.headers.get('origin')) })
   }
 
-  // Security validation (rate limit + size). Do NOT use requireBody: we need the raw body for Stripe signature verification.
+  // Read raw body ONCE – Stripe signature must be verified against the exact bytes received (no proxy/parsing changes).
+  const rawBody = await req.text()
+
+  // Security validation (rate limit + size). Pass rawBody so we don't read body again; same string is used for verification below.
   const validation = await validateRequest(req, {
     requireBody: false,
     rateLimitType: 'webhook',
     maxPayloadSize: 5 * 1024 * 1024, // 5MB for webhooks
+    rawBody,
   })
 
   if (!validation.valid) {
@@ -46,8 +82,9 @@ serve(async (req) => {
   }
 
   try {
-    const stripeSecretKey = Deno.env.get('STRIPE_SECRET_KEY')
-    const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET')
+    // Trim secrets – .env often has trailing newline/space which breaks Stripe signature verification
+    const stripeSecretKey = (Deno.env.get('STRIPE_SECRET_KEY') ?? '').trim()
+    const webhookSecret = (Deno.env.get('STRIPE_WEBHOOK_SECRET') ?? '').trim()
     const supabaseUrl = Deno.env.get('SUPABASE_URL')
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
 
@@ -74,8 +111,8 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl!, supabaseServiceKey!)
 
-    // Get the signature from headers
-    const signature = req.headers.get('stripe-signature')
+    // Get the signature from headers (trim in case proxy adds whitespace)
+    const signature = req.headers.get('stripe-signature')?.trim()
     if (!signature) {
       logSecurityEvent('webhook_missing_signature', {
         ip: validation.clientIP,
@@ -93,21 +130,14 @@ serve(async (req) => {
       )
     }
 
-    // Get the raw body (already validated for size)
-    const body = await req.text()
-
-    // Verify the webhook signature (CRITICAL SECURITY CHECK)
-    let event: Stripe.Event
-    try {
-      event = stripe.webhooks.constructEvent(body, signature, webhookSecret)
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error'
-      
+    // Verify signature with exact raw body + secret (manual HMAC so nothing alters body/secret)
+    const signatureValid = await verifyStripeSignature(rawBody, signature, webhookSecret)
+    if (!signatureValid) {
       logSecurityEvent('webhook_signature_verification_failed', {
-        error: errorMessage,
         ip: validation.clientIP,
+        bodyLength: rawBody.length,
+        secretSet: !!webhookSecret,
       }, 'critical')
-      
       return new Response(
         JSON.stringify({ error: 'Webhook signature verification failed' }),
         {
@@ -117,6 +147,16 @@ serve(async (req) => {
             'Content-Type': 'application/json',
           },
         }
+      )
+    }
+
+    let event: Stripe.Event
+    try {
+      event = JSON.parse(rawBody) as Stripe.Event
+    } catch {
+      return new Response(
+        JSON.stringify({ error: 'Invalid webhook payload' }),
+        { status: 400, headers: { ...validation.headers, 'Content-Type': 'application/json' } }
       )
     }
 
@@ -150,11 +190,15 @@ serve(async (req) => {
         }
 
         // First try to find existing booking by stripe_payment_intent_id
-        const { data: existingBooking } = await supabase
+        const { data: existingBooking, error: findBookingError } = await supabase
           .from('booking_website')
           .select('id, booking_ref')
           .eq('stripe_payment_intent_id', paymentIntent.id)
           .single()
+
+        if (findBookingError?.code === 'PGRST116' || !existingBooking) {
+          console.log(`PaymentIntent ${paymentIntent.id}: no existing booking found (create-payment-intent may have failed to insert). Will try fallback insert and still send confirmation email.`, findBookingError?.message || '')
+        }
 
         if (existingBooking) {
           // Update existing booking to confirmed/paid
@@ -251,21 +295,54 @@ serve(async (req) => {
             console.error('Error creating booking:', error)
           } else {
             console.log('New booking created from webhook:', data)
+            // Send confirmation email for fallback-created booking (same as when existing booking found)
+            const fallbackEmail = customerEmail
+            const fallbackBookingRef = `MAS-${paymentIntent.id.slice(-8).toUpperCase()}`
+            try {
+              await fetch(`${supabaseUrl}/functions/v1/send-email`, {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${supabaseServiceKey}`,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  template: 'booking_confirmed',
+                  to: fallbackEmail,
+                  data: {
+                    name: metadata.customer_name || 'there',
+                    bookingRef: fallbackBookingRef,
+                  },
+                }),
+              })
+            } catch (emailErr) {
+              console.warn('Failed to send confirmation email (fallback branch):', emailErr)
+            }
           }
         }
 
         // If checkout had "Add Master Club" checked, create Stripe subscription (first month already paid in this PaymentIntent)
         if (metadata.add_subscription === 'true') {
+          const paymentIntentCustomerId =
+            typeof paymentIntent.customer === 'string'
+              ? paymentIntent.customer
+              : (paymentIntent.customer as Stripe.Customer)?.id
+
+          if (!paymentIntentCustomerId) {
+            console.warn(`PaymentIntent ${paymentIntent.id}: add_subscription=true but PaymentIntent has no customer – subscription skipped. Ensure create-payment-intent is deployed and sets Customer when add_subscription=true (same server as supabase.wearemaster.com).`)
+          } else {
+          console.log(`PaymentIntent ${paymentIntent.id}: add_subscription=true – attempting Master Club subscription for ${customerEmail}`)
           const paymentMethodId = typeof paymentIntent.payment_method === 'string'
             ? paymentIntent.payment_method
             : (paymentIntent.payment_method as Stripe.PaymentMethod)?.id
           const customerName = metadata.customer_name ? sanitizeString(String(metadata.customer_name), 200) : undefined
 
-          if (paymentMethodId && customerEmail && customerEmail !== 'unknown@email.com') {
+          if (!paymentMethodId || !customerEmail || customerEmail === 'unknown@email.com') {
+            console.warn(`PaymentIntent ${paymentIntent.id}: skipping subscription – missing payment_method or valid customer_email`)
+          } else {
             try {
-              const priceId = Deno.env.get('STRIPE_MASTER_CLUB_PRICE_ID')
+              const priceId = (Deno.env.get('STRIPE_MASTER_CLUB_PRICE_ID') ?? '').trim()
               if (!priceId || !priceId.startsWith('price_')) {
-                console.warn('STRIPE_MASTER_CLUB_PRICE_ID not set – skipping subscription creation')
+                console.warn('STRIPE_MASTER_CLUB_PRICE_ID not set or invalid – skipping subscription creation. Add it to the Edge Functions env (same .env as STRIPE_SECRET_KEY) and restart the container.')
               } else {
                 // Check if customer already has active subscription (website table)
                 const { data: existingSub } = await supabase
@@ -276,68 +353,79 @@ serve(async (req) => {
                   .maybeSingle()
 
                 if (existingSub?.stripe_subscription_id) {
-                  console.log(`Customer ${customerEmail} already has subscription – skip`)
+                  console.log(`Customer ${customerEmail} already has active subscription – skipping creation`)
                 } else {
-                  // Get or create Stripe customer
+                  // paymentIntentCustomerId already set above (required to enter this block)
                   let stripeCustomer: Stripe.Customer | null = null
-                  const { data: existingRow } = await supabase
-                    .from('master_club_subscriptions_website')
-                    .select('stripe_customer_id')
-                    .eq('customer_email', customerEmail.toLowerCase())
-                    .not('stripe_customer_id', 'is', null)
-                    .limit(1)
-                    .maybeSingle()
-
-                  if (existingRow?.stripe_customer_id) {
+                  if (paymentIntentCustomerId) {
                     try {
-                      stripeCustomer = await stripe.customers.retrieve(existingRow.stripe_customer_id) as Stripe.Customer
+                      stripeCustomer = await stripe.customers.retrieve(paymentIntentCustomerId) as Stripe.Customer
+                      if (stripeCustomer.deleted) throw new Error('Customer deleted')
                     } catch (_) {
-                      stripeCustomer = null
+                      stripeCustomer = await stripe.customers.create({
+                        email: customerEmail,
+                        name: customerName,
+                        metadata: { source: 'website', created_via: 'webhook_add_subscription' },
+                      })
+                      await stripe.paymentMethods.attach(paymentMethodId, { customer: stripeCustomer.id })
                     }
-                  }
-                  if (!stripeCustomer || stripeCustomer.deleted) {
-                    stripeCustomer = await stripe.customers.create({
-                      email: customerEmail,
-                      name: customerName,
-                      metadata: { source: 'website', created_via: 'webhook_add_subscription' },
-                    })
+                  } else {
+                    console.warn(`PaymentIntent ${paymentIntent.id}: no customer on PaymentIntent – cannot create subscription (PaymentMethod cannot be reused). Deploy create-payment-intent so future checkouts with add_subscription set a Customer.`)
                   }
 
-                  try {
-                    await stripe.paymentMethods.attach(paymentMethodId, { customer: stripeCustomer.id })
-                  } catch (attachErr: unknown) {
-                    const msg = attachErr instanceof Error ? attachErr.message : String(attachErr)
-                    if (msg.includes('already been attached') || msg.includes('already attached')) {
-                      const pm = await stripe.paymentMethods.retrieve(paymentMethodId)
-                      const existingCustomerId = (pm as Stripe.PaymentMethod & { customer?: string })?.customer
-                      if (typeof existingCustomerId === 'string') {
-                        stripeCustomer = await stripe.customers.retrieve(existingCustomerId) as Stripe.Customer
+                  if (stripeCustomer) {
+                    // Ensure PaymentMethod is attached to this customer (Stripe may not attach on confirm in some flows)
+                    try {
+                      await stripe.paymentMethods.attach(paymentMethodId, { customer: stripeCustomer.id })
+                    } catch (attachErr: unknown) {
+                      const msg = attachErr instanceof Error ? attachErr.message : String(attachErr)
+                      if (msg.includes('already been attached') || msg.includes('already attached')) {
+                        // PM is on another customer – use that customer so default_payment_method is valid
+                        try {
+                          const pm = await stripe.paymentMethods.retrieve(paymentMethodId)
+                          const existingCustomerId = (pm as Stripe.PaymentMethod & { customer?: string })?.customer
+                          if (typeof existingCustomerId === 'string') {
+                            stripeCustomer = await stripe.customers.retrieve(existingCustomerId) as Stripe.Customer
+                            if (stripeCustomer.deleted) stripeCustomer = null
+                          }
+                        } catch (_) {
+                          console.warn('Could not get customer from PaymentMethod')
+                        }
+                      } else if (msg.includes('previously used without being attached') || msg.includes('detached from a Customer') || msg.includes('may not be used again')) {
+                        // PaymentIntent was created without customer – PM cannot be reused for subscription; skip
+                        console.warn(`PaymentIntent ${paymentIntent.id}: PaymentMethod cannot be reused for subscription (used without Customer). Deploy create-payment-intent so future checkouts with add_subscription set a Customer.`)
+                        stripeCustomer = null
+                      } else {
+                        console.warn('PaymentMethod attach:', msg)
                       }
-                    } else {
-                      throw attachErr
+                    }
+                    if (stripeCustomer) {
+                      await stripe.customers.update(stripeCustomer.id, {
+                        invoice_settings: { default_payment_method: paymentMethodId },
+                      })
                     }
                   }
-                  await stripe.customers.update(stripeCustomer.id, {
-                    invoice_settings: { default_payment_method: paymentMethodId },
-                  })
 
-                  const subscription = await stripe.subscriptions.create({
-                    customer: stripeCustomer.id,
-                    items: [{ price: priceId }],
-                    trial_period_days: 30,
-                    default_payment_method: paymentMethodId,
-                    metadata: {
-                      source: 'website',
-                      customer_email: customerEmail,
-                      customer_name: customerName || '',
-                    },
-                  })
-                  console.log(`Master Club subscription created from webhook: ${subscription.id} for ${customerEmail}`)
+                  if (stripeCustomer) {
+                    const subscription = await stripe.subscriptions.create({
+                      customer: stripeCustomer.id,
+                      items: [{ price: priceId }],
+                      trial_period_days: 30,
+                      default_payment_method: paymentMethodId,
+                      metadata: {
+                        source: 'website',
+                        customer_email: customerEmail,
+                        customer_name: customerName || '',
+                      },
+                    })
+                    console.log(`Master Club subscription created from webhook: ${subscription.id} for ${customerEmail}`)
+                  }
                 }
               }
             } catch (subErr) {
               console.error('Error creating Master Club subscription from webhook:', subErr)
             }
+          }
           }
         }
         break
