@@ -419,20 +419,22 @@ const B2CCheckout = () => {
     ? parseFloat(service?.price || 0) * selectedHours + BOOKING_FEE
     : cartSubtotal + BOOKING_FEE;
 
+  // Normalise API response: has_subscription can be boolean true or string "true"
+  const hasActiveSubscription = hasSubscription === true || hasSubscription === 'true';
   // Existing member: 10% discount (no checkbox, no add-on)
-  const existingMemberDiscount = Boolean(customerDetails.email && hasSubscription === true)
+  const existingMemberDiscount = Boolean(customerDetails.email && hasActiveSubscription)
     ? totalPrice * 0.1
     : 0;
   // New sign-up offer: 30% discount + Master Club add-on when checkbox checked
   const subscriptionOfferActive = Boolean(
     customerDetails.email &&
-    hasSubscription === false &&
+    !hasActiveSubscription &&
     addSubscriptionToOrder
   );
   const newMemberDiscount = subscriptionOfferActive ? totalPrice * 0.3 : 0;
   const memberDiscount = existingMemberDiscount > 0 ? existingMemberDiscount : newMemberDiscount;
   const orderTotal =
-    hasSubscription === true
+    hasActiveSubscription
       ? totalPrice - existingMemberDiscount
       : subscriptionOfferActive
         ? totalPrice * 0.7 + SUBSCRIPTION_PRICE
@@ -450,8 +452,8 @@ const B2CCheckout = () => {
       .then((result) => {
         if (cancelled) return;
         const has = result?.has_subscription ?? false;
-        setHasSubscription(has);
-        if (has) setAddSubscriptionToOrder(false);
+        setHasSubscription(has === true || has === 'true');
+        if (has === true || has === 'true') setAddSubscriptionToOrder(false);
       })
       .catch(() => {
         if (!cancelled) setHasSubscription(false);
@@ -2170,7 +2172,7 @@ const B2CCheckout = () => {
           {/* Right: Sticky Order Summary */}
           <div ref={paymentSectionRef}>
             {/* Master Club checkbox upsell: add £9.99 to total when checked */}
-            {showSubscriptionUpsell && customerDetails.email && hasSubscription === false && (
+            {showSubscriptionUpsell && customerDetails.email && !hasActiveSubscription && (
               <SubscriptionUpsell
                 checked={addSubscriptionToOrder}
                 onChange={handleAddSubscriptionChange}
@@ -2380,7 +2382,7 @@ const B2CCheckout = () => {
                   padding: '0.5rem 0'
                 }}>
                   <span style={{ color: '#15803d', fontSize: '0.875rem', fontWeight: '500' }}>
-                    Member discount ({hasSubscription === true ? '10%' : '30%'})
+                    Member discount ({hasActiveSubscription ? '10%' : '30%'})
                   </span>
                   <span style={{ fontWeight: '600', color: '#15803d', fontSize: '0.9375rem' }}>
                     -£{memberDiscount.toFixed(2)}
