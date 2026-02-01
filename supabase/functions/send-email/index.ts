@@ -18,9 +18,12 @@ serve(async (req) => {
     return new Response('ok', { headers: getCorsHeaders(req.headers.get('origin')) })
   }
 
+  // Read body once first (avoids "Body already consumed" if router or middleware reads it)
+  const rawBody = await req.text()
   const validation = await validateRequest(req, {
-    requireBody: true,
+    requireBody: false,
     rateLimitType: 'api',
+    rawBody,
   })
 
   if (!validation.valid) {
@@ -42,6 +45,19 @@ serve(async (req) => {
   }
 
   try {
+    let body: Record<string, unknown> = {}
+    try {
+      body = rawBody ? (JSON.parse(rawBody) as Record<string, unknown>) : {}
+    } catch (_) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid JSON in request body' }),
+        { status: 400, headers: { ...validation.headers, 'Content-Type': 'application/json' } }
+      )
+    }
+    const template = body.template as string | undefined
+    const to = body.to as string | undefined
+    const data = body.data as Record<string, unknown> | undefined
+
     const supabaseUrl = Deno.env.get('SUPABASE_URL')
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
     const resendApiKey = Deno.env.get('RESEND_API_KEY')
@@ -62,10 +78,6 @@ serve(async (req) => {
     }
 
     const supabase = createClient(supabaseUrl!, supabaseServiceKey!)
-    const body = await req.json()
-
-    // Validate required fields
-    const { template, to, data } = body
 
     if (!template || !to) {
       return new Response(

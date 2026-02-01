@@ -87,8 +87,14 @@ const MasterClubB2C = () => {
   const benefits = [
     {
       icon: <Crown size={24} />,
-      title: 'Private member rates up to 50% OFF on every book',
-      description: 'Fixed prices reserved exclusively for members.',
+      title: 'Member pricing up to 50% off in any services',
+      description: 'Private rates on every service you book.',
+      color: '#E94A02'
+    },
+    {
+      icon: <CheckCircle size={24} />,
+      title: '3 interest-free instalments',
+      description: 'Spread the cost with no extra charges.',
       color: '#E94A02'
     },
     {
@@ -99,14 +105,14 @@ const MasterClubB2C = () => {
     },
     {
       icon: <Shield size={24} />,
-      title: 'Reduced emergency fees',
-      description: 'Lower call-out fees when timing really matters.',
+      title: 'Every job covered by our insurance',
+      description: 'Fully vetted, insured professionals on every job.',
       color: '#E94A02'
     },
     {
-      icon: <CheckCircle size={24} />,
-      title: 'Insurance included',
-      description: 'Fully vetted, insured professionals on every job.',
+      icon: <Clock size={24} />,
+      title: 'Same Day availability',
+      description: 'Get help when you need it most.',
       color: '#E94A02'
     },
     {
@@ -340,7 +346,7 @@ const MasterClubB2C = () => {
                 lineHeight: '1.2',
                 fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
               }}>
-                From £9.99 <span style={{
+                £9.99 <span style={{
                   fontSize: 'clamp(1rem, 2vw, 1.25rem)',
                   fontWeight: '600',
                   color: 'rgba(255,255,255,0.7)',
@@ -353,7 +359,7 @@ const MasterClubB2C = () => {
                 margin: 0,
                 fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
               }}>
-                Cancel anytime. No long-term commitment.
+                Cancel anytime.
               </p>
             </div>
 

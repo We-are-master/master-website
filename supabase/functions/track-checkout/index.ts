@@ -147,8 +147,8 @@ serve(async (req) => {
       .single()
 
     if (insertError) {
-      console.error('Error saving abandoned checkout:', insertError)
-      throw new Error('Failed to save checkout data')
+      console.error('Error saving abandoned checkout:', insertError.message, insertError.code, insertError.details)
+      throw new Error(`Failed to save checkout data: ${insertError.message} (${insertError.code || 'unknown'})`)
     }
 
     logSecurityEvent('checkout_abandoned_tracked', {

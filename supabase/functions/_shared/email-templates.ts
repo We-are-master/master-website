@@ -1,6 +1,8 @@
 // Email templates for transactional emails
 // All templates use consistent branding and styling
 
+const MASTER_LOGO_URL = 'https://storage.wearemaster.com/storage/v1/object/public/templates//Master-branco-1%203%201%20(1).png'
+
 interface EmailData {
   name?: string
   [key: string]: unknown
@@ -44,7 +46,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
 <body>
   <div class="container">
     <div class="header">
-      <h1 style="margin: 0; font-size: 24px;">Master</h1>
+      <img src="${MASTER_LOGO_URL}" alt="Master" style="display: block; max-height: 44px; width: auto; margin: 0 auto;" />
     </div>
     <div class="content">
       <p>Hi ${firstName},</p>
@@ -82,7 +84,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
 <body>
   <div class="container">
     <div class="header">
-      <h1 style="margin: 0; font-size: 24px;">Master</h1>
+      <img src="${MASTER_LOGO_URL}" alt="Master" style="display: block; max-height: 44px; width: auto; margin: 0 auto;" />
     </div>
     <div class="content">
       <p>Hi ${firstName},</p>
@@ -124,7 +126,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
 <body>
   <div class="container">
     <div class="header">
-      <h1 style="margin: 0; font-size: 24px;">Master</h1>
+      <img src="${MASTER_LOGO_URL}" alt="Master" style="display: block; max-height: 44px; width: auto; margin: 0 auto;" />
     </div>
     <div class="content">
       <p>Hi ${firstName},</p>
@@ -145,6 +147,109 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
 </html>
         `,
         text: `Hi ${firstName},\n\nYour booking has been confirmed and payment successfully received.\n\nBooking Reference: ${bookingRef}\n\nEverything is now in place. Your job is scheduled and being managed by our operations team to ensure a smooth delivery.\n\nYou'll receive updates as the job progresses.\n\nIf you need anything in the meantime, just reply to this email.\n\nKind regards,\nMaster Team 💙`
+      }
+    }
+
+    case 'internal_new_job_paid': {
+      const s = (x: unknown) => (x != null && String(x).trim() !== '' ? String(x) : '—')
+      const bookingRef = s(data.bookingRef)
+      const paymentIntentId = s(data.paymentIntentId)
+      const amount = data.amount != null ? `${Number(data.amount) / 100} ${(data.currency || 'GBP').toString().toUpperCase()}` : '—'
+      const customerName = s(data.customerName)
+      const customerEmail = s(data.customerEmail)
+      const customerPhone = s(data.customerPhone)
+      const addressLine1 = s(data.addressLine1)
+      const addressLine2 = s(data.addressLine2)
+      const city = s(data.city)
+      const postcode = s(data.postcode)
+      const serviceName = s(data.serviceName)
+      const serviceCategory = s(data.serviceCategory)
+      const jobDescription = s(data.jobDescription)
+      const preferredDates = s(data.preferredDates)
+      const preferredTimeSlots = s(data.preferredTimeSlots)
+      const hoursBooked = s(data.hoursBooked)
+      const hourlyRate = s(data.hourlyRate)
+      const addSubscription = data.addSubscription === true || data.addSubscription === 'true' ? 'Yes (Master Club)' : 'No'
+      const paidAt = s(data.paidAt)
+      return {
+        subject: `[New job paid] ${bookingRef} – ${customerName}`,
+        html: `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  ${emailStyles}
+  <style>
+    .internal-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+    .internal-table th { text-align: left; padding: 8px 12px; background: #f3f4f6; border: 1px solid #e5e7eb; }
+    .internal-table td { padding: 8px 12px; border: 1px solid #e5e7eb; }
+    .internal-section { margin: 20px 0; }
+    .internal-section h3 { margin: 0 0 10px 0; font-size: 16px; color: #020034; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <img src="${MASTER_LOGO_URL}" alt="Master" style="display: block; max-height: 44px; width: auto; margin: 0 auto;" />
+    </div>
+    <div class="content">
+      <p style="font-size: 18px; font-weight: 600; color: #020034;">New job paid – internal use</p>
+      <p>A payment has been confirmed and the booking is paid. Details below.</p>
+
+      <div class="internal-section">
+        <h3>Reference and payment</h3>
+        <table class="internal-table">
+          <tr><th>Booking reference</th><td>${bookingRef}</td></tr>
+          <tr><th>Payment Intent (Stripe)</th><td>${paymentIntentId}</td></tr>
+          <tr><th>Amount paid</th><td>${amount}</td></tr>
+          <tr><th>Payment date/time</th><td>${paidAt}</td></tr>
+          <tr><th>Joined Master Club?</th><td>${addSubscription}</td></tr>
+        </table>
+      </div>
+
+      <div class="internal-section">
+        <h3>Customer</h3>
+        <table class="internal-table">
+          <tr><th>Name</th><td>${customerName}</td></tr>
+          <tr><th>Email</th><td><a href="mailto:${customerEmail}">${customerEmail}</a></td></tr>
+          <tr><th>Phone</th><td>${customerPhone}</td></tr>
+        </table>
+      </div>
+
+      <div class="internal-section">
+        <h3>Address</h3>
+        <table class="internal-table">
+          <tr><th>Line 1</th><td>${addressLine1}</td></tr>
+          <tr><th>Line 2</th><td>${addressLine2}</td></tr>
+          <tr><th>Town/City</th><td>${city}</td></tr>
+          <tr><th>Postcode</th><td>${postcode}</td></tr>
+        </table>
+      </div>
+
+      <div class="internal-section">
+        <h3>Service and job</h3>
+        <table class="internal-table">
+          <tr><th>Service</th><td>${serviceName}</td></tr>
+          <tr><th>Category</th><td>${serviceCategory}</td></tr>
+          ${hoursBooked !== '—' ? `<tr><th>Hours booked</th><td>${hoursBooked}</td></tr>` : ''}
+          ${hourlyRate !== '—' ? `<tr><th>Hourly rate</th><td>${hourlyRate}</td></tr>` : ''}
+          <tr><th>Preferred dates</th><td>${preferredDates}</td></tr>
+          <tr><th>Preferred time slots</th><td>${preferredTimeSlots}</td></tr>
+        </table>
+        <p><strong>Job description:</strong></p>
+        <p style="background: #f9fafb; padding: 12px; border-radius: 8px; border-left: 3px solid #E94A02; white-space: pre-wrap;">${jobDescription}</p>
+      </div>
+
+      <p style="margin-top: 24px; font-size: 13px; color: #6b7280;">This email was sent automatically when the payment was confirmed (Stripe webhook).</p>
+    </div>
+    <div class="footer">
+      <p>Master Services | hello@wearemaster.com</p>
+    </div>
+  </div>
+</body>
+</html>
+        `,
+        text: `NEW JOB PAID – ${bookingRef}\n\nReference: ${bookingRef}\nPayment Intent: ${paymentIntentId}\nAmount: ${amount}\nPayment date: ${paidAt}\nMaster Club: ${addSubscription}\n\nCUSTOMER\nName: ${customerName}\nEmail: ${customerEmail}\nPhone: ${customerPhone}\n\nADDRESS\n${addressLine1}\n${addressLine2}\n${city} ${postcode}\n\nSERVICE\nService: ${serviceName}\nCategory: ${serviceCategory}\nPreferred dates: ${preferredDates}\nTime slots: ${preferredTimeSlots}\n\nJOB DESCRIPTION\n${jobDescription}\n\n— Sent automatically by Stripe webhook.`
       }
     }
 
@@ -243,7 +348,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
 <body>
   <div class="container">
     <div class="header">
-      <h1 style="margin: 0; font-size: 24px;">Master</h1>
+      <img src="${MASTER_LOGO_URL}" alt="Master" style="display: block; max-height: 44px; width: auto; margin: 0 auto;" />
     </div>
     <div class="content">
       <p>Hi ${firstName},</p>
@@ -281,7 +386,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
 <body>
   <div class="container">
     <div class="header">
-      <h1 style="margin: 0; font-size: 24px;">Master</h1>
+      <img src="${MASTER_LOGO_URL}" alt="Master" style="display: block; max-height: 44px; width: auto; margin: 0 auto;" />
     </div>
     <div class="content">
       <p>Hi ${firstName},</p>
@@ -318,7 +423,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
 <body>
   <div class="container">
     <div class="header">
-      <h1 style="margin: 0; font-size: 24px;">Master</h1>
+      <img src="${MASTER_LOGO_URL}" alt="Master" style="display: block; max-height: 44px; width: auto; margin: 0 auto;" />
     </div>
     <div class="content">
       <p>Hi ${firstName},</p>
@@ -391,11 +496,10 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
       color: #6b7280;
     }
     .master-logo {
-      font-size: 28px;
-      font-weight: 800;
-      color: white;
-      letter-spacing: -0.5px;
-      margin-bottom: 10px;
+      display: block;
+      max-height: 44px;
+      width: auto;
+      margin: 0 auto 10px auto;
     }
     .grid-pattern {
       background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), 
@@ -408,7 +512,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
 <body>
   <div class="container">
     <div class="header grid-pattern" style="position: relative;">
-      <div class="master-logo">Master</div>
+      <img src="${MASTER_LOGO_URL}" alt="Master" class="master-logo" />
       <p style="margin: 0; color: rgba(255,255,255,0.8); font-size: 16px;">Verification Code</p>
     </div>
     <div class="content">

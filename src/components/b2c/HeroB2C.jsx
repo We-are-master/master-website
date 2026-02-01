@@ -352,12 +352,6 @@ const HeroB2C = () => {
             }}>
               The right way to book local professionals.
             </span>
-            <span style={{
-              color: 'rgba(255, 255, 255, 0.6)',
-              fontWeight: '400'
-            }}>
-              For{' '}
-            </span>
             <span
               style={{
                 color: '#E94A02',

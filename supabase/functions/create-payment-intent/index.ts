@@ -269,7 +269,7 @@ serve(async (req) => {
     }
 
     // Create PaymentIntent with sanitized data
-    // Klarna enabled for testing - configured for inline/embedded checkout
+    // When add_subscription=true: customer + setup_future_usage so Stripe saves card to customer after payment; card only (no Klarna for subscriptions)
     const paymentIntentConfig: {
       amount: number
       currency: string
@@ -277,6 +277,7 @@ serve(async (req) => {
       metadata: Record<string, string>
       receipt_email?: string
       customer?: string
+      setup_future_usage?: 'off_session' | 'on_session'
       shipping?: {
         name: string
         address: {
@@ -291,7 +292,7 @@ serve(async (req) => {
     } = {
       amount: amountInPence,
       currency: currency,
-      payment_method_types: ['card', 'klarna'],
+      payment_method_types: addSubscription ? ['card'] : ['card', 'klarna'],
       metadata: {
         ...metadata,
         created_via: 'supabase_edge_function',
@@ -300,6 +301,7 @@ serve(async (req) => {
       },
       ...(customerEmail && { receipt_email: customerEmail }),
       ...(stripeCustomerId && { customer: stripeCustomerId }),
+      ...(addSubscription && stripeCustomerId && { setup_future_usage: 'off_session' as const }),
     }
 
     // Add shipping info if available (helps Klarna work inline)

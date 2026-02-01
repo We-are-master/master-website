@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mail, ArrowRight, Loader2, CheckCircle, AlertCircle, ArrowLeft, KeyRound } from 'lucide-react';
+import { Mail, ArrowRight, Loader2, CheckCircle, AlertCircle, ArrowLeft, KeyRound, Phone } from 'lucide-react';
 import { gsap } from 'gsap';
 import { supabase } from '../lib/supabase';
 import { validateEmail, checkRateLimit } from '../lib/security';
@@ -668,6 +668,25 @@ const B2CLogin = () => {
               </div>
             </div>
           )}
+
+          {/* Contact number */}
+          <div style={{
+            marginTop: '2rem',
+            paddingTop: '1.5rem',
+            borderTop: '1px solid rgba(0,0,0,0.08)',
+            textAlign: 'center',
+            fontSize: '0.875rem',
+            color: '#86868b',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.5rem',
+            flexWrap: 'wrap'
+          }}>
+            <Phone size={16} style={{ flexShrink: 0 }} />
+            <span>Need help? Call </span>
+            <a href="tel:02033376168" style={{ color: '#E94A02', textDecoration: 'none', fontWeight: '600' }}>020 3337 6168</a>
+          </div>
         </div>
       </div>
 

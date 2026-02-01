@@ -27,16 +27,13 @@ const ALLOWED_ORIGINS = [
 // Maximum payload size (10MB)
 const MAX_PAYLOAD_SIZE = 10 * 1024 * 1024
 
-// Rate limiting configuration
-const RATE_LIMITS = {
-  // General API endpoints
-  default: { requests: 100, window: 60 }, // 100 requests per minute
-  // Authentication endpoints (stricter)
-  auth: { requests: 5, window: 60 }, // 5 requests per minute
-  // Payment endpoints (very strict)
-  payment: { requests: 10, window: 60 }, // 10 requests per minute
-  // Webhook endpoints
-  webhook: { requests: 1000, window: 60 }, // 1000 requests per minute (webhooks can be bursty)
+// Rate limiting configuration (send-email uses 'api')
+const RATE_LIMITS: Record<string, { requests: number; window: number }> = {
+  default: { requests: 100, window: 60 },
+  auth: { requests: 5, window: 60 },
+  payment: { requests: 10, window: 60 },
+  webhook: { requests: 1000, window: 60 },
+  api: { requests: 60, window: 60 }, // send-email and other API endpoints
 }
 
 // Security headers
@@ -73,16 +70,15 @@ export function getClientIP(req: Request): string {
  * Check rate limit for a given key
  */
 export function checkRateLimit(
-  key: string, 
-  limitType: keyof typeof RATE_LIMITS = 'default'
+  key: string,
+  limitType: keyof typeof RATE_LIMITS | string = 'default'
 ): { allowed: boolean; remaining: number; resetTime: number } {
-  const limit = RATE_LIMITS[limitType]
+  const limit = RATE_LIMITS[limitType] ?? RATE_LIMITS.default
   const now = Date.now()
-  
+
   const record = rateLimitStore.get(key)
-  
+
   if (!record || now > record.resetTime) {
-    // Create new record
     const resetTime = now + (limit.window * 1000)
     rateLimitStore.set(key, { count: 1, resetTime })
     
@@ -392,6 +388,8 @@ export async function validateRequest(
     requireBody?: boolean
     rateLimitType?: keyof typeof RATE_LIMITS
     maxPayloadSize?: number
+    /** When set (e.g. for Stripe webhook), use this for size check instead of reading req body. Ensures same raw bytes are used for signature verification. */
+    rawBody?: string
   } = {}
 ): Promise<{
   valid: boolean
@@ -429,9 +427,9 @@ export async function validateRequest(
     }
   }
   
-  // Validate payload size
+  // Validate payload size (use rawBody when provided so webhook can use same string for Stripe signature verification)
   if (req.method !== 'GET' && req.method !== 'HEAD') {
-    const body = await req.clone().text()
+    const body = options.rawBody !== undefined ? options.rawBody : await req.clone().text()
     const payloadCheck = validatePayloadSize(body)
     
     if (!payloadCheck.valid) {

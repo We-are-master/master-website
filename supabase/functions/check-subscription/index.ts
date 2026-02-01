@@ -75,15 +75,15 @@ serve(async (req) => {
 
     const customerEmail = emailValidation.sanitized
 
-    // Check for active subscription (website table)
+    // Check for active subscription (website table: master_club_subscriptions_website)
     const { data: subscription, error } = await supabase
       .from('master_club_subscriptions_website')
-      .select('*')
+      .select('stripe_subscription_id, status, current_period_end, cancel_at_period_end')
       .eq('customer_email', customerEmail.toLowerCase())
       .in('status', ['active', 'trialing'])
       .order('created_at', { ascending: false })
       .limit(1)
-      .single()
+      .maybeSingle()
 
     if (error || !subscription) {
       return new Response(

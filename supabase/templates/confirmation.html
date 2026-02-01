@@ -8,7 +8,7 @@
     .container { max-width: 600px; margin: 40px auto; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
     .header { background: linear-gradient(135deg, #020034 0%, #1a1a4a 100%); color: white; padding: 40px 30px; text-align: center; position: relative; overflow: hidden; }
     .header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 40px 40px; opacity: 0.5; }
-    .master-logo { font-size: 32px; font-weight: 800; color: white; letter-spacing: -0.5px; margin: 0; position: relative; z-index: 1; }
+    .master-logo { display: block; max-height: 44px; width: auto; margin: 0 auto; position: relative; z-index: 1; }
     .content { background: #ffffff; padding: 40px 30px; }
     .btn { display: inline-block; background: linear-gradient(135deg, #E94A02 0%, #c93d02 100%); color: white !important; padding: 16px 32px; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 16px; margin: 20px 0; box-shadow: 0 4px 14px rgba(233, 74, 2, 0.35); }
     .btn:hover { opacity: 0.95; }
@@ -20,7 +20,7 @@
 <body>
   <div class="container">
     <div class="header">
-      <div class="master-logo">Master</div>
+      <img src="https://storage.wearemaster.com/storage/v1/object/public/templates//Master-branco-1%203%201%20(1).png" alt="Master" class="master-logo" />
       <p style="margin: 10px 0 0 0; color: rgba(255,255,255,0.8); font-size: 16px; position: relative; z-index: 1;">Confirm your signup</p>
     </div>
     <div class="content">

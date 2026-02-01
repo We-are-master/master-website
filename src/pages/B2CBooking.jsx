@@ -946,22 +946,6 @@ const B2CBooking = () => {
               flexWrap: 'wrap',
               gap: '1rem'
             }}>
-              <div>
-                <h1 className="booking-step3-title" style={{
-                  fontSize: '2rem',
-                  fontWeight: '700',
-                  color: '#2001AF',
-                  marginBottom: '0.5rem'
-                }}>
-                  {loading ? 'Loading services...' : `${availableServices.length} services found`}
-                </h1>
-                <p style={{ color: '#6b7280', margin: 0 }}>
-                  {jobDescription && (
-                    <>Searching for "<strong>{jobDescription}</strong>" in </>
-                  )}
-                  <strong>{postcode}</strong>
-                </p>
-              </div>
               <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
                 <div style={{
                   display: 'flex',
@@ -1069,16 +1053,6 @@ const B2CBooking = () => {
                   </div>
                 )}
 
-                {/* More services to add (remove from "Your services" above) */}
-                <h2 style={{
-                  fontSize: '1.25rem',
-                  fontWeight: '700',
-                  color: '#111827',
-                  marginBottom: '0.5rem',
-                  fontFamily: BRAND_FONT
-                }}>
-                  Add more services
-                </h2>
             {loading ? (
               <div style={{
                 display: 'flex',

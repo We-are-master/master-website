@@ -347,7 +347,7 @@ const B2CMyOrders = () => {
               letterSpacing: '-0.03em',
               fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
             }}>
-              My Bookings
+              My Account
             </h1>
             <p style={{ 
               color: '#86868b',

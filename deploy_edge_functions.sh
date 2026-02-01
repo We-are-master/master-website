@@ -8,16 +8,19 @@
 
 set -e
 SERVER="root@168.231.112.159"
-REMOTE_DIR="/root/supabase/functions"
+# Caminho no servidor onde ficam as funções. TEM DE SER O MESMO nos 3 scripts (deploy, update_stripe_test, update_stripe_production).
+# Se o teu stack (docker-compose) usa outro path, altera aqui e nos update_stripe_*.sh para esse path.
+REMOTE_DIR="/root/supabase-project/volumes/functions"
 LOCAL_DIR="$(cd "$(dirname "$0")" && pwd)/supabase/functions"
 
-# Apenas estas funções (create-subscription e manage-subscription já existem no app; estamos atualizando com a versão website)
-FUNCTIONS="check-subscription create-subscription manage-subscription send-email send-recovery-emails track-checkout"
+# Funções a fazer deploy (adicione ou remova conforme necessário). "main" é o router do edge-runtime e é enviado em separado.
+FUNCTIONS="check-subscription create-subscription create-payment-intent manage-subscription match-services-ai send-email send-recovery-emails stripe-webhook track-checkout"
 SHARED="_shared"
+MAIN="main"
 
 echo "📦 Deploy das Edge Functions (seletivo) para $SERVER"
 echo "   Funções: $FUNCTIONS"
-echo "   + $SHARED (compartilhado)"
+echo "   + $SHARED (compartilhado) + $MAIN (router)"
 echo "   Local:   $LOCAL_DIR"
 echo "   Remote:  $REMOTE_DIR"
 echo "   (Não remove nada no servidor; apenas envia/atualiza estes diretórios.)"
@@ -25,10 +28,17 @@ echo ""
 
 # Garantir diretórios no servidor
 echo "📁 Criando diretórios remotos..."
-ssh $SERVER "mkdir -p $REMOTE_DIR $REMOTE_DIR/_shared"
+ssh $SERVER "mkdir -p $REMOTE_DIR $REMOTE_DIR/_shared $REMOTE_DIR/main"
 for f in $FUNCTIONS; do
   ssh $SERVER "mkdir -p $REMOTE_DIR/$f"
 done
+
+# Sincronizar main (router obrigatório: --main-service /home/deno/functions/main)
+echo "🔄 Sincronizando main (router)..."
+rsync -avz \
+  "$LOCAL_DIR/main/" \
+  "$SERVER:$REMOTE_DIR/main/" \
+  --exclude '.DS_Store'
 
 # Sincronizar _shared (todas as funções dependem)
 echo "🔄 Sincronizando _shared..."
@@ -54,7 +64,7 @@ done
 
 echo ""
 echo "✅ Arquivos enviados. Conteúdo remoto (apenas estas pastas):"
-for f in $SHARED $FUNCTIONS; do
+for f in $MAIN $SHARED $FUNCTIONS; do
   ssh $SERVER "ls -la $REMOTE_DIR/$f/ 2>/dev/null || true"
 done
 

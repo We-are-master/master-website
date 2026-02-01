@@ -47,6 +47,16 @@ async function verifyStripeSignature(rawBody: string, signatureHeader: string, s
   return false
 }
 
+/** Safe Unix timestamp (seconds) to ISO string; avoids "Invalid time value" if missing/invalid. */
+function unixToISO(ts: number | undefined | null): string | null {
+  if (ts == null || typeof ts !== 'number' || !Number.isFinite(ts)) return null
+  const d = new Date(ts * 1000)
+  return Number.isFinite(d.getTime()) ? d.toISOString() : null
+}
+
+/** n8n webhook URL – notified when payment is confirmed and approved (payment_intent.succeeded). */
+const N8N_PAYMENT_CONFIRMED_WEBHOOK_URL = 'https://n8n.wearemaster.com/webhook/484678e7-a2c2-4178-95e8-49b9bc74870a'
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: getCorsHeaders(req.headers.get('origin')) })
@@ -419,6 +429,32 @@ serve(async (req) => {
                       },
                     })
                     console.log(`Master Club subscription created from webhook: ${subscription.id} for ${customerEmail}`)
+
+                    // Save to DB immediately so "contracted Master Club" is persisted (trial 30 days; status trialing = active for display)
+                    const subPeriodStart = unixToISO(subscription.current_period_start) ?? new Date().toISOString()
+                    const subPeriodEnd = unixToISO(subscription.current_period_end) ?? new Date().toISOString()
+                    const nowIso = new Date().toISOString()
+                    const { error: upsertErr } = await supabase
+                      .from('master_club_subscriptions_website')
+                      .upsert({
+                        stripe_subscription_id: subscription.id,
+                        stripe_customer_id: subscription.customer as string,
+                        customer_email: customerEmail.toLowerCase(),
+                        customer_name: customerName || null,
+                        status: subscription.status,
+                        current_period_start: subPeriodStart,
+                        current_period_end: subPeriodEnd,
+                        cancel_at_period_end: subscription.cancel_at_period_end ?? false,
+                        source: 'website',
+                        created_at: nowIso,
+                        updated_at: nowIso,
+                      }, { onConflict: 'stripe_subscription_id' })
+                    if (upsertErr) {
+                      const errMsg = upsertErr?.message ?? (upsertErr as { code?: string; details?: string })?.code ?? JSON.stringify(upsertErr)
+                      console.error('Failed to save Master Club subscription to DB:', errMsg, upsertErr)
+                    } else {
+                      console.log(`Master Club subscription ${subscription.id} saved to master_club_subscriptions_website`)
+                    }
                   }
                 }
               }
@@ -428,6 +464,82 @@ serve(async (req) => {
           }
           }
         }
+
+        // Uma query: reserva com todos os campos (email interno + n8n)
+        const { data: bookingRow } = await supabase
+          .from('booking_website')
+          .select('booking_ref, id, customer_name, customer_email, customer_phone, address_line1, address_line2, city, postcode, service_name, service_category, job_description, preferred_dates, preferred_time_slots, amount, currency, paid_at')
+          .eq('stripe_payment_intent_id', paymentIntent.id)
+          .maybeSingle()
+
+        const preferredDatesStr = Array.isArray(bookingRow?.preferred_dates)
+          ? (bookingRow?.preferred_dates as string[]).join(', ')
+          : (metadata.scheduled_dates ?? '—')
+        const preferredSlotsStr = Array.isArray(bookingRow?.preferred_time_slots)
+          ? (bookingRow?.preferred_time_slots as string[]).join(', ')
+          : (metadata.scheduled_time_slots ?? '—')
+
+        // Email interno: novo trabalho pago para hello@wearemaster.com (todas as descrições)
+        try {
+          await fetch(`${supabaseUrl}/functions/v1/send-email`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${supabaseServiceKey}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              template: 'internal_new_job_paid',
+              to: 'hello@wearemaster.com',
+              data: {
+                bookingRef: bookingRow?.booking_ref ?? metadata.booking_ref ?? paymentIntent.id.slice(-8).toUpperCase(),
+                paymentIntentId: paymentIntent.id,
+                amount: paymentIntent.amount,
+                currency: paymentIntent.currency ?? 'gbp',
+                customerName: bookingRow?.customer_name ?? metadata.customer_name ?? '—',
+                customerEmail: bookingRow?.customer_email ?? customerEmail,
+                customerPhone: bookingRow?.customer_phone ?? metadata.customer_phone ?? '—',
+                addressLine1: bookingRow?.address_line1 ?? metadata.address_line1 ?? '—',
+                addressLine2: bookingRow?.address_line2 ?? metadata.address_line2 ?? '—',
+                city: bookingRow?.city ?? metadata.city ?? '—',
+                postcode: bookingRow?.postcode ?? metadata.postcode ?? '—',
+                serviceName: bookingRow?.service_name ?? metadata.service_name ?? '—',
+                serviceCategory: bookingRow?.service_category ?? metadata.service_category ?? '—',
+                jobDescription: bookingRow?.job_description ?? metadata.job_description ?? '—',
+                preferredDates: preferredDatesStr || '—',
+                preferredTimeSlots: preferredSlotsStr || '—',
+                hoursBooked: metadata.hours_booked ?? '—',
+                hourlyRate: metadata.hourly_rate ?? '—',
+                addSubscription: metadata.add_subscription === 'true',
+                paidAt: bookingRow?.paid_at ?? new Date().toISOString(),
+              },
+            }),
+          })
+        } catch (internalEmailErr) {
+          console.warn('Failed to send internal new job paid email:', internalEmailErr)
+        }
+
+        // Notify n8n when payment is confirmed and approved (for workflows / integrations)
+        try {
+          await fetch(N8N_PAYMENT_CONFIRMED_WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              event: 'payment_intent.succeeded',
+              payment_intent_id: paymentIntent.id,
+              amount: paymentIntent.amount,
+              currency: paymentIntent.currency,
+              customer_email: customerEmail,
+              customer_name: metadata.customer_name || null,
+              booking_ref: bookingRow?.booking_ref || null,
+              booking_id: bookingRow?.id || null,
+              metadata: metadata,
+              created: new Date().toISOString(),
+            }),
+          })
+        } catch (n8nErr) {
+          console.warn('Failed to notify n8n payment confirmed webhook:', n8nErr)
+        }
+
         break
       }
 
@@ -558,7 +670,11 @@ serve(async (req) => {
           break
         }
 
+        const periodStart = unixToISO(subscription.current_period_start) ?? new Date().toISOString()
+        const periodEnd = unixToISO(subscription.current_period_end) ?? new Date().toISOString()
+
         // Upsert subscription in website table
+        const nowIso = new Date().toISOString()
         const { error } = await supabase
           .from('master_club_subscriptions_website')
           .upsert({
@@ -566,17 +682,18 @@ serve(async (req) => {
             stripe_customer_id: subscription.customer as string,
             customer_email: customerEmail.toLowerCase(),
             status: subscription.status,
-            current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-            current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-            cancel_at_period_end: subscription.cancel_at_period_end,
+            current_period_start: periodStart,
+            current_period_end: periodEnd,
+            cancel_at_period_end: subscription.cancel_at_period_end ?? false,
             source: 'website',
-            updated_at: new Date().toISOString(),
+            updated_at: nowIso,
           }, {
             onConflict: 'stripe_subscription_id',
           })
 
         if (error) {
-          console.error('Error upserting subscription:', error)
+          const errMsg = error?.message ?? (error as { code?: string; details?: string })?.code ?? JSON.stringify(error)
+          console.error('Error upserting subscription:', errMsg, error)
         } else {
           console.log(`Subscription ${subscription.id} synced to website table`)
 
@@ -687,14 +804,15 @@ serve(async (req) => {
             .single()
 
           if (websiteSubscription) {
-            // This is a website subscription - update period dates
+            // This is a website subscription - update period dates (safe dates to avoid Invalid time value)
             const subscription = await stripe.subscriptions.retrieve(subscriptionId)
-            
+            const periodStart = unixToISO(subscription.current_period_start) ?? new Date().toISOString()
+            const periodEnd = unixToISO(subscription.current_period_end) ?? new Date().toISOString()
             await supabase
               .from('master_club_subscriptions_website')
               .update({
-                current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-                current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+                current_period_start: periodStart,
+                current_period_end: periodEnd,
                 status: subscription.status,
                 updated_at: new Date().toISOString(),
               })

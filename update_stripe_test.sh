@@ -1,41 +1,33 @@
 #!/bin/bash
 
-# Atualiza APENAS as chaves do Stripe para produção. Mantém todas as outras env vars do container.
-# Uso: ./update_stripe_production.sh
+# Atualiza APENAS as chaves do Stripe para modo TESTE. Mantém todas as outras env vars do container.
+# Por agora estamos a usar este modo (webhook de teste). Para produção: ./update_stripe_production.sh
+# Uso: ./update_stripe_test.sh
 
-echo "🔧 Atualizando só STRIPE_SECRET_KEY e STRIPE_WEBHOOK_SECRET para produção..."
-echo ""
-
-read -p "Digite a STRIPE_SECRET_KEY de produção (sk_live_...): " STRIPE_SECRET_KEY
-read -p "Digite a STRIPE_WEBHOOK_SECRET de produção (whsec_...): " STRIPE_WEBHOOK_SECRET
-
-if [ -z "$STRIPE_SECRET_KEY" ] || [ -z "$STRIPE_WEBHOOK_SECRET" ]; then
-  echo "❌ Erro: Ambas as chaves são obrigatórias!"
+# Stripe Test keys: não commitar valores reais. Usar read -p ou variáveis de ambiente.
+read -p "STRIPE_SECRET_KEY de teste (sk_test_... do Stripe Dashboard): " STRIPE_SECRET_KEY
+if [ -z "$STRIPE_SECRET_KEY" ]; then
+  echo "❌ STRIPE_SECRET_KEY é obrigatório."
+  exit 1
+fi
+# Obrigatório: usar o Signing secret do endpoint de TEST no Stripe (Developers → Webhooks → o endpoint → Reveal).
+read -p "STRIPE_WEBHOOK_SECRET de teste (whsec_... do Stripe Dashboard → Webhooks → Reveal): " STRIPE_WEBHOOK_SECRET
+if [ -z "$STRIPE_WEBHOOK_SECRET" ]; then
+  echo "❌ STRIPE_WEBHOOK_SECRET é obrigatório para o webhook funcionar."
   exit 1
 fi
 
-if [[ ! $STRIPE_SECRET_KEY == sk_live_* ]]; then
-  echo "⚠️  Aviso: STRIPE_SECRET_KEY não começa com 'sk_live_'"
-  read -p "Continuar mesmo assim? (y/n): " confirm
-  if [ "$confirm" != "y" ]; then
-    exit 1
-  fi
-fi
+# Master Club: necessário para o webhook criar assinatura quando add_subscription=true
+read -p "STRIPE_MASTER_CLUB_PRICE_ID (price_... do Stripe Products, Enter para manter atual): " STRIPE_MASTER_CLUB_PRICE_ID
 
-if [[ ! $STRIPE_WEBHOOK_SECRET == whsec_* ]]; then
-  echo "⚠️  Aviso: STRIPE_WEBHOOK_SECRET não começa com 'whsec_'"
-  read -p "Continuar mesmo assim? (y/n): " confirm
-  if [ "$confirm" != "y" ]; then
-    exit 1
-  fi
-fi
-
-read -p "STRIPE_MASTER_CLUB_PRICE_ID de produção (price_..., Enter para manter atual): " STRIPE_MASTER_CLUB_PRICE_ID
+# Resend: necessário para send-email (confirmação de compra, etc.). Chave em https://resend.com/api-keys
 read -p "RESEND_API_KEY (re_... para emails, Enter para manter atual): " RESEND_API_KEY
+
+# OpenAI: necessário para match-services-ai (busca de serviços por texto). Chave em https://platform.openai.com/api-keys
 read -p "OPENAI_API_KEY (sk-... para match-services-ai, Enter para manter atual): " OPENAI_API_KEY
 
 echo ""
-echo "📋 Preservando env atual do container; Stripe + opcionais serão atualizados..."
+echo "🔧 Atualizando env do container (Stripe + opcionais: STRIPE_MASTER_CLUB_PRICE_ID, RESEND_API_KEY, OPENAI_API_KEY)..."
 echo ""
 
 # Path das funções no servidor - TEM DE SER O MESMO que REMOTE_DIR no deploy_edge_functions.sh
@@ -60,7 +52,7 @@ VERIFY_JWT=false
 ENVFALLBACK
   fi
   echo \"STRIPE_SECRET_KEY=$STRIPE_SECRET_KEY\" >> \"\$ENV_FILE\"
-  echo \"STRIPE_WEBHOOK_SECRET=$STRIPE_WEBHOOK_SECRET\" >> \"\$ENV_FILE\"
+  echo \"STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET:-}\" >> \"\$ENV_FILE\"
   [ -n \"$STRIPE_MASTER_CLUB_PRICE_ID\" ] && echo \"STRIPE_MASTER_CLUB_PRICE_ID=$STRIPE_MASTER_CLUB_PRICE_ID\" >> \"\$ENV_FILE\"
   [ -n \"$RESEND_API_KEY\" ] && echo \"RESEND_API_KEY=$RESEND_API_KEY\" >> \"\$ENV_FILE\"
   [ -n \"$OPENAI_API_KEY\" ] && echo \"OPENAI_API_KEY=$OPENAI_API_KEY\" >> \"\$ENV_FILE\"
@@ -80,5 +72,6 @@ ENVFALLBACK
 "
 
 echo ""
-echo "✨ Concluído. STRIPE_SECRET_KEY e STRIPE_WEBHOOK_SECRET (+ opcionais se indicados) foram atualizadas."
+echo "✨ Concluído. STRIPE_SECRET_KEY e STRIPE_WEBHOOK_SECRET atualizadas (+ STRIPE_MASTER_CLUB_PRICE_ID, RESEND_API_KEY, OPENAI_API_KEY se indicados)."
+echo "   Para voltar a produção: ./update_stripe_production.sh"
 echo ""
