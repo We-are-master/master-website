@@ -86,6 +86,18 @@ jspm_packages/
 # Email template previews (local only, do not push)
 public/email-templates/
 
+# Deployment / server scripts (local only, do not push)
+check_auth_templates.sh
+check_server_payment.sh
+deploy_auth_templates.sh
+deploy_edge_functions.sh
+deploy_single_function.sh
+deploy_updated_functions.sh
+setup_auth_templates_volume.sh
+update_stripe_production.sh
+update_stripe_test.sh
+upload_function.sh
+
 # Documentation and SQL files
 *.md
 *.sql
