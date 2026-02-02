@@ -519,6 +519,13 @@ serve(async (req) => {
         }
 
         // Notify n8n when payment is confirmed and approved (for workflows / integrations)
+        const addressLine1 = bookingRow?.address_line1 ?? metadata.address_line1 ?? null
+        const addressLine2 = bookingRow?.address_line2 ?? metadata.address_line2 ?? null
+        const city = bookingRow?.city ?? metadata.city ?? null
+        const postcode = bookingRow?.postcode ?? metadata.postcode ?? null
+        const addressParts = [addressLine1, addressLine2, city, postcode].filter(Boolean) as string[]
+        const address_full = addressParts.length > 0 ? addressParts.join(', ') : null
+
         try {
           await fetch(N8N_PAYMENT_CONFIRMED_WEBHOOK_URL, {
             method: 'POST',
@@ -529,9 +536,20 @@ serve(async (req) => {
               amount: paymentIntent.amount,
               currency: paymentIntent.currency,
               customer_email: customerEmail,
-              customer_name: metadata.customer_name || null,
-              booking_ref: bookingRow?.booking_ref || null,
-              booking_id: bookingRow?.id || null,
+              customer_name: bookingRow?.customer_name ?? metadata.customer_name ?? null,
+              customer_phone: bookingRow?.customer_phone ?? metadata.customer_phone ?? null,
+              booking_ref: bookingRow?.booking_ref ?? null,
+              booking_id: bookingRow?.id ?? null,
+              address_line1: addressLine1,
+              address_line2: addressLine2,
+              city,
+              postcode,
+              address_full,
+              service_name: bookingRow?.service_name ?? metadata.service_name ?? null,
+              service_category: bookingRow?.service_category ?? metadata.service_category ?? null,
+              job_description: bookingRow?.job_description ?? metadata.job_description ?? null,
+              preferred_dates: preferredDatesStr || null,
+              preferred_time_slots: preferredSlotsStr || null,
               metadata: metadata,
               created: new Date().toISOString(),
             }),
