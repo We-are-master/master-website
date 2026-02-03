@@ -88,7 +88,8 @@ export async function getServiceById(serviceId) {
 /**
  * Search services by keyword with relevance scoring
  * Uses the database function for better performance and relevance
- * @param {string} searchTerm - Search term (e.g., "tap leak", "tv mount")
+ * Handles natural language queries like "i need a handyman"
+ * @param {string} searchTerm - Search term (e.g., "tap leak", "tv mount", "i need a handyman")
  * @returns {Promise<Array>} Array of matching services sorted by relevance
  */
 export async function searchServices(searchTerm) {
@@ -97,18 +98,59 @@ export async function searchServices(searchTerm) {
   }
 
   try {
-    // Try using the database function first
+    // Normalize the search term to extract core service intent
+    const normalized = normalizeSearchTerm(searchTerm);
+    
+    // Try using the database function first (it handles natural language internally)
     const { data, error } = await supabase
-      .rpc('search_services_by_keyword', { search_term: searchTerm.trim().toLowerCase() });
+      .rpc('search_services_by_keyword', { search_term: normalized });
 
     if (error) {
+      console.warn('Database search function error, falling back to direct search:', error);
       return searchServicesDirectly(searchTerm);
     }
 
     return data || [];
   } catch (error) {
+    console.warn('Search error, falling back to direct search:', error);
     return searchServicesDirectly(searchTerm);
   }
+}
+
+/**
+ * Normalize search term to extract core service intent
+ * Removes natural language phrases and extracts the actual service being requested
+ * @param {string} searchTerm - Raw search term
+ * @returns {string} Normalized search term
+ */
+function normalizeSearchTerm(searchTerm) {
+  if (!searchTerm) return '';
+  
+  let normalized = searchTerm.toLowerCase().trim();
+  
+  // Remove common natural language phrases
+  const stopPhrases = [
+    'i need', 'i want', 'i\'m looking for', 'i need a', 'i need an',
+    'can you', 'can someone', 'please', 'someone to', 'someone who',
+    'help me', 'help with', 'looking for', 'need help', 'want help',
+    'describe', 'description', 'tell me about', 'what is', 'what are',
+    'show me', 'find me', 'get me', 'hire', 'book', 'schedule',
+    'i would like', 'i\'d like', 'i am looking', 'i\'m looking'
+  ];
+  
+  stopPhrases.forEach(phrase => {
+    const regex = new RegExp(`\\b${phrase}\\b`, 'gi');
+    normalized = normalized.replace(regex, '').trim();
+  });
+  
+  // Remove common articles and prepositions
+  normalized = normalized.replace(/\b(a|an|the|some|any)\b/gi, '').trim();
+  normalized = normalized.replace(/\b(to|for|with|in|on|at|by|from|of|my|your|his|her|its|our|their)\b/gi, '').trim();
+  
+  // Clean up multiple spaces
+  normalized = normalized.replace(/\s+/g, ' ').trim();
+  
+  return normalized || searchTerm.toLowerCase().trim();
 }
 
 /**

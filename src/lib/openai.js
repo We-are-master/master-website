@@ -224,60 +224,96 @@ function matchServicesBasic(userQuery, availableServices) {
 
 /**
  * Normalize and extract service keywords from user query
+ * Handles natural language queries like "i need a handyman" or "describe the service"
  * @param {string} userQuery - The user's search query
  * @returns {string} Normalized service name/keyword
  */
 export function normalizeServiceQuery(userQuery) {
   if (!userQuery) return '';
   
-  const normalized = userQuery.toLowerCase().trim();
+  let normalized = userQuery.toLowerCase().trim();
+  
+  // Remove common natural language phrases
+  const stopPhrases = [
+    'i need', 'i want', 'i\'m looking for', 'i need a', 'i need an',
+    'can you', 'can someone', 'please', 'someone to', 'someone who',
+    'help me', 'help with', 'looking for', 'need help', 'want help',
+    'describe', 'description', 'tell me about', 'what is', 'what are',
+    'show me', 'find me', 'get me', 'hire', 'book', 'schedule'
+  ];
+  
+  stopPhrases.forEach(phrase => {
+    const regex = new RegExp(`\\b${phrase}\\b`, 'gi');
+    normalized = normalized.replace(regex, '').trim();
+  });
+  
+  // Remove common articles and prepositions
+  normalized = normalized.replace(/\b(a|an|the|some|any)\b/gi, '').trim();
+  normalized = normalized.replace(/\b(to|for|with|in|on|at|by|from|of)\b/gi, '').trim();
+  
+  // Clean up multiple spaces
+  normalized = normalized.replace(/\s+/g, ' ').trim();
   
   // Common service mappings - ordered by specificity (more specific first)
   const serviceMappings = [
+    // Handyman / Multi Trader (check early for natural language queries)
+    { patterns: ['handyman', 'handy man', 'handy-person', 'handyperson', 'odd jobs', 'general repairs', 'fix things', 'repair things', 'maintenance', 'handy'], result: 'handyman' },
+    { patterns: ['multi trader', 'multi-trade', 'multitrade'], result: 'multi trader' },
+    
     // TV & Technology
-    { patterns: ['tv mount', 'mount tv', 'hang tv', 'wall mount tv', 'television mount', 'tv wall'], result: 'tv mounting' },
-    { patterns: ['tv', 'television'], result: 'tv' },
+    { patterns: ['tv mount', 'mount tv', 'hang tv', 'wall mount tv', 'television mount', 'tv wall', 'tv installation'], result: 'tv mounting' },
+    { patterns: ['tv', 'television', 'tv install'], result: 'tv' },
     
     // Cleaning
-    { patterns: ['end of tenancy', 'move out clean', 'tenant clean', 'landlord clean'], result: 'end of tenancy' },
-    { patterns: ['deep clean'], result: 'deep clean' },
-    { patterns: ['after builder', 'post construction', 'renovation clean'], result: 'after builders' },
-    { patterns: ['oven clean'], result: 'oven cleaning' },
-    { patterns: ['carpet clean', 'rug clean'], result: 'carpet cleaning' },
-    { patterns: ['sofa clean', 'couch clean', 'upholstery'], result: 'sofa cleaning' },
-    { patterns: ['clean', 'cleaner', 'cleaning service'], result: 'cleaning' },
+    { patterns: ['end of tenancy', 'move out clean', 'tenant clean', 'landlord clean', 'end tenancy'], result: 'end of tenancy' },
+    { patterns: ['deep clean', 'deep cleaning'], result: 'deep clean' },
+    { patterns: ['after builder', 'post construction', 'renovation clean', 'after builders'], result: 'after builders' },
+    { patterns: ['oven clean', 'oven cleaning'], result: 'oven cleaning' },
+    { patterns: ['carpet clean', 'rug clean', 'carpet cleaning'], result: 'carpet cleaning' },
+    { patterns: ['sofa clean', 'couch clean', 'upholstery', 'sofa cleaning'], result: 'sofa cleaning' },
+    { patterns: ['clean', 'cleaner', 'cleaning service', 'house clean'], result: 'cleaning' },
     
     // Plumbing
+    { patterns: ['tap leak', 'leaking tap', 'dripping tap'], result: 'tap leak' },
     { patterns: ['tap', 'faucet', 'leak', 'drip'], result: 'tap' },
-    { patterns: ['toilet', 'loo', 'wc'], result: 'toilet' },
-    { patterns: ['boiler', 'heating'], result: 'boiler' },
+    { patterns: ['toilet', 'loo', 'wc', 'toilet repair'], result: 'toilet' },
+    { patterns: ['boiler', 'heating', 'boiler repair', 'boiler service'], result: 'boiler' },
     { patterns: ['plumber', 'plumb', 'plumbing'], result: 'plumbing' },
     
     // Electrical
-    { patterns: ['electrician', 'electric', 'electrical'], result: 'electrical' },
-    { patterns: ['light fitting', 'light install', 'lamp'], result: 'light fitting' },
-    { patterns: ['socket', 'plug', 'outlet'], result: 'socket' },
+    { patterns: ['electrician', 'electric', 'electrical', 'electrical work'], result: 'electrical' },
+    { patterns: ['light fitting', 'light install', 'lamp', 'light fixture'], result: 'light fitting' },
+    { patterns: ['socket', 'plug', 'outlet', 'socket repair'], result: 'socket' },
     
     // Certificates
-    { patterns: ['eicr', 'electrical certificate', 'electrical safety'], result: 'eicr' },
-    { patterns: ['gas safety', 'gas certificate', 'cp12'], result: 'gas safety' },
-    { patterns: ['pat test', 'appliance test'], result: 'pat testing' },
-    { patterns: ['fire alarm', 'smoke alarm'], result: 'fire alarm' },
+    { patterns: ['eicr', 'electrical certificate', 'electrical safety', 'electrical inspection'], result: 'eicr' },
+    { patterns: ['gas safety', 'gas certificate', 'cp12', 'gas safe'], result: 'gas safety' },
+    { patterns: ['pat test', 'appliance test', 'pat testing'], result: 'pat testing' },
+    { patterns: ['fire alarm', 'smoke alarm', 'fire safety'], result: 'fire alarm' },
     
-    // Handyman / Multi Trader
-    { patterns: ['flat pack', 'flatpack', 'ikea', 'furniture assembly'], result: 'flatpack' },
-    { patterns: ['shelf', 'shelves', 'shelving'], result: 'shelf' },
-    { patterns: ['blind', 'curtain'], result: 'blind' },
-    { patterns: ['picture hang', 'hang picture', 'artwork'], result: 'picture hanging' },
-    { patterns: ['handyman', 'handy man', 'odd jobs'], result: 'handyman' },
+    // Handyman / Multi Trader services
+    { patterns: ['flat pack', 'flatpack', 'ikea', 'furniture assembly', 'assemble furniture'], result: 'flatpack' },
+    { patterns: ['shelf', 'shelves', 'shelving', 'install shelf'], result: 'shelf' },
+    { patterns: ['blind', 'blinds', 'curtain', 'curtains'], result: 'blind' },
+    { patterns: ['picture hang', 'hang picture', 'artwork', 'picture mounting'], result: 'picture hanging' },
     
     // Carpentry
-    { patterns: ['door', 'doors'], result: 'door' },
-    { patterns: ['floor', 'flooring', 'laminate'], result: 'flooring' },
-    { patterns: ['carpenter', 'carpentry', 'wood work'], result: 'carpentry' },
+    { patterns: ['door', 'doors', 'door install', 'door repair'], result: 'door' },
+    { patterns: ['floor', 'flooring', 'laminate', 'floor install'], result: 'flooring' },
+    { patterns: ['carpenter', 'carpentry', 'wood work', 'woodwork'], result: 'carpentry' },
     
     // Painting
-    { patterns: ['paint', 'painter', 'painting', 'decorator'], result: 'painting' }
+    { patterns: ['paint', 'painter', 'painting', 'decorator', 'decorating'], result: 'painting' },
+    
+    // Appliance
+    { patterns: ['appliance repair', 'appliance fix', 'broken appliance'], result: 'appliance repair' },
+    { patterns: ['washing machine', 'washer'], result: 'washing machine' },
+    { patterns: ['dishwasher'], result: 'dishwasher' },
+    { patterns: ['fridge', 'refrigerator', 'freezer'], result: 'fridge' },
+    
+    // Other common queries
+    { patterns: ['fix', 'repair', 'broken'], result: 'repair' },
+    { patterns: ['install', 'installation', 'fitting'], result: 'install' }
   ];
 
   // Check for pattern matches (more specific patterns first)

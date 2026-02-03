@@ -6,29 +6,50 @@ import { getCorsHeaders } from '../_shared/security.ts'
 
 const OPENAI_URL = 'https://api.openai.com/v1/chat/completions'
 
-const SYSTEM_PROMPT = 'You are a helpful service matching assistant. Match user queries with relevant services. Return a JSON array with service IDs and relevance scores. Always return valid JSON - use format: [{"id": "uuid", "score": 0.9}]. Be helpful and include services that match the user\'s intent.'
+const SYSTEM_PROMPT = 'You are an intelligent service matching assistant. You understand natural language queries and match them with relevant services. Extract the core service intent from user queries, even when phrased as "I need a handyman" or "describe the service". Return a JSON array with service IDs and relevance scores. Always return valid JSON - use format: [{"id": "uuid", "score": 0.9}].'
 
 function buildUserPrompt(userQuery: string, serviceList: unknown[]): string {
-  return `Match the user's service request with relevant services. BE PRECISE - prioritize exact matches.
+  return `Match the user's service request with relevant services. UNDERSTAND NATURAL LANGUAGE - extract the core service intent.
 
 USER REQUEST: "${userQuery}"
 
 AVAILABLE SERVICES:
-${JSON.stringify(serviceList.slice(0, 100), null, 2)}
+${JSON.stringify(serviceList.slice(0, 150), null, 2)}
 
 CRITICAL RULES:
-1. PRIORITY ORDER (most important first):
+1. NATURAL LANGUAGE UNDERSTANDING:
+   - "I need a handyman" → Match with Handyman/Multi Trader services
+   - "I need someone to fix my tap" → Match with plumbing/tap repair services
+   - "describe the service" → If followed by a service name, match that service
+   - "help with" + service → Extract the service and match it
+   - Remove phrases like "I need", "I want", "can you", "help me" and focus on the actual service
+
+2. PRIORITY ORDER (most important first):
    - Services with EXACT keyword match (if user searches "tv mount", return services with keyword "tv mount")
    - Services with service name containing the exact search terms
    - Services with keywords containing the search terms
-   - Only include generic services (like "Carpenter") if NO specific matches exist
+   - Category matches (e.g., "handyman" matches "Handyman" category services)
+   - Only include generic services (like "Carpenter", "Handyman") if:
+     a) The query explicitly asks for them (e.g., "I need a handyman")
+     b) NO specific matches exist
 
-2. EXAMPLES:
+3. CATEGORY SYNONYMS:
+   - "handyman" = "Handyman", "Multi Trader", "Handyman/Multi Trader"
+   - "plumber" = "Plumber", "Plumbing/Electrician"
+   - "electrician" = "Electrician", "Plumbing/Electrician"
+   - "cleaner" = "Cleaner", "Cleaning"
+   - "carpenter" = "Carpenter", "Carpenter / Joiner"
+   - "painter" = "Painter", "Painter & Decorator"
+
+4. EXAMPLES:
+   - "I need a handyman" → Return Handyman/Multi Trader hourly/day rate services
    - "tv mount" → Return TV mounting/installation services, NOT generic carpentry
-   - "tap leak" → Return plumbing services, NOT general handyman
+   - "tap leak" → Return plumbing/tap repair services, NOT general handyman
    - "deep clean" → Return deep cleaning services, NOT general cleaning
+   - "someone to fix my washing machine" → Return washing machine repair services
+   - "help installing shelves" → Return shelf installation services
 
-3. DO NOT return generic services (Carpenter, Handyman, etc.) when specific services match
+5. DO NOT return generic services when specific services match UNLESS the query explicitly asks for generic help
 
 RETURN FORMAT: JSON array with service IDs and scores.
 Example: [{"id": "abc-123-uuid", "score": 0.95}, {"id": "def-456-uuid", "score": 0.85}]
@@ -37,9 +58,10 @@ SCORING:
 - Exact keyword match: 0.95-1.0
 - Service name match: 0.85-0.94
 - Keyword contains match: 0.75-0.84
-- Generic/category match: 0.5-0.74 (only if no specific matches)
+- Category match (when query explicitly mentions category): 0.70-0.84
+- Generic/category match (when no specific matches): 0.5-0.74
 
-Return up to 15 services, ordered by relevance. Return [] only if absolutely nothing matches.`
+Return up to 20 services, ordered by relevance. Return [] only if absolutely nothing matches.`
 }
 
 serve(async (req) => {
