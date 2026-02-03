@@ -9,6 +9,407 @@ import usePlacesAutocomplete, { getGeocode, getLatLng } from 'use-places-autocom
 import { SEO } from '../components/SEO';
 
 /**
+ * Custom Service Request Banner Component
+ * Shows at the end of services list, allowing users to submit a custom request
+ */
+const CustomServiceRequestBanner = ({ searchQuery, onBack, compact = false }) => {
+  const [showForm, setShowForm] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    serviceDescription: searchQuery || '',
+    location: '',
+    preferredDate: '',
+    preferredTime: ''
+  });
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('custom-service-request', {
+        body: {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          serviceDescription: formData.serviceDescription,
+          location: formData.location,
+          preferredDate: formData.preferredDate,
+          preferredTime: formData.preferredTime,
+          searchQuery: searchQuery
+        }
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      setSubmitted(true);
+      toast.success(data?.message || 'Your custom service request has been submitted successfully!');
+    } catch (error) {
+      console.error('Error submitting custom request:', error);
+      toast.error('Failed to submit request. Please try again or contact us directly.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (submitted) {
+    return (
+      <div style={{
+        textAlign: 'center',
+        padding: '3rem 2rem',
+        backgroundColor: 'white',
+        borderRadius: '1rem',
+        boxShadow: '0 4px 6px rgba(0,0,0,0.05)',
+        border: '1px solid #e5e7eb'
+      }}>
+        <CheckCircle size={48} style={{ color: '#E94A02', marginBottom: '1rem' }} />
+        <h3 style={{ color: '#374151', marginBottom: '0.5rem' }}>Request Submitted!</h3>
+        <p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
+          We've received your custom service request. Our team will contact you soon to discuss your needs.
+        </p>
+        <button
+          onClick={onBack}
+          style={{
+            backgroundColor: '#E94A02',
+            color: 'white',
+            border: 'none',
+            borderRadius: '0.5rem',
+            padding: '0.75rem 1.5rem',
+            fontSize: '1rem',
+            fontWeight: '600',
+            cursor: 'pointer',
+            transition: 'all 0.2s'
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.backgroundColor = '#d13d00';
+            e.target.style.transform = 'scale(1.05)';
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.backgroundColor = '#E94A02';
+            e.target.style.transform = 'scale(1)';
+          }}
+        >
+          Search Again
+        </button>
+      </div>
+    );
+  }
+
+  if (!showForm) {
+    return (
+      <div style={{
+        textAlign: 'center',
+        padding: compact ? '2rem 1.5rem' : '3rem 2rem',
+        background: 'linear-gradient(135deg, #E94A02 0%, #d13d00 100%)',
+        borderRadius: '1rem',
+        boxShadow: '0 4px 6px rgba(0,0,0,0.05)',
+        border: '1px solid #e5e7eb',
+        color: 'white'
+      }}>
+        <Search size={compact ? 36 : 48} style={{ color: 'white', marginBottom: compact ? '0.75rem' : '1rem', opacity: 0.9 }} />
+        <h3 style={{ 
+          color: 'white', 
+          marginBottom: compact ? '0.5rem' : '0.5rem', 
+          fontSize: compact ? '1.25rem' : '1.5rem', 
+          fontWeight: '600' 
+        }}>
+          {compact ? "Need something else?" : "Didn't find what you're looking for?"}
+        </h3>
+        <p style={{ 
+          color: 'rgba(255,255,255,0.9)', 
+          marginBottom: compact ? '1rem' : '1.5rem', 
+          fontSize: compact ? '0.9375rem' : '1rem' 
+        }}>
+          {compact 
+            ? "Create a custom service request and we'll get back to you with a personalized quote."
+            : "No problem! Create a custom service request and we'll get back to you with a personalized quote."
+          }
+        </p>
+        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+          <button
+            onClick={() => setShowForm(true)}
+            style={{
+              backgroundColor: 'white',
+              color: '#E94A02',
+              border: 'none',
+              borderRadius: '0.5rem',
+              padding: compact ? '0.625rem 1.25rem' : '0.75rem 1.5rem',
+              fontSize: compact ? '0.9375rem' : '1rem',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.transform = 'scale(1.05)';
+              e.target.style.boxShadow = '0 4px 12px rgba(233, 74, 2, 0.3)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.transform = 'scale(1)';
+              e.target.style.boxShadow = 'none';
+            }}
+          >
+            Create Custom Request
+          </button>
+          {!compact && (
+            <button
+              onClick={onBack}
+              style={{
+                backgroundColor: 'transparent',
+                color: 'white',
+                border: '2px solid white',
+                borderRadius: '0.5rem',
+                padding: '0.75rem 1.5rem',
+                fontSize: '1rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'background-color 0.2s',
+              }}
+              onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.1)'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+            >
+              Try Again
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{
+      padding: '2rem',
+      backgroundColor: 'white',
+      borderRadius: '1rem',
+      boxShadow: '0 4px 6px rgba(0,0,0,0.05)',
+      border: '1px solid #e5e7eb'
+    }}>
+      <div style={{ marginBottom: '1.5rem' }}>
+        <h3 style={{ color: '#374151', marginBottom: '0.5rem', fontSize: '1.25rem', fontWeight: '600' }}>
+          Create Custom Service Request
+        </h3>
+        <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>
+          Tell us about your service needs and we'll get back to you with a personalized quote.
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <div>
+          <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500', fontSize: '0.875rem' }}>
+            Your Name <span style={{ color: '#ef4444' }}>*</span>
+          </label>
+          <input
+            type="text"
+            name="name"
+            value={formData.name}
+            onChange={handleInputChange}
+            required
+            style={{
+              width: '100%',
+              padding: '0.75rem',
+              border: '1px solid #d1d5db',
+              borderRadius: '0.5rem',
+              fontSize: '1rem',
+              fontFamily: 'inherit'
+            }}
+          />
+        </div>
+
+        <div>
+          <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500', fontSize: '0.875rem' }}>
+            Email <span style={{ color: '#ef4444' }}>*</span>
+          </label>
+          <input
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleInputChange}
+            required
+            style={{
+              width: '100%',
+              padding: '0.75rem',
+              border: '1px solid #d1d5db',
+              borderRadius: '0.5rem',
+              fontSize: '1rem',
+              fontFamily: 'inherit'
+            }}
+          />
+        </div>
+
+        <div>
+          <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500', fontSize: '0.875rem' }}>
+            Phone Number
+          </label>
+          <input
+            type="tel"
+            name="phone"
+            value={formData.phone}
+            onChange={handleInputChange}
+            style={{
+              width: '100%',
+              padding: '0.75rem',
+              border: '1px solid #d1d5db',
+              borderRadius: '0.5rem',
+              fontSize: '1rem',
+              fontFamily: 'inherit'
+            }}
+          />
+        </div>
+
+        <div>
+          <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500', fontSize: '0.875rem' }}>
+            Service Description <span style={{ color: '#ef4444' }}>*</span>
+          </label>
+          <textarea
+            name="serviceDescription"
+            value={formData.serviceDescription}
+            onChange={handleInputChange}
+            required
+            rows={4}
+            placeholder="Describe the service you need..."
+            style={{
+              width: '100%',
+              padding: '0.75rem',
+              border: '1px solid #d1d5db',
+              borderRadius: '0.5rem',
+              fontSize: '1rem',
+              fontFamily: 'inherit',
+              resize: 'vertical'
+            }}
+          />
+        </div>
+
+        <div>
+          <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500', fontSize: '0.875rem' }}>
+            Location
+          </label>
+          <input
+            type="text"
+            name="location"
+            value={formData.location}
+            onChange={handleInputChange}
+            placeholder="e.g., London, SW1A 1AA"
+            style={{
+              width: '100%',
+              padding: '0.75rem',
+              border: '1px solid #d1d5db',
+              borderRadius: '0.5rem',
+              fontSize: '1rem',
+              fontFamily: 'inherit'
+            }}
+          />
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div>
+            <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500', fontSize: '0.875rem' }}>
+              Preferred Date
+            </label>
+            <input
+              type="date"
+              name="preferredDate"
+              value={formData.preferredDate}
+              onChange={handleInputChange}
+              style={{
+                width: '100%',
+                padding: '0.75rem',
+                border: '1px solid #d1d5db',
+                borderRadius: '0.5rem',
+                fontSize: '1rem',
+                fontFamily: 'inherit'
+              }}
+            />
+          </div>
+
+          <div>
+            <label style={{ display: 'block', marginBottom: '0.5rem', color: '#374151', fontWeight: '500', fontSize: '0.875rem' }}>
+              Preferred Time
+            </label>
+            <select
+              name="preferredTime"
+              value={formData.preferredTime}
+              onChange={handleInputChange}
+              style={{
+                width: '100%',
+                padding: '0.75rem',
+                border: '1px solid #d1d5db',
+                borderRadius: '0.5rem',
+                fontSize: '1rem',
+                fontFamily: 'inherit'
+              }}
+            >
+              <option value="">Select time</option>
+              <option value="morning">Morning (8am - 12pm)</option>
+              <option value="afternoon">Afternoon (12pm - 5pm)</option>
+              <option value="evening">Evening (5pm - 8pm)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
+          <button
+            type="submit"
+            disabled={submitting}
+            style={{
+              flex: 1,
+              backgroundColor: submitting ? '#9ca3af' : '#E94A02',
+              color: 'white',
+              border: 'none',
+              borderRadius: '0.5rem',
+              padding: '0.75rem 1.5rem',
+              fontSize: '1rem',
+              fontWeight: '600',
+              cursor: submitting ? 'not-allowed' : 'pointer',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              if (!submitting) {
+                e.target.style.backgroundColor = '#d13d00';
+                e.target.style.transform = 'scale(1.02)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!submitting) {
+                e.target.style.backgroundColor = '#E94A02';
+                e.target.style.transform = 'scale(1)';
+              }
+            }}
+          >
+            {submitting ? 'Submitting...' : 'Submit Request'}
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowForm(false)}
+            style={{
+              backgroundColor: 'transparent',
+              color: '#374151',
+              border: '1px solid #d1d5db',
+              borderRadius: '0.5rem',
+              padding: '0.75rem 1.5rem',
+              fontSize: '1rem',
+              fontWeight: '600',
+              cursor: 'pointer'
+            }}
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+};
+
+/**
  * Get service-specific image based on category and service name
  * @param {Object} service - Service object with category and service
  * @returns {string} Image URL
@@ -1207,36 +1608,17 @@ const B2CBooking = () => {
             </div>
             )}
 
-                {/* No results - inside left column */}
-                {!loading && availableServices.length === 0 && (
-                  <div style={{
-                    textAlign: 'center',
-                    padding: '3rem 2rem',
-                    backgroundColor: 'white',
-                    borderRadius: '1rem',
-                    boxShadow: '0 4px 6px rgba(0,0,0,0.05)',
-                    border: '1px solid #e5e7eb'
+                {/* Custom Request Banner - Always shown at the end */}
+                {!loading && (
+                  <div style={{ 
+                    gridColumn: '1 / -1', 
+                    marginTop: availableServices.length > 0 ? '2rem' : '0' 
                   }}>
-                    <Search size={48} style={{ color: '#9ca3af', marginBottom: '1rem' }} />
-                    <h3 style={{ color: '#374151', marginBottom: '0.5rem' }}>No services found</h3>
-                    <p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
-                      Try searching with different keywords or browse our categories
-                    </p>
-                    <button
-                      onClick={() => setStep(1)}
-                      style={{
-                        backgroundColor: '#2001AF',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '0.5rem',
-                        padding: '0.75rem 1.5rem',
-                        fontSize: '1rem',
-                        fontWeight: '600',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      Try Again
-                    </button>
+                    <CustomServiceRequestBanner 
+                      searchQuery={jobDescription}
+                      onBack={() => setStep(1)}
+                      compact={availableServices.length > 0}
+                    />
                   </div>
                 )}
               </div>
