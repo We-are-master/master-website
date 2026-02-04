@@ -27,6 +27,7 @@ import B2CHome from './pages/B2CHome'
 import B2CBooking from './pages/B2CBooking'
 import B2CCheckout from './pages/B2CCheckout'
 import B2CCleaningBooking from './pages/B2CCleaningBooking'
+import B2CHandymanBooking from './pages/B2CHandymanBooking'
 import B2CLogin from './pages/B2CLogin'
 import B2CMyOrders from './pages/B2CMyOrders'
 import CheckoutSuccess from './pages/CheckoutSuccess'
@@ -53,6 +54,8 @@ function AppContent() {
         <Route path="/b2c/booking" element={<B2CBooking />} />
         <Route path="/cleaning-booking" element={<B2CCleaningBooking />} />
         <Route path="/b2c/cleaning-booking" element={<B2CCleaningBooking />} />
+        <Route path="/handyman-booking" element={<B2CHandymanBooking />} />
+        <Route path="/b2c/handyman-booking" element={<B2CHandymanBooking />} />
         <Route path="/checkout" element={<B2CCheckout />} />
         <Route path="/b2c/checkout" element={<B2CCheckout />} />
         <Route path="/checkout-success" element={<CheckoutSuccess />} />
