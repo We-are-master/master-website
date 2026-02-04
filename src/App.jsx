@@ -27,6 +27,8 @@ import B2CHome from './pages/B2CHome'
 import B2CBooking from './pages/B2CBooking'
 import B2CCheckout from './pages/B2CCheckout'
 import B2CCleaningBooking from './pages/B2CCleaningBooking'
+import B2CCarpentryBooking from './pages/B2CCarpentryBooking'
+import B2CPaintingBooking from './pages/B2CPaintingBooking'
 import B2CHandymanBooking from './pages/B2CHandymanBooking'
 import B2CLogin from './pages/B2CLogin'
 import B2CMyOrders from './pages/B2CMyOrders'
@@ -47,19 +49,16 @@ function AppContent() {
       <SecurityHeaders />
       {isB2C ? <HeaderB2C /> : <HeaderB2B />}
       <Routes>
-        {/* B2C Routes - Now the default homepage */}
+        {/* B2C Routes - Rotas principais com layout B2C (HeaderB2C + FooterB2C) */}
         <Route path="/" element={<B2CHome />} />
         <Route path="/b2c" element={<B2CHome />} />
         <Route path="/booking" element={<B2CBooking />} />
-        <Route path="/b2c/booking" element={<B2CBooking />} />
         <Route path="/cleaning-booking" element={<B2CCleaningBooking />} />
-        <Route path="/b2c/cleaning-booking" element={<B2CCleaningBooking />} />
+        <Route path="/carpentry-booking" element={<B2CCarpentryBooking />} />
+        <Route path="/painting-booking" element={<B2CPaintingBooking />} />
         <Route path="/handyman-booking" element={<B2CHandymanBooking />} />
-        <Route path="/b2c/handyman-booking" element={<B2CHandymanBooking />} />
         <Route path="/checkout" element={<B2CCheckout />} />
-        <Route path="/b2c/checkout" element={<B2CCheckout />} />
         <Route path="/checkout-success" element={<CheckoutSuccess />} />
-        <Route path="/b2c/checkout-success" element={<CheckoutSuccess />} />
         <Route path="/customer-login" element={<B2CLogin />} />
         <Route path="/my-orders" element={<B2CMyOrders />} />
         

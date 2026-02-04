@@ -1,841 +1,923 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
-import { toast } from 'react-toastify';
-import './B2CCleaningBooking.css';
-import usePlacesAutocomplete, { getGeocode, getLatLng } from 'use-places-autocomplete';
 import { SEO } from '../components/SEO';
 
-// This is a simplified React version of the cleaning booking form
-// The full implementation would require Stripe integration and Google Places API
 const B2CCleaningBooking = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [step, setStep] = useState(1);
-  const [isGoogleLoaded, setIsGoogleLoaded] = useState(false);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const addressInputRef = useRef(null);
-  const [state, setState] = useState({
-    postcode: '',
-    cleanType: '',
-    propertyType: '',
-    addressPicked: '',
-    bedrooms: 1,
-    bathrooms: 1,
-    extras: new Set(),
-    steam: new Set(),
-    products: '',
-    parking: '',
-    contact: {
-      firstName: '',
-      phone: '',
-      email: '',
-      address: '',
-      date: '',
-      slot: ''
-    },
-    coupon: {
-      code: '',
-      discount: 0,
-      applied: false
-    }
-  });
+  
+  const [selectedService, setSelectedService] = useState('end-of-tenancy');
+  const [propertyType, setPropertyType] = useState('flat');
+  const [bedrooms, setBedrooms] = useState(2);
+  const [bathrooms, setBathrooms] = useState(1);
+  const [selectedAddons, setSelectedAddons] = useState(new Set(['oven']));
+  const [estimatedPrice, setEstimatedPrice] = useState(231);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
-  // Initialize from location state
+  // Detect screen size for responsive layout
   useEffect(() => {
-    if (location.state?.postcode) {
-      setState(prev => ({ ...prev, postcode: location.state.postcode }));
-    }
-    if (location.state?.jobDescription) {
-      // Check if description mentions cleaning
-      const desc = location.state.jobDescription.toLowerCase();
-      if (desc.includes('cleaning') || desc.includes('clean')) {
-        // Auto-detect cleaning type if possible
-      }
-    }
-  }, [location.state]);
-
-  // Load Google Maps script dynamically
-  useEffect(() => {
-    const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
-    if (!apiKey) {
-      return;
-    }
-
-    // Check if script is already loaded
-    if (window.google && window.google.maps && window.google.maps.places) {
-      setIsGoogleLoaded(true);
-      return;
-    }
-
-    // Check if script is already in the DOM
-    const existingScript = document.querySelector('script[src*="maps.googleapis.com"]');
-    if (existingScript) {
-      const checkGoogle = () => {
-        if (window.google && window.google.maps && window.google.maps.places) {
-          setIsGoogleLoaded(true);
-        }
-      };
-      existingScript.addEventListener('load', checkGoogle);
-      checkGoogle(); // Check immediately
-      return () => {
-        existingScript.removeEventListener('load', checkGoogle);
-      };
-    }
-
-    // Load script if not already loaded
-    const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&loading=async`;
-    script.async = true;
-    script.defer = true;
-    script.onload = () => {
-      setIsGoogleLoaded(true);
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
     };
-    script.onerror = () => {
-      setIsGoogleLoaded(false);
-    };
-    document.head.appendChild(script);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Initialize Google Places Autocomplete
-  const placesAutocomplete = usePlacesAutocomplete({
-    requestOptions: {
-      componentRestrictions: { country: 'gb' }, // Restrict to UK
-    },
-    debounce: 300,
-    initOnMount: false,
-  });
-
-  const {
-    ready,
-    value: autocompleteValue,
-    setValue: setAutocompleteValue,
-    suggestions: { status, data },
-    clearSuggestions,
-    init,
-  } = placesAutocomplete;
-
-  // Initialize the hook when Google Maps is loaded
+  // Load Material Symbols font
   useEffect(() => {
-    if (isGoogleLoaded && window.google && window.google.maps && window.google.maps.places && !ready) {
-      init();
-    }
-  }, [isGoogleLoaded, ready, init]);
-
-  const handleSelectSuggestion = async (suggestion) => {
-    const address = suggestion.description;
-    setAutocompleteValue(address, false);
-    clearSuggestions();
-    setShowSuggestions(false);
+    const link = document.createElement('link');
+    link.href = 'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap';
+    link.rel = 'stylesheet';
+    document.head.appendChild(link);
     
-    try {
-      const results = await getGeocode({ address });
-      const { lat, lng } = await getLatLng(results[0]);
-      
-      // Extract postcode from the address
-      const postcodeMatch = address.match(/[A-Z]{1,2}[0-9]{1,2}[A-Z]?\s?[0-9][A-Z]{2}/i);
-      if (postcodeMatch) {
-        updateState({ 
-          addressPicked: address,
-          postcode: postcodeMatch[0].toUpperCase()
-        });
+    return () => {
+      document.head.removeChild(link);
+    };
+  }, []);
+
+  const services = [
+    { id: 'end-of-tenancy', label: 'End of Tenancy', badge: 'BEST FOR MOVING OUT' },
+    { id: 'deep-clean', label: 'Deep Clean' },
+    { id: 'after-builders', label: 'After Builders' }
+  ];
+
+  const addons = [
+    { id: 'oven', icon: 'oven_gen', label: 'Oven Clean', price: 15 },
+    { id: 'fridge', icon: 'kitchen', label: 'Inside Fridge', price: 12 },
+    { id: 'freezer', icon: 'ac_unit', label: 'Inside Freezer', price: 12 }
+  ];
+
+  const toggleAddon = (addonId) => {
+    setSelectedAddons(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(addonId)) {
+        newSet.delete(addonId);
       } else {
-        updateState({ addressPicked: address });
+        newSet.add(addonId);
       }
-    } catch (error) {
-      updateState({ addressPicked: address });
-    }
-  };
-
-  const updateState = (updates) => {
-    setState(prev => {
-      const newState = { ...prev, ...updates };
-      // Handle nested updates
-      if (updates.contact) {
-        newState.contact = { ...prev.contact, ...updates.contact };
-      }
-      if (updates.coupon) {
-        newState.coupon = { ...prev.coupon, ...updates.coupon };
-      }
-      return newState;
-    });
-  };
-
-  const handleStep1Continue = () => {
-    if (!state.addressPicked.trim()) {
-      toast.error('Please enter/select your address.');
-      return;
-    }
-    setStep(2);
-  };
-
-  const handleStep2Continue = () => {
-    if (!state.cleanType) {
-      toast.error('Select a cleaning type.');
-      return;
-    }
-    setStep(3);
-  };
-
-  const handleStep3Continue = () => {
-    const { firstName, phone, email, address, date, slot } = state.contact;
-    if (!firstName || !phone || !email || !address || !date || !slot) {
-      toast.error('Please complete your details and choose date & time.');
-      return;
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
-      toast.error('Please enter a valid email address.');
-      return;
-    }
-    setStep(4);
-  };
-
-  const toggleExtra = (task) => {
-    setState(prev => {
-      const newExtras = new Set(prev.extras);
-      if (newExtras.has(task)) {
-        newExtras.delete(task);
-      } else {
-        newExtras.add(task);
-      }
-      return { ...prev, extras: newExtras };
-    });
-  };
-
-  const toggleSteam = (service) => {
-    setState(prev => {
-      const newSteam = new Set(prev.steam);
-      if (newSteam.has(service)) {
-        newSteam.delete(service);
-      } else {
-        newSteam.add(service);
-      }
-      return { ...prev, steam: newSteam };
+      return newSet;
     });
   };
 
   const calculatePrice = () => {
-    // Simplified pricing calculation
-    // In production, use the full PRICING object from the original code
-    let base = 0;
+    let basePrice = 200; // Base price
     
-    if (state.cleanType === 'deep') {
-      base = state.propertyType === 'house' ? 229.17 : 166.67;
-    } else if (state.cleanType === 'eot') {
-      base = state.propertyType === 'house' ? 254.17 : 191.67;
-    } else if (state.cleanType === 'after_builders') {
-      base = state.propertyType === 'house' ? 257.50 : 195.00;
-    } else if (state.cleanType === 'upholstery') {
-      base = 75.00; // Minimum
+    // Adjust base price by service type
+    if (selectedService === 'end-of-tenancy') {
+      basePrice = 191.67; // Base for end of tenancy
+    } else if (selectedService === 'deep-clean') {
+      basePrice = 166.67; // Base for deep clean
+    } else if (selectedService === 'after-builders') {
+      basePrice = 195.00; // Base for after builders
     }
-
-    // Add extras
-    const extrasTotal = Array.from(state.extras).reduce((sum, task) => {
-      const prices = {
-        inside_windows: 25,
-        inside_fridge: 20.83,
-        inside_oven: 91.67,
-        balcony: 50.00,
-        bathroom: 29.17,
-        kitchen: 29.17,
-        living_room: 29.17,
-        extra_room: 29.17
-      };
-      return sum + (prices[task] || 0);
-    }, 0);
-
-    const parkingFee = state.parking === 'no' ? 15 : 0;
-    const materialsFee = state.products === 'bring' ? 6 : 0;
-
-    let total = base + extrasTotal + parkingFee + materialsFee;
     
-    // Apply coupon
-    if (state.coupon.applied && state.coupon.discount > 0) {
-      total = Math.max(0, total - state.coupon.discount);
+    // Property type multiplier
+    if (propertyType === 'house') {
+      basePrice *= 1.3; // Houses are typically more expensive
     }
+    
+    // Add bedrooms and bathrooms
+    basePrice += bedrooms * 15;
+    basePrice += bathrooms * 20;
+    
+    // Add selected addons
+    selectedAddons.forEach(addonId => {
+      const addon = addons.find(a => a.id === addonId);
+      if (addon) {
+        basePrice += addon.price;
+      }
+    });
+    
+    setEstimatedPrice(Math.round(basePrice));
+    return Math.round(basePrice);
+  };
 
-    return Math.round(total * 100) / 100;
+  useEffect(() => {
+    calculatePrice();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bedrooms, bathrooms, selectedAddons, selectedService, propertyType]);
+
+  const handleContinue = () => {
+    navigate('/checkout', {
+      state: {
+        service: {
+          type: selectedService,
+          propertyType,
+          bedrooms,
+          bathrooms,
+          addons: Array.from(selectedAddons),
+          price: estimatedPrice
+        }
+      }
+    });
   };
 
   return (
     <>
       <SEO 
-        title="Book Cleaning Service - Master Services"
-        description="Book professional cleaning services in London. Same-day service available. Vetted professionals, fully insured, trusted by 500+ businesses."
-        keywords="book cleaning service, professional cleaning London, same-day cleaning, house cleaning, office cleaning"
+        title="Master Cleaning Pro - Book Your Cleaning Service"
+        description="Professional cleaning services with AI-powered pricing. End of tenancy, deep clean, and after builders cleaning available."
       />
-      <div className="mcx">
-        <div className="wrap">
+      
+      {/* Material Symbols CSS */}
+      <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+      <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+      
+      <div className="dark" style={{
+        minHeight: '100dvh',
+        background: 'linear-gradient(180deg, #020034 0%, #020030 100%)',
+        fontFamily: "'Manrope', sans-serif",
+        color: 'white',
+        display: 'flex',
+        flexDirection: 'column'
+      }}>
         {/* Header */}
-        <div style={{
-          backgroundColor: 'white',
-          borderBottom: '1px solid #e5e7eb',
-          padding: '1.5rem 0',
-          marginBottom: '2rem',
-          borderRadius: '16px',
-          paddingLeft: '1.5rem',
-          paddingRight: '1.5rem',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+        <header style={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 50,
+          background: 'rgba(2, 0, 52, 0.95)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+          width: '100%'
         }}>
-          <button
-            onClick={() => navigate('/')}
-            style={{
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            padding: isMobile ? '16px 20px' : '20px 40px', 
+            justifyContent: 'space-between',
+            maxWidth: isMobile ? '100%' : '1200px',
+            margin: '0 auto',
+            width: '100%'
+          }}>
+            <div style={{ display: 'flex', width: '40px', height: '40px', flexShrink: 0, alignItems: 'center', justifyContent: 'flex-start' }}>
+              <span 
+                className="material-symbols-outlined" 
+                style={{ cursor: 'pointer', fontSize: '24px' }}
+                onClick={() => navigate(-1)}
+                onMouseEnter={(e) => e.target.style.opacity = '0.7'}
+                onMouseLeave={(e) => e.target.style.opacity = '1'}
+              >
+                arrow_back_ios
+              </span>
+            </div>
+            <h1 style={{ 
+              color: 'white', 
+              fontSize: isMobile ? '18px' : '20px', 
+              fontWeight: 800, 
+              lineHeight: '1.25', 
+              letterSpacing: '-0.02em',
+              flex: 1, 
+              textAlign: 'center',
+              fontFamily: "'Manrope', sans-serif"
+            }}>
+              Master Cleaning Pro
+            </h1>
+            <div style={{ width: '40px', height: '40px', flexShrink: 0 }}></div>
+          </div>
+          
+          {/* Service Tabs */}
+          <div style={{ 
+            padding: isMobile ? '0 20px' : '0 40px',
+            paddingTop: '32px', 
+            paddingBottom: '16px', 
+            overflow: 'visible',
+            maxWidth: isMobile ? '100%' : '1200px',
+            margin: '0 auto'
+          }}>
+            <div style={{ 
+              display: 'flex', 
+              overflowX: isMobile ? 'auto' : 'visible',
+              justifyContent: isMobile ? 'flex-start' : 'center',
+              scrollSnapType: isMobile ? 'x mandatory' : 'none',
+              gap: '12px',
+              paddingBottom: '8px',
+              marginTop: '-16px',
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none'
+            }} className="hide-scrollbar">
+              {services.map((service) => (
+                <div key={service.id} style={{ 
+                  scrollSnapAlign: isMobile ? 'center' : 'none', 
+                  flexShrink: 0, 
+                  width: isMobile ? '140px' : 'auto',
+                  minWidth: isMobile ? '140px' : '160px',
+                  paddingTop: '16px' 
+                }}>
+                  <button
+                    onClick={() => setSelectedService(service.id)}
+                    style={{
+                      width: '100%',
+                      padding: '12px 8px',
+                      fontSize: '11px',
+                      fontWeight: 800,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em',
+                      borderRadius: '12px',
+                      cursor: 'pointer',
+                      position: 'relative',
+                      background: selectedService === service.id 
+                        ? '#ED4B00' 
+                        : 'rgba(255, 255, 255, 0.05)',
+                      color: selectedService === service.id ? 'white' : 'rgba(255, 255, 255, 0.6)',
+                      border: selectedService === service.id ? 'none' : '1px solid rgba(255, 255, 255, 0.1)',
+                      boxSizing: 'border-box',
+                      boxShadow: selectedService === service.id ? '0 10px 15px -3px rgba(237, 75, 0, 0.2)' : 'none',
+                      transition: 'all 0.2s',
+                      outline: 'none'
+                    }}
+                  >
+                    {service.label}
+                    {service.badge && selectedService === service.id && (
+                      <span style={{
+                        position: 'absolute',
+                        top: '-8px',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        background: 'white',
+                        color: '#ED4B00',
+                        fontSize: '7px',
+                        padding: '4px 10px',
+                        borderRadius: '9999px',
+                        whiteSpace: 'nowrap',
+                        border: 'none',
+                        fontWeight: 900,
+                        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.2)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        letterSpacing: '0.05em'
+                      }}>
+                        {service.badge}
+                      </span>
+                    )}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          {/* Progress Bar */}
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            gap: '8px', 
+            padding: isMobile ? '0 20px 16px' : '0 40px 16px',
+            maxWidth: isMobile ? '100%' : '1200px',
+            margin: '0 auto'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <p style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                Configuration
+              </p>
+              <p style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                Step 1 of 3
+              </p>
+            </div>
+            <div style={{ borderRadius: '9999px', background: 'rgba(255, 255, 255, 0.1)', height: '6px', overflow: 'hidden' }}>
+              <div style={{ 
+                height: '100%', 
+                borderRadius: '9999px', 
+                background: '#ED4B00',
+                width: '33%',
+                transition: 'width 0.3s'
+              }}></div>
+            </div>
+          </div>
+        </header>
+
+        {/* Main Content */}
+        <main style={{ 
+          flex: 1, 
+          padding: isMobile ? '24px 20px' : '32px 40px',
+          paddingBottom: isMobile ? '320px' : '24px',
+          display: 'flex', 
+          flexDirection: 'column', 
+          gap: isMobile ? '32px' : '40px',
+          maxWidth: isMobile ? '100%' : '1200px',
+          margin: '0 auto',
+          width: '100%',
+          position: 'relative'
+        }}>
+          {/* Premium Equipment Badge */}
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <div style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '0.5rem',
-              backgroundColor: 'transparent',
-              border: 'none',
-              color: '#2001AF',
-              cursor: 'pointer',
-              fontSize: '1rem',
-              fontWeight: '600',
-              transition: 'all 0.3s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.color = '#020034';
-              e.target.style.transform = 'translateX(-4px)';
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.color = '#2001AF';
-              e.target.style.transform = 'translateX(0)';
-            }}
-          >
-            <ArrowLeft size={20} />
-            Back to Home
-          </button>
-        </div>
-
-        <div className="hero-banner" role="img" aria-label="You're almost there — book now and let us handle the rest."></div>
-
-        <h2>Your Home, Your Way</h2>
-        <p className="lead">Flexible cleaning services tailored to your schedule</p>
-
-        {/* Progress Stepper */}
-        <div className="stepper" aria-label="Progress">
-          <div className="step">
-            <span style={{ width: step >= 1 ? '100%' : '25%' }}></span>
+              gap: '8px',
+              borderRadius: '9999px',
+              background: 'rgba(255, 255, 255, 0.05)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              padding: '8px 20px'
+            }}>
+              <span className="material-symbols-outlined" style={{ color: '#ED4B00', fontSize: '16px' }}>
+                verified_user
+              </span>
+              <p style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '10px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                Premium Equipment Included
+              </p>
+            </div>
           </div>
-          <div className="step">
-            <span style={{ width: step >= 2 ? '100%' : '0%' }}></span>
-          </div>
-          <div className="step">
-            <span style={{ width: step >= 3 ? '100%' : '0%' }}></span>
-          </div>
-          <div className="step">
-            <span style={{ width: step >= 4 ? '100%' : '0%' }}></span>
-          </div>
-        </div>
 
-        <div className="grid two">
-          {/* LEFT COLUMN */}
-          <div id="leftCol">
-            {/* STEP 1: Address */}
-            {step === 1 && (
-              <div id="step1" className="card stepcard" style={{ border: '2px solid #2001AF', boxShadow: '0 0 0 4px rgba(32,1,175,.10), 0 8px 24px rgba(2,0,52,.1)' }}>
-                <label id="postcodeLabel" style={{ position: 'relative', paddingRight: '100px' }}>
-                  What's the service address?
-                  <span>
-                    Start here
-                  </span>
-                </label>
-                <div style={{ position: 'relative' }}>
-                  <input
-                    ref={addressInputRef}
-                    id="addressStep1"
-                    type="text"
-                    placeholder="Start typing your address…"
-                    autoComplete="off"
-                    value={ready ? autocompleteValue : state.addressPicked}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      if (ready) {
-                        setAutocompleteValue(value, true);
-                        setShowSuggestions(true);
-                        // Also update state for manual typing
-                        updateState({ addressPicked: value });
-                      } else {
-                        updateState({ addressPicked: value });
-                      }
-                    }}
-                    onFocus={(e) => {
-                      if (ready) {
-                        setShowSuggestions(true);
-                      }
-                    }}
-                    onBlur={(e) => {
-                      // Update state with final value if user typed manually
-                      if (ready && autocompleteValue && autocompleteValue !== state.addressPicked) {
-                        updateState({ addressPicked: autocompleteValue });
-                      }
-                      // Delay to allow click on suggestions
-                      setTimeout(() => setShowSuggestions(false), 200);
-                    }}
-                    disabled={!ready && isGoogleLoaded === false}
-                  />
-                  
-                  {/* Suggestions Dropdown */}
-                  {showSuggestions && ready && status === 'OK' && data && data.length > 0 && (
-                    <div style={{
-                      position: 'absolute',
-                      top: '100%',
-                      left: 0,
-                      right: 0,
-                      marginTop: '0.75rem',
-                      backgroundColor: 'white',
-                      border: '2px solid #e5e7eb',
-                      borderRadius: '16px',
-                      boxShadow: '0 12px 24px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.05)',
-                      zIndex: 1000,
-                      maxHeight: '320px',
-                      overflowY: 'auto'
-                    }}>
-                      {data.map((suggestion) => (
-                        <div
-                          key={suggestion.place_id}
-                          onClick={() => handleSelectSuggestion(suggestion)}
-                          style={{
-                            padding: '1rem 1.25rem',
-                            cursor: 'pointer',
-                            borderBottom: '1px solid #f3f4f6',
-                            transition: 'all 0.2s ease'
-                          }}
-                          onMouseEnter={(e) => {
-                            e.target.style.backgroundColor = '#f0f4ff';
-                            e.target.style.borderLeft = '4px solid #2001AF';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.target.style.backgroundColor = 'white';
-                            e.target.style.borderLeft = '4px solid transparent';
-                          }}
-                        >
-                          <div style={{
-                            fontSize: '0.9375rem',
-                            fontWeight: '600',
-                            color: '#020034',
-                            marginBottom: '0.25rem'
-                          }}>
-                            {suggestion.structured_formatting.main_text}
-                          </div>
-                          <div style={{
-                            fontSize: '0.8125rem',
-                            color: '#6b7280',
-                            fontWeight: '500'
-                          }}>
-                            {suggestion.structured_formatting.secondary_text}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+          {/* Property Type Section */}
+          <section style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 4px' }}>
+              <h3 style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                1. Property Type
+              </h3>
+            </div>
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(2, minmax(200px, 1fr))',
+              gap: isMobile ? '16px' : '24px',
+              maxWidth: isMobile ? '100%' : '600px'
+            }}>
+              <button
+                onClick={() => setPropertyType('flat')}
+                style={{
+                  background: propertyType === 'flat' 
+                    ? 'rgba(237, 75, 0, 0.1)' 
+                    : 'rgba(255, 255, 255, 0.05)',
+                  backdropFilter: 'blur(12px)',
+                  WebkitBackdropFilter: 'blur(12px)',
+                  border: propertyType === 'flat' 
+                    ? '2px solid #ED4B00' 
+                    : '1px solid rgba(255, 255, 255, 0.1)',
+                  boxSizing: 'border-box',
+                  borderRadius: '16px',
+                  padding: '24px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '12px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  boxShadow: propertyType === 'flat' ? '0 20px 25px -5px rgba(237, 75, 0, 0.1)' : 'none',
+                  outline: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  if (propertyType !== 'flat') {
+                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (propertyType !== 'flat') {
+                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                  }
+                }}
+              >
+                <span className="material-symbols-outlined" style={{ 
+                  fontSize: '48px', 
+                  color: propertyType === 'flat' ? '#ED4B00' : 'rgba(255, 255, 255, 0.4)'
+                }}>
+                  apartment
+                </span>
+                <span style={{ fontSize: '14px', fontWeight: 800, letterSpacing: '-0.02em', color: 'white' }}>
+                  Flat
+                </span>
+              </button>
+              
+              <button
+                onClick={() => setPropertyType('house')}
+                style={{
+                  background: propertyType === 'house' 
+                    ? 'rgba(237, 75, 0, 0.1)' 
+                    : 'rgba(255, 255, 255, 0.05)',
+                  backdropFilter: 'blur(12px)',
+                  WebkitBackdropFilter: 'blur(12px)',
+                  border: propertyType === 'house' 
+                    ? '2px solid #ED4B00' 
+                    : '1px solid rgba(255, 255, 255, 0.1)',
+                  boxSizing: 'border-box',
+                  borderRadius: '16px',
+                  padding: '24px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '12px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  boxShadow: propertyType === 'house' ? '0 20px 25px -5px rgba(237, 75, 0, 0.1)' : 'none',
+                  outline: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  if (propertyType !== 'house') {
+                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (propertyType !== 'house') {
+                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                  }
+                }}
+              >
+                <span className="material-symbols-outlined" style={{ 
+                  fontSize: '48px', 
+                  color: propertyType === 'house' ? '#ED4B00' : 'rgba(255, 255, 255, 0.4)'
+                }}>
+                  home
+                </span>
+                <span style={{ fontSize: '14px', fontWeight: 800, letterSpacing: '-0.02em', color: 'white' }}>
+                  House
+                </span>
+              </button>
+            </div>
+          </section>
+
+          {/* Service Details Section */}
+          <section style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 4px' }}>
+              <h3 style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                2. Service Details
+              </h3>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {/* Bedrooms */}
+              <div style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                backdropFilter: 'blur(12px)',
+                WebkitBackdropFilter: 'blur(12px)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                borderRadius: '16px',
+                padding: '20px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                  <div style={{
+                    width: '44px',
+                    height: '44px',
+                    borderRadius: '12px',
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '1px solid rgba(255, 255, 255, 0.05)'
+                  }}>
+                    <span className="material-symbols-outlined" style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '24px' }}>
+                      bed
+                    </span>
+                  </div>
+                  <div>
+                    <p style={{ color: 'white', fontSize: '16px', fontWeight: 700 }}>Bedrooms</p>
+                    <p style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: '10px', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '-0.02em' }}>
+                      Standard cleaning
+                    </p>
+                  </div>
                 </div>
-                <small className="note">Start typing your address (like 123 City Road) and we'll find you</small>
-                <div className="btns">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                   <button
-                    className="btn primary"
-                    onClick={handleStep1Continue}
-                    disabled={!state.addressPicked.trim()}
+                    onClick={() => setBedrooms(Math.max(0, bedrooms - 1))}
+                    className="stepper-btn"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      minWidth: '44px',
+                      minHeight: '44px',
+                      borderRadius: '9999px',
+                      background: 'rgba(255, 255, 255, 0.1)',
+                      border: 'none',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      color: 'white'
+                    }}
+                    onMouseEnter={(e) => e.target.style.transform = 'scale(0.9)'}
+                    onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
                   >
-                    Continue
-                    <ArrowLeft size={18} style={{ transform: 'rotate(180deg)' }} />
+                    <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>remove</span>
+                  </button>
+                  <span style={{ fontSize: '20px', fontWeight: 900, width: '20px', textAlign: 'center' }}>
+                    {bedrooms}
+                  </span>
+                  <button
+                    onClick={() => setBedrooms(bedrooms + 1)}
+                    className="stepper-btn"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      minWidth: '44px',
+                      minHeight: '44px',
+                      borderRadius: '9999px',
+                      background: '#ED4B00',
+                      border: 'none',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      color: 'white'
+                    }}
+                    onMouseEnter={(e) => e.target.style.transform = 'scale(0.9)'}
+                    onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>add</span>
                   </button>
                 </div>
               </div>
-            )}
 
-            {/* STEP 2: Cleaning Details */}
-            {step === 2 && (
-              <div id="step2" className="card stepcard">
-                <label>What type of clean do you need?</label>
-                <div className="clean-cards" id="cleanTypeCards">
-                  {[
-                    { type: 'deep', icon: '🫧', title: 'Deep Clean', desc: 'More thorough than a regular clean. Remove dirt and limescale' },
-                    { type: 'eot', icon: '🛋️', title: 'End of Tenancy Clean', desc: 'Our most thorough clean. When you\'re moving out or in' },
-                    { type: 'after_builders', icon: '🏠', title: 'After Builders Clean', desc: 'Remove dirt and dust after building work or renovation' },
-                    { type: 'upholstery', icon: '🛏️', title: 'Upholstery Cleaning', desc: 'Professional cleaning for sofas, carpets, and upholstered furniture' }
-                  ].map(card => (
-                    <div
-                      key={card.type}
-                      className={`clean-card ${state.cleanType === card.type ? 'is-active' : ''}`}
-                      onClick={() => updateState({ cleanType: card.type })}
-                    >
-                      <div className="icon">{card.icon}</div>
-                      <h4>{card.title}</h4>
-                      <p>{card.desc}</p>
-                    </div>
-                  ))}
-                </div>
-
-                {state.cleanType !== 'upholstery' && (
-                  <>
-                    <div style={{ height: '10px' }}></div>
-                    <label id="propertyTypeLabel">Property type</label>
-                    <div className="choice-set" id="propertyChoices">
-                      <div
-                        className={`choice ${state.propertyType === 'house' ? 'is-active' : ''}`}
-                        onClick={() => updateState({ propertyType: 'house' })}
-                      >
-                        House
-                      </div>
-                      <div
-                        className={`choice ${state.propertyType === 'flat' ? 'is-active' : ''}`}
-                        onClick={() => updateState({ propertyType: 'flat' })}
-                      >
-                        Flat
-                      </div>
-                    </div>
-
-                    <div style={{ height: '10px' }}></div>
-                    <label id="bedroomsLabel">How many bedrooms?</label>
-                    <div className="counter" data-key="bedrooms">
-                      <button
-                        type="button"
-                        onClick={() => updateState({ bedrooms: Math.max(1, state.bedrooms - 1) })}
-                      >
-                        −
-                      </button>
-                      <div className="value">
-                        <span>{state.bedrooms}</span>&nbsp;bedroom{state.bedrooms !== 1 ? 's' : ''}
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => updateState({ bedrooms: Math.min(10, state.bedrooms + 1) })}
-                      >
-                        +
-                      </button>
-                    </div>
-
-                    <div style={{ height: '10px' }}></div>
-                    <label id="bathroomsLabel">How many bathrooms?</label>
-                    <div className="counter" data-key="bathrooms">
-                      <button
-                        type="button"
-                        onClick={() => updateState({ bathrooms: Math.max(1, state.bathrooms - 1) })}
-                      >
-                        −
-                      </button>
-                      <div className="value">
-                        <span>{state.bathrooms}</span>&nbsp;bathroom{state.bathrooms !== 1 ? 's' : ''}
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => updateState({ bathrooms: Math.min(10, state.bathrooms + 1) })}
-                      >
-                        +
-                      </button>
-                    </div>
-                  </>
-                )}
-
-                <div style={{ height: '12px' }}></div>
-                <label>Extra tasks (optional)</label>
-                <div className="tasks" id="tasks">
-                  {[
-                    { key: 'inside_windows', label: 'Inside windows' },
-                    { key: 'inside_fridge', label: 'Inside fridge' },
-                    { key: 'inside_oven', label: 'Inside oven' },
-                    { key: 'balcony', label: 'Balcony' },
-                    { key: 'bathroom', label: 'Bathroom' },
-                    { key: 'kitchen', label: 'Kitchen' },
-                    { key: 'living_room', label: 'Living room' },
-                    { key: 'extra_room', label: 'Extra room' }
-                  ].map(task => (
-                    <div
-                      key={task.key}
-                      className={`task ${state.extras.has(task.key) ? 'is-active' : ''}`}
-                      onClick={() => toggleExtra(task.key)}
-                    >
-                      {task.label}
-                    </div>
-                  ))}
-                </div>
-
-                <div style={{ height: '12px' }}></div>
-                <label>Cleaning products</label>
-                <div className="pillset" id="productsPills">
-                  <div
-                    className={`pill ${state.products === 'bring' ? 'is-active' : ''}`}
-                    onClick={() => updateState({ products: 'bring' })}
-                  >
-                    Bring cleaning products
-                  </div>
-                  <div
-                    className={`pill ${state.products === 'client' ? 'is-active' : ''}`}
-                    onClick={() => updateState({ products: 'client' })}
-                  >
-                    I will provide
-                  </div>
-                </div>
-
-                <div className="btns">
-                  <button className="btn secondary" onClick={() => setStep(1)}>
-                    <ArrowLeft size={18} />
-                    Back
-                  </button>
-                  <button className="btn primary" onClick={handleStep2Continue}>
-                    Continue
-                    <ArrowLeft size={18} style={{ transform: 'rotate(180deg)' }} />
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* STEP 3: Date, Time, Contact */}
-            {step === 3 && (
-              <div id="step3" className="card stepcard">
-                <div className="oneCol">
-                  <div>
-                    <label>Date</label>
-                    <input
-                      type="date"
-                      min={new Date().toISOString().split('T')[0]}
-                      value={state.contact.date}
-                      onChange={(e) => updateState({ contact: { ...state.contact, date: e.target.value } })}
-                    />
-                  </div>
-
-                  <div>
-                    <label>What time would you like the cleaning team to arrive?</label>
-                    <div className="slot-list" id="slotList">
-                      {[
-                        { key: 'daytime', title: 'Daytime', time: '09:00 - 15:00' },
-                        { key: 'early_morning', title: 'Early morning', time: '08:00 - 09:00' },
-                        { key: 'morning', title: 'Morning', time: '09:00 - 12:00' },
-                        { key: 'afternoon', title: 'Afternoon', time: '12:00 - 15:00' },
-                        { key: 'late_afternoon', title: 'Late afternoon', time: '15:00 - 18:00' },
-                        { key: 'evening', title: 'Evening', time: '18:00 - 19:00' }
-                      ].map(slot => (
-                        <div
-                          key={slot.key}
-                          className={`slot-row ${state.contact.slot === `${slot.title} (${slot.time})` ? 'is-active' : ''}`}
-                          onClick={() => updateState({ contact: { ...state.contact, slot: `${slot.title} (${slot.time})` } })}
-                        >
-                          <strong>{slot.title}</strong>
-                          <span>{slot.time}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                <div style={{ height: '10px' }}></div>
-                <label>Can you provide free parking?</label>
-                <div className="choice-set" id="parkingChoices">
-                  <div
-                    className={`choice ${state.parking === 'yes' ? 'is-active' : ''}`}
-                    onClick={() => updateState({ parking: 'yes' })}
-                  >
-                    Yes
-                  </div>
-                  <div
-                    className={`choice ${state.parking === 'no' ? 'is-active' : ''}`}
-                    onClick={() => updateState({ parking: 'no' })}
-                  >
-                    No
-                  </div>
-                </div>
-                <small className="note">If no, a £15 parking fee applies.</small>
-
-                <div style={{ height: '12px' }}></div>
-                <div className="twoCol">
-                  <div>
-                    <label>First name</label>
-                    <input
-                      id="firstName"
-                      type="text"
-                      placeholder="Your name"
-                      value={state.contact.firstName}
-                      onChange={(e) => updateState({ contact: { ...state.contact, firstName: e.target.value } })}
-                    />
-                  </div>
-                  <div>
-                    <label>Phone</label>
-                    <input
-                      id="phone"
-                      type="tel"
-                      placeholder="e.g. 07123 456789"
-                      value={state.contact.phone}
-                      onChange={(e) => updateState({ contact: { ...state.contact, phone: e.target.value } })}
-                    />
-                  </div>
-                  <div>
-                    <label>Email</label>
-                    <input
-                      id="email"
-                      type="email"
-                      placeholder="you@example.com"
-                      value={state.contact.email}
-                      onChange={(e) => updateState({ contact: { ...state.contact, email: e.target.value } })}
-                    />
-                  </div>
-                  <div>
-                    <label>Postcode</label>
-                    <input
-                      id="postcodeEcho"
-                      type="text"
-                      value={state.postcode}
-                      disabled
-                    />
-                  </div>
-                </div>
-
-                <div style={{ height: '8px' }}></div>
-                <label>Address</label>
-                <input
-                  id="address"
-                  type="text"
-                  placeholder="Your address"
-                  value={state.contact.address || state.addressPicked}
-                  onChange={(e) => updateState({ contact: { ...state.contact, address: e.target.value } })}
-                />
-
-                <div className="btns">
-                  <button className="btn secondary" onClick={() => setStep(2)}>
-                    <ArrowLeft size={18} />
-                    Back
-                  </button>
-                  <button className="btn orange" onClick={handleStep3Continue}>
-                    Proceed to payment
-                    <ArrowLeft size={18} style={{ transform: 'rotate(180deg)' }} />
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* STEP 4: Payment */}
-            {step === 4 && (
-              <div id="step4" className="card stepcard">
-                <h3 className="payhead">Secure payment</h3>
-                <p className="paynote">Complete your booking on this page.</p>
-
-                <div className="paygrid">
-                  <div>
-                    <div className="twoCol" style={{ marginBottom: '8px' }}>
-                      <input
-                        id="couponCode"
-                        type="text"
-                        placeholder="Coupon code (optional)"
-                      />
-                      <button className="btn secondary" id="applyCoupon" type="button">
-                        Apply
-                      </button>
-                    </div>
-
-                    <div className="btns">
-                      <button type="button" className="btn secondary" onClick={() => setStep(3)}>
-                        <ArrowLeft size={18} />
-                        Back
-                      </button>
-                      <button
-                        id="submitPayment"
-                        className="btn orange"
-                        onClick={() => {
-                          const total = calculatePrice();
-                          toast.success(`Booking confirmed! Total: £${total.toFixed(2)}`);
-                          navigate('/');
-                        }}
-                      >
-                        Pay now £{calculatePrice().toFixed(2)}
-                        <ArrowLeft size={18} style={{ transform: 'rotate(180deg)' }} />
-                      </button>
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="paybox" id="payBox">
-                      <div className="label">You'll pay now</div>
-                      <div className="amount">£{calculatePrice().toFixed(2)}</div>
-                      <div className="sub">Secure payment • Stripe</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* RIGHT SIDEBAR */}
-          <aside>
-            <div className="sticky">
-              <div className="card faq">
-                <details open>
-                  <summary>How does pricing work?</summary>
-                  <p className="note">Base hourly rate by type + extras + products (if we bring them).</p>
-                </details>
-                <details>
-                  <summary>Will I always have the same cleaner?</summary>
-                  <p className="note">We try to keep the same professional for recurring cleans.</p>
-                </details>
-                <details>
-                  <summary>Minimum contract?</summary>
-                  <p className="note">No. Change or cancel anytime.</p>
-                </details>
-              </div>
-
-              <div className="card summary">
-                <div className="head">Booking summary</div>
-                <div className="list">
-                  <div className="row">
-                    <span className="key">Type</span>
-                    <span className="val">
-                      {state.cleanType === 'deep' ? 'Deep clean' :
-                       state.cleanType === 'eot' ? 'End of tenancy' :
-                       state.cleanType === 'after_builders' ? 'After builders' :
-                       state.cleanType === 'upholstery' ? 'Upholstery cleaning' : '—'}
+              {/* Bathrooms */}
+              <div style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                backdropFilter: 'blur(12px)',
+                WebkitBackdropFilter: 'blur(12px)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                borderRadius: '16px',
+                padding: '20px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                  <div style={{
+                    width: '44px',
+                    height: '44px',
+                    borderRadius: '12px',
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '1px solid rgba(255, 255, 255, 0.05)'
+                  }}>
+                    <span className="material-symbols-outlined" style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '24px' }}>
+                      bathtub
                     </span>
                   </div>
-                  <div className="row">
-                    <span className="key">Parking</span>
-                    <span className="val">
-                      {state.parking === 'yes' ? 'Yes (free)' :
-                       state.parking === 'no' ? 'No (+£15)' : '—'}
-                    </span>
-                  </div>
-                  <div className="row">
-                    <span className="key">Postcode</span>
-                    <span className="val">{state.postcode || '—'}</span>
-                  </div>
-                  <div className="row">
-                    <span className="key">Bedrooms</span>
-                    <span className="val">{state.bedrooms || '—'}</span>
-                  </div>
-                  <div className="row">
-                    <span className="key">Bathrooms</span>
-                    <span className="val">{state.bathrooms || '—'}</span>
-                  </div>
-                  <div className="row">
-                    <span className="key">Extra tasks</span>
-                    <span className="val">{state.extras.size} selected</span>
-                  </div>
-                  <div className="row">
-                    <span className="key">Products</span>
-                    <span className="val">
-                      {state.products === 'client' ? 'I will provide' :
-                       state.products === 'bring' ? 'We bring' : '—'}
-                    </span>
-                  </div>
-                  <div className="row">
-                    <span className="key">Date</span>
-                    <span className="val">{state.contact.date || '—'}</span>
-                  </div>
-                  <div className="row">
-                    <span className="key">Time</span>
-                    <span className="val">{state.contact.slot || '—'}</span>
+                  <div>
+                    <p style={{ color: 'white', fontSize: '16px', fontWeight: 700 }}>Bathrooms</p>
+                    <p style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: '10px', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '-0.02em' }}>
+                      Deep sanitization
+                    </p>
                   </div>
                 </div>
-
-                <div className="totals">
-                  <div className="row">
-                    <span className="key">Subtotal</span>
-                    <span className="val">£{calculatePrice().toFixed(2)}</span>
-                  </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                  <button
+                    onClick={() => setBathrooms(Math.max(0, bathrooms - 1))}
+                    className="stepper-btn"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      minWidth: '44px',
+                      minHeight: '44px',
+                      borderRadius: '9999px',
+                      background: 'rgba(255, 255, 255, 0.1)',
+                      border: 'none',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      color: 'white'
+                    }}
+                    onMouseEnter={(e) => e.target.style.transform = 'scale(0.9)'}
+                    onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>remove</span>
+                  </button>
+                  <span style={{ fontSize: '20px', fontWeight: 900, width: '20px', textAlign: 'center' }}>
+                    {bathrooms}
+                  </span>
+                  <button
+                    onClick={() => setBathrooms(bathrooms + 1)}
+                    className="stepper-btn"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      minWidth: '44px',
+                      minHeight: '44px',
+                      borderRadius: '9999px',
+                      background: '#ED4B00',
+                      border: 'none',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      color: 'white'
+                    }}
+                    onMouseEnter={(e) => e.target.style.transform = 'scale(0.9)'}
+                    onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>add</span>
+                  </button>
                 </div>
-
-                <div className="note">Estimates may vary based on final instructions and property condition.</div>
               </div>
             </div>
-          </aside>
-        </div>
+          </section>
+
+          {/* Add-ons Section */}
+          <section style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 4px' }}>
+              <h3 style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                3. Enhance Your Visit
+              </h3>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <p style={{ fontSize: '10px', fontWeight: 700, color: 'rgba(255, 255, 255, 0.6)', textTransform: 'uppercase', letterSpacing: '0.1em', padding: '0 4px' }}>
+                Kitchen Add-ons
+              </p>
+              <div style={{ 
+                display: 'flex', 
+                overflowX: isMobile ? 'auto' : 'visible',
+                justifyContent: isMobile ? 'flex-start' : 'flex-start',
+                flexWrap: isMobile ? 'nowrap' : 'wrap',
+                gap: '12px',
+                padding: '0 4px',
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none'
+              }} className="hide-scrollbar">
+                {addons.map((addon) => {
+                  const isSelected = selectedAddons.has(addon.id);
+                  return (
+                    <div
+                      key={addon.id}
+                      onClick={() => toggleAddon(addon.id)}
+                      style={{
+                        background: isSelected 
+                          ? 'rgba(237, 75, 0, 0.1)' 
+                          : 'rgba(255, 255, 255, 0.05)',
+                        backdropFilter: 'blur(12px)',
+                        WebkitBackdropFilter: 'blur(12px)',
+                        border: isSelected 
+                          ? '2px solid #ED4B00' 
+                          : '1px solid rgba(255, 255, 255, 0.1)',
+                        boxSizing: 'border-box',
+                        borderRadius: '16px',
+                        padding: '16px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        minWidth: isMobile ? '120px' : '140px',
+                        flex: isMobile ? '0 0 auto' : '0 0 calc(33.333% - 8px)',
+                        alignItems: 'center',
+                        textAlign: 'center',
+                        gap: '8px',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        outline: 'none'
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!isSelected) {
+                          e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!isSelected) {
+                          e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                        }
+                      }}
+                    >
+                      <span 
+                        className="material-symbols-outlined" 
+                        style={{ 
+                          fontSize: '24px', 
+                          color: isSelected ? '#ED4B00' : 'rgba(255, 255, 255, 0.4)',
+                          fontVariationSettings: isSelected ? '"FILL" 1' : '"FILL" 0'
+                        }}
+                      >
+                        {addon.icon}
+                      </span>
+                      <p style={{ 
+                        fontSize: '12px', 
+                        fontWeight: 700, 
+                        lineHeight: '1.25',
+                        color: isSelected ? 'white' : 'rgba(255, 255, 255, 0.7)'
+                      }}>
+                        {addon.label.split(' ').map((word, i) => (
+                          <React.Fragment key={i}>
+                            {word}
+                            {i < addon.label.split(' ').length - 1 && <br />}
+                          </React.Fragment>
+                        ))}
+                      </p>
+                      <p style={{ 
+                        fontSize: '10px', 
+                        fontWeight: 900, 
+                        color: isSelected ? '#ED4B00' : 'rgba(255, 255, 255, 0.4)'
+                      }}>
+                        +£{addon.price}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
+
+          {/* Guarantee Card */}
+          <div style={{
+            padding: '20px',
+            borderRadius: '16px',
+            background: 'rgba(255, 255, 255, 0.05)',
+            border: '1px solid rgba(255, 255, 255, 0.05)',
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '16px'
+          }}>
+            <div style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '9999px',
+              background: 'rgba(237, 75, 0, 0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0
+            }}>
+              <span className="material-symbols-outlined" style={{ color: '#ED4B00', fontSize: '20px' }}>
+                security
+              </span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <p style={{ color: 'white', fontSize: '14px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '-0.02em' }}>
+                Cleaning Standards Guarantee
+              </p>
+              <p style={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: '11px', lineHeight: '1.5' }}>
+                Professional-grade equipment and 48-hour satisfaction guarantee. We ensure you pass your inventory check.
+              </p>
+            </div>
+          </div>
+        </main>
+
+        {/* Footer */}
+        <footer style={{
+          position: isMobile ? 'fixed' : 'sticky',
+          bottom: isMobile ? 0 : 'auto',
+          left: 0,
+          right: 0,
+          background: 'rgba(2, 0, 52, 0.95)',
+          backdropFilter: 'blur(24px)',
+          WebkitBackdropFilter: 'blur(24px)',
+          borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+          padding: isMobile ? '16px 20px' : '24px 40px',
+          paddingBottom: isMobile ? `calc(16px + env(safe-area-inset-bottom, 0px))` : '24px',
+          zIndex: 60,
+          marginTop: isMobile ? 0 : 'auto',
+          width: '100%'
+        }}>
+          <div style={{ 
+            maxWidth: isMobile ? '448px' : '1200px', 
+            margin: '0 auto', 
+            display: 'flex', 
+            flexDirection: 'column', 
+            gap: '14px',
+            width: '100%'
+          }}>
+            {/* AI Analysis Card */}
+            <div style={{
+              background: '#020034',
+              border: '1px solid rgba(237, 75, 0, 0.4)',
+              borderRadius: '16px',
+              padding: '14px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '14px',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+            }}>
+              <div style={{
+                width: '36px',
+                height: '36px',
+                flexShrink: 0,
+                background: 'rgba(237, 75, 0, 0.1)',
+                borderRadius: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <span className="material-symbols-outlined" style={{ color: '#ED4B00', fontSize: '20px', fontVariationSettings: '"FILL" 1' }}>
+                  auto_awesome
+                </span>
+              </div>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                <p style={{ color: 'white', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                  AI Market Analysis
+                </p>
+                <p style={{ color: 'white', fontSize: '11px', lineHeight: '1.3', fontWeight: 500, opacity: 1 }}>
+                  We have analyzed the local market and secured the best available price for you using Master AI.
+                </p>
+              </div>
+            </div>
+
+            {/* Price Display */}
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'space-between', 
+              padding: '0 4px',
+              flexWrap: isMobile ? 'nowrap' : 'wrap',
+              gap: isMobile ? '0' : '16px',
+              width: '100%'
+            }}>
+              <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                <span style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: isMobile ? '9px' : '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                  Estimated Quote
+                </span>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '2px' }}>
+                  <span style={{ fontSize: isMobile ? '30px' : '36px', fontWeight: 900, color: 'white', letterSpacing: '-0.05em' }}>
+                    £{estimatedPrice}
+                  </span>
+                  <span style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: isMobile ? '12px' : '14px', fontWeight: 700 }}>.00</span>
+                </div>
+              </div>
+              <div style={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                alignItems: isMobile ? 'flex-end' : 'flex-end',
+                gap: '6px',
+                flexShrink: 0
+              }}>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  background: '#ED4B00',
+                  color: 'white',
+                  padding: isMobile ? '6px 12px' : '8px 14px',
+                  borderRadius: '9999px',
+                  boxShadow: '0 10px 15px -3px rgba(237, 75, 0, 0.3)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  whiteSpace: 'nowrap'
+                }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: isMobile ? '12px' : '14px', fontVariationSettings: '"FILL" 1' }}>
+                    verified
+                  </span>
+                  <span style={{ fontSize: isMobile ? '9px' : '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                    AI PRICE MATCH
+                  </span>
+                </div>
+                <span style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: isMobile ? '9px' : '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', textAlign: 'right' }}>
+                  VAT Inclusive
+                </span>
+              </div>
+            </div>
+
+            {/* Continue Button */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <button
+                onClick={handleContinue}
+                style={{
+                  width: '100%',
+                  background: '#ED4B00',
+                  color: 'white',
+                  fontWeight: 800,
+                  height: '56px',
+                  borderRadius: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '12px',
+                  boxShadow: '0 20px 25px -5px rgba(237, 75, 0, 0.2)',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '18px',
+                  transition: 'all 0.2s'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.background = '#ff5a00';
+                  e.target.style.transform = 'scale(0.98)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = '#ED4B00';
+                  e.target.style.transform = 'scale(1)';
+                }}
+              >
+                <span>Continue to Booking</span>
+                <span className="material-symbols-outlined" style={{ fontWeight: 700 }}>arrow_forward</span>
+              </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center', opacity: 0.4 }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '12px' }}>info</span>
+                <p style={{ fontSize: '8px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                  Cleaning materials not included by default
+                </p>
+              </div>
+            </div>
+          </div>
+        </footer>
       </div>
-    </div>
+
+      <style>{`
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .hide-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .stepper-btn:active {
+          transform: scale(0.9);
+        }
+        
+        /* Prevent horizontal scroll */
+        html, body {
+          overflow-x: hidden;
+          max-width: 100vw;
+        }
+        
+        @media (min-width: 768px) {
+          /* Desktop adjustments */
+          .cleaning-booking-container {
+            max-width: 1200px;
+            margin: 0 auto;
+          }
+        }
+      `}</style>
     </>
   );
 };

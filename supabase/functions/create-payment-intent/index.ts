@@ -268,6 +268,53 @@ serve(async (req) => {
       }
     }
 
+    // CRITICAL: Get and validate email from booking_data if available (required for booking creation)
+    // This ensures we always have a valid email before creating PaymentIntent
+    let emailForMetadata: string | null = customerEmail || null
+    let phoneForMetadata: string | null = null
+    
+    if (body.booking_data) {
+      const bookingData = body.booking_data as Record<string, unknown>
+      
+      // Validate email
+      if (bookingData.customer_email && typeof bookingData.customer_email === 'string') {
+        const emailVal = validateEmail(bookingData.customer_email)
+        if (emailVal.valid && emailVal.sanitized) {
+          emailForMetadata = emailVal.sanitized
+        }
+      }
+      
+      // Validate phone (optional but should be in metadata if provided)
+      if (bookingData.customer_phone && typeof bookingData.customer_phone === 'string') {
+        const phoneVal = validatePhone(bookingData.customer_phone)
+        if (phoneVal.valid && phoneVal.sanitized) {
+          phoneForMetadata = phoneVal.sanitized
+        }
+      }
+    }
+    
+    // CRITICAL: If we have booking_data, we MUST have a valid email - fail early before creating PaymentIntent
+    if (body.booking_data && !emailForMetadata) {
+      logSecurityEvent('payment_intent_blocked_no_email', {
+        ip: validation.clientIP,
+        has_booking_data: true,
+        has_top_level_email: !!customerEmail,
+        has_booking_data_email: !!(body.booking_data as Record<string, unknown>)?.customer_email,
+      }, 'critical')
+      return new Response(
+        JSON.stringify({
+          error: 'Valid email address is required to complete booking. Please provide a valid email address.',
+        }),
+        {
+          status: 400,
+          headers: {
+            ...validation.headers,
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+    }
+
     // Create PaymentIntent with sanitized data
     // When add_subscription=true: customer + setup_future_usage so Stripe saves card to customer after payment; card only (no Klarna for subscriptions)
     const paymentIntentConfig: {
@@ -298,8 +345,11 @@ serve(async (req) => {
         created_via: 'supabase_edge_function',
         timestamp: new Date().toISOString(),
         client_ip: validation.clientIP || 'unknown',
+        // CRITICAL: Always include customer_email and customer_phone in metadata so webhook can recover them
+        ...(emailForMetadata && { customer_email: emailForMetadata }),
+        ...(phoneForMetadata && { customer_phone: phoneForMetadata }),
       },
-      ...(customerEmail && { receipt_email: customerEmail }),
+      ...(emailForMetadata && { receipt_email: emailForMetadata }),
       ...(stripeCustomerId && { customer: stripeCustomerId }),
       ...(addSubscription && stripeCustomerId && { setup_future_usage: 'off_session' as const }),
     }
@@ -370,23 +420,36 @@ serve(async (req) => {
       try {
         const bookingData = body.booking_data as Record<string, unknown>
         
-        // Validate and sanitize booking data
-        let customerEmailForBooking = customerEmail || 'unknown@email.com'
-        if (bookingData.customer_email && typeof bookingData.customer_email === 'string') {
-          const emailVal = validateEmail(bookingData.customer_email)
-          if (emailVal.valid && emailVal.sanitized) {
-            customerEmailForBooking = emailVal.sanitized
-          }
+        // Use emailForMetadata which was already validated before PaymentIntent creation
+        // This ensures consistency - same email used in PaymentIntent metadata and booking
+        const customerEmailForBooking = emailForMetadata
+        
+        // This should never happen because we validate email before creating PaymentIntent,
+        // but add safety check just in case
+        if (!customerEmailForBooking) {
+          logSecurityEvent('booking_creation_blocked_no_email_after_pi', {
+            payment_intent_id: paymentIntent.id,
+            ip: validation.clientIP,
+          }, 'critical')
+          // PaymentIntent already created, but we can't create booking - this is a critical error
+          // Return error but PaymentIntent exists - webhook will handle fallback
+          return new Response(
+            JSON.stringify({
+              error: 'Failed to save booking information. Please contact support with PaymentIntent ID: ' + paymentIntent.id,
+            }),
+            {
+              status: 500,
+              headers: {
+                ...validation.headers,
+                'Content-Type': 'application/json',
+              },
+            }
+          )
         }
 
-        // Validate phone if provided
-        let customerPhone: string | null = null
-        if (bookingData.customer_phone && typeof bookingData.customer_phone === 'string') {
-          const phoneVal = validatePhone(bookingData.customer_phone)
-          if (phoneVal.valid && phoneVal.sanitized) {
-            customerPhone = phoneVal.sanitized
-          }
-        }
+        // Use phoneForMetadata which was already validated before PaymentIntent creation
+        // This ensures consistency - same phone used in PaymentIntent metadata and booking
+        const customerPhone = phoneForMetadata
 
         // Validate postcode
         let postcode = 'Unknown'
@@ -466,26 +529,63 @@ serve(async (req) => {
           .single()
 
         if (insertError) {
+          const errorMsg = insertError.message || JSON.stringify(insertError)
           logSecurityEvent('booking_insert_error', {
             payment_intent_id: paymentIntent.id,
-            error: insertError.message,
+            error: errorMsg,
+            error_code: (insertError as { code?: string })?.code,
+            customer_email: customerEmailForBooking,
             ip: validation.clientIP,
-          }, 'medium')
-          // Don't fail the whole request - payment intent was created successfully
+          }, 'critical')
+          
+          // CRITICAL: Fail the request if booking insert fails - PaymentIntent should not exist without booking
+          // This ensures webhook can always find the booking
+          console.error(`CRITICAL: Failed to create booking for PaymentIntent ${paymentIntent.id}:`, errorMsg)
+          return new Response(
+            JSON.stringify({
+              error: 'Failed to save booking information. Payment was not processed. Please try again.',
+              details: import.meta.env.DEV ? errorMsg : undefined,
+            }),
+            {
+              status: 500,
+              headers: {
+                ...validation.headers,
+                'Content-Type': 'application/json',
+              },
+            }
+          )
         } else {
           logSecurityEvent('booking_created', {
             booking_ref: insertedBooking.booking_ref,
             payment_intent_id: paymentIntent.id,
+            customer_email: customerEmailForBooking,
             ip: validation.clientIP,
           }, 'low')
+          console.log(`Booking created successfully: ${insertedBooking.booking_ref} for PaymentIntent ${paymentIntent.id}`)
         }
       } catch (dbError) {
+        const errorMsg = dbError instanceof Error ? dbError.message : 'Unknown database error'
         logSecurityEvent('database_error', {
           payment_intent_id: paymentIntent.id,
-          error: dbError instanceof Error ? dbError.message : 'Unknown error',
+          error: errorMsg,
           ip: validation.clientIP,
-        }, 'high')
-        // Don't fail the whole request - payment intent was created successfully
+        }, 'critical')
+        
+        // CRITICAL: Fail the request if database error occurs
+        console.error(`CRITICAL: Database error creating booking for PaymentIntent ${paymentIntent.id}:`, errorMsg)
+        return new Response(
+          JSON.stringify({
+            error: 'Failed to save booking information. Payment was not processed. Please try again.',
+            details: import.meta.env.DEV ? errorMsg : undefined,
+          }),
+          {
+            status: 500,
+            headers: {
+              ...validation.headers,
+              'Content-Type': 'application/json',
+            },
+          }
+        )
       }
     }
 
