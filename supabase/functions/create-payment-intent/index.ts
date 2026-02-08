@@ -468,6 +468,11 @@ serve(async (req) => {
             .slice(0, 10) // Limit to 10 dates
         }
 
+        // service_id in DB is UUID; only set if value is a valid UUID (e.g. from services_v2). Slug strings like "painting" must be null.
+        const rawServiceId = bookingData.service_id && typeof bookingData.service_id === 'string' ? bookingData.service_id.trim() : null
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+        const serviceIdForDb = rawServiceId && uuidRegex.test(rawServiceId) ? rawServiceId : null
+
         // Sanitize all string fields
         const bookingRecord = {
           stripe_payment_intent_id: paymentIntent.id,
@@ -490,9 +495,7 @@ serve(async (req) => {
             ? sanitizeString(bookingData.city, 100)
             : null,
           postcode: postcode,
-          service_id: bookingData.service_id && typeof bookingData.service_id === 'string'
-            ? sanitizeString(bookingData.service_id, 100)
-            : null,
+          service_id: serviceIdForDb,
           service_name: bookingData.service_name && typeof bookingData.service_name === 'string'
             ? sanitizeString(bookingData.service_name, 200)
             : 'Service',
@@ -544,7 +547,7 @@ serve(async (req) => {
           return new Response(
             JSON.stringify({
               error: 'Failed to save booking information. Payment was not processed. Please try again.',
-              details: import.meta.env.DEV ? errorMsg : undefined,
+              details: (typeof import.meta !== 'undefined' && import.meta?.env?.DEV) ? errorMsg : undefined,
             }),
             {
               status: 500,
@@ -576,7 +579,7 @@ serve(async (req) => {
         return new Response(
           JSON.stringify({
             error: 'Failed to save booking information. Payment was not processed. Please try again.',
-            details: import.meta.env.DEV ? errorMsg : undefined,
+            details: (typeof import.meta !== 'undefined' && import.meta?.env?.DEV) ? errorMsg : undefined,
           }),
           {
             status: 500,

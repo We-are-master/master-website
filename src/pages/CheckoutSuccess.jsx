@@ -158,38 +158,6 @@ const CheckoutSuccess = () => {
     ? `MAS-${bookingDetails.paymentIntentId.slice(-8).toUpperCase()}`
     : `MAS-${Date.now().toString(36).toUpperCase()}`;
 
-  // Show loading state while verifying
-  if (paymentStatus === 'verifying') {
-    return (
-      <div style={{
-        minHeight: '100vh',
-        backgroundColor: '#f9fafb',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '2rem'
-      }}>
-        <div style={{
-          maxWidth: '600px',
-          width: '100%',
-          backgroundColor: 'white',
-          borderRadius: '1.5rem',
-          padding: '3rem 2rem',
-          textAlign: 'center',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.15)'
-        }}>
-          <Loader2 size={48} style={{ animation: 'spin 1s linear infinite', margin: '0 auto 1.5rem', color: '#020034' }} />
-          <h2 style={{ fontSize: '1.5rem', fontWeight: '600', color: '#111827', marginBottom: '0.5rem' }}>
-            Verifying Payment...
-          </h2>
-          <p style={{ color: '#6b7280', fontSize: '1rem' }}>
-            Please wait while we confirm your payment status.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   // Show error if payment verification failed
   if (paymentStatus === 'failed') {
     return (
@@ -251,9 +219,36 @@ const CheckoutSuccess = () => {
     );
   }
 
-  // Only show success if payment is verified as succeeded
+  // Show loading while verifying (or any non-failed state) – never show blank page
   if (paymentStatus !== 'succeeded') {
-    return null;
+    return (
+      <div style={{
+        minHeight: '100vh',
+        backgroundColor: '#f9fafb',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '2rem'
+      }}>
+        <div style={{
+          maxWidth: '600px',
+          width: '100%',
+          backgroundColor: 'white',
+          borderRadius: '1.5rem',
+          padding: '3rem 2rem',
+          textAlign: 'center',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.15)'
+        }}>
+          <Loader2 size={48} style={{ animation: 'spin 1s linear infinite', margin: '0 auto 1.5rem', color: '#020034' }} />
+          <h2 style={{ fontSize: '1.5rem', fontWeight: '600', color: '#111827', marginBottom: '0.5rem' }}>
+            Verifying Payment...
+          </h2>
+          <p style={{ color: '#6b7280', fontSize: '1rem' }}>
+            Please wait while we confirm your payment status.
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (
