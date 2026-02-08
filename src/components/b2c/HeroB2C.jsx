@@ -234,9 +234,10 @@ const HeroB2C = () => {
           </motion.div>
 
           <motion.h1
+            key={`hero-headline-${heroStep}`}
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ ...defaultTransition, delay: 0.35 }}
+            transition={{ ...defaultTransition, delay: heroStep === 'postcode' || heroStep === 'email' ? 0.1 : 0.35 }}
             style={{
               fontSize: 'clamp(2rem, 4vw, 3.75rem)',
               fontWeight: '600',
@@ -247,19 +248,44 @@ const HeroB2C = () => {
               fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
             }}
           >
-            <span style={{ color: 'white', display: 'block', marginBottom: '0.25rem' }}>
-              The right way to book local professionals.
-            </span>
-            <span style={{ color: '#E94A02', fontWeight: '600', display: 'inline-block' }}>
-              {services[currentServiceIndex]}
-            </span>
-            <span style={{ color: 'rgba(255, 255, 255, 0.6)' }}>.</span>
+            {heroStep === 'postcode' ? (
+              <>
+                <span style={{ color: 'white', display: 'block', marginBottom: '0.25rem' }}>
+                  Enter your postcode
+                </span>
+                <span style={{ color: '#E94A02', fontWeight: '600', display: 'inline-block' }}>
+                  to see pros near you
+                </span>
+                <span style={{ color: 'rgba(255, 255, 255, 0.6)' }}>.</span>
+              </>
+            ) : heroStep === 'email' ? (
+              <>
+                <span style={{ color: 'white', display: 'block', marginBottom: '0.25rem' }}>
+                  Almost there —
+                </span>
+                <span style={{ color: '#E94A02', fontWeight: '600', display: 'inline-block' }}>
+                  enter your email
+                </span>
+                <span style={{ color: 'rgba(255, 255, 255, 0.6)' }}>.</span>
+              </>
+            ) : (
+              <>
+                <span style={{ color: 'white', display: 'block', marginBottom: '0.25rem' }}>
+                  The right way to book local professionals.
+                </span>
+                <span style={{ color: '#E94A02', fontWeight: '600', display: 'inline-block' }}>
+                  {services[currentServiceIndex]}
+                </span>
+                <span style={{ color: 'rgba(255, 255, 255, 0.6)' }}>.</span>
+              </>
+            )}
           </motion.h1>
 
           <motion.p
+            key={`hero-desc-${heroStep}`}
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ ...defaultTransition, delay: 0.5 }}
+            transition={{ ...defaultTransition, delay: heroStep === 'postcode' || heroStep === 'email' ? 0.2 : 0.5 }}
             style={{
               fontSize: 'clamp(1rem, 1.5vw, 1.375rem)',
               color: 'rgba(255,255,255,0.7)',
@@ -272,7 +298,11 @@ const HeroB2C = () => {
               letterSpacing: '-0.01em'
             }}
           >
-            Professional tradespeople at your doorstep. Book in minutes, get instant pricing, and enjoy peace of mind.
+            {heroStep === 'postcode'
+              ? 'We\'ll show you available professionals and instant pricing for your area. Use your full UK postcode (e.g. SW1A 1AA, M1 1AA).'
+              : heroStep === 'email'
+                ? 'We\'ll send you your quote and next steps. No spam, just your booking details.'
+                : 'Professional tradespeople at your doorstep. Book in minutes, get instant pricing, and enjoy peace of mind.'}
           </motion.p>
 
           <motion.form
