@@ -14,7 +14,7 @@ export default defineConfig({
         manualChunks: {
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
           'ui-vendor': ['lucide-react'],
-          'gsap-vendor': ['gsap'],
+          'motion-vendor': ['framer-motion'],
           'supabase-vendor': ['@supabase/supabase-js'],
           'stripe-vendor': ['@stripe/stripe-js', '@stripe/react-stripe-js'],
           'maps-vendor': ['@react-google-maps/api', 'use-places-autocomplete'],

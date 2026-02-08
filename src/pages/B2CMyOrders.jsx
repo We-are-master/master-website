@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, 
@@ -21,15 +21,10 @@ import {
   ArrowRight,
   X
 } from 'lucide-react';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { motion } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 import SubscriptionManagement from '../components/b2c/SubscriptionManagement';
 import { checkSubscription } from '../lib/subscription';
-
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger);
-}
 
 const B2CMyOrders = () => {
   const navigate = useNavigate();
@@ -41,10 +36,6 @@ const B2CMyOrders = () => {
   const [hasSubscription, setHasSubscription] = useState(false);
   const [checkingSubscription, setCheckingSubscription] = useState(false);
   const [showSubscriptionBanner, setShowSubscriptionBanner] = useState(true);
-
-  const heroRef = useRef(null);
-  const ordersRef = useRef(null);
-  const helpRef = useRef(null);
 
   // Check authentication on mount
   useEffect(() => {
@@ -60,50 +51,6 @@ const B2CMyOrders = () => {
     }
   }, [loading]);
 
-  useEffect(() => {
-    if (!loading && orders.length > 0) {
-      const ctx = gsap.context(() => {
-        // Animate orders
-        const orderCards = ordersRef.current?.querySelectorAll('.order-card');
-        if (orderCards && orderCards.length > 0) {
-          gsap.fromTo(orderCards,
-            { opacity: 0, y: 30, scale: 0.98 },
-            {
-              opacity: 1,
-              y: 0,
-              scale: 1,
-              duration: 0.6,
-              stagger: 0.1,
-              ease: 'power3.out',
-              scrollTrigger: {
-                trigger: ordersRef.current,
-                start: 'top 80%'
-              }
-            }
-          );
-        }
-
-        // Animate help section
-        if (helpRef.current) {
-          gsap.fromTo(helpRef.current,
-            { opacity: 0, y: 30 },
-            {
-              opacity: 1,
-              y: 0,
-              duration: 0.8,
-              ease: 'power3.out',
-              scrollTrigger: {
-                trigger: helpRef.current,
-                start: 'top 85%'
-              }
-            }
-          );
-        }
-      });
-
-      return () => ctx.revert();
-    }
-  }, [loading, orders]);
 
   const checkAuth = async () => {
     try {
@@ -246,7 +193,6 @@ const B2CMyOrders = () => {
     }}>
       {/* Header */}
       <div 
-        ref={heroRef}
         style={{
           backgroundColor: '#020034',
           padding: '1.5rem 0',
@@ -540,34 +486,28 @@ const B2CMyOrders = () => {
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 letterSpacing: '-0.01em'
               }}
-              onMouseEnter={(e) => {
-                gsap.to(e.target, {
-                  backgroundColor: '#d13d00',
-                  scale: 1.02,
-                  duration: 0.3
-                })
-              }}
-              onMouseLeave={(e) => {
-                gsap.to(e.target, {
-                  backgroundColor: '#E94A02',
-                  scale: 1,
-                  duration: 0.3
-                })
-              }}
             >
               Book a Service
             </button>
           </div>
         ) : (
-          <div ref={ordersRef} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.1 }}
+            variants={{ visible: { transition: { staggerChildren: 0.06 } } }}
+            style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}
+          >
             {orders.map((order) => {
               const statusInfo = getStatusInfo(order.status);
               const StatusIcon = statusInfo.icon;
               
               return (
-                <div
+                <motion.div
                   key={order.id}
                   className="order-card"
+                  variants={{ hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0 } }}
+                  transition={{ duration: 0.4 }}
                   style={{
                     backgroundColor: 'white',
                     borderRadius: '12px',
@@ -576,21 +516,6 @@ const B2CMyOrders = () => {
                     border: '1px solid rgba(0,0,0,0.06)',
                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     cursor: 'pointer'
-                  }}
-                  onMouseEnter={(e) => {
-                    gsap.to(e.currentTarget, {
-                      y: -4,
-                      boxShadow: '0 8px 24px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.08)',
-                      duration: 0.3,
-                      ease: 'cubic-bezier(0.4, 0, 0.2, 1)'
-                    })
-                  }}
-                  onMouseLeave={(e) => {
-                    gsap.to(e.currentTarget, {
-                      y: 0,
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06)',
-                      duration: 0.3
-                    })
                   }}
                 >
                   {/* Order Header */}
@@ -787,15 +712,18 @@ const B2CMyOrders = () => {
                     
                     <ChevronRight size={20} style={{ color: '#86868b' }} />
                   </div>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         )}
 
         {/* Help Section */}
-        <div 
-          ref={helpRef}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
           style={{
             marginTop: '4rem',
             backgroundColor: '#020034',
@@ -810,37 +738,20 @@ const B2CMyOrders = () => {
             const rect = e.currentTarget.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
-            
             const glowEffect = e.currentTarget.querySelector('.grid-glow-orange');
             if (glowEffect) {
               glowEffect.style.left = `${x}px`;
               glowEffect.style.top = `${y}px`;
-              gsap.to(glowEffect, {
-                opacity: 1,
-                duration: 0.2,
-                ease: 'power2.out'
-              });
+              glowEffect.style.opacity = '1';
             }
           }}
           onMouseEnter={(e) => {
             const glowEffect = e.currentTarget.querySelector('.grid-glow-orange');
-            if (glowEffect) {
-              gsap.to(glowEffect, {
-                opacity: 1,
-                duration: 0.2,
-                ease: 'power2.out'
-              });
-            }
+            if (glowEffect) glowEffect.style.opacity = '1';
           }}
           onMouseLeave={(e) => {
             const glowEffect = e.currentTarget.querySelector('.grid-glow-orange');
-            if (glowEffect) {
-              gsap.to(glowEffect, {
-                opacity: 0,
-                duration: 0.3,
-                ease: 'power2.out'
-              });
-            }
+            if (glowEffect) glowEffect.style.opacity = '0';
           }}
         >
           {/* Background Pattern - Base (white/grey) */}
@@ -911,20 +822,6 @@ const B2CMyOrders = () => {
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   letterSpacing: '-0.01em'
                 }}
-                onMouseEnter={(e) => {
-                  gsap.to(e.target, {
-                    backgroundColor: '#d13d00',
-                    scale: 1.02,
-                    duration: 0.3
-                  })
-                }}
-                onMouseLeave={(e) => {
-                  gsap.to(e.target, {
-                    backgroundColor: '#E94A02',
-                    scale: 1,
-                    duration: 0.3
-                  })
-                }}
               >
                 <Mail size={18} />
                 Email Support
@@ -946,28 +843,14 @@ const B2CMyOrders = () => {
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   letterSpacing: '-0.01em'
                 }}
-                onMouseEnter={(e) => {
-                  gsap.to(e.target, {
-                    backgroundColor: 'rgba(255,255,255,0.1)',
-                    borderColor: 'rgba(255,255,255,0.5)',
-                    duration: 0.3
-                  })
-                }}
-                onMouseLeave={(e) => {
-                  gsap.to(e.target, {
-                    backgroundColor: 'transparent',
-                    borderColor: 'rgba(255,255,255,0.3)',
-                    duration: 0.3
-                  })
-                }}
               >
                 <Phone size={18} />
                 Call Us
               </a>
             </div>
           </div>
+      </motion.div>
         </div>
-      </div>
 
       <style>{`
         @keyframes spin {

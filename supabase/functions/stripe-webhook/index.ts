@@ -185,33 +185,69 @@ serve(async (req) => {
         // Extract metadata from payment intent
         const metadata = paymentIntent.metadata || {}
 
-        // Get customer email for confirmation email
-        let customerEmail = 'unknown@email.com'
+        // Get customer email from multiple sources (metadata > receipt_email > Stripe Customer)
+        let customerEmail: string | null = null
+        
+        // Try metadata first
         if (metadata.customer_email) {
           const emailVal = validateEmail(metadata.customer_email)
           if (emailVal.valid && emailVal.sanitized) {
             customerEmail = emailVal.sanitized
           }
-        } else if (paymentIntent.receipt_email) {
+        }
+        
+        // Try receipt_email if metadata didn't have it
+        if (!customerEmail && paymentIntent.receipt_email) {
           const emailVal = validateEmail(paymentIntent.receipt_email)
           if (emailVal.valid && emailVal.sanitized) {
             customerEmail = emailVal.sanitized
           }
         }
+        
+        // Try Stripe Customer email as last resort
+        if (!customerEmail && paymentIntent.customer) {
+          try {
+            const customerId = typeof paymentIntent.customer === 'string'
+              ? paymentIntent.customer
+              : (paymentIntent.customer as Stripe.Customer)?.id
+            
+            if (customerId) {
+              const stripeCustomer = await stripe.customers.retrieve(customerId) as Stripe.Customer
+              if (stripeCustomer && !stripeCustomer.deleted && stripeCustomer.email) {
+                const emailVal = validateEmail(stripeCustomer.email)
+                if (emailVal.valid && emailVal.sanitized) {
+                  customerEmail = emailVal.sanitized
+                  console.log(`PaymentIntent ${paymentIntent.id}: obtained email from Stripe Customer ${customerId}`)
+                }
+              }
+            }
+          } catch (customerErr) {
+            console.warn(`PaymentIntent ${paymentIntent.id}: failed to retrieve Customer email:`, customerErr)
+          }
+        }
 
-        // First try to find existing booking by stripe_payment_intent_id
+        // CRITICAL: Do not proceed if we don't have a valid email
+        if (!customerEmail) {
+          console.error(`PaymentIntent ${paymentIntent.id}: CRITICAL - no valid email found in metadata, receipt_email, or Stripe Customer. Cannot create booking or send confirmation email. Metadata keys:`, Object.keys(metadata))
+          // Still update existing booking if found, but don't create new one
+        }
+
+        // First try to find existing booking by stripe_payment_intent_id (use maybeSingle to avoid error if none found)
         const { data: existingBooking, error: findBookingError } = await supabase
           .from('booking_website')
-          .select('id, booking_ref')
+          .select('id, booking_ref, customer_email, customer_name')
           .eq('stripe_payment_intent_id', paymentIntent.id)
-          .single()
+          .maybeSingle()
 
-        if (findBookingError?.code === 'PGRST116' || !existingBooking) {
-          console.log(`PaymentIntent ${paymentIntent.id}: no existing booking found (create-payment-intent may have failed to insert). Will try fallback insert and still send confirmation email.`, findBookingError?.message || '')
+        if (findBookingError) {
+          console.error(`PaymentIntent ${paymentIntent.id}: error finding booking:`, findBookingError)
         }
 
         if (existingBooking) {
           // Update existing booking to confirmed/paid
+          // Use email from booking if we don't have one from PaymentIntent
+          const emailToUse = customerEmail || existingBooking.customer_email || null
+          
           const { error } = await supabase
             .from('booking_website')
             .update({
@@ -226,29 +262,36 @@ serve(async (req) => {
           } else {
             console.log(`Booking confirmed: ${existingBooking.booking_ref}`)
             
-            // Send confirmation email
-            try {
-              await fetch(`${supabaseUrl}/functions/v1/send-email`, {
-                method: 'POST',
-                headers: {
-                  'Authorization': `Bearer ${supabaseServiceKey}`,
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                  template: 'booking_confirmed',
-                  to: customerEmail,
-                  data: {
-                    name: metadata.customer_name || 'there',
-                    bookingRef: existingBooking.booking_ref || paymentIntent.id.slice(-8).toUpperCase(),
+            // Send confirmation email only if we have a valid email
+            if (emailToUse && emailToUse !== 'unknown@email.com') {
+              try {
+                await fetch(`${supabaseUrl}/functions/v1/send-email`, {
+                  method: 'POST',
+                  headers: {
+                    'Authorization': `Bearer ${supabaseServiceKey}`,
+                    'Content-Type': 'application/json',
                   },
-                }),
-              })
-            } catch (emailErr) {
-              console.warn('Failed to send confirmation email:', emailErr)
+                  body: JSON.stringify({
+                    template: 'booking_confirmed',
+                    to: emailToUse,
+                    data: {
+                      name: existingBooking.customer_name || metadata.customer_name || 'there',
+                      bookingRef: existingBooking.booking_ref || paymentIntent.id.slice(-8).toUpperCase(),
+                    },
+                  }),
+                })
+              } catch (emailErr) {
+                console.warn('Failed to send confirmation email:', emailErr)
+              }
+            } else {
+              console.warn(`PaymentIntent ${paymentIntent.id}: cannot send confirmation email - no valid email found (booking_ref: ${existingBooking.booking_ref})`)
             }
           }
-        } else {
+        } else if (customerEmail && customerEmail !== 'unknown@email.com') {
           // Create new booking from webhook (fallback if not created during checkout)
+          // Only create if we have a valid email (already validated above)
+          console.log(`PaymentIntent ${paymentIntent.id}: no existing booking found (create-payment-intent may have failed to insert). Creating fallback booking with email: ${customerEmail}`)
+          
           // Parse and sanitize address if provided as single string
           const addressParts = (metadata.customer_address || '').split(', ').map(part => sanitizeString(part, 200))
           
@@ -259,20 +302,6 @@ serve(async (req) => {
               .split(', ')
               .filter(d => d.trim())
               .slice(0, 10) // Limit to 10 dates
-          }
-          
-          // Validate and sanitize email
-          let customerEmail = 'unknown@email.com'
-          if (metadata.customer_email) {
-            const emailVal = validateEmail(metadata.customer_email)
-            if (emailVal.valid && emailVal.sanitized) {
-              customerEmail = emailVal.sanitized
-            }
-          } else if (paymentIntent.receipt_email) {
-            const emailVal = validateEmail(paymentIntent.receipt_email)
-            if (emailVal.valid && emailVal.sanitized) {
-              customerEmail = emailVal.sanitized
-            }
           }
           
           const { data, error } = await supabase
@@ -304,10 +333,10 @@ serve(async (req) => {
           if (error) {
             console.error('Error creating booking:', error)
           } else {
-            console.log('New booking created from webhook:', data)
-            // Send confirmation email for fallback-created booking (same as when existing booking found)
-            const fallbackEmail = customerEmail
-            const fallbackBookingRef = `MAS-${paymentIntent.id.slice(-8).toUpperCase()}`
+            const fallbackBookingRef = data?.booking_ref || `MAS-${paymentIntent.id.slice(-8).toUpperCase()}`
+            console.log(`New booking created from webhook: ${fallbackBookingRef} (id: ${data?.id})`)
+            
+            // Send confirmation email for fallback-created booking
             try {
               await fetch(`${supabaseUrl}/functions/v1/send-email`, {
                 method: 'POST',
@@ -317,7 +346,7 @@ serve(async (req) => {
                 },
                 body: JSON.stringify({
                   template: 'booking_confirmed',
-                  to: fallbackEmail,
+                  to: customerEmail,
                   data: {
                     name: metadata.customer_name || 'there',
                     bookingRef: fallbackBookingRef,
@@ -328,6 +357,9 @@ serve(async (req) => {
               console.warn('Failed to send confirmation email (fallback branch):', emailErr)
             }
           }
+        } else {
+          // No existing booking AND no valid email - cannot create booking
+          console.error(`PaymentIntent ${paymentIntent.id}: CRITICAL - cannot create fallback booking: no valid email found. Payment succeeded but booking data is incomplete. Check create-payment-intent logs and ensure customer_email is set in metadata.`)
         }
 
         // If checkout had "Add Master Club" checked, create Stripe subscription (first month already paid in this PaymentIntent)

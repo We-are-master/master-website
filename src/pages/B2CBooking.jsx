@@ -561,6 +561,34 @@ const B2CBooking = () => {
   const cartSubtotal = cart.reduce((sum, item) => sum + (parseFloat(item.service.price) || 0) * item.quantity, 0);
   const cartTotal = cartSubtotal + BOOKING_FEE;
 
+  // Redirect to new configurator pages for handyman, cleaning, painter, carpenter (grid page disabled for these)
+  useEffect(() => {
+    const serviceFromState = location.state?.service;
+    const postcodeFromState = location.state?.postcode;
+    if (!serviceFromState || !postcodeFromState) return;
+    const searchLower = String(serviceFromState).toLowerCase().trim();
+    const isCleaning = searchLower.includes('cleaning') || searchLower.includes('clean') || searchLower.includes('deep clean') || searchLower.includes('end of tenancy') || searchLower.includes('upholstery');
+    const isHandyman = searchLower.includes('handyman') || searchLower.includes('odd job');
+    const isPainter = searchLower.includes('painter') || searchLower.includes('painting') || searchLower.includes('paint');
+    const isCarpenter = searchLower.includes('carpenter') || searchLower.includes('carpentry');
+    if (isCleaning) {
+      navigate('/cleaning-booking', { state: { jobDescription: serviceFromState, postcode: postcodeFromState }, replace: true });
+      return;
+    }
+    if (isHandyman) {
+      navigate('/handyman-booking', { state: { jobDescription: serviceFromState, postcode: postcodeFromState }, replace: true });
+      return;
+    }
+    if (isPainter) {
+      navigate('/painting-booking', { state: { jobDescription: serviceFromState, postcode: postcodeFromState }, replace: true });
+      return;
+    }
+    if (isCarpenter) {
+      navigate('/carpentry-booking', { state: { jobDescription: serviceFromState, postcode: postcodeFromState }, replace: true });
+      return;
+    }
+  }, [location.state?.service, location.state?.postcode, navigate]);
+
   // When arriving from home with both service + postcode: load services and show step 3 (no postcode step)
   useEffect(() => {
     const serviceFromState = location.state?.service;

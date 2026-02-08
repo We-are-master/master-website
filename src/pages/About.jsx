@@ -1,171 +1,20 @@
-import React, { useEffect, useRef } from 'react'
+import React from 'react'
+import { motion } from 'framer-motion'
 import { Users, Shield, Star, Award, CheckCircle, Target, Zap, ArrowRight, Phone } from 'lucide-react'
-import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { Link } from 'react-router-dom'
 import { SEO } from '../components/SEO'
 
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger)
-}
+const MotionLink = motion(Link)
+
+const fadeInUp = { hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0 } }
+const fadeInUpStrong = { hidden: { opacity: 0, y: 40 }, visible: { opacity: 1, y: 0 } }
+const fadeInScale = { hidden: { opacity: 0, scale: 0.96 }, visible: { opacity: 1, scale: 1 } }
+const stagger = { visible: { transition: { staggerChildren: 0.08 } } }
+const staggerSlow = { visible: { transition: { staggerChildren: 0.12 } } }
+const transition = { type: 'tween', ease: [0.25, 0.46, 0.45, 0.94], duration: 0.6 }
+const spring = { type: 'spring', stiffness: 260, damping: 24 }
 
 const About = () => {
-  const heroRef = useRef(null)
-  const statsRef = useRef(null)
-  const storyRef = useRef(null)
-  const valuesRef = useRef(null)
-  const certsRef = useRef(null)
-  const ctaRef = useRef(null)
-
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      // Animate hero
-      if (heroRef.current) {
-        gsap.fromTo(heroRef.current.querySelector('h1'),
-          { opacity: 0, y: 30 },
-          { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }
-        )
-        gsap.fromTo(heroRef.current.querySelector('p'),
-          { opacity: 0, y: 20 },
-          { opacity: 1, y: 0, duration: 0.8, delay: 0.2, ease: 'power3.out' }
-        )
-      }
-
-      // Animate stats
-      if (statsRef.current) {
-        const stats = Array.from(statsRef.current.children)
-        gsap.fromTo(stats,
-          { opacity: 0, y: 30, scale: 0.9 },
-          {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            duration: 0.6,
-            stagger: 0.1,
-            ease: 'power3.out',
-            scrollTrigger: {
-              trigger: statsRef.current,
-              start: 'top 80%'
-            }
-          }
-        )
-      }
-
-      // Animate story section
-      if (storyRef.current) {
-        const elements = storyRef.current.querySelectorAll('h2, p, .mission-card')
-        gsap.fromTo(elements,
-          { opacity: 0, y: 40 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.8,
-            stagger: 0.15,
-            ease: 'power3.out',
-            scrollTrigger: {
-              trigger: storyRef.current,
-              start: 'top 75%'
-            }
-          }
-        )
-      }
-
-      // Animate values
-      if (valuesRef.current) {
-        const cards = Array.from(valuesRef.current.children)
-        gsap.fromTo(cards,
-          { opacity: 0, y: 50, scale: 0.95 },
-          {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            duration: 0.8,
-            stagger: 0.1,
-            ease: 'power3.out',
-            scrollTrigger: {
-              trigger: valuesRef.current,
-              start: 'top 75%'
-            }
-          }
-        )
-
-        // Add hover animations
-        cards.forEach((card) => {
-          const icon = card.querySelector('.value-icon')
-          card.addEventListener('mouseenter', () => {
-            gsap.to(card, {
-              y: -4,
-              boxShadow: '0 8px 24px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.08)',
-              duration: 0.3,
-              ease: 'cubic-bezier(0.4, 0, 0.2, 1)',
-              zIndex: 10
-            })
-            if (icon) {
-              gsap.to(icon, {
-                scale: 1.1,
-                rotation: 5,
-                duration: 0.3
-              })
-            }
-          })
-          card.addEventListener('mouseleave', () => {
-            gsap.to(card, {
-              y: 0,
-              boxShadow: '0 2px 8px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06)',
-              duration: 0.3,
-              zIndex: 1
-            })
-            if (icon) {
-              gsap.to(icon, {
-                scale: 1,
-                rotation: 0,
-                duration: 0.3
-              })
-            }
-          })
-        })
-      }
-
-      // Animate certifications
-      if (certsRef.current) {
-        const certs = Array.from(certsRef.current.children)
-        gsap.fromTo(certs,
-          { opacity: 0, scale: 0.9 },
-          {
-            opacity: 1,
-            scale: 1,
-            duration: 0.6,
-            stagger: 0.1,
-            ease: 'back.out(1.7)',
-            scrollTrigger: {
-              trigger: certsRef.current,
-              start: 'top 80%'
-            }
-          }
-        )
-      }
-
-      // Animate CTA
-      if (ctaRef.current) {
-        gsap.fromTo(ctaRef.current,
-          { opacity: 0, y: 40 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.8,
-            ease: 'power3.out',
-            scrollTrigger: {
-              trigger: ctaRef.current,
-              start: 'top 80%'
-            }
-          }
-        )
-      }
-    })
-
-    return () => ctx.revert()
-  }, [])
-
   const stats = [
     { number: "240+", label: "Vetted Professionals" },
     { number: "23K+", label: "Jobs Completed" },
@@ -240,8 +89,10 @@ const About = () => {
         maxWidth: '100vw'
       }}>
       {/* Hero Section */}
-      <section 
-        ref={heroRef}
+      <motion.section
+        initial="hidden"
+        animate="visible"
+        variants={staggerSlow}
         style={{
           padding: '8rem 0 6rem',
           background: '#020034',
@@ -251,7 +102,21 @@ const About = () => {
           maxWidth: '100vw'
         }}
       >
-        {/* Subtle Background */}
+        {/* Subtle animated gradient orbs */}
+        <motion.div
+          style={{
+            position: 'absolute',
+            top: '-20%',
+            right: '-10%',
+            width: '50%',
+            height: '60%',
+            background: 'radial-gradient(ellipse, rgba(233, 74, 2, 0.15) 0%, transparent 70%)',
+            borderRadius: '50%',
+            zIndex: 1
+          }}
+          animate={{ opacity: [0.6, 1, 0.6], scale: [1, 1.05, 1] }}
+          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+        />
         <div style={{
           position: 'absolute',
           top: 0,
@@ -260,7 +125,7 @@ const About = () => {
           bottom: 0,
           background: 'radial-gradient(ellipse 80% 50% at 50% 0%, rgba(233, 74, 2, 0.12) 0%, transparent 50%)',
           zIndex: 1
-        }}></div>
+        }} />
         <div style={{
           position: 'absolute',
           top: 0,
@@ -270,38 +135,46 @@ const About = () => {
           backgroundImage: 'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)',
           backgroundSize: '60px 60px',
           zIndex: 1
-        }}></div>
+        }} />
 
         <div className="container" style={{ position: 'relative', zIndex: 2 }}>
           <div style={{ maxWidth: '900px', margin: '0 auto', textAlign: 'center' }}>
-            <h1 style={{
-              fontSize: 'clamp(2.5rem, 5vw, 4rem)',
-              fontWeight: '600',
-              color: 'white',
-              marginBottom: '1.5rem',
-              letterSpacing: '-0.04em',
-              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif',
-              lineHeight: '1.1'
-            }}>
+            <motion.h1
+              variants={fadeInUpStrong}
+              transition={transition}
+              style={{
+                fontSize: 'clamp(2.5rem, 5vw, 4rem)',
+                fontWeight: '600',
+                color: 'white',
+                marginBottom: '1.5rem',
+                letterSpacing: '-0.04em',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif',
+                lineHeight: '1.1'
+              }}
+            >
               About Master Services
-            </h1>
-            <p style={{
-              fontSize: 'clamp(1.125rem, 2vw, 1.375rem)',
-              color: 'rgba(255,255,255,0.7)',
-              lineHeight: '1.5',
-              maxWidth: '720px',
-              margin: '0 auto',
-              letterSpacing: '-0.01em',
-              fontWeight: '400'
-            }}>
+            </motion.h1>
+            <motion.p
+              variants={fadeInUp}
+              transition={transition}
+              style={{
+                fontSize: 'clamp(1.125rem, 2vw, 1.375rem)',
+                color: 'rgba(255,255,255,0.7)',
+                lineHeight: '1.5',
+                maxWidth: '720px',
+                margin: '0 auto',
+                letterSpacing: '-0.01em',
+                fontWeight: '400'
+              }}
+            >
               We're revolutionising property maintenance for businesses across London. 
               Our mission is to make property management simple, efficient, and reliable 
               through technology and exceptional service.
-            </p>
+            </motion.p>
 
             {/* Stats */}
-            <div 
-              ref={statsRef}
+            <motion.div
+              variants={stagger}
               style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
@@ -311,17 +184,31 @@ const About = () => {
               }}
             >
               {stats.map((stat, index) => (
-                <div key={index} style={{ textAlign: 'center' }}>
-                  <div style={{
-                    fontSize: 'clamp(2rem, 4vw, 2.75rem)',
-                    fontWeight: '600',
-                    color: '#E94A02',
-                    marginBottom: '0.5rem',
-                    letterSpacing: '-0.03em',
-                    fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
-                  }}>
+                <motion.div
+                  key={index}
+                  variants={fadeInScale}
+                  transition={spring}
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  style={{
+                    textAlign: 'center',
+                    padding: '1rem',
+                    borderRadius: '12px',
+                    background: 'rgba(255,255,255,0.03)',
+                    border: '1px solid rgba(255,255,255,0.06)'
+                  }}
+                >
+                  <motion.div
+                    style={{
+                      fontSize: 'clamp(2rem, 4vw, 2.75rem)',
+                      fontWeight: '600',
+                      color: '#E94A02',
+                      marginBottom: '0.5rem',
+                      letterSpacing: '-0.03em',
+                      fontFamily: 'inherit'
+                    }}
+                  >
                     {stat.number}
-                  </div>
+                  </motion.div>
                   <div style={{
                     fontSize: '0.875rem',
                     color: 'rgba(255,255,255,0.7)',
@@ -330,16 +217,19 @@ const About = () => {
                   }}>
                     {stat.label}
                   </div>
-                </div>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Our Story */}
-      <section 
-        ref={storyRef}
+      <motion.section
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.15 }}
+        variants={staggerSlow}
         style={{ 
           padding: '6rem 0', 
           backgroundColor: '#fbfbfd',
@@ -355,60 +245,67 @@ const About = () => {
             gap: '4rem',
             alignItems: 'start'
           }}>
-            <div>
-              <h2 style={{
-                fontSize: 'clamp(2rem, 4vw, 2.5rem)',
-                fontWeight: '600',
-                color: '#1d1d1f',
-                marginBottom: '2rem',
-                letterSpacing: '-0.03em',
-                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
-              }}>
+            <motion.div variants={fadeInUp} transition={transition}>
+              <motion.h2
+                variants={fadeInUp}
+                transition={transition}
+                style={{
+                  fontSize: 'clamp(2rem, 4vw, 2.5rem)',
+                  fontWeight: '600',
+                  color: '#1d1d1f',
+                  marginBottom: '2rem',
+                  letterSpacing: '-0.03em',
+                  fontFamily: 'inherit'
+                }}
+              >
                 Our Story
-              </h2>
+              </motion.h2>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                <p style={{
-                  fontSize: '1.0625rem',
-                  color: '#86868b',
-                  lineHeight: '1.6',
-                  fontWeight: '400'
-                }}>
-                  Master Services was founded with a simple vision: to transform how businesses 
-                  manage their property maintenance needs. We recognised that traditional 
-                  maintenance services were fragmented, unreliable, and lacked transparency.
-                </p>
-                <p style={{
-                  fontSize: '1.0625rem',
-                  color: '#86868b',
-                  lineHeight: '1.6',
-                  fontWeight: '400'
-                }}>
-                  Starting with a small team of trusted professionals, we've grown to become 
-                  London's leading property maintenance platform, serving over 500 businesses 
-                  and completing more than 23,000 jobs with exceptional results.
-                </p>
-                <p style={{
-                  fontSize: '1.0625rem',
-                  color: '#86868b',
-                  lineHeight: '1.6',
-                  fontWeight: '400'
-                }}>
-                  Today, we combine cutting-edge technology with a network of 240+ vetted 
-                  professionals to deliver seamless, reliable, and transparent property 
-                  maintenance services that businesses can trust.
-                </p>
+                {[
+                  "Master Services was founded with a simple vision: to transform how businesses manage their property maintenance needs. We recognised that traditional maintenance services were fragmented, unreliable, and lacked transparency.",
+                  "Starting with a small team of trusted professionals, we've grown to become London's leading property maintenance platform, serving over 500 businesses and completing more than 23,000 jobs with exceptional results.",
+                  "Today, we combine cutting-edge technology with a network of 240+ vetted professionals to deliver seamless, reliable, and transparent property maintenance services that businesses can trust."
+                ].map((text, i) => (
+                  <motion.p
+                    key={i}
+                    variants={fadeInUp}
+                    transition={transition}
+                    style={{
+                      fontSize: '1.0625rem',
+                      color: '#86868b',
+                      lineHeight: '1.6',
+                      fontWeight: '400'
+                    }}
+                  >
+                    {text}
+                  </motion.p>
+                ))}
               </div>
-            </div>
-            <div 
+            </motion.div>
+            <motion.div
               className="mission-card"
+              variants={{ hidden: { opacity: 0, x: 40 }, visible: { opacity: 1, x: 0 } }}
+              transition={spring}
+              whileHover={{ y: -6, boxShadow: '0 20px 40px rgba(0,0,0,0.08), 0 0 0 1px rgba(233, 74, 2, 0.1)' }}
               style={{
                 backgroundColor: 'white',
                 borderRadius: '12px',
                 padding: '2.5rem',
                 boxShadow: '0 2px 8px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06)',
-                border: '1px solid rgba(0,0,0,0.06)'
+                border: '1px solid rgba(0,0,0,0.06)',
+                position: 'relative',
+                overflow: 'hidden'
               }}
             >
+              <div style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '4px',
+                background: 'linear-gradient(90deg, #E94A02, #2001AF)',
+                opacity: 0.9
+              }} />
               <h3 style={{
                 fontSize: '1.5rem',
                 fontWeight: '600',
@@ -446,33 +343,35 @@ const About = () => {
                 To be the UK's most trusted property maintenance platform, 
                 empowering businesses to focus on growth while we handle the rest.
               </p>
-            </div>
+            </motion.div>
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Our Values */}
-      <section style={{ 
-        padding: '6rem 0', 
-        backgroundColor: '#ffffff',
-        overflow: 'hidden',
-        width: '100%',
-        maxWidth: '100vw',
-        position: 'relative'
-      }}>
-        <div className="container" style={{ 
+      <motion.section
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.1 }}
+        variants={stagger}
+        style={{ 
+          padding: '6rem 0', 
+          backgroundColor: '#ffffff',
+          overflow: 'hidden',
           width: '100%',
-          maxWidth: '100%',
-          overflow: 'hidden'
-        }}>
-          <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
+          maxWidth: '100vw',
+          position: 'relative'
+        }}
+      >
+        <div className="container" style={{ width: '100%', maxWidth: '100%', overflow: 'hidden' }}>
+          <motion.div variants={fadeInUp} transition={transition} style={{ textAlign: 'center', marginBottom: '4rem' }}>
             <h2 style={{
               fontSize: 'clamp(2rem, 4vw, 2.5rem)',
               fontWeight: '600',
               color: '#1d1d1f',
               marginBottom: '1rem',
               letterSpacing: '-0.03em',
-              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
+              fontFamily: 'inherit'
             }}>
               Our Values
             </h2>
@@ -486,10 +385,10 @@ const About = () => {
             }}>
               The principles that guide everything we do
             </p>
-          </div>
+          </motion.div>
 
-          <div 
-            ref={valuesRef}
+          <motion.div
+            variants={stagger}
             style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
@@ -501,23 +400,32 @@ const About = () => {
             }}
           >
             {values.map((value, index) => (
-              <div
+              <motion.div
                 key={index}
+                variants={fadeInUp}
+                transition={transition}
+                whileHover={{ 
+                  y: -6, 
+                  boxShadow: '0 12px 32px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.04)', 
+                  zIndex: 10,
+                  borderColor: `${value.color}30`
+                }}
                 style={{
                   backgroundColor: 'white',
                   borderRadius: '12px',
                   padding: '2rem',
                   boxShadow: '0 2px 8px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06)',
                   border: '1px solid rgba(0,0,0,0.06)',
-                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   cursor: 'pointer',
                   overflow: 'visible',
                   position: 'relative',
                   zIndex: 1
                 }}
               >
-                <div 
+                <motion.div
                   className="value-icon"
+                  whileHover={{ scale: 1.1, rotate: 5 }}
+                  transition={spring}
                   style={{
                     width: '56px',
                     height: '56px',
@@ -531,7 +439,7 @@ const About = () => {
                   }}
                 >
                   {value.icon}
-                </div>
+                </motion.div>
                 <h3 style={{
                   fontSize: '1.25rem',
                   fontWeight: '600',
@@ -549,42 +457,44 @@ const About = () => {
                 }}>
                   {value.description}
                 </p>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Certifications & Awards */}
-      <section style={{ 
-        padding: '6rem 0', 
-        background: '#020034', 
-        position: 'relative', 
-        overflow: 'hidden',
-        width: '100%',
-        maxWidth: '100vw'
-      }}>
-        {/* Background Pattern */}
+      <motion.section
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.15 }}
+        variants={stagger}
+        style={{ 
+          padding: '6rem 0', 
+          background: '#020034', 
+          position: 'relative', 
+          overflow: 'hidden',
+          width: '100%',
+          maxWidth: '100vw'
+        }}
+      >
         <div style={{
           position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
+          top: 0, left: 0, right: 0, bottom: 0,
           backgroundImage: 'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)',
           backgroundSize: '60px 60px',
           zIndex: 1
-        }}></div>
+        }} />
 
         <div className="container" style={{ position: 'relative', zIndex: 2 }}>
-          <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
+          <motion.div variants={fadeInUp} transition={transition} style={{ textAlign: 'center', marginBottom: '4rem' }}>
             <h2 style={{
               fontSize: 'clamp(2rem, 4vw, 2.5rem)',
               fontWeight: '600',
               color: 'white',
               marginBottom: '1rem',
               letterSpacing: '-0.03em',
-              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
+              fontFamily: 'inherit'
             }}>
               Certifications & Recognition
             </h2>
@@ -595,10 +505,10 @@ const About = () => {
             }}>
               Trusted by industry leaders and recognised for excellence
             </p>
-          </div>
+          </motion.div>
 
-          <div 
-            ref={certsRef}
+          <motion.div
+            variants={stagger}
             style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
@@ -613,20 +523,33 @@ const About = () => {
               { icon: <Star size={32} />, title: '4.8 Star Rating', desc: 'Verified by Trustindex' },
               { icon: <Target size={32} />, title: 'ISO Certified', desc: 'Quality management systems' }
             ].map((cert, index) => (
-              <div
+              <motion.div
                 key={index}
+                variants={fadeInScale}
+                transition={spring}
+                whileHover={{ 
+                  y: -6, 
+                  scale: 1.02,
+                  boxShadow: '0 16px 40px rgba(0,0,0,0.3), 0 0 0 1px rgba(233, 74, 2, 0.2)',
+                  backgroundColor: 'rgba(255, 255, 255, 0.12)'
+                }}
                 style={{
                   backgroundColor: 'rgba(255, 255, 255, 0.08)',
                   backdropFilter: 'blur(20px)',
                   borderRadius: '12px',
                   padding: '2rem',
                   textAlign: 'center',
-                  border: '1px solid rgba(255,255,255,0.1)'
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  cursor: 'default'
                 }}
               >
-                <div style={{ color: '#E94A02', marginBottom: '1rem', display: 'flex', justifyContent: 'center' }}>
+                <motion.div 
+                  whileHover={{ scale: 1.15, rotate: 5 }} 
+                  transition={spring}
+                  style={{ color: '#E94A02', marginBottom: '1rem', display: 'flex', justifyContent: 'center' }}
+                >
                   {cert.icon}
-                </div>
+                </motion.div>
                 <h3 style={{
                   fontSize: '1.125rem',
                   fontWeight: '600',
@@ -643,11 +566,11 @@ const About = () => {
                 }}>
                   {cert.desc}
                 </p>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
 
       {/* CTA Section */}
       <section style={{ 
@@ -658,11 +581,15 @@ const About = () => {
         maxWidth: '100vw'
       }}>
         <div className="container">
-          <div 
-            ref={ctaRef}
+          <motion.div
+            initial={{ opacity: 0, y: 32 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ ...transition, duration: 0.7 }}
+            whileHover={{ boxShadow: '0 8px 32px rgba(0,0,0,0.1), 0 0 0 1px rgba(233, 74, 2, 0.08)' }}
             style={{
               backgroundColor: 'white',
-              borderRadius: '12px',
+              borderRadius: '16px',
               padding: '4rem 2rem',
               textAlign: 'center',
               boxShadow: '0 4px 16px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04)',
@@ -701,8 +628,10 @@ const About = () => {
               justifyContent: 'center',
               flexWrap: 'wrap'
             }}>
-              <Link
+              <MotionLink
                 to="/contact"
+                whileHover={{ backgroundColor: '#d13d00', scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 style={{
                   backgroundColor: '#E94A02',
                   color: 'white',
@@ -715,29 +644,16 @@ const About = () => {
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '0.5rem',
-                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   letterSpacing: '-0.01em'
-                }}
-                onMouseEnter={(e) => {
-                  gsap.to(e.target, {
-                    backgroundColor: '#d13d00',
-                    scale: 1.02,
-                    duration: 0.3
-                  })
-                }}
-                onMouseLeave={(e) => {
-                  gsap.to(e.target, {
-                    backgroundColor: '#E94A02',
-                    scale: 1,
-                    duration: 0.3
-                  })
                 }}
               >
                 <span>Get Started Today</span>
                 <ArrowRight size={18} />
-              </Link>
-              <a
+              </MotionLink>
+              <motion.a
                 href="tel:+447983182332"
+                whileHover={{ backgroundColor: '#f5f5f7', borderColor: 'rgba(0,0,0,0.3)' }}
+                whileTap={{ scale: 0.98 }}
                 style={{
                   backgroundColor: 'transparent',
                   color: '#1d1d1f',
@@ -750,29 +666,14 @@ const About = () => {
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '0.5rem',
-                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   letterSpacing: '-0.01em'
-                }}
-                onMouseEnter={(e) => {
-                  gsap.to(e.target, {
-                    backgroundColor: '#f5f5f7',
-                    borderColor: 'rgba(0,0,0,0.3)',
-                    duration: 0.3
-                  })
-                }}
-                onMouseLeave={(e) => {
-                  gsap.to(e.target, {
-                    backgroundColor: 'transparent',
-                    borderColor: 'rgba(0,0,0,0.2)',
-                    duration: 0.3
-                  })
                 }}
               >
                 <Phone size={18} />
                 <span>Call +44 7983 182332</span>
-              </a>
+              </motion.a>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
     </div>

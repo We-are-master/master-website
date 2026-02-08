@@ -124,13 +124,14 @@ const HeaderB2C = () => {
                 zIndex: 1001
               }}>
                 {['Plumbing', 'Electrical', 'Cleaning', 'Handyman', 'Carpentry', 'TV Mounting', 'Flatpack Assembly'].map((service, index) => {
-                  // Cleaning services should go directly to cleaning booking form
-                  const isCleaning = service === 'Cleaning';
+                  // New configurator layouts for these (grid page disabled)
+                  const toPath = service === 'Cleaning' ? '/cleaning-booking' : service === 'Handyman' ? '/handyman-booking' : service === 'Carpentry' ? '/carpentry-booking' : service === 'Painting' ? '/painting-booking' : '/booking';
+                  const state = toPath === '/booking' ? { service } : {};
                   return (
                     <Link
                       key={index}
-                      to={isCleaning ? "/cleaning-booking" : "/booking"}
-                      state={isCleaning ? {} : { service }}
+                      to={toPath}
+                      state={state}
                       style={{
                         display: 'block',
                         padding: '0.75rem 1.25rem',

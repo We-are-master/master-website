@@ -1,13 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Mail, ArrowRight, Loader2, CheckCircle, AlertCircle, ArrowLeft, KeyRound, Phone } from 'lucide-react';
-import { gsap } from 'gsap';
 import { supabase } from '../lib/supabase';
 import { validateEmail, checkRateLimit } from '../lib/security';
-
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin();
-}
 
 const B2CLogin = () => {
   const navigate = useNavigate();
@@ -17,24 +13,6 @@ const B2CLogin = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [resendCooldown, setResendCooldown] = useState(0);
-
-  const cardRef = useRef(null);
-  const iconRef = useRef(null);
-
-  useEffect(() => {
-    if (cardRef.current) {
-      gsap.fromTo(cardRef.current,
-        { opacity: 0, y: 30, scale: 0.98 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.6, ease: 'power3.out' }
-      );
-    }
-    if (iconRef.current) {
-      gsap.fromTo(iconRef.current,
-        { opacity: 0, scale: 0.8 },
-        { opacity: 1, scale: 1, duration: 0.5, delay: 0.2, ease: 'back.out(1.7)' }
-      );
-    }
-  }, [step]);
 
   // Send OTP code to email with security checks
   const handleSendCode = async (e) => {
@@ -265,8 +243,11 @@ const B2CLogin = () => {
         justifyContent: 'center',
         padding: '3rem 1rem'
       }}>
-        <div 
-          ref={cardRef}
+        <motion.div
+          key={step}
+          initial={{ opacity: 0, y: 24, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ type: 'tween', ease: [0.25, 0.46, 0.45, 0.94], duration: 0.5 }}
           style={{
             backgroundColor: 'white',
             borderRadius: '12px',
@@ -282,8 +263,10 @@ const B2CLogin = () => {
             textAlign: 'center',
             marginBottom: '2.5rem'
           }}>
-            <div 
-              ref={iconRef}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ type: 'tween', ease: [0.34, 1.56, 0.64, 1], duration: 0.4, delay: 0.1 }}
               style={{
                 width: '72px',
                 height: '72px',
@@ -299,7 +282,7 @@ const B2CLogin = () => {
               {step === 'email' && <Mail size={32} style={{ color: 'white' }} />}
               {step === 'code' && <KeyRound size={32} style={{ color: 'white' }} />}
               {step === 'success' && <CheckCircle size={32} style={{ color: 'white' }} />}
-            </div>
+            </motion.div>
 
             <h1 style={{
               fontSize: 'clamp(1.75rem, 3vw, 2rem)',
@@ -687,7 +670,7 @@ const B2CLogin = () => {
             <span>Need help? Call </span>
             <a href="tel:02033376168" style={{ color: '#E94A02', textDecoration: 'none', fontWeight: '600' }}>020 3337 6168</a>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       <style>{`
