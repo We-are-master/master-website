@@ -1,15 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { Search, ArrowRight, Sparkles, MapPin } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { fadeInUp, staggerContainer, defaultTransition, springTransition } from '../../hooks/useMotion';
 
-// Register ScrollTrigger
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger);
-}
-
-// UK postcode validation (lenient)
 const isValidUKPostcode = (value) => {
   const trimmed = (value || '').trim().toUpperCase().replace(/\s+/g, ' ');
   const match = trimmed.match(/[A-Z]{1,2}[0-9]{1,2}[A-Z]?\s?[0-9][A-Z]{2}/i);
@@ -18,21 +12,13 @@ const isValidUKPostcode = (value) => {
 
 const HeroB2C = () => {
   const navigate = useNavigate();
-  const [heroStep, setHeroStep] = useState('service'); // 'service' | 'postcode'
+  const [heroStep, setHeroStep] = useState('service');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedService, setSelectedService] = useState('');
   const [postcodeError, setPostcodeError] = useState('');
   const [currentServiceIndex, setCurrentServiceIndex] = useState(0);
   const [displayedText, setDisplayedText] = useState('');
   const [isTyping, setIsTyping] = useState(true);
-  const heroRef = useRef(null);
-  const badgeRef = useRef(null);
-  const titleRef = useRef(null);
-  const subtitleRef = useRef(null);
-  const searchRef = useRef(null);
-  const trustRef = useRef(null);
-  const bgCircle1Ref = useRef(null);
-  const bgCircle2Ref = useRef(null);
 
   const services = [
     'Painting',
@@ -42,192 +28,53 @@ const HeroB2C = () => {
     'Electricians'
   ];
 
-  // Typing effect for placeholder
   useEffect(() => {
     const currentService = services[currentServiceIndex];
     let charIndex = 0;
     let typingTimeout;
     let deleteTimeout;
-    
-    // Reset displayed text when service changes
+
     setDisplayedText('');
     setIsTyping(true);
-    
-    // Type characters one by one
+
     const typeChar = () => {
       if (charIndex <= currentService.length) {
         setDisplayedText(currentService.slice(0, charIndex));
         charIndex++;
-        typingTimeout = setTimeout(typeChar, 80); // Typing speed
+        typingTimeout = setTimeout(typeChar, 80);
       } else {
-        // Wait before deleting
         setIsTyping(false);
-        deleteTimeout = setTimeout(() => {
-          deleteChars(currentService.length);
-        }, 2000); // Wait 2 seconds before deleting
+        deleteTimeout = setTimeout(() => deleteChars(currentService.length), 2000);
       }
     };
-    
-    // Delete characters one by one
+
     const deleteChars = (length) => {
       if (length >= 0) {
         setDisplayedText(currentService.slice(0, length));
         setIsTyping(true);
-        deleteTimeout = setTimeout(() => deleteChars(length - 1), 40); // Delete speed (faster)
+        deleteTimeout = setTimeout(() => deleteChars(length - 1), 40);
       } else {
-        // Move to next service
         setCurrentServiceIndex((prev) => (prev + 1) % services.length);
       }
     };
-    
-    // Start typing
+
     typingTimeout = setTimeout(typeChar, 500);
-    
     return () => {
       clearTimeout(typingTimeout);
       clearTimeout(deleteTimeout);
     };
   }, [currentServiceIndex]);
 
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      // Animate background circles
-      if (bgCircle1Ref.current) {
-        gsap.to(bgCircle1Ref.current, {
-          rotation: 360,
-          duration: 20,
-          repeat: -1,
-          ease: 'none'
-        });
-      }
-
-      if (bgCircle2Ref.current) {
-        gsap.to(bgCircle2Ref.current, {
-          rotation: -360,
-          duration: 25,
-          repeat: -1,
-          ease: 'none'
-        });
-      }
-
-      // Animate badge
-      if (badgeRef.current) {
-        gsap.fromTo(badgeRef.current, 
-          {
-            opacity: 0,
-            y: -30,
-            scale: 0.8
-          },
-          {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            duration: 0.8,
-            ease: 'back.out(1.7)',
-            delay: 0.2
-          }
-        );
-      }
-
-      // Animate title
-      if (titleRef.current) {
-        gsap.fromTo(titleRef.current,
-          {
-            opacity: 0,
-            y: 50
-          },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 1,
-            ease: 'power3.out',
-            delay: 0.4
-          }
-        );
-      }
-
-      // Animate subtitle
-      if (subtitleRef.current) {
-        gsap.fromTo(subtitleRef.current,
-          {
-            opacity: 0,
-            y: 30
-          },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 1,
-            ease: 'power3.out',
-            delay: 0.6
-          }
-        );
-      }
-
-      // Animate search bar
-      if (searchRef.current) {
-        gsap.fromTo(searchRef.current,
-          {
-            opacity: 0,
-            y: 40,
-            scale: 0.95
-          },
-          {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            duration: 0.8,
-            ease: 'power3.out',
-            delay: 0.8
-          }
-        );
-      }
-
-      // Animate trust indicators
-      if (trustRef.current && trustRef.current.children) {
-        gsap.fromTo(trustRef.current.children,
-          {
-            opacity: 0,
-            y: 30,
-            scale: 0.9
-          },
-          {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            duration: 0.6,
-            stagger: 0.1,
-            ease: 'power3.out',
-            delay: 1.2
-          }
-        );
-      }
-
-      // Removed parallax effect to prevent scroll issues
-    }, heroRef);
-
-    return () => ctx.revert();
-  }, []);
-
   const handleSearch = (e) => {
     e.preventDefault();
     if (heroStep === 'service') {
       if (searchTerm.trim()) {
-        gsap.to(e.target, {
-          scale: 0.95,
-          duration: 0.1,
-          yoyo: true,
-          repeat: 1,
-          ease: 'power2.inOut',
-          onComplete: () => {
-            setSelectedService(searchTerm.trim());
-            setSearchTerm('');
-            setHeroStep('postcode');
-          }
-        });
+        setSelectedService(searchTerm.trim());
+        setSearchTerm('');
+        setHeroStep('postcode');
       }
       return;
     }
-    // heroStep === 'postcode'
     const postcodeRaw = searchTerm.trim();
     if (!postcodeRaw) return;
     const postcodeMatch = postcodeRaw.toUpperCase().replace(/\s+/g, ' ').match(/[A-Z]{1,2}[0-9]{1,2}[A-Z]?\s?[0-9][A-Z]{2}/i);
@@ -237,30 +84,38 @@ const HeroB2C = () => {
       return;
     }
     setPostcodeError('');
-    gsap.to(e.target, {
-      scale: 0.95,
-      duration: 0.1,
-      yoyo: true,
-      repeat: 1,
-      ease: 'power2.inOut',
-      onComplete: () => {
-        const searchLower = selectedService.toLowerCase();
-        const isCleaning = searchLower.includes('cleaning') || searchLower.includes('clean') ||
-          searchLower.includes('deep clean') || searchLower.includes('end of tenancy') ||
-          searchLower.includes('upholstery');
-        if (isCleaning) {
-          navigate('/cleaning-booking', { state: { jobDescription: selectedService, postcode } });
-        } else {
-          navigate('/booking', { state: { service: selectedService, postcode } });
-        }
-      }
-    });
+    const searchLower = selectedService.toLowerCase().trim();
+    // Redirect to new configurator layouts for these services (old grid page disabled)
+    const isCleaning = searchLower.includes('cleaning') || searchLower.includes('clean') ||
+      searchLower.includes('deep clean') || searchLower.includes('end of tenancy') ||
+      searchLower.includes('upholstery');
+    const isHandyman = searchLower.includes('handyman') || searchLower.includes('odd job');
+    const isPainter = searchLower.includes('painter') || searchLower.includes('painting') || searchLower.includes('paint');
+    const isCarpenter = searchLower.includes('carpenter') || searchLower.includes('carpentry');
+    if (isCleaning) {
+      navigate('/cleaning-booking', { state: { jobDescription: selectedService, postcode } });
+    } else if (isHandyman) {
+      navigate('/handyman-booking', { state: { jobDescription: selectedService, postcode } });
+    } else if (isPainter) {
+      navigate('/painting-booking', { state: { jobDescription: selectedService, postcode } });
+    } else if (isCarpenter) {
+      navigate('/carpentry-booking', { state: { jobDescription: selectedService, postcode } });
+    } else {
+      navigate('/booking', { state: { service: selectedService, postcode } });
+    }
   };
 
+  const trustItems = [
+    'Fully vetted & insured professionals',
+    'Clear scopes and pricing',
+    'Dedicated operations team',
+    'Built for homes, landlords & businesses'
+  ];
+
   return (
-    <div 
-      ref={heroRef}
+    <motion.div
       className="hero-b2c"
+      initial={false}
       style={{
         position: 'relative',
         minHeight: '100vh',
@@ -273,45 +128,63 @@ const HeroB2C = () => {
         paddingBottom: '2rem'
       }}
     >
-      {/* Subtle Background Gradient with Brand Colors */}
       <div style={{
         position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
+        top: 0, left: 0, right: 0, bottom: 0,
         background: 'radial-gradient(ellipse 80% 50% at 50% 0%, rgba(233, 74, 2, 0.12) 0%, transparent 50%), radial-gradient(ellipse 60% 40% at 20% 100%, rgba(32, 1, 175, 0.15) 0%, transparent 50%)',
         zIndex: 1
-      }}></div>
-      
-      {/* Minimal Grid Pattern */}
+      }} />
       <div style={{
         position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
+        top: 0, left: 0, right: 0, bottom: 0,
         backgroundImage: 'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)',
         backgroundSize: '60px 60px',
         zIndex: 1
-      }}></div>
+      }} />
 
-      <div className="container hero-b2c-inner" style={{ 
-        position: 'relative', 
+      {/* Decorative circles — continuous rotation with Framer Motion */}
+      <motion.div
+        style={{
+          position: 'absolute',
+          top: '10%',
+          right: '5%',
+          width: '400px',
+          height: '400px',
+          borderRadius: '50%',
+          border: '1px solid rgba(255,255,255,0.06)',
+          zIndex: 2
+        }}
+        animate={{ rotate: 360 }}
+        transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+      />
+      <motion.div
+        style={{
+          position: 'absolute',
+          bottom: '20%',
+          left: '0%',
+          width: '300px',
+          height: '300px',
+          borderRadius: '50%',
+          border: '1px solid rgba(255,255,255,0.05)',
+          zIndex: 2
+        }}
+        animate={{ rotate: -360 }}
+        transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
+      />
+
+      <div className="container hero-b2c-inner" style={{
+        position: 'relative',
         zIndex: 3,
-        padding: '2rem 0',
+        padding: 'clamp(2rem, 4vw, 4rem) 0',
         width: '100%',
         maxWidth: '100%',
         overflow: 'hidden'
       }}>
-        <div style={{ 
-          maxWidth: '900px', 
-          margin: '0 auto',
-          textAlign: 'center'
-        }}>
-          {/* Badge */}
-          <div 
-            ref={badgeRef}
+        <div style={{ maxWidth: 'min(900px, 72vw)', margin: '0 auto', textAlign: 'center' }}>
+          <motion.div
+            initial={{ opacity: 0, y: -24, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ ...springTransition, delay: 0.2 }}
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -329,100 +202,73 @@ const HeroB2C = () => {
             }}
           >
             <Sparkles size={12} style={{ opacity: 0.7 }} />
-            <span>Trusted by 10,000+ homeowners across London</span>
-          </div>
+            <span>Trusted by 10,000+ homeowners across the UK</span>
+          </motion.div>
 
-          {/* Main Headline */}
-          <h1 
-            ref={titleRef}
+          <motion.h1
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ ...defaultTransition, delay: 0.35 }}
             style={{
-              fontSize: 'clamp(2rem, 5vw, 3.5rem)',
+              fontSize: 'clamp(2rem, 4vw, 3.75rem)',
               fontWeight: '600',
               color: 'white',
-              marginBottom: '1.25rem',
+              marginBottom: 'clamp(1rem, 2vw, 1.5rem)',
               lineHeight: '1.1',
               letterSpacing: '-0.03em',
               fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
             }}
           >
-            <span style={{
-              color: 'white',
-              display: 'block',
-              marginBottom: '0.25rem'
-            }}>
+            <span style={{ color: 'white', display: 'block', marginBottom: '0.25rem' }}>
               The right way to book local professionals.
             </span>
-            <span
-              style={{
-                color: '#E94A02',
-                fontWeight: '600',
-                display: 'inline-block'
-              }}
-            >
+            <span style={{ color: '#E94A02', fontWeight: '600', display: 'inline-block' }}>
               {services[currentServiceIndex]}
             </span>
-            <span style={{
-              color: 'rgba(255, 255, 255, 0.6)'
-            }}>
-              .
-            </span>
-          </h1>
+            <span style={{ color: 'rgba(255, 255, 255, 0.6)' }}>.</span>
+          </motion.h1>
 
-          {/* Subheadline */}
-          <p 
-            ref={subtitleRef}
+          <motion.p
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ ...defaultTransition, delay: 0.5 }}
             style={{
-              fontSize: 'clamp(1rem, 2vw, 1.25rem)',
+              fontSize: 'clamp(1rem, 1.5vw, 1.375rem)',
               color: 'rgba(255,255,255,0.7)',
-              marginBottom: '2rem',
+              marginBottom: 'clamp(1.5rem, 3vw, 2.5rem)',
               fontWeight: '400',
-              lineHeight: '1.5',
-              maxWidth: '640px',
+              lineHeight: '1.55',
+              maxWidth: 'min(640px, 52vw)',
               marginLeft: 'auto',
               marginRight: 'auto',
               letterSpacing: '-0.01em'
             }}
           >
             Professional tradespeople at your doorstep. Book in minutes, get instant pricing, and enjoy peace of mind.
-          </p>
+          </motion.p>
 
-          {/* Search Bar */}
-          <form 
-            ref={searchRef}
+          <motion.form
+            initial={{ opacity: 0, y: 32, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ ...defaultTransition, delay: 0.65 }}
             onSubmit={handleSearch}
-            style={{ 
-              marginBottom: '2rem'
-            }}
+            style={{ marginBottom: '2rem' }}
           >
-            <div style={{
-              display: 'flex',
-              flexDirection: 'row',
-              backgroundColor: 'rgba(255, 255, 255, 0.08)',
-              backdropFilter: 'blur(20px)',
-              borderRadius: '12px',
-              padding: '0.5rem',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.08)',
-              maxWidth: '720px',
-              margin: '0 auto',
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              gap: '0.5rem'
-            }}
-            className="hero-search-container"
-            onFocus={(e) => {
-              gsap.to(e.currentTarget, {
-                boxShadow: '0 12px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(233, 74, 2, 0.3)',
-                backgroundColor: 'rgba(255, 255, 255, 0.12)',
-                duration: 0.3,
-                ease: 'power2.out'
-              });
-            }}
-            onBlur={(e) => {
-              gsap.to(e.currentTarget, {
-                boxShadow: '0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.08)',
+            <motion.div
+              className="hero-search-container"
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
                 backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                duration: 0.3
-              });
-            }}
+                backdropFilter: 'blur(20px)',
+                borderRadius: '12px',
+                padding: '0.5rem',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.08)',
+                maxWidth: '720px',
+                margin: '0 auto',
+                gap: '0.5rem'
+              }}
+              transition={{ duration: 0.25 }}
             >
               <div style={{
                 display: 'flex',
@@ -460,40 +306,25 @@ const HeroB2C = () => {
                     minWidth: 0
                   }}
                 />
-                {/* AI Typing Placeholder (only when service step and empty) */}
                 {heroStep === 'service' && !searchTerm && (
-                  <div style={{
-                    position: 'absolute',
-                    left: '0.5rem',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    pointerEvents: 'none',
-                    zIndex: 1,
-                    maxWidth: 'calc(100% - 1rem)',
-                    overflow: 'hidden'
-                  }}
-                  className="hero-placeholder"
+                  <div
+                    className="hero-placeholder"
+                    style={{
+                      position: 'absolute',
+                      left: '0.5rem',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      pointerEvents: 'none',
+                      zIndex: 1,
+                      maxWidth: 'calc(100% - 1rem)',
+                      overflow: 'hidden'
+                    }}
                   >
-                    <span style={{
-                      color: 'rgba(255, 255, 255, 0.4)',
-                      fontSize: 'clamp(1rem, 4vw, 1.125rem)',
-                      fontFamily: 'inherit',
-                      whiteSpace: 'nowrap'
-                    }}>
-                      Try "
-                    </span>
-                    <span style={{
-                      color: '#E94A02',
-                      fontSize: 'clamp(1rem, 4vw, 1.125rem)',
-                      fontFamily: 'inherit',
-                      fontWeight: '500',
-                      whiteSpace: 'nowrap'
-                    }}>
-                      {displayedText}
-                    </span>
+                    <span style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: 'clamp(1rem, 4vw, 1.125rem)', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>Try "</span>
+                    <span style={{ color: '#E94A02', fontSize: 'clamp(1rem, 4vw, 1.125rem)', fontFamily: 'inherit', fontWeight: '500', whiteSpace: 'nowrap' }}>{displayedText}</span>
                     <span style={{
                       width: '2px',
                       height: 'clamp(1rem, 4vw, 1.25rem)',
@@ -501,97 +332,39 @@ const HeroB2C = () => {
                       animation: 'blink 1s infinite',
                       opacity: isTyping ? 1 : 0,
                       flexShrink: 0
-                    }}></span>
-                    <span style={{
-                      color: 'rgba(255, 255, 255, 0.4)',
-                      fontSize: 'clamp(1rem, 4vw, 1.125rem)',
-                      fontFamily: 'inherit',
-                      whiteSpace: 'nowrap'
-                    }}>
-                      "
-                    </span>
+                    }} />
+                    <span style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: 'clamp(1rem, 4vw, 1.125rem)', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>"</span>
                   </div>
                 )}
                 <style>{`
-                  @keyframes blink {
-                    0%, 50% { opacity: 1; }
-                    51%, 100% { opacity: 0; }
-                  }
-                  
+                  @keyframes blink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0; } }
+                  .hero-search-container:focus-within { box-shadow: 0 12px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(233, 74, 2, 0.3); background-color: rgba(255, 255, 255, 0.12); }
                   @media (max-width: 768px) {
-                    .hero-b2c {
-                      align-items: flex-start !important;
-                      padding-top: 50px !important;
-                      padding-bottom: 2rem !important;
-                      min-height: auto !important;
-                    }
-                    .hero-b2c-inner {
-                      padding-top: 0.5rem !important;
-                      padding-bottom: 1.5rem !important;
-                    }
+                    .hero-b2c { align-items: flex-start !important; padding-top: 50px !important; padding-bottom: 2rem !important; min-height: auto !important; }
+                    .hero-b2c-inner { padding-top: 0.5rem !important; padding-bottom: 1.5rem !important; }
                   }
-                  
                   @media (max-width: 640px) {
-                    .hero-search-container {
-                      padding: 0.75rem !important;
-                      gap: 0.5rem !important;
-                    }
-                    
-                    .hero-search-container > div:first-child {
-                      padding: 0 0.5rem !important;
-                      flex-shrink: 0;
-                    }
-                    
-                    .hero-search-container > div:first-child svg {
-                      width: 18px !important;
-                      height: 18px !important;
-                    }
-                    
-                    .hero-search-container input {
-                      padding: 0.875rem 0.25rem !important;
-                      font-size: 0.9375rem !important;
-                    }
-                    
-                    .hero-search-container button {
-                      padding: 0.875rem 1.25rem !important;
-                      font-size: 0.875rem !important;
-                      gap: 0.375rem !important;
-                    }
-                    
-                    .hero-search-container button svg {
-                      width: 16px !important;
-                      height: 16px !important;
-                    }
+                    .hero-search-container { padding: 0.75rem !important; gap: 0.5rem !important; }
+                    .hero-search-container > div:first-child { padding: 0 0.5rem !important; flex-shrink: 0; }
+                    .hero-search-container > div:first-child svg { width: 18px !important; height: 18px !important; }
+                    .hero-search-container input { padding: 0.875rem 0.25rem !important; font-size: 0.9375rem !important; }
+                    .hero-search-container button { padding: 0.875rem 1.25rem !important; font-size: 0.875rem !important; gap: 0.375rem !important; }
+                    .hero-search-container button svg { width: 16px !important; height: 16px !important; }
                   }
-                  
                   @media (max-width: 480px) {
-                    .hero-search-container {
-                      padding: 0.5rem !important;
-                      gap: 0.375rem !important;
-                    }
-                    
-                    .hero-search-container button span {
-                      display: none;
-                    }
-                    
-                    .hero-search-container button {
-                      padding: 0.875rem 1rem !important;
-                      min-width: auto;
-                    }
-                    
-                    .hero-placeholder {
-                      left: 0.25rem !important;
-                      max-width: calc(100% - 120px) !important;
-                    }
-                    
-                    .hero-placeholder span {
-                      font-size: 0.875rem !important;
-                    }
+                    .hero-search-container { padding: 0.5rem !important; gap: 0.375rem !important; }
+                    .hero-search-container button span { display: none; }
+                    .hero-search-container button { padding: 0.875rem 1rem !important; min-width: auto; }
+                    .hero-placeholder { left: 0.25rem !important; max-width: calc(100% - 120px) !important; }
+                    .hero-placeholder span { font-size: 0.875rem !important; }
                   }
                 `}</style>
               </div>
-              <button
+              <motion.button
                 type="submit"
+                whileHover={{ backgroundColor: '#d13d00', scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ duration: 0.2 }}
                 style={{
                   backgroundColor: '#E94A02',
                   color: 'white',
@@ -604,39 +377,20 @@ const HeroB2C = () => {
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.5rem',
-                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   whiteSpace: 'nowrap',
                   flexShrink: 0,
                   letterSpacing: '-0.01em'
                 }}
-                onMouseEnter={(e) => {
-                  gsap.to(e.target, {
-                    backgroundColor: '#d13d00',
-                    scale: 1.02,
-                    duration: 0.3,
-                    ease: 'power2.out'
-                  });
-                }}
-                onMouseLeave={(e) => {
-                  gsap.to(e.target, {
-                    backgroundColor: '#E94A02',
-                    scale: 1,
-                    duration: 0.3
-                  });
-                }}
               >
                 <span>{heroStep === 'service' ? 'Continue' : 'Get instant price'}</span>
                 <ArrowRight size={18} />
-              </button>
-            </div>
+              </motion.button>
+            </motion.div>
             {postcodeError && (
-              <p style={{ color: '#f87171', fontSize: '0.875rem', marginTop: '0.5rem', marginBottom: 0 }}>
-                {postcodeError}
-              </p>
+              <p style={{ color: '#f87171', fontSize: '0.875rem', marginTop: '0.5rem', marginBottom: 0 }}>{postcodeError}</p>
             )}
-          </form>
+          </motion.form>
 
-          {/* Postcode step: show selected service + change link */}
           {heroStep === 'postcode' && (
             <div style={{
               display: 'flex',
@@ -654,13 +408,8 @@ const HeroB2C = () => {
                 type="button"
                 onClick={() => { setHeroStep('service'); setSearchTerm(''); setSelectedService(''); setPostcodeError(''); }}
                 style={{
-                  background: 'none',
-                  border: 'none',
-                  color: 'rgba(255,255,255,0.7)',
-                  fontSize: '0.875rem',
-                  textDecoration: 'underline',
-                  cursor: 'pointer',
-                  padding: 0
+                  background: 'none', border: 'none', color: 'rgba(255,255,255,0.7)',
+                  fontSize: '0.875rem', textDecoration: 'underline', cursor: 'pointer', padding: 0
                 }}
               >
                 Change service
@@ -668,9 +417,10 @@ const HeroB2C = () => {
             </div>
           )}
 
-          {/* Trust Indicators */}
-          <div 
-            ref={trustRef}
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            animate="visible"
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -680,14 +430,11 @@ const HeroB2C = () => {
               marginTop: '2rem'
             }}
           >
-            {[
-              'Fully vetted & insured professionals',
-              'Clear scopes and pricing',
-              'Dedicated operations team',
-              'Built for homes, landlords & businesses'
-            ].map((text, index) => (
-              <div
+            {trustItems.map((text, index) => (
+              <motion.div
                 key={index}
+                variants={fadeInUp}
+                transition={{ ...defaultTransition }}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -703,26 +450,26 @@ const HeroB2C = () => {
                   letterSpacing: '0.01em'
                 }}
               >
-                <span style={{ 
-                  color: '#E94A02',
-                  fontSize: '0.875rem',
-                  fontWeight: '600'
-                }}>✓</span>
+                <span style={{ color: '#E94A02', fontSize: '0.875rem', fontWeight: '600' }}>✓</span>
                 <span>{text}</span>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </div>
 
-      {/* Scroll Indicator */}
-      <div style={{
-        position: 'absolute',
-        bottom: '2rem',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        zIndex: 3
-      }}>
+      <motion.div
+        style={{
+          position: 'absolute',
+          bottom: '2rem',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 3
+        }}
+        onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
+        onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.4)'; }}
+        onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'; }}
+      >
         <div style={{
           width: '24px',
           height: '40px',
@@ -733,30 +480,11 @@ const HeroB2C = () => {
           paddingTop: '8px',
           cursor: 'pointer',
           transition: 'all 0.3s ease'
-        }}
-        onClick={() => {
-          window.scrollTo({
-            top: window.innerHeight,
-            behavior: 'smooth'
-          });
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.4)';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)';
-        }}
-        >
-          <div style={{
-            width: '4px',
-            height: '8px',
-            backgroundColor: 'rgba(255,255,255,0.5)',
-            borderRadius: '2px'
-          }}></div>
+        }}>
+          <div style={{ width: '4px', height: '8px', backgroundColor: 'rgba(255,255,255,0.5)', borderRadius: '2px' }} />
         </div>
-      </div>
-
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 

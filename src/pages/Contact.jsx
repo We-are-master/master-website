@@ -1,12 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState } from 'react'
+import { motion } from 'framer-motion'
 import { Phone, Mail, MapPin, Send, Clock, CheckCircle, ArrowRight } from 'lucide-react'
-import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { SEO } from '../components/SEO'
 
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger)
-}
+const fadeInUp = { hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0 } }
+const stagger = { visible: { transition: { staggerChildren: 0.08 } } }
+const transition = { type: 'tween', ease: [0.25, 0.46, 0.45, 0.94], duration: 0.6 }
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -17,122 +16,6 @@ const Contact = () => {
     businessType: '',
     message: ''
   })
-
-  const heroRef = useRef(null)
-  const formRef = useRef(null)
-  const infoRef = useRef(null)
-  const ctaRef = useRef(null)
-
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      // Animate hero
-      if (heroRef.current) {
-        gsap.fromTo(heroRef.current.querySelector('h1'),
-          { opacity: 0, y: 30 },
-          { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }
-        )
-        gsap.fromTo(heroRef.current.querySelector('p'),
-          { opacity: 0, y: 20 },
-          { opacity: 1, y: 0, duration: 0.8, delay: 0.2, ease: 'power3.out' }
-        )
-        const buttons = heroRef.current.querySelectorAll('a')
-        gsap.fromTo(buttons,
-          { opacity: 0, y: 20 },
-          { opacity: 1, y: 0, duration: 0.6, delay: 0.4, stagger: 0.1, ease: 'power3.out' }
-        )
-      }
-
-      // Animate form section
-      if (formRef.current) {
-        gsap.fromTo(formRef.current,
-          { opacity: 0, y: 40 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.8,
-            ease: 'power3.out',
-            scrollTrigger: {
-              trigger: formRef.current,
-              start: 'top 80%'
-            }
-          }
-        )
-      }
-
-      // Animate contact info cards
-      if (infoRef.current) {
-        const cards = Array.from(infoRef.current.children)
-        gsap.fromTo(cards,
-          { opacity: 0, y: 40, scale: 0.95 },
-          {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            duration: 0.6,
-            stagger: 0.1,
-            ease: 'power3.out',
-            scrollTrigger: {
-              trigger: infoRef.current,
-              start: 'top 80%'
-            }
-          }
-        )
-
-        // Add hover animations
-        cards.forEach((card) => {
-          const icon = card.querySelector('.contact-icon')
-          card.addEventListener('mouseenter', () => {
-            gsap.to(card, {
-              y: -4,
-              boxShadow: '0 8px 24px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.08)',
-              duration: 0.3,
-              ease: 'cubic-bezier(0.4, 0, 0.2, 1)'
-            })
-            if (icon) {
-              gsap.to(icon, {
-                scale: 1.1,
-                rotation: 5,
-                duration: 0.3
-              })
-            }
-          })
-          card.addEventListener('mouseleave', () => {
-            gsap.to(card, {
-              y: 0,
-              boxShadow: '0 2px 8px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06)',
-              duration: 0.3
-            })
-            if (icon) {
-              gsap.to(icon, {
-                scale: 1,
-                rotation: 0,
-                duration: 0.3
-              })
-            }
-          })
-        })
-      }
-
-      // Animate CTA card
-      if (ctaRef.current) {
-        gsap.fromTo(ctaRef.current,
-          { opacity: 0, scale: 0.95 },
-          {
-            opacity: 1,
-            scale: 1,
-            duration: 0.8,
-            ease: 'back.out(1.7)',
-            scrollTrigger: {
-              trigger: ctaRef.current,
-              start: 'top 80%'
-            }
-          }
-        )
-      }
-    })
-
-    return () => ctx.revert()
-  }, [])
 
   const handleChange = (e) => {
     setFormData({
@@ -235,8 +118,10 @@ const Contact = () => {
         maxWidth: '100vw'
       }}>
       {/* Hero Section */}
-      <section 
-        ref={heroRef}
+      <motion.section
+        initial="hidden"
+        animate="visible"
+        variants={stagger}
         style={{
           padding: '8rem 0 6rem',
           background: '#020034',
@@ -269,7 +154,7 @@ const Contact = () => {
 
         <div className="container" style={{ position: 'relative', zIndex: 2 }}>
           <div style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
-            <h1 style={{
+            <motion.h1 variants={fadeInUp} transition={transition} style={{
               fontSize: 'clamp(2.5rem, 5vw, 4rem)',
               fontWeight: '600',
               color: 'white',
@@ -279,8 +164,8 @@ const Contact = () => {
               lineHeight: '1.1'
             }}>
               Get in Touch Today
-            </h1>
-            <p style={{
+            </motion.h1>
+            <motion.p variants={fadeInUp} transition={transition} style={{
               fontSize: 'clamp(1.125rem, 2vw, 1.375rem)',
               color: 'rgba(255,255,255,0.7)',
               lineHeight: '1.5',
@@ -290,16 +175,18 @@ const Contact = () => {
             }}>
               Ready to streamline your property maintenance? Contact our team to discuss 
               how Master can help your business.
-            </p>
-            <div style={{
+            </motion.p>
+            <motion.div variants={fadeInUp} transition={transition} style={{
               display: 'flex',
               flexDirection: 'row',
               gap: '1rem',
               justifyContent: 'center',
               flexWrap: 'wrap'
             }}>
-              <a
+              <motion.a
                 href="tel:+447983182332"
+                whileHover={{ backgroundColor: '#d13d00', scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 style={{
                   backgroundColor: '#E94A02',
                   color: 'white',
@@ -312,29 +199,16 @@ const Contact = () => {
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '0.5rem',
-                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   letterSpacing: '-0.01em'
-                }}
-                onMouseEnter={(e) => {
-                  gsap.to(e.target, {
-                    backgroundColor: '#d13d00',
-                    scale: 1.02,
-                    duration: 0.3
-                  })
-                }}
-                onMouseLeave={(e) => {
-                  gsap.to(e.target, {
-                    backgroundColor: '#E94A02',
-                    scale: 1,
-                    duration: 0.3
-                  })
                 }}
               >
                 <Phone size={18} />
                 <span>Call Now</span>
-              </a>
-              <a
+              </motion.a>
+              <motion.a
                 href="mailto:hello@wearemaster.com"
+                whileHover={{ backgroundColor: 'rgba(255,255,255,0.1)', borderColor: 'rgba(255,255,255,0.5)' }}
+                whileTap={{ scale: 0.98 }}
                 style={{
                   backgroundColor: 'transparent',
                   color: 'white',
@@ -347,31 +221,16 @@ const Contact = () => {
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '0.5rem',
-                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   letterSpacing: '-0.01em'
-                }}
-                onMouseEnter={(e) => {
-                  gsap.to(e.target, {
-                    backgroundColor: 'rgba(255,255,255,0.1)',
-                    borderColor: 'rgba(255,255,255,0.5)',
-                    duration: 0.3
-                  })
-                }}
-                onMouseLeave={(e) => {
-                  gsap.to(e.target, {
-                    backgroundColor: 'transparent',
-                    borderColor: 'rgba(255,255,255,0.3)',
-                    duration: 0.3
-                  })
                 }}
               >
                 <Mail size={18} />
                 <span>Email Us</span>
-              </a>
-            </div>
+              </motion.a>
+            </motion.div>
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Contact Form & Info */}
       <section style={{ 
@@ -389,8 +248,11 @@ const Contact = () => {
             alignItems: 'start'
           }}>
             {/* Contact Form */}
-            <div 
-              ref={formRef}
+            <motion.div
+              initial={{ opacity: 0, y: 32 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={transition}
               style={{
                 backgroundColor: 'white',
                 borderRadius: '12px',
@@ -651,8 +513,10 @@ const Contact = () => {
                   />
                 </div>
 
-                <button
+                <motion.button
                   type="submit"
+                  whileHover={{ backgroundColor: '#d13d00', scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                   style={{
                     width: '100%',
                     backgroundColor: '#E94A02',
@@ -667,36 +531,30 @@ const Contact = () => {
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: '0.5rem',
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     letterSpacing: '-0.01em'
-                  }}
-                  onMouseEnter={(e) => {
-                    gsap.to(e.target, {
-                      backgroundColor: '#d13d00',
-                      scale: 1.02,
-                      duration: 0.3
-                    })
-                  }}
-                  onMouseLeave={(e) => {
-                    gsap.to(e.target, {
-                      backgroundColor: '#E94A02',
-                      scale: 1,
-                      duration: 0.3
-                    })
                   }}
                 >
                   <Send size={18} />
                   <span>Send Message</span>
-                </button>
+                </motion.button>
               </form>
-            </div>
+            </motion.div>
 
             {/* Contact Information */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-              <div ref={infoRef}>
+              <motion.div
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.1 }}
+                variants={stagger}
+                style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}
+              >
                 {contactInfo.map((info, index) => (
-                  <div
+                  <motion.div
                     key={index}
+                    variants={fadeInUp}
+                    transition={transition}
+                    whileHover={{ y: -4, boxShadow: '0 8px 24px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.08)' }}
                     style={{
                       backgroundColor: 'white',
                       borderRadius: '12px',
@@ -704,13 +562,13 @@ const Contact = () => {
                       boxShadow: '0 2px 8px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06)',
                       border: '1px solid rgba(0,0,0,0.06)',
                       marginBottom: '1.5rem',
-                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                       cursor: 'pointer'
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
-                      <div 
+                      <motion.div
                         className="contact-icon"
+                        whileHover={{ scale: 1.1, rotate: 5 }}
                         style={{
                           width: '48px',
                           height: '48px',
@@ -724,7 +582,7 @@ const Contact = () => {
                         }}
                       >
                         {info.icon}
-                      </div>
+                      </motion.div>
                       <div style={{ flex: 1 }}>
                         <h3 style={{
                           fontSize: '1.125rem',
@@ -757,13 +615,16 @@ const Contact = () => {
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
 
               {/* Quick Response Promise */}
-              <div 
-                ref={ctaRef}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.96 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ type: 'tween', ease: [0.34, 1.56, 0.64, 1], duration: 0.5 }}
                 style={{
                   backgroundColor: '#020034',
                   borderRadius: '12px',
@@ -806,7 +667,7 @@ const Contact = () => {
                     ))}
                   </div>
                 </div>
-              </div>
+              </motion.div>
             </div>
           </div>
         </div>

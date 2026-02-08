@@ -1,6 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import {
+  ChevronLeft,
+  Building2,
+  Home,
+  Bed,
+  Bath,
+  Minus,
+  Plus,
+  Flame,
+  Refrigerator,
+  Snowflake,
+  Armchair,
+  LayoutGrid,
+  ShieldCheck,
+  Shield,
+  Sparkles,
+  BadgeCheck,
+  ArrowRight,
+  Info,
+} from 'lucide-react';
 import { SEO } from '../components/SEO';
+import '../styles/booking-premium.css';
+
+const ADDON_ICONS = {
+  oven_gen: Flame,
+  kitchen: Refrigerator,
+  ac_unit: Snowflake,
+  chair: Armchair,
+  carpet: LayoutGrid,
+};
 
 const B2CCleaningBooking = () => {
   const navigate = useNavigate();
@@ -12,27 +41,12 @@ const B2CCleaningBooking = () => {
   const [bathrooms, setBathrooms] = useState(1);
   const [selectedAddons, setSelectedAddons] = useState(new Set(['oven']));
   const [estimatedPrice, setEstimatedPrice] = useState(231);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' && window.innerWidth < 768);
 
-  // Detect screen size for responsive layout
   useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  // Load Material Symbols font
-  useEffect(() => {
-    const link = document.createElement('link');
-    link.href = 'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap';
-    link.rel = 'stylesheet';
-    document.head.appendChild(link);
-    
-    return () => {
-      document.head.removeChild(link);
-    };
   }, []);
 
   const services = [
@@ -42,10 +56,14 @@ const B2CCleaningBooking = () => {
   ];
 
   const addons = [
-    { id: 'oven', icon: 'oven_gen', label: 'Oven Clean', price: 15 },
-    { id: 'fridge', icon: 'kitchen', label: 'Inside Fridge', price: 12 },
-    { id: 'freezer', icon: 'ac_unit', label: 'Inside Freezer', price: 12 }
+    { id: 'oven', icon: 'oven_gen', label: 'Oven Clean', price: 15, group: 'kitchen' },
+    { id: 'fridge', icon: 'kitchen', label: 'Inside Fridge', price: 12, group: 'kitchen' },
+    { id: 'freezer', icon: 'ac_unit', label: 'Inside Freezer', price: 12, group: 'kitchen' },
+    { id: 'steam_sofa', icon: 'chair', label: 'Steam - Sofa', price: 25, group: 'steam' },
+    { id: 'steam_carpet', icon: 'carpet', label: 'Steam - Carpet', price: 30, group: 'steam' }
   ];
+  const kitchenAddons = addons.filter(a => a.group === 'kitchen');
+  const steamAddons = addons.filter(a => a.group === 'steam');
 
   const toggleAddon = (addonId) => {
     setSelectedAddons(prev => {
@@ -97,10 +115,18 @@ const B2CCleaningBooking = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bedrooms, bathrooms, selectedAddons, selectedService, propertyType]);
 
+  const getServiceLabel = () => services.find(s => s.id === selectedService)?.label || 'Cleaning';
+
+  const postcode = location.state?.postcode || '';
+
   const handleContinue = () => {
     navigate('/checkout', {
       state: {
+        postcode,
         service: {
+          id: 'cleaning',
+          title: `Cleaning · ${getServiceLabel()}`,
+          category: 'cleaning',
           type: selectedService,
           propertyType,
           bedrooms,
@@ -114,810 +140,241 @@ const B2CCleaningBooking = () => {
 
   return (
     <>
-      <SEO 
-        title="Master Cleaning Pro - Book Your Cleaning Service"
-        description="Professional cleaning services with AI-powered pricing. End of tenancy, deep clean, and after builders cleaning available."
+      <SEO
+        title="Cleaning — Master"
+        description="Professional cleaning: end of tenancy, deep clean, after builders. Transparent pricing, premium equipment."
       />
-      
-      {/* Material Symbols CSS */}
-      <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
       <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-      
-      <div className="dark" style={{
-        minHeight: '100dvh',
-        background: 'linear-gradient(180deg, #020034 0%, #020030 100%)',
-        fontFamily: "'Manrope', sans-serif",
-        color: 'white',
-        display: 'flex',
-        flexDirection: 'column'
-      }}>
-        {/* Header */}
-        <header style={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 50,
-          background: 'rgba(2, 0, 52, 0.95)',
-          backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
-          width: '100%'
-        }}>
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            padding: isMobile ? '16px 20px' : '20px 40px', 
-            justifyContent: 'space-between',
-            maxWidth: isMobile ? '100%' : '1200px',
-            margin: '0 auto',
-            width: '100%'
-          }}>
-            <div style={{ display: 'flex', width: '40px', height: '40px', flexShrink: 0, alignItems: 'center', justifyContent: 'flex-start' }}>
-              <span 
-                className="material-symbols-outlined" 
-                style={{ cursor: 'pointer', fontSize: '24px' }}
-                onClick={() => navigate(-1)}
-                onMouseEnter={(e) => e.target.style.opacity = '0.7'}
-                onMouseLeave={(e) => e.target.style.opacity = '1'}
-              >
-                arrow_back_ios
-              </span>
+
+      <div className="bkp bkp-dark">
+        <header className="bkp-header">
+          <div className="bkp-header-inner">
+            <div style={{ display: 'flex', alignItems: 'center', padding: '16px 0', justifyContent: 'space-between', width: '100%' }}>
+              <button type="button" onClick={() => navigate(-1)} aria-label="Back" className="bkp-btn-icon" style={{ color: 'var(--bkp-text)' }}>
+                <ChevronLeft size={24} aria-hidden />
+              </button>
+              <h1 className="bkp-title-page" style={{ flex: 1, textAlign: 'center', margin: 0 }}>Cleaning</h1>
+              <div style={{ width: 44, height: 44 }} aria-hidden />
             </div>
-            <h1 style={{ 
-              color: 'white', 
-              fontSize: isMobile ? '18px' : '20px', 
-              fontWeight: 800, 
-              lineHeight: '1.25', 
-              letterSpacing: '-0.02em',
-              flex: 1, 
-              textAlign: 'center',
-              fontFamily: "'Manrope', sans-serif"
-            }}>
-              Master Cleaning Pro
-            </h1>
-            <div style={{ width: '40px', height: '40px', flexShrink: 0 }}></div>
-          </div>
-          
-          {/* Service Tabs */}
-          <div style={{ 
-            padding: isMobile ? '0 20px' : '0 40px',
-            paddingTop: '32px', 
-            paddingBottom: '16px', 
-            overflow: 'visible',
-            maxWidth: isMobile ? '100%' : '1200px',
-            margin: '0 auto'
-          }}>
-            <div style={{ 
-              display: 'flex', 
-              overflowX: isMobile ? 'auto' : 'visible',
-              justifyContent: isMobile ? 'flex-start' : 'center',
-              scrollSnapType: isMobile ? 'x mandatory' : 'none',
-              gap: '12px',
-              paddingBottom: '8px',
-              marginTop: '-16px',
-              scrollbarWidth: 'none',
-              msOverflowStyle: 'none'
-            }} className="hide-scrollbar">
+            {/* Service type — segment control */}
+            <div style={{ display: 'flex', gap: 8, padding: '4px', background: 'var(--bkp-bg-surface)', borderRadius: 'var(--bkp-radius-md)', border: '1px solid var(--bkp-border-subtle)', marginBottom: 16 }}>
               {services.map((service) => (
-                <div key={service.id} style={{ 
-                  scrollSnapAlign: isMobile ? 'center' : 'none', 
-                  flexShrink: 0, 
-                  width: isMobile ? '140px' : 'auto',
-                  minWidth: isMobile ? '140px' : '160px',
-                  paddingTop: '16px' 
-                }}>
-                  <button
-                    onClick={() => setSelectedService(service.id)}
-                    style={{
-                      width: '100%',
-                      padding: '12px 8px',
-                      fontSize: '11px',
-                      fontWeight: 800,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.05em',
-                      borderRadius: '12px',
-                      cursor: 'pointer',
-                      position: 'relative',
-                      background: selectedService === service.id 
-                        ? '#ED4B00' 
-                        : 'rgba(255, 255, 255, 0.05)',
-                      color: selectedService === service.id ? 'white' : 'rgba(255, 255, 255, 0.6)',
-                      border: selectedService === service.id ? 'none' : '1px solid rgba(255, 255, 255, 0.1)',
-                      boxSizing: 'border-box',
-                      boxShadow: selectedService === service.id ? '0 10px 15px -3px rgba(237, 75, 0, 0.2)' : 'none',
-                      transition: 'all 0.2s',
-                      outline: 'none'
-                    }}
-                  >
-                    {service.label}
-                    {service.badge && selectedService === service.id && (
-                      <span style={{
-                        position: 'absolute',
-                        top: '-8px',
-                        left: '50%',
-                        transform: 'translateX(-50%)',
-                        background: 'white',
-                        color: '#ED4B00',
-                        fontSize: '7px',
-                        padding: '4px 10px',
-                        borderRadius: '9999px',
-                        whiteSpace: 'nowrap',
-                        border: 'none',
-                        fontWeight: 900,
-                        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.2)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        letterSpacing: '0.05em'
-                      }}>
-                        {service.badge}
-                      </span>
-                    )}
-                  </button>
-                </div>
+                <button
+                  key={service.id}
+                  type="button"
+                  onClick={() => setSelectedService(service.id)}
+                  style={{
+                    flex: 1,
+                    minHeight: 44,
+                    padding: '10px 12px',
+                    fontSize: 13,
+                    fontWeight: 700,
+                    borderRadius: 8,
+                    border: 'none',
+                    cursor: 'pointer',
+                    background: selectedService === service.id ? 'var(--bkp-primary)' : 'transparent',
+                    color: selectedService === service.id ? '#fff' : 'var(--bkp-text-secondary)',
+                    transition: 'all 0.2s',
+                    outline: 'none'
+                  }}
+                >
+                  {service.label}
+                </button>
               ))}
             </div>
-          </div>
-          
-          {/* Progress Bar */}
-          <div style={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
-            gap: '8px', 
-            padding: isMobile ? '0 20px 16px' : '0 40px 16px',
-            maxWidth: isMobile ? '100%' : '1200px',
-            margin: '0 auto'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <p style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                Configuration
-              </p>
-              <p style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                Step 1 of 3
-              </p>
-            </div>
-            <div style={{ borderRadius: '9999px', background: 'rgba(255, 255, 255, 0.1)', height: '6px', overflow: 'hidden' }}>
-              <div style={{ 
-                height: '100%', 
-                borderRadius: '9999px', 
-                background: '#ED4B00',
-                width: '33%',
-                transition: 'width 0.3s'
-              }}></div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: '0 0 16px', width: '100%' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span className="bkp-label">Configuration</span>
+                <span className="bkp-label">Step 1 of 2</span>
+              </div>
+              <div className="bkp-progress-track">
+                <div className="bkp-progress-fill" style={{ width: '50%' }} />
+              </div>
             </div>
           </div>
         </header>
 
-        {/* Main Content */}
-        <main style={{ 
-          flex: 1, 
-          padding: isMobile ? '24px 20px' : '32px 40px',
-          paddingBottom: isMobile ? '320px' : '24px',
-          display: 'flex', 
-          flexDirection: 'column', 
-          gap: isMobile ? '32px' : '40px',
-          maxWidth: isMobile ? '100%' : '1200px',
-          margin: '0 auto',
-          width: '100%',
-          position: 'relative'
-        }}>
-          {/* Premium Equipment Badge */}
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              borderRadius: '9999px',
-              background: 'rgba(255, 255, 255, 0.05)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              padding: '8px 20px'
-            }}>
-              <span className="material-symbols-outlined" style={{ color: '#ED4B00', fontSize: '16px' }}>
-                verified_user
-              </span>
-              <p style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '10px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                Premium Equipment Included
-              </p>
+        <main className="bkp-main">
+          <section style={{ padding: '0 0 24px', textAlign: 'center' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', justifyContent: 'center', color: 'var(--bkp-text-secondary)', fontSize: 'var(--bkp-text-sm)', fontWeight: 600 }}>
+              <ShieldCheck size={18} color="var(--bkp-primary)" aria-hidden />
+              <span>Premium equipment</span>
+              <span style={{ color: 'var(--bkp-border-subtle)' }}>·</span>
+              <span>48h guarantee</span>
+              <span style={{ color: 'var(--bkp-border-subtle)' }}>·</span>
+              <span>Transparent price</span>
             </div>
-          </div>
+          </section>
 
-          {/* Property Type Section */}
-          <section style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 4px' }}>
-              <h3 style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                1. Property Type
-              </h3>
-            </div>
-            <div style={{ 
-              display: 'grid', 
-              gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(2, minmax(200px, 1fr))',
-              gap: isMobile ? '16px' : '24px',
-              maxWidth: isMobile ? '100%' : '600px'
-            }}>
+          <section className="bkp-section" style={{ padding: '0' }} aria-labelledby="property-heading">
+            <h2 id="property-heading" className="bkp-label" style={{ marginBottom: 12 }}>Property type</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               <button
+                type="button"
                 onClick={() => setPropertyType('flat')}
-                style={{
-                  background: propertyType === 'flat' 
-                    ? 'rgba(237, 75, 0, 0.1)' 
-                    : 'rgba(255, 255, 255, 0.05)',
-                  backdropFilter: 'blur(12px)',
-                  WebkitBackdropFilter: 'blur(12px)',
-                  border: propertyType === 'flat' 
-                    ? '2px solid #ED4B00' 
-                    : '1px solid rgba(255, 255, 255, 0.1)',
-                  boxSizing: 'border-box',
-                  borderRadius: '16px',
-                  padding: '24px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '12px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  boxShadow: propertyType === 'flat' ? '0 20px 25px -5px rgba(237, 75, 0, 0.1)' : 'none',
-                  outline: 'none'
-                }}
-                onMouseEnter={(e) => {
-                  if (propertyType !== 'flat') {
-                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (propertyType !== 'flat') {
-                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                  }
-                }}
+                className={`bkp-card ${propertyType === 'flat' ? 'bkp-card-selected' : ''}`}
+                style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, padding: isMobile ? 20 : 24, cursor: 'pointer', border: 'none', outline: 'none', font: 'inherit', color: 'inherit', minHeight: 100 }}
               >
-                <span className="material-symbols-outlined" style={{ 
-                  fontSize: '48px', 
-                  color: propertyType === 'flat' ? '#ED4B00' : 'rgba(255, 255, 255, 0.4)'
-                }}>
-                  apartment
-                </span>
-                <span style={{ fontSize: '14px', fontWeight: 800, letterSpacing: '-0.02em', color: 'white' }}>
-                  Flat
-                </span>
+                <Building2 size={40} color={propertyType === 'flat' ? 'var(--bkp-primary)' : 'var(--bkp-text-tertiary)'} aria-hidden />
+                <span className="bkp-card-title" style={{ fontSize: 'var(--bkp-text-base)' }}>Flat</span>
               </button>
-              
               <button
+                type="button"
                 onClick={() => setPropertyType('house')}
-                style={{
-                  background: propertyType === 'house' 
-                    ? 'rgba(237, 75, 0, 0.1)' 
-                    : 'rgba(255, 255, 255, 0.05)',
-                  backdropFilter: 'blur(12px)',
-                  WebkitBackdropFilter: 'blur(12px)',
-                  border: propertyType === 'house' 
-                    ? '2px solid #ED4B00' 
-                    : '1px solid rgba(255, 255, 255, 0.1)',
-                  boxSizing: 'border-box',
-                  borderRadius: '16px',
-                  padding: '24px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '12px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  boxShadow: propertyType === 'house' ? '0 20px 25px -5px rgba(237, 75, 0, 0.1)' : 'none',
-                  outline: 'none'
-                }}
-                onMouseEnter={(e) => {
-                  if (propertyType !== 'house') {
-                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (propertyType !== 'house') {
-                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                  }
-                }}
+                className={`bkp-card ${propertyType === 'house' ? 'bkp-card-selected' : ''}`}
+                style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, padding: isMobile ? 20 : 24, cursor: 'pointer', border: 'none', outline: 'none', font: 'inherit', color: 'inherit', minHeight: 100 }}
               >
-                <span className="material-symbols-outlined" style={{ 
-                  fontSize: '48px', 
-                  color: propertyType === 'house' ? '#ED4B00' : 'rgba(255, 255, 255, 0.4)'
-                }}>
-                  home
-                </span>
-                <span style={{ fontSize: '14px', fontWeight: 800, letterSpacing: '-0.02em', color: 'white' }}>
-                  House
-                </span>
+                <Home size={40} color={propertyType === 'house' ? 'var(--bkp-primary)' : 'var(--bkp-text-tertiary)'} aria-hidden />
+                <span className="bkp-card-title" style={{ fontSize: 'var(--bkp-text-base)' }}>House</span>
               </button>
             </div>
           </section>
 
-          {/* Service Details Section */}
-          <section style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 4px' }}>
-              <h3 style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                2. Service Details
-              </h3>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {/* Bedrooms */}
-              <div style={{
-                background: 'rgba(255, 255, 255, 0.05)',
-                backdropFilter: 'blur(12px)',
-                WebkitBackdropFilter: 'blur(12px)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                borderRadius: '16px',
-                padding: '20px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                  <div style={{
-                    width: '44px',
-                    height: '44px',
-                    borderRadius: '12px',
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    border: '1px solid rgba(255, 255, 255, 0.05)'
-                  }}>
-                    <span className="material-symbols-outlined" style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '24px' }}>
-                      bed
-                    </span>
+          <section className="bkp-section" style={{ padding: '0' }} aria-labelledby="details-heading">
+            <h2 id="details-heading" className="bkp-label" style={{ marginBottom: 12 }}>Rooms</h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div className="bkp-card" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 16, padding: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14, minWidth: 0, flex: 1 }}>
+                  <div style={{ width: 48, height: 48, flexShrink: 0, borderRadius: 'var(--bkp-radius-md)', background: 'var(--bkp-bg-surface-hover)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Bed size={24} color="var(--bkp-text-secondary)" aria-hidden />
                   </div>
                   <div>
-                    <p style={{ color: 'white', fontSize: '16px', fontWeight: 700 }}>Bedrooms</p>
-                    <p style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: '10px', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '-0.02em' }}>
-                      Standard cleaning
-                    </p>
+                    <p className="bkp-card-title" style={{ margin: 0, fontSize: 'var(--bkp-text-base)' }}>Bedrooms</p>
+                    <p className="bkp-card-subtitle" style={{ margin: '2px 0 0' }}>All rooms cleaned</p>
                   </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                  <button
-                    onClick={() => setBedrooms(Math.max(0, bedrooms - 1))}
-                    className="stepper-btn"
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      minWidth: '44px',
-                      minHeight: '44px',
-                      borderRadius: '9999px',
-                      background: 'rgba(255, 255, 255, 0.1)',
-                      border: 'none',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s',
-                      color: 'white'
-                    }}
-                    onMouseEnter={(e) => e.target.style.transform = 'scale(0.9)'}
-                    onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
-                  >
-                    <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>remove</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                  <button type="button" onClick={() => setBedrooms(Math.max(0, bedrooms - 1))} className="bkp-btn-stepper" style={{ width: 44, height: 44, minWidth: 44, minHeight: 44, background: 'var(--bkp-bg-surface-hover)', color: 'var(--bkp-text)', display: 'flex', alignItems: 'center', justifyContent: 'center' }} aria-label="Fewer bedrooms">
+                    <Minus size={20} aria-hidden />
                   </button>
-                  <span style={{ fontSize: '20px', fontWeight: 900, width: '20px', textAlign: 'center' }}>
-                    {bedrooms}
-                  </span>
-                  <button
-                    onClick={() => setBedrooms(bedrooms + 1)}
-                    className="stepper-btn"
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      minWidth: '44px',
-                      minHeight: '44px',
-                      borderRadius: '9999px',
-                      background: '#ED4B00',
-                      border: 'none',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s',
-                      color: 'white'
-                    }}
-                    onMouseEnter={(e) => e.target.style.transform = 'scale(0.9)'}
-                    onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
-                  >
-                    <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>add</span>
+                  <span style={{ fontSize: 'var(--bkp-text-xl)', fontWeight: 800, minWidth: 28, textAlign: 'center', color: 'var(--bkp-text)' }}>{bedrooms}</span>
+                  <button type="button" onClick={() => setBedrooms(bedrooms + 1)} className="bkp-btn-stepper" style={{ width: 44, height: 44, minWidth: 44, minHeight: 44, background: 'var(--bkp-primary)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }} aria-label="More bedrooms">
+                    <Plus size={20} aria-hidden />
                   </button>
                 </div>
               </div>
-
-              {/* Bathrooms */}
-              <div style={{
-                background: 'rgba(255, 255, 255, 0.05)',
-                backdropFilter: 'blur(12px)',
-                WebkitBackdropFilter: 'blur(12px)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                borderRadius: '16px',
-                padding: '20px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                  <div style={{
-                    width: '44px',
-                    height: '44px',
-                    borderRadius: '12px',
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    border: '1px solid rgba(255, 255, 255, 0.05)'
-                  }}>
-                    <span className="material-symbols-outlined" style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '24px' }}>
-                      bathtub
-                    </span>
+              <div className="bkp-card" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 16, padding: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14, minWidth: 0, flex: 1 }}>
+                  <div style={{ width: 48, height: 48, flexShrink: 0, borderRadius: 'var(--bkp-radius-md)', background: 'var(--bkp-bg-surface-hover)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Bath size={24} color="var(--bkp-text-secondary)" aria-hidden />
                   </div>
                   <div>
-                    <p style={{ color: 'white', fontSize: '16px', fontWeight: 700 }}>Bathrooms</p>
-                    <p style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: '10px', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '-0.02em' }}>
-                      Deep sanitization
-                    </p>
+                    <p className="bkp-card-title" style={{ margin: 0, fontSize: 'var(--bkp-text-base)' }}>Bathrooms</p>
+                    <p className="bkp-card-subtitle" style={{ margin: '2px 0 0' }}>Deep sanitisation</p>
                   </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                  <button
-                    onClick={() => setBathrooms(Math.max(0, bathrooms - 1))}
-                    className="stepper-btn"
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      minWidth: '44px',
-                      minHeight: '44px',
-                      borderRadius: '9999px',
-                      background: 'rgba(255, 255, 255, 0.1)',
-                      border: 'none',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s',
-                      color: 'white'
-                    }}
-                    onMouseEnter={(e) => e.target.style.transform = 'scale(0.9)'}
-                    onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
-                  >
-                    <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>remove</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                  <button type="button" onClick={() => setBathrooms(Math.max(0, bathrooms - 1))} className="bkp-btn-stepper" style={{ width: 44, height: 44, minWidth: 44, minHeight: 44, background: 'var(--bkp-bg-surface-hover)', color: 'var(--bkp-text)', display: 'flex', alignItems: 'center', justifyContent: 'center' }} aria-label="Fewer bathrooms">
+                    <Minus size={20} aria-hidden />
                   </button>
-                  <span style={{ fontSize: '20px', fontWeight: 900, width: '20px', textAlign: 'center' }}>
-                    {bathrooms}
-                  </span>
-                  <button
-                    onClick={() => setBathrooms(bathrooms + 1)}
-                    className="stepper-btn"
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      minWidth: '44px',
-                      minHeight: '44px',
-                      borderRadius: '9999px',
-                      background: '#ED4B00',
-                      border: 'none',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s',
-                      color: 'white'
-                    }}
-                    onMouseEnter={(e) => e.target.style.transform = 'scale(0.9)'}
-                    onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
-                  >
-                    <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>add</span>
+                  <span style={{ fontSize: 'var(--bkp-text-xl)', fontWeight: 800, minWidth: 28, textAlign: 'center', color: 'var(--bkp-text)' }}>{bathrooms}</span>
+                  <button type="button" onClick={() => setBathrooms(bathrooms + 1)} className="bkp-btn-stepper" style={{ width: 44, height: 44, minWidth: 44, minHeight: 44, background: 'var(--bkp-primary)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }} aria-label="More bathrooms">
+                    <Plus size={20} aria-hidden />
                   </button>
                 </div>
               </div>
             </div>
           </section>
 
-          {/* Add-ons Section */}
-          <section style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 4px' }}>
-              <h3 style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                3. Enhance Your Visit
-              </h3>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <p style={{ fontSize: '10px', fontWeight: 700, color: 'rgba(255, 255, 255, 0.6)', textTransform: 'uppercase', letterSpacing: '0.1em', padding: '0 4px' }}>
-                Kitchen Add-ons
-              </p>
-              <div style={{ 
-                display: 'flex', 
-                overflowX: isMobile ? 'auto' : 'visible',
-                justifyContent: isMobile ? 'flex-start' : 'flex-start',
-                flexWrap: isMobile ? 'nowrap' : 'wrap',
-                gap: '12px',
-                padding: '0 4px',
-                scrollbarWidth: 'none',
-                msOverflowStyle: 'none'
-              }} className="hide-scrollbar">
-                {addons.map((addon) => {
-                  const isSelected = selectedAddons.has(addon.id);
-                  return (
-                    <div
-                      key={addon.id}
-                      onClick={() => toggleAddon(addon.id)}
-                      style={{
-                        background: isSelected 
-                          ? 'rgba(237, 75, 0, 0.1)' 
-                          : 'rgba(255, 255, 255, 0.05)',
-                        backdropFilter: 'blur(12px)',
-                        WebkitBackdropFilter: 'blur(12px)',
-                        border: isSelected 
-                          ? '2px solid #ED4B00' 
-                          : '1px solid rgba(255, 255, 255, 0.1)',
-                        boxSizing: 'border-box',
-                        borderRadius: '16px',
-                        padding: '16px',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        minWidth: isMobile ? '120px' : '140px',
-                        flex: isMobile ? '0 0 auto' : '0 0 calc(33.333% - 8px)',
-                        alignItems: 'center',
-                        textAlign: 'center',
-                        gap: '8px',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s',
-                        outline: 'none'
-                      }}
-                      onMouseEnter={(e) => {
-                        if (!isSelected) {
-                          e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (!isSelected) {
-                          e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                        }
-                      }}
-                    >
-                      <span 
-                        className="material-symbols-outlined" 
-                        style={{ 
-                          fontSize: '24px', 
-                          color: isSelected ? '#ED4B00' : 'rgba(255, 255, 255, 0.4)',
-                          fontVariationSettings: isSelected ? '"FILL" 1' : '"FILL" 0'
-                        }}
-                      >
-                        {addon.icon}
-                      </span>
-                      <p style={{ 
-                        fontSize: '12px', 
-                        fontWeight: 700, 
-                        lineHeight: '1.25',
-                        color: isSelected ? 'white' : 'rgba(255, 255, 255, 0.7)'
-                      }}>
-                        {addon.label.split(' ').map((word, i) => (
-                          <React.Fragment key={i}>
-                            {word}
-                            {i < addon.label.split(' ').length - 1 && <br />}
-                          </React.Fragment>
-                        ))}
-                      </p>
-                      <p style={{ 
-                        fontSize: '10px', 
-                        fontWeight: 900, 
-                        color: isSelected ? '#ED4B00' : 'rgba(255, 255, 255, 0.4)'
-                      }}>
-                        +£{addon.price}
-                      </p>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </section>
-
-          {/* Guarantee Card */}
-          <div style={{
-            padding: '20px',
-            borderRadius: '16px',
-            background: 'rgba(255, 255, 255, 0.05)',
-            border: '1px solid rgba(255, 255, 255, 0.05)',
-            display: 'flex',
-            alignItems: 'flex-start',
-            gap: '16px'
-          }}>
+          <section className="bkp-section" style={{ padding: '0' }} aria-labelledby="addons-heading">
+            <h2 id="addons-heading" className="bkp-label" style={{ marginBottom: 8 }}>Add-ons</h2>
+            <p className="bkp-card-subtitle" style={{ marginBottom: 12, marginTop: 0 }}>Kitchen & steam</p>
             <div style={{
-              width: '40px',
-              height: '40px',
-              borderRadius: '9999px',
-              background: 'rgba(237, 75, 0, 0.1)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0
+              display: 'grid',
+              gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)',
+              gap: 10
             }}>
-              <span className="material-symbols-outlined" style={{ color: '#ED4B00', fontSize: '20px' }}>
-                security
-              </span>
+              {addons.map((addon) => {
+                const isSelected = selectedAddons.has(addon.id);
+                const IconComp = ADDON_ICONS[addon.icon] || LayoutGrid;
+                return (
+                  <button
+                    key={addon.id}
+                    type="button"
+                    onClick={() => toggleAddon(addon.id)}
+                    className={`bkp-card ${isSelected ? 'bkp-card-selected' : ''}`}
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 8,
+                      padding: 14,
+                      cursor: 'pointer',
+                      border: 'none',
+                      outline: 'none',
+                      font: 'inherit',
+                      color: 'inherit',
+                      minHeight: 100,
+                      textAlign: 'center'
+                    }}
+                    aria-pressed={isSelected}
+                    aria-label={`${addon.label}, +£${addon.price}`}
+                  >
+                    <IconComp size={26} color={isSelected ? 'var(--bkp-primary)' : 'var(--bkp-text-tertiary)'} strokeWidth={isSelected ? 2.5 : 1.5} aria-hidden />
+                    <span style={{ fontSize: 'var(--bkp-text-xs)', fontWeight: 700, lineHeight: 1.2, color: 'var(--bkp-text)' }}>{addon.label}</span>
+                    <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--bkp-primary)' }}>+£{addon.price}</span>
+                  </button>
+                );
+              })}
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              <p style={{ color: 'white', fontSize: '14px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '-0.02em' }}>
-                Cleaning Standards Guarantee
-              </p>
-              <p style={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: '11px', lineHeight: '1.5' }}>
-                Professional-grade equipment and 48-hour satisfaction guarantee. We ensure you pass your inventory check.
-              </p>
+          </section>
+
+          <section style={{ padding: '24px 0 0' }}>
+            <div className="bkp-card" style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 14, padding: 18, borderColor: 'var(--bkp-border-subtle)', background: 'var(--bkp-bg-surface)' }}>
+              <div style={{ width: 44, height: 44, borderRadius: 'var(--bkp-radius-full)', background: 'var(--bkp-primary-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <Shield size={22} color="var(--bkp-primary)" aria-hidden />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ margin: 0, fontSize: 'var(--bkp-text-sm)', fontWeight: 700, color: 'var(--bkp-text)' }}>Satisfaction guarantee</p>
+                <p style={{ color: 'var(--bkp-text-secondary)', fontSize: 'var(--bkp-text-xs)', lineHeight: 1.45, margin: '4px 0 0' }}>Professional equipment and 48-hour guarantee. We make sure you pass your check.</p>
+              </div>
             </div>
-          </div>
+          </section>
         </main>
 
-        {/* Footer */}
-        <footer style={{
-          position: isMobile ? 'fixed' : 'sticky',
-          bottom: isMobile ? 0 : 'auto',
-          left: 0,
-          right: 0,
-          background: 'rgba(2, 0, 52, 0.95)',
-          backdropFilter: 'blur(24px)',
-          WebkitBackdropFilter: 'blur(24px)',
-          borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-          padding: isMobile ? '16px 20px' : '24px 40px',
-          paddingBottom: isMobile ? `calc(16px + env(safe-area-inset-bottom, 0px))` : '24px',
-          zIndex: 60,
-          marginTop: isMobile ? 0 : 'auto',
-          width: '100%'
-        }}>
-          <div style={{ 
-            maxWidth: isMobile ? '448px' : '1200px', 
-            margin: '0 auto', 
-            display: 'flex', 
-            flexDirection: 'column', 
-            gap: '14px',
-            width: '100%'
-          }}>
-            {/* AI Analysis Card */}
-            <div style={{
-              background: '#020034',
-              border: '1px solid rgba(237, 75, 0, 0.4)',
-              borderRadius: '16px',
-              padding: '14px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '14px',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
-            }}>
-              <div style={{
-                width: '36px',
-                height: '36px',
-                flexShrink: 0,
-                background: 'rgba(237, 75, 0, 0.1)',
-                borderRadius: '12px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                <span className="material-symbols-outlined" style={{ color: '#ED4B00', fontSize: '20px', fontVariationSettings: '"FILL" 1' }}>
-                  auto_awesome
-                </span>
+        <footer className="bkp-footer" style={{ background: 'var(--bkp-bg-deep)', borderTop: '1px solid var(--bkp-border-subtle)', padding: isMobile ? '24px 20px calc(24px + env(safe-area-inset-bottom, 0px))' : '32px 24px 40px', width: '100%' }}>
+          <div className="bkp-footer-inner">
+            <div className="bkp-card bkp-ai-card" style={{ flexDirection: 'row', alignItems: 'center', gap: 14, background: 'rgba(255,255,255,0.03)', borderColor: 'rgba(233, 74, 2, 0.35)' }}>
+              <div className="bkp-ai-card-icon" style={{ width: 36, height: 36, flexShrink: 0, background: 'var(--bkp-primary-muted)', borderRadius: 'var(--bkp-radius-md)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Sparkles size={20} color="var(--bkp-primary)" strokeWidth={2} aria-hidden />
               </div>
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                <p style={{ color: 'white', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                  AI Market Analysis
-                </p>
-                <p style={{ color: 'white', fontSize: '11px', lineHeight: '1.3', fontWeight: 500, opacity: 1 }}>
-                  We have analyzed the local market and secured the best available price for you using Master AI.
-                </p>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p className="bkp-label" style={{ margin: 0, color: 'var(--bkp-text)' }}>AI market analysis</p>
+                <p style={{ color: 'var(--bkp-text-secondary)', fontSize: 'var(--bkp-text-xs)', lineHeight: 1.35, margin: '2px 0 0' }}>We’ve analysed the local market and secured the best price for you.</p>
               </div>
             </div>
 
-            {/* Price Display */}
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'space-between', 
-              padding: '0 4px',
-              flexWrap: isMobile ? 'nowrap' : 'wrap',
-              gap: isMobile ? '0' : '16px',
-              width: '100%'
-            }}>
-              <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                <span style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: isMobile ? '9px' : '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                  Estimated Quote
-                </span>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: '2px' }}>
-                  <span style={{ fontSize: isMobile ? '30px' : '36px', fontWeight: 900, color: 'white', letterSpacing: '-0.05em' }}>
-                    £{estimatedPrice}
-                  </span>
-                  <span style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: isMobile ? '12px' : '14px', fontWeight: 700 }}>.00</span>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+              <div style={{ flex: 1, minWidth: 120 }}>
+                <span className="bkp-label">Estimated quote</span>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 2, marginTop: 4 }}>
+                  <span className="bkp-price">£{estimatedPrice}</span>
+                  <span style={{ color: 'var(--bkp-text-quaternary)', fontSize: 'var(--bkp-text-sm)', fontWeight: 700 }}>.00</span>
                 </div>
               </div>
-              <div style={{ 
-                display: 'flex', 
-                flexDirection: 'column', 
-                alignItems: isMobile ? 'flex-end' : 'flex-end',
-                gap: '6px',
-                flexShrink: 0
-              }}>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  background: '#ED4B00',
-                  color: 'white',
-                  padding: isMobile ? '6px 12px' : '8px 14px',
-                  borderRadius: '9999px',
-                  boxShadow: '0 10px 15px -3px rgba(237, 75, 0, 0.3)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  whiteSpace: 'nowrap'
-                }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: isMobile ? '12px' : '14px', fontVariationSettings: '"FILL" 1' }}>
-                    verified
-                  </span>
-                  <span style={{ fontSize: isMobile ? '9px' : '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                    AI PRICE MATCH
-                  </span>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 }}>
+                <div className="bkp-pill bkp-pill-highlight" style={{ padding: '8px 14px' }}>
+                  <BadgeCheck size={14} strokeWidth={2.5} aria-hidden />
+                  <span>AI price match</span>
                 </div>
-                <span style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: isMobile ? '9px' : '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', textAlign: 'right' }}>
-                  VAT Inclusive
-                </span>
+                <span className="bkp-label" style={{ fontSize: '0.625rem' }}>VAT inclusive</span>
               </div>
             </div>
 
-            {/* Continue Button */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <button
-                onClick={handleContinue}
-                style={{
-                  width: '100%',
-                  background: '#ED4B00',
-                  color: 'white',
-                  fontWeight: 800,
-                  height: '56px',
-                  borderRadius: '16px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '12px',
-                  boxShadow: '0 20px 25px -5px rgba(237, 75, 0, 0.2)',
-                  border: 'none',
-                  cursor: 'pointer',
-                  fontSize: '18px',
-                  transition: 'all 0.2s'
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.background = '#ff5a00';
-                  e.target.style.transform = 'scale(0.98)';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.background = '#ED4B00';
-                  e.target.style.transform = 'scale(1)';
-                }}
-              >
-                <span>Continue to Booking</span>
-                <span className="material-symbols-outlined" style={{ fontWeight: 700 }}>arrow_forward</span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <button type="button" onClick={handleContinue} className="bkp-btn-primary" aria-label="Continue to booking with your quote">
+                Continue to booking
+                <ArrowRight size={20} strokeWidth={2.5} aria-hidden />
               </button>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center', opacity: 0.4 }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '12px' }}>info</span>
-                <p style={{ fontSize: '8px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                  Cleaning materials not included by default
-                </p>
-              </div>
+              <p style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, color: 'var(--bkp-text-quaternary)', fontSize: 'var(--bkp-text-xs)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', margin: 0 }}>
+                <Info size={12} aria-hidden />
+                Cleaning materials not included by default
+              </p>
             </div>
           </div>
         </footer>
       </div>
-
-      <style>{`
-        .hide-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-        .hide-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-        .stepper-btn:active {
-          transform: scale(0.9);
-        }
-        
-        /* Prevent horizontal scroll */
-        html, body {
-          overflow-x: hidden;
-          max-width: 100vw;
-        }
-        
-        @media (min-width: 768px) {
-          /* Desktop adjustments */
-          .cleaning-booking-container {
-            max-width: 1200px;
-            margin: 0 auto;
-          }
-        }
-      `}</style>
     </>
   );
 };

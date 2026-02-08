@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, CheckCircle, Shield, Loader2, AlertCircle, Clock, Upload, X, Plus, Minus, Calendar, ChevronLeft, ChevronRight, Lock, Sparkles, Star } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Shield, Loader2, AlertCircle, Clock, Upload, X, Plus, Minus, Calendar, ChevronLeft, ChevronRight, Lock, Sparkles, Star, MapPin, CreditCard, Percent, CalendarClock, ShieldCheck, PiggyBank, BadgeCheck, ArrowRight, Info } from 'lucide-react';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
@@ -11,6 +11,7 @@ import SubscriptionUpsell from '../components/b2c/SubscriptionUpsell';
 // Master Club subscription price - updated to match new design
 const SUBSCRIPTION_PRICE = 12.99;
 import { checkSubscription } from '../lib/subscription';
+import '../styles/booking-premium.css';
 
 // Enhanced Payment Form Component with premium UX
 const PaymentForm = ({ onSuccess, clientSecret }) => {
@@ -311,6 +312,8 @@ const B2CCheckout = () => {
   const [formErrors, setFormErrors] = useState({});
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [agreedToHourlyTerms, setAgreedToHourlyTerms] = useState(false);
+  const [showServiceLocationForm, setShowServiceLocationForm] = useState(false);
+  const [postcodeLookupLoading, setPostcodeLookupLoading] = useState(false);
 
   // Hourly service specific state
   const [selectedHours, setSelectedHours] = useState(1);
@@ -356,12 +359,18 @@ const B2CCheckout = () => {
     return { daysInMonth, startingDay };
   };
 
+  // Next day only for Master Club members or when adding subscription; otherwise 2 days in advance
   const isDateDisabled = (date) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const checkDate = new Date(date);
     checkDate.setHours(0, 0, 0, 0);
-    return checkDate <= today;
+    const canBookNextDay = hasSubscription === true || hasSubscription === 'true' || addSubscriptionToOrder;
+    const minDaysAhead = canBookNextDay ? 1 : 2;
+    const cutoff = new Date(today);
+    cutoff.setDate(cutoff.getDate() + minDaysAhead);
+    cutoff.setHours(0, 0, 0, 0);
+    return checkDate < cutoff;
   };
 
   const formatDateShort = (date) => {
@@ -526,8 +535,8 @@ const B2CCheckout = () => {
           source: 'website',
           add_subscription: addSubscriptionToOrder ? 'true' : 'false',
           service_id: service.id || service.originalService?.id,
-          service_name: service.title,
-          service_category: service.category || '',
+          service_name: service?.title || 'Booking',
+          service_category: service?.category || '',
           services_count: servicesList.length.toString(),
           services_names: servicesList.map(({ service: s, quantity }) => `${quantity}× ${s?.title}`).join('; '),
           postcode: customerDetails?.postcode || postcode || '',
@@ -550,13 +559,13 @@ const B2CCheckout = () => {
           city: customerDetails?.city || '',
           postcode: customerDetails?.postcode || postcode || '',
           service_id: service.id || service.originalService?.id || null,
-          service_name: service.title,
+          service_name: service.title || 'Booking',
           service_category: service.category || null,
           job_description: fullJobDescription,
-          property_type: null,
-          bedrooms: null,
-          bathrooms: null,
-          cleaning_addons: [],
+          property_type: service.propertyType || null,
+          bedrooms: service.bedrooms ?? null,
+          bathrooms: service.bathrooms ?? null,
+          cleaning_addons: Array.isArray(service.addons) ? service.addons : [],
           scheduled_dates: selectedDates.map(d => d.toISOString().split('T')[0]),
           scheduled_time_slots: selectedTimeSlots,
         }
@@ -589,6 +598,33 @@ const B2CCheckout = () => {
       setCustomerDetails(prev => ({ ...prev, postcode }));
     }
   }, [postcode]);
+
+  // Free UK postcode lookup (Postcodes.io) — fills city/town from postcode, no API key
+  const fetchPostcodeDetails = async (rawPostcode) => {
+    const normalized = rawPostcode.trim().toUpperCase().replace(/\s+/g, '');
+    if (normalized.length < 5) return;
+    setPostcodeLookupLoading(true);
+    try {
+      const res = await fetch(`https://api.postcodes.io/postcodes/${encodeURIComponent(normalized)}`);
+      const data = await res.json();
+      if (data.status === 200 && data.result) {
+        const r = data.result;
+        const city = r.admin_district || r.region || r.admin_ward || '';
+        setCustomerDetails(prev => ({
+          ...prev,
+          postcode: r.postcode || prev.postcode || rawPostcode,
+          city: city || prev.city,
+        }));
+        toast.success('Location found');
+      } else {
+        toast.error('Postcode not found. Check and try again.');
+      }
+    } catch (err) {
+      toast.error('Could not verify postcode');
+    } finally {
+      setPostcodeLookupLoading(false);
+    }
+  };
 
   if (!servicesList.length) {
     navigate('/');
@@ -762,7 +798,7 @@ const B2CCheckout = () => {
         const checkoutData = {
           email: customerDetails.email,
           name: customerDetails.fullName,
-          service: service.title,
+          service: service?.title || 'Booking',
           amount: orderTotal,
           clientSecret: clientSecret,
           paymentIntentId: clientSecret.split('_secret_')[0],
@@ -787,7 +823,7 @@ const B2CCheckout = () => {
         const checkoutData = {
           email: customerDetails.email,
           name: customerDetails.fullName,
-          service: service.title,
+          service: service?.title || 'Booking',
           amount: orderTotal,
           clientSecret: clientSecret,
           paymentIntentId: clientSecret.split('_secret_')[0],
@@ -840,28 +876,30 @@ const B2CCheckout = () => {
   }
 
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
 
   // Detect screen size for responsive layout
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
+      const w = window.innerWidth;
+      setIsMobile(w < 768);
+      setIsDesktop(w >= 1024);
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Format date for display
+  // Format date and time for display in Service Breakdown
   const formatBookingDate = () => {
-    if (selectedDates.length > 0) {
-      const firstDate = selectedDates[0];
-      return firstDate.toLocaleDateString('en-GB', { 
-        day: 'numeric', 
-        month: 'short',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-    }
-    return 'Oct 24, 10:00 AM';
+    const dateStr = selectedDates.length > 0
+      ? selectedDates[0].toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+      : '';
+    const timeStr = selectedTimeSlots.length > 0
+      ? timeSlots.find(s => s.id === selectedTimeSlots[0])?.label || ''
+      : '';
+    if (dateStr && timeStr) return `${dateStr}, ${timeStr}`;
+    if (dateStr) return dateStr;
+    return 'Select dates & time above';
   };
 
   // Calculate savings display
@@ -869,199 +907,91 @@ const B2CCheckout = () => {
   const serviceTotal = totalPrice;
   const finalTotal = orderTotal;
 
-  return (
-    <div style={{ 
-      minHeight: 'max(884px, 100dvh)', 
-      backgroundColor: 'white', 
-      overflowX: 'hidden',
-      fontFamily: "'Manrope', sans-serif"
-    }}>
-      {/* Load Material Symbols and Manrope fonts */}
-      <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-      <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
-      
-      {/* Header */}
-      <div style={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 50,
-        display: 'flex',
-        alignItems: 'center',
-        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        padding: isMobile ? '16px 20px' : '16px 40px',
-        justifyContent: 'space-between',
-        borderBottom: '1px solid #F1F5F9',
-        maxWidth: isMobile ? '100%' : '1200px',
-        margin: '0 auto'
-      }}>
-        <button 
-          onClick={() => navigate(-1)}
+  const paymentBlock = (
+    <>
+      {stripePromise && clientSecret ? (
+        <Elements stripe={stripePromise} options={{ clientSecret }}>
+          <PaymentForm onSuccess={handlePaymentSuccess} clientSecret={clientSecret} />
+        </Elements>
+      ) : (
+        <button
+          onClick={async () => {
+            if (!isFormValid()) {
+              toast.error('Please fill in all required fields');
+              return;
+            }
+            await createPaymentIntent();
+          }}
+          disabled={creatingPaymentIntent || !isFormValid()}
+          className="bkp-btn-primary"
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '44px',
-            height: '44px',
-            backgroundColor: 'transparent',
-            border: 'none',
-            cursor: 'pointer',
-            color: '#020034',
-            padding: 0
+            height: 56,
+            fontSize: 'var(--bkp-text-base)',
+            opacity: creatingPaymentIntent || !isFormValid() ? 0.6 : 1,
+            cursor: creatingPaymentIntent || !isFormValid() ? 'not-allowed' : 'pointer'
           }}
         >
-          <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>arrow_back_ios</span>
+          <span>{creatingPaymentIntent ? 'Processing...' : 'Confirm & pay'}</span>
+          {!creatingPaymentIntent && <ArrowRight size={24} strokeWidth={2.5} />}
         </button>
-        <h2 style={{
-          color: '#020034',
-          fontSize: '13px',
-          fontWeight: 800,
-          letterSpacing: '0.1em',
-          textTransform: 'uppercase',
-          margin: 0
-        }}>
-          One-Step Checkout
-        </h2>
-        <div style={{ width: '44px' }}></div>
-      </div>
+      )}
+    </>
+  );
 
-      {/* Main Content */}
-      <div style={{ 
-        flex: 1, 
-        paddingBottom: isMobile ? '280px' : '24px',
-        padding: isMobile ? '32px 20px' : '32px 40px',
-        paddingTop: '32px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: isMobile ? '40px' : '40px',
-        maxWidth: isMobile ? '100%' : '1200px',
-        margin: '0 auto',
-        width: '100%'
-      }}>
-        {/* Booking For Section */}
-        <section>
-          <h3 style={{
-            color: '#020034',
-            fontSize: '11px',
-            fontWeight: 800,
-            textTransform: 'uppercase',
-            letterSpacing: '0.15em',
-            opacity: 0.4,
-            marginBottom: '16px',
-            padding: '0 4px'
-          }}>
-            Booking For
-          </h3>
-          <div style={{
-            backgroundColor: '#F8FAFC',
-            borderRadius: '20px',
-            border: '1px solid #F1F5F9',
-            padding: '16px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '16px'
-          }}>
+  return (
+    <div className={`bkp bkp-light${isDesktop ? ' bkp-checkout-desktop' : ''}`} style={{ minHeight: '100dvh', overflowX: 'hidden' }}>
+      <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+      
+      <header className="bkp-header">
+        <div style={{ display: 'flex', alignItems: 'center', padding: isMobile ? '16px 20px' : '16px 24px', justifyContent: 'space-between', maxWidth: isDesktop ? '100%' : 560, margin: '0 auto', width: '100%' }}>
+          <button type="button" onClick={() => navigate(-1)} aria-label="Back" className="bkp-btn-icon" style={{ color: 'var(--bkp-light-text)' }}>
+            <ArrowLeft size={22} />
+          </button>
+          <h2 className="bkp-title-page" style={{ margin: 0, fontSize: 'var(--bkp-text-sm)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Checkout</h2>
+          <div style={{ width: 44 }} />
+        </div>
+      </header>
+
+      <div className="bkp-checkout-body" style={{ display: isDesktop ? undefined : 'block' }}>
+      <div className="bkp-main">
+        <section className="bkp-section">
+          <h3 className="bkp-label" style={{ marginBottom: 16 }}>Booking for</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16, padding: 20, borderRadius: 'var(--bkp-radius-xl)', background: 'var(--bkp-light-bg-muted)', border: '1px solid var(--bkp-light-border)' }}>
             <input
               type="text"
-              placeholder="Full Name"
+              name="fullName"
+              placeholder="Full name"
               value={customerDetails.fullName}
-              onChange={(e) => {
-                setCustomerDetails(prev => ({ ...prev, fullName: e.target.value }));
-                if (formErrors.fullName) {
-                  setFormErrors(prev => ({ ...prev, fullName: '' }));
-                }
-              }}
-              style={{
-                width: '100%',
-                backgroundColor: 'white',
-                border: formErrors.fullName ? '2px solid #ef4444' : '1px solid #E2E8F0',
-                borderRadius: '12px',
-                fontSize: '16px',
-                fontWeight: 600,
-                height: '52px',
-                padding: '0 16px',
-                outline: 'none',
-                transition: 'all 0.2s',
-                fontFamily: "'Manrope', sans-serif"
-              }}
-              onFocus={(e) => {
-                e.target.style.borderColor = '#ED4B00';
-                e.target.style.boxShadow = '0 0 0 3px rgba(237, 75, 0, 0.1)';
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = formErrors.fullName ? '#ef4444' : '#E2E8F0';
-                e.target.style.boxShadow = 'none';
-              }}
+              onChange={(e) => { setCustomerDetails(prev => ({ ...prev, fullName: e.target.value })); if (formErrors.fullName) setFormErrors(prev => ({ ...prev, fullName: '' })); }}
+              className={`bkp-input ${formErrors.fullName ? 'bkp-input-error' : ''}`}
+              aria-invalid={!!formErrors.fullName}
+              aria-describedby={formErrors.fullName ? 'err-fullName' : undefined}
             />
+            {formErrors.fullName && <p id="err-fullName" style={{ color: '#dc2626', fontSize: 'var(--bkp-text-sm)', margin: '-8px 0 0' }}>{formErrors.fullName}</p>}
             <input
               type="email"
+              name="email"
               placeholder="Email"
               value={customerDetails.email}
-              onChange={(e) => {
-                setCustomerDetails(prev => ({ ...prev, email: e.target.value }));
-                if (formErrors.email) {
-                  setFormErrors(prev => ({ ...prev, email: '' }));
-                }
-              }}
-              style={{
-                width: '100%',
-                backgroundColor: 'white',
-                border: formErrors.email ? '2px solid #ef4444' : '1px solid #E2E8F0',
-                borderRadius: '12px',
-                fontSize: '16px',
-                fontWeight: 600,
-                height: '52px',
-                padding: '0 16px',
-                outline: 'none',
-                transition: 'all 0.2s',
-                fontFamily: "'Manrope', sans-serif"
-              }}
-              onFocus={(e) => {
-                e.target.style.borderColor = '#ED4B00';
-                e.target.style.boxShadow = '0 0 0 3px rgba(237, 75, 0, 0.1)';
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = formErrors.email ? '#ef4444' : '#E2E8F0';
-                e.target.style.boxShadow = 'none';
-              }}
+              onChange={(e) => { setCustomerDetails(prev => ({ ...prev, email: e.target.value })); if (formErrors.email) setFormErrors(prev => ({ ...prev, email: '' })); }}
+              className={`bkp-input ${formErrors.email ? 'bkp-input-error' : ''}`}
+              aria-invalid={!!formErrors.email}
             />
+            {formErrors.email && <p style={{ color: '#dc2626', fontSize: 'var(--bkp-text-sm)', margin: '-8px 0 0' }}>{formErrors.email}</p>}
             <input
               type="tel"
+              name="phone"
               placeholder="Phone"
               value={customerDetails.phone}
-              onChange={(e) => {
-                setCustomerDetails(prev => ({ ...prev, phone: e.target.value }));
-                if (formErrors.phone) {
-                  setFormErrors(prev => ({ ...prev, phone: '' }));
-                }
-              }}
-              style={{
-                width: '100%',
-                backgroundColor: 'white',
-                border: formErrors.phone ? '2px solid #ef4444' : '1px solid #E2E8F0',
-                borderRadius: '12px',
-                fontSize: '16px',
-                fontWeight: 600,
-                height: '52px',
-                padding: '0 16px',
-                outline: 'none',
-                transition: 'all 0.2s',
-                fontFamily: "'Manrope', sans-serif"
-              }}
-              onFocus={(e) => {
-                e.target.style.borderColor = '#ED4B00';
-                e.target.style.boxShadow = '0 0 0 3px rgba(237, 75, 0, 0.1)';
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = formErrors.phone ? '#ef4444' : '#E2E8F0';
-                e.target.style.boxShadow = 'none';
-              }}
+              onChange={(e) => { setCustomerDetails(prev => ({ ...prev, phone: e.target.value })); if (formErrors.phone) setFormErrors(prev => ({ ...prev, phone: '' })); }}
+              className={`bkp-input ${formErrors.phone ? 'bkp-input-error' : ''}`}
+              aria-invalid={!!formErrors.phone}
             />
+            {formErrors.phone && <p style={{ color: '#dc2626', fontSize: 'var(--bkp-text-sm)', margin: '-8px 0 0' }}>{formErrors.phone}</p>}
           </div>
         </section>
 
-        {/* Service Location Section */}
+        {/* Service Location Section — postcode from home, completar endereço inline */}
         <section>
           <h3 style={{
             color: '#020034',
@@ -1075,75 +1005,375 @@ const B2CCheckout = () => {
           }}>
             Service Location
           </h3>
+          {!showServiceLocationForm ? (
+            <div style={{
+              backgroundColor: 'white',
+              borderRadius: '20px',
+              border: '1px solid #F1F5F9',
+              padding: '20px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', minWidth: 0, flex: 1 }}>
+                <MapPin size={24} color="#94A3B8" style={{ flexShrink: 0 }} />
+                <span style={{ fontSize: '15px', fontWeight: 700, color: '#020034' }}>
+                  {customerDetails.addressLine1
+                    ? [customerDetails.addressLine1, customerDetails.addressLine2, customerDetails.city, customerDetails.postcode || postcode].filter(Boolean).join(', ')
+                    : [customerDetails.postcode || postcode, customerDetails.city].filter(Boolean).join(customerDetails.city ? ', ' : '') || (postcode ? `${postcode} — Add full address` : 'Enter postcode and address')}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowServiceLocationForm(true)}
+                style={{
+                  color: '#ED4B00',
+                  fontSize: '12px',
+                  fontWeight: 800,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  padding: '4px 8px',
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  flexShrink: 0
+                }}
+              >
+                {customerDetails.addressLine1 ? 'Change' : 'Complete address'}
+              </button>
+            </div>
+          ) : (
+            <div style={{
+              backgroundColor: 'white',
+              borderRadius: '20px',
+              border: '1px solid #F1F5F9',
+              padding: '20px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+            }}>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type="text"
+                  placeholder="Postcode (e.g. SW1A 1AA)"
+                  value={customerDetails.postcode || postcode || ''}
+                  onChange={(e) => { setCustomerDetails(prev => ({ ...prev, postcode: e.target.value.toUpperCase() })); if (formErrors.postcode) setFormErrors(prev => ({ ...prev, postcode: '' })); }}
+                  onBlur={(e) => {
+                    const val = (e.target.value || customerDetails.postcode || postcode || '').trim();
+                    if (val.length >= 5) fetchPostcodeDetails(val);
+                  }}
+                  disabled={postcodeLookupLoading}
+                  className={`bkp-input ${formErrors.postcode ? 'bkp-input-error' : ''}`}
+                  style={{ margin: 0, paddingRight: postcodeLookupLoading ? 44 : undefined }}
+                  aria-describedby={postcodeLookupLoading ? 'postcode-loading' : undefined}
+                />
+                {postcodeLookupLoading && (
+                  <span id="postcode-loading" style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', display: 'inline-flex' }} aria-hidden>
+                    <Loader2 size={20} color="#64748B" style={{ animation: 'bkp-spin 0.8s linear infinite' }} />
+                  </span>
+                )}
+              </div>
+              {formErrors.postcode && <p style={{ color: '#dc2626', fontSize: 'var(--bkp-text-sm)', margin: '-8px 0 0' }}>{formErrors.postcode}</p>}
+              <input
+                type="text"
+                placeholder="Address line 1 (street and number)"
+                value={customerDetails.addressLine1}
+                onChange={(e) => { setCustomerDetails(prev => ({ ...prev, addressLine1: e.target.value })); if (formErrors.addressLine1) setFormErrors(prev => ({ ...prev, addressLine1: '' })); }}
+                className={`bkp-input ${formErrors.addressLine1 ? 'bkp-input-error' : ''}`}
+                style={{ margin: 0 }}
+              />
+              {formErrors.addressLine1 && <p style={{ color: '#dc2626', fontSize: 'var(--bkp-text-sm)', margin: '-8px 0 0' }}>{formErrors.addressLine1}</p>}
+              <input
+                type="text"
+                placeholder="Address line 2 (optional)"
+                value={customerDetails.addressLine2}
+                onChange={(e) => setCustomerDetails(prev => ({ ...prev, addressLine2: e.target.value }))}
+                className="bkp-input"
+                style={{ margin: 0 }}
+              />
+              <input
+                type="text"
+                placeholder="City / Town"
+                value={customerDetails.city}
+                onChange={(e) => { setCustomerDetails(prev => ({ ...prev, city: e.target.value })); if (formErrors.city) setFormErrors(prev => ({ ...prev, city: '' })); }}
+                className={`bkp-input ${formErrors.city ? 'bkp-input-error' : ''}`}
+                style={{ margin: 0 }}
+              />
+              {formErrors.city && <p style={{ color: '#dc2626', fontSize: 'var(--bkp-text-sm)', margin: '-8px 0 0' }}>{formErrors.city}</p>}
+              <button
+                type="button"
+                onClick={() => setShowServiceLocationForm(false)}
+                style={{
+                  alignSelf: 'flex-start',
+                  color: '#ED4B00',
+                  fontSize: '12px',
+                  fontWeight: 800,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  padding: '8px 12px',
+                  backgroundColor: 'transparent',
+                  border: '1px solid #ED4B00',
+                  borderRadius: '12px',
+                  cursor: 'pointer'
+                }}
+              >
+                Done
+              </button>
+            </div>
+          )}
+        </section>
+
+        {/* Preferred Dates Section */}
+        <section aria-labelledby="dates-heading">
+          <h3 id="dates-heading" style={{
+            color: '#020034',
+            fontSize: '11px',
+            fontWeight: 800,
+            textTransform: 'uppercase',
+            letterSpacing: '0.15em',
+            opacity: 0.4,
+            marginBottom: '12px',
+            padding: '0 4px'
+          }}>
+            Preferred Dates
+          </h3>
+          <p style={{ fontSize: '13px', color: '#64748B', marginBottom: '16px', padding: '0 4px' }}>
+            Select at least 2 dates that work for you (up to 5)
+          </p>
+          <p style={{ fontSize: '12px', color: '#64748B', marginTop: '4px', marginBottom: '12px', padding: '0 4px' }}>
+            Next day available for Master Club members or when adding Master Club. Otherwise booking from 2 days ahead.
+          </p>
           <div style={{
             backgroundColor: 'white',
             borderRadius: '20px',
-            border: '1px solid #F1F5F9',
-            padding: '20px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
+            border: formErrors.date ? '2px solid #ef4444' : '1px solid #F1F5F9',
+            padding: '24px',
             boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <span className="material-symbols-outlined" style={{ color: '#94A3B8', fontSize: '24px' }}>
-                location_on
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+              <button
+                type="button"
+                onClick={() => navigateMonth(-1)}
+                aria-label="Previous month"
+                style={{
+                  width: '48px',
+                  height: '48px',
+                  borderRadius: '14px',
+                  border: '1px solid #E2E8F0',
+                  background: 'white',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#020034'
+                }}
+              >
+                <ChevronLeft size={24} />
+              </button>
+              <span style={{ fontSize: '18px', fontWeight: 700, color: '#020034' }}>
+                {currentMonth.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}
               </span>
-              <span style={{ fontSize: '15px', fontWeight: 700, color: '#020034' }}>
-                {customerDetails.postcode || postcode || 'SW1A 1AA, London'}
-              </span>
+              <button
+                type="button"
+                onClick={() => navigateMonth(1)}
+                aria-label="Next month"
+                style={{
+                  width: '48px',
+                  height: '48px',
+                  borderRadius: '14px',
+                  border: '1px solid #E2E8F0',
+                  background: 'white',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#020034'
+                }}
+              >
+                <ChevronRight size={24} />
+              </button>
             </div>
-            <button 
-              onClick={() => navigate('/booking')}
-              style={{
-                color: '#ED4B00',
-                fontSize: '12px',
-                fontWeight: 800,
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em',
-                padding: '4px 8px',
-                backgroundColor: 'transparent',
-                border: 'none',
-                cursor: 'pointer'
-              }}
-            >
-              Change
-            </button>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px', marginBottom: '20px', maxWidth: '400px', marginLeft: 'auto', marginRight: 'auto' }}>
+              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+                <div key={day} style={{ textAlign: 'center', fontSize: '12px', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase' }}>{day}</div>
+              ))}
+              {(() => {
+                const { daysInMonth, startingDay } = getDaysInMonth(currentMonth);
+                const cells = [];
+                for (let i = 0; i < startingDay; i++) {
+                  cells.push(<div key={`empty-${i}`} />);
+                }
+                for (let day = 1; day <= daysInMonth; day++) {
+                  const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
+                  const disabled = isDateDisabled(date);
+                  const selected = isDateSelected(date);
+                  cells.push(
+                    <button
+                      key={day}
+                      type="button"
+                      onClick={() => handleDateSelect(day)}
+                      disabled={disabled}
+                      aria-label={`${day} ${currentMonth.toLocaleDateString('en-GB', { month: 'long' })}${selected ? ', selected' : ''}`}
+                      style={{
+                        aspectRatio: '1',
+                        minWidth: '44px',
+                        minHeight: '44px',
+                        width: '100%',
+                        maxWidth: '52px',
+                        maxHeight: '52px',
+                        margin: '0 auto',
+                        borderRadius: '14px',
+                        border: selected ? '2px solid #ED4B00' : '1px solid #E2E8F0',
+                        background: disabled ? '#F8FAFC' : selected ? 'rgba(237, 75, 0, 0.1)' : 'white',
+                        color: disabled ? '#CBD5E1' : selected ? '#ED4B00' : '#020034',
+                        fontWeight: 700,
+                        fontSize: '16px',
+                        cursor: disabled ? 'not-allowed' : 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                    >
+                      {day}
+                    </button>
+                  );
+                }
+                return cells;
+              })()}
+            </div>
+            {formErrors.date && (
+              <p style={{ color: '#ef4444', fontSize: '12px', fontWeight: 600, marginTop: '8px' }}>{formErrors.date}</p>
+            )}
+            {selectedDates.length > 0 && (
+              <div style={{ paddingTop: '16px', borderTop: '1px solid #F1F5F9' }}>
+                <p style={{ fontSize: '12px', fontWeight: 700, color: '#64748B', marginBottom: '10px', textTransform: 'uppercase' }}>Selected</p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                  {selectedDates.map(d => (
+                    <span
+                      key={d.toISOString()}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        background: 'rgba(237, 75, 0, 0.1)',
+                        color: '#ED4B00',
+                        padding: '8px 14px',
+                        borderRadius: '9999px',
+                        fontSize: '14px',
+                        fontWeight: 600
+                      }}
+                    >
+                      {formatDateShort(d)}
+                      <button
+                        type="button"
+                        onClick={() => removeSelectedDate(d)}
+                        aria-label={`Remove ${formatDateShort(d)}`}
+                        style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'inherit', display: 'flex' }}
+                      >
+                        <X size={16} />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* Preferred Time Slots Section */}
+        <section aria-labelledby="times-heading">
+          <h3 id="times-heading" style={{
+            color: '#020034',
+            fontSize: '11px',
+            fontWeight: 800,
+            textTransform: 'uppercase',
+            letterSpacing: '0.15em',
+            opacity: 0.4,
+            marginBottom: '12px',
+            padding: '0 4px'
+          }}>
+            Preferred Time Slots
+          </h3>
+          <p style={{ fontSize: '13px', color: '#64748B', marginBottom: '16px', padding: '0 4px' }}>
+            Select at least one time slot
+          </p>
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '20px',
+            border: formErrors.timeSlot ? '2px solid #ef4444' : '1px solid #F1F5F9',
+            padding: '24px',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+          }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+              {timeSlots.map(slot => {
+                const selected = selectedTimeSlots.includes(slot.id);
+                return (
+                  <button
+                    key={slot.id}
+                    type="button"
+                    onClick={() => {
+                      setSelectedTimeSlots(prev =>
+                        selected ? prev.filter(id => id !== slot.id) : [...prev, slot.id]
+                      );
+                      if (formErrors.timeSlot) setFormErrors(prev => ({ ...prev, timeSlot: '' }));
+                    }}
+                    aria-pressed={selected}
+                    aria-label={`${slot.label} ${slot.period}${selected ? ', selected' : ''}`}
+                    style={{
+                      padding: '14px 20px',
+                      borderRadius: '14px',
+                      border: selected ? '2px solid #ED4B00' : '1px solid #E2E8F0',
+                      background: selected ? 'rgba(237, 75, 0, 0.1)' : 'white',
+                      color: selected ? '#ED4B00' : '#020034',
+                      fontWeight: 700,
+                      fontSize: '16px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '10px',
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    <Clock size={20} />
+                    {slot.label}
+                  </button>
+                );
+              })}
+            </div>
+            {formErrors.timeSlot && (
+              <p style={{ color: '#ef4444', fontSize: '12px', fontWeight: 600, marginTop: '12px' }}>{formErrors.timeSlot}</p>
+            )}
           </div>
         </section>
 
         {/* AI Verified Badge */}
-        <section style={{ display: 'flex', justifyContent: 'center', padding: '0 8px' }}>
+        <section style={{ display: 'flex', justifyContent: 'center', padding: '0 8px' }} aria-live="polite">
           <div style={{
             background: 'linear-gradient(90deg, #FFFFFF 0%, #FFF7F2 100%)',
             width: '100%',
             maxWidth: isMobile ? '100%' : '400px',
             borderRadius: '9999px',
-            padding: '12px 24px',
+            padding: '12px 20px',
             border: '1px solid rgba(237, 75, 0, 0.2)',
             boxShadow: '0 2px 10px rgba(237, 75, 0, 0.15)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '12px'
+            gap: '12px',
+            flexWrap: 'nowrap',
+            minWidth: 0
           }}>
-            <div style={{ position: 'relative', flexShrink: 0 }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: '24px',
-                height: '24px',
-                borderRadius: '50%',
-                backgroundColor: 'rgba(237, 75, 0, 0.1)'
-              }}>
-                <span style={{ color: '#ED4B00', fontSize: '14px' }}>✨</span>
-              </div>
+            <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', backgroundColor: 'rgba(237, 75, 0, 0.1)' }}>
+              <span style={{ color: '#ED4B00', fontSize: '14px' }} aria-hidden>✨</span>
             </div>
-            <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: 'center', gap: isMobile ? '4px' : '8px', textAlign: 'center' }}>
-              <span style={{ fontSize: '14px', fontWeight: 800, color: '#020034' }}>AI Verified</span>
-              <span style={{ fontSize: '13px', fontWeight: 600, color: '#64748B' }}>
-                Best market rate secured: -£{savingsAmount.toFixed(2)}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 2, minWidth: 0, flex: 1 }}>
+              <span style={{ fontSize: '13px', fontWeight: 800, color: '#020034', whiteSpace: 'nowrap' }}>AI Verified</span>
+              <span style={{ fontSize: '12px', fontWeight: 600, color: '#64748B', lineHeight: 1.3 }}>
+                {savingsAmount > 0
+                  ? `You're saving £${savingsAmount.toFixed(2)} vs market rate`
+                  : 'Best market rate secured by Master AI'}
               </span>
             </div>
           </div>
@@ -1177,33 +1407,25 @@ const B2CCheckout = () => {
             boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
           }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-              <span className="material-symbols-outlined" style={{ color: '#10B981', fontSize: '20px', flexShrink: 0 }}>
-                check_circle
-              </span>
+              <CheckCircle size={20} color="#10B981" style={{ flexShrink: 0 }} />
               <span style={{ fontSize: '15px', fontWeight: 700, lineHeight: '1.4', color: '#020034' }}>
-                Labour & Boiler Maintenance
+                {service?.title || 'Your service'}
               </span>
             </div>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-              <span className="material-symbols-outlined" style={{ color: '#10B981', fontSize: '20px', flexShrink: 0 }}>
-                check_circle
-              </span>
+              <CheckCircle size={20} color="#10B981" style={{ flexShrink: 0 }} />
               <span style={{ fontSize: '15px', fontWeight: 700, lineHeight: '1.4', color: '#020034' }}>
                 £5M Public Liability Insurance
               </span>
             </div>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-              <span className="material-symbols-outlined" style={{ color: '#10B981', fontSize: '20px', flexShrink: 0 }}>
-                check_circle
-              </span>
+              <CheckCircle size={20} color="#10B981" style={{ flexShrink: 0 }} />
               <span style={{ fontSize: '15px', fontWeight: 700, lineHeight: '1.4', color: '#020034' }}>
                 All Equipment Provided
               </span>
             </div>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', paddingTop: '16px', borderTop: '1px solid #F1F5F9' }}>
-              <span className="material-symbols-outlined" style={{ color: '#94A3B8', fontSize: '18px', flexShrink: 0 }}>
-                info
-              </span>
+              <Info size={18} color="#94A3B8" style={{ flexShrink: 0 }} />
               <span style={{ fontSize: '13px', fontWeight: 500, color: '#94A3B8', fontStyle: 'italic' }}>
                 Materials quoted separately
               </span>
@@ -1272,9 +1494,7 @@ const B2CCheckout = () => {
                     flexShrink: 0,
                     boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
                   }}>
-                    <span className="material-symbols-outlined" style={{ color: 'white', fontSize: '32px', fontVariationSettings: '"FILL" 1' }}>
-                      stars
-                    </span>
+                    <Star size={32} color="white" fill="white" strokeWidth={1.5} />
                   </div>
                   <div>
                     <p style={{ fontSize: '18px', fontWeight: 800, lineHeight: '1.2', color: '#020034', margin: 0 }}>
@@ -1327,15 +1547,27 @@ const B2CCheckout = () => {
                   }}></div>
                 </label>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <span className="material-symbols-outlined" style={{ color: '#ED4B00', fontSize: '22px' }}>
-                    payments
-                  </span>
+                  <CreditCard size={22} color="#ED4B00" aria-hidden />
                   <p style={{ fontSize: '15px', fontWeight: 700, color: '#020034', margin: 0 }}>
                     Pay in 3x interest-free
                   </p>
                 </div>
+                <p style={{ fontSize: '11px', fontWeight: 800, color: 'rgba(2, 0, 52, 0.5)', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '8px 0 4px' }}>
+                  Club benefits
+                </p>
+                {[
+                  { Icon: Percent, text: '10% off all future bookings' },
+                  { Icon: CalendarClock, text: 'Priority scheduling & rebooking' },
+                  { Icon: ShieldCheck, text: 'Satisfaction guarantee & free re-clean if needed' },
+                  { Icon: PiggyBank, text: 'Exclusive member-only rates on all services' }
+                ].map(({ Icon, text }, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <Icon size={18} color="#059669" style={{ flexShrink: 0 }} aria-hidden />
+                    <span style={{ fontSize: '14px', fontWeight: 600, color: '#020034', lineHeight: 1.35 }}>{text}</span>
+                  </div>
+                ))}
               </div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '20px', borderTop: '1px solid #F1F5F9' }}>
                 <span style={{ fontSize: '12px', fontWeight: 700, opacity: 0.4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
@@ -1354,8 +1586,8 @@ const B2CCheckout = () => {
           </section>
         )}
 
-        {/* Price Summary Section */}
-        <section style={{
+        {/* Price Summary Section (hidden on desktop, shown in sidebar) */}
+        <section className="bkp-price-summary-inline" style={{
           backgroundColor: '#F8FAFC',
           padding: '24px',
           borderRadius: '20px',
@@ -1441,8 +1673,48 @@ const B2CCheckout = () => {
         </section>
       </div>
 
-      {/* Footer with Payment Button */}
-      <div style={{
+      {isDesktop && (
+        <aside className="bkp-checkout-sidebar" aria-label="Order summary">
+          <div style={{ borderBottom: '1px solid var(--bkp-light-border)', paddingBottom: 20, marginBottom: 20 }}>
+            <p style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.1em', color: 'var(--bkp-light-text-tertiary)', marginBottom: 4, textTransform: 'uppercase' }}>Order summary</p>
+            <p style={{ fontSize: '17px', fontWeight: 700, color: '#020034', margin: '0 0 4px' }}>{service?.title || 'Your service'}</p>
+            <p style={{ fontSize: '13px', color: '#64748B', margin: 0 }}>{formatBookingDate()}</p>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, fontSize: '15px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span style={{ color: '#64748B', fontWeight: 600 }}>Service Total</span>
+              <span style={{ fontWeight: 700, color: '#020034' }}>£{serviceTotal.toFixed(2)}</span>
+            </div>
+            {subscriptionOfferActive && (
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: '#64748B', fontWeight: 600 }}>Master Club</span>
+                <span style={{ fontWeight: 700, color: '#020034' }}>£{SUBSCRIPTION_PRICE.toFixed(2)}</span>
+              </div>
+            )}
+            {savingsAmount > 0 && (
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: '#059669', fontWeight: 700 }}>Savings</span>
+                <span style={{ fontWeight: 700, color: '#059669' }}>-£{savingsAmount.toFixed(2)}</span>
+              </div>
+            )}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 16, marginTop: 8, borderTop: '1px solid #E2E8F0' }}>
+              <span style={{ fontSize: '18px', fontWeight: 800, color: '#020034' }}>Total</span>
+              <span style={{ fontSize: '28px', fontWeight: 800, letterSpacing: '-0.02em', color: '#020034' }}>£{finalTotal.toFixed(2)}</span>
+            </div>
+          </div>
+          <div style={{ marginTop: 'auto', paddingTop: 24 }}>
+            {paymentBlock}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 16, fontSize: '11px', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+            <Lock size={14} />
+            Encrypted by Stripe
+          </div>
+        </aside>
+      )}
+      </div>
+
+      {/* Footer with Payment Button (mobile only; desktop uses sidebar) */}
+      <div className="bkp-checkout-footer-mobile" style={{
         position: isMobile ? 'fixed' : 'sticky',
         bottom: isMobile ? 0 : 'auto',
         left: 0,
@@ -1460,78 +1732,21 @@ const B2CCheckout = () => {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', padding: '0 4px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span className="material-symbols-outlined" style={{ color: '#ED4B00', fontSize: '16px', fontVariationSettings: '"FILL" 1' }}>
-              verified
-            </span>
+            <BadgeCheck size={16} color="#ED4B00" strokeWidth={2} />
             <p style={{ fontSize: '10px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#020034', margin: 0 }}>
               Stripe Secure
             </p>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <div style={{ display: 'flex', color: '#FBBF24' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '14px', fontVariationSettings: '"FILL" 1' }}>
-                star
-              </span>
+              <Star size={14} fill="currentColor" strokeWidth={1.5} />
             </div>
             <p style={{ fontSize: '10px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#020034', margin: 0 }}>
               4.9/5 Rating
             </p>
           </div>
         </div>
-        {stripePromise && clientSecret ? (
-          <Elements stripe={stripePromise} options={{ clientSecret }}>
-            <PaymentForm onSuccess={handlePaymentSuccess} clientSecret={clientSecret} />
-          </Elements>
-        ) : (
-          <button
-            onClick={async () => {
-              if (!isFormValid()) {
-                toast.error('Please fill in all required fields');
-                return;
-              }
-              await createPaymentIntent();
-            }}
-            disabled={creatingPaymentIntent || !isFormValid()}
-            style={{
-              width: '100%',
-              backgroundColor: '#ED4B00',
-              color: 'white',
-              fontWeight: 800,
-              height: '74px',
-              borderRadius: '16px',
-              boxShadow: '0 10px 15px -3px rgba(237, 75, 0, 0.25)',
-              border: 'none',
-              cursor: creatingPaymentIntent || !isFormValid() ? 'not-allowed' : 'pointer',
-              fontSize: '20px',
-              letterSpacing: '-0.02em',
-              transition: 'all 0.2s',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '16px',
-              opacity: creatingPaymentIntent || !isFormValid() ? 0.6 : 1
-            }}
-            onMouseEnter={(e) => {
-              if (!creatingPaymentIntent && isFormValid()) {
-                e.target.style.transform = 'scale(0.98)';
-                e.target.style.backgroundColor = '#ff5a00';
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!creatingPaymentIntent && isFormValid()) {
-                e.target.style.transform = 'scale(1)';
-                e.target.style.backgroundColor = '#ED4B00';
-              }
-            }}
-          >
-            <span>{creatingPaymentIntent ? 'Processing...' : 'Confirm & Pay Now'}</span>
-            {!creatingPaymentIntent && (
-              <span className="material-symbols-outlined" style={{ fontSize: '24px', fontWeight: 700 }}>
-                arrow_forward
-              </span>
-            )}
-          </button>
-        )}
+        {paymentBlock}
         <p style={{
           textAlign: 'center',
           marginTop: '20px',
@@ -1547,20 +1762,13 @@ const B2CCheckout = () => {
           color: '#020034',
           marginBottom: 0
         }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>lock</span>
+          <Lock size={14} />
           Encrypted Checkout
         </p>
       </div>
 
       {/* Styles */}
       <style>{`
-        .material-symbols-outlined {
-          font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
-        }
-        .material-symbols-fill {
-          font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 20;
-        }
-        
         @keyframes spin {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }

@@ -1,11 +1,11 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { Phone, Mail, MapPin, Facebook, Twitter, Instagram, Linkedin, Apple, Play, Shield, Award, Users, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import logo from '../../assets/logo.png';
+import { fadeInUp, staggerContainer, defaultTransition } from '../../hooks/useMotion';
 
 const FooterB2C = () => {
-  const footerRef = useRef(null);
-
   // Add responsive styles
   useEffect(() => {
     const footerStyles = `
@@ -48,64 +48,8 @@ const FooterB2C = () => {
     };
   }, []);
 
-  // Add GSAP animations if available
-  useEffect(() => {
-    if (typeof window !== 'undefined' && window.gsap) {
-      const gsap = window.gsap;
-      const ScrollTrigger = window.gsap?.plugins?.scrollTrigger;
-      
-      if (ScrollTrigger) {
-        gsap.registerPlugin(ScrollTrigger);
-        
-        const ctx = gsap.context(() => {
-          const columns = footerRef.current?.querySelectorAll('.footer-column');
-          const stats = footerRef.current?.querySelectorAll('.footer-stat');
-          
-          if (columns && columns.length > 0) {
-            gsap.fromTo(Array.from(columns),
-              { opacity: 0, y: 40 },
-              {
-                opacity: 1,
-                y: 0,
-                duration: 0.8,
-                stagger: 0.1,
-                ease: 'power3.out',
-                scrollTrigger: {
-                  trigger: footerRef.current,
-                  start: 'top 85%',
-                  toggleActions: 'play none none reverse'
-                }
-              }
-            );
-          }
-          
-          if (stats && stats.length > 0) {
-            gsap.fromTo(Array.from(stats),
-              { opacity: 0, scale: 0.8 },
-              {
-                opacity: 1,
-                scale: 1,
-                duration: 0.6,
-                stagger: 0.1,
-                ease: 'back.out(1.7)',
-                scrollTrigger: {
-                  trigger: footerRef.current,
-                  start: 'top 85%',
-                  toggleActions: 'play none none reverse'
-                }
-              }
-            );
-          }
-        }, footerRef);
-        
-        return () => ctx?.revert();
-      }
-    }
-  }, []);
-
   return (
-    <footer 
-      ref={footerRef}
+    <footer
       style={{
         backgroundColor: '#020034',
         color: 'white',
@@ -130,18 +74,23 @@ const FooterB2C = () => {
       <div className="container" style={{ position: 'relative', zIndex: 1, maxWidth: '1200px', margin: '0 auto', padding: '0 2rem', width: '100%', boxSizing: 'border-box' }}>
         {/* Main Footer Content */}
         <div style={{ padding: '5rem 0 3rem' }}>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
-            gap: '3rem',
-            marginBottom: '4rem',
-            width: '100%',
-            boxSizing: 'border-box'
-          }}
-          className="footer-grid"
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.1 }}
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(4, 1fr)',
+              gap: '3rem',
+              marginBottom: '4rem',
+              width: '100%',
+              boxSizing: 'border-box'
+            }}
+            className="footer-grid"
           >
             {/* Company Info */}
-            <div className="footer-column" style={{ maxWidth: '350px' }}>
+            <motion.div className="footer-column" variants={fadeInUp} transition={defaultTransition} style={{ maxWidth: '350px' }}>
               <div style={{ marginBottom: '1.5rem' }}>
                 <div style={{ marginBottom: '1rem' }}>
                   <img 
@@ -298,10 +247,10 @@ const FooterB2C = () => {
                   </a>
                 ))}
               </div>
-            </div>
+            </motion.div>
 
             {/* Services */}
-            <div className="footer-column">
+            <motion.div className="footer-column" variants={fadeInUp} transition={defaultTransition}>
               <h3 style={{
                 fontSize: '1.125rem',
                 fontWeight: '700',
@@ -347,10 +296,10 @@ const FooterB2C = () => {
                   </li>
                 ))}
               </ul>
-            </div>
+            </motion.div>
 
             {/* Company */}
-            <div className="footer-column">
+            <motion.div className="footer-column" variants={fadeInUp} transition={defaultTransition}>
               <h3 style={{
                 fontSize: '1.125rem',
                 fontWeight: '700',
@@ -392,10 +341,10 @@ const FooterB2C = () => {
                   </li>
                 ))}
               </ul>
-            </div>
+            </motion.div>
 
             {/* Support & Legal */}
-            <div className="footer-column">
+            <motion.div className="footer-column" variants={fadeInUp} transition={defaultTransition}>
               <h3 style={{
                 fontSize: '1.125rem',
                 fontWeight: '700',
@@ -475,8 +424,8 @@ const FooterB2C = () => {
                   ))}
                 </div>
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
 
         {/* Bottom Bar */}
@@ -497,7 +446,7 @@ const FooterB2C = () => {
             gap: '1.5rem',
             flexWrap: 'wrap'
           }}>
-            <div className="footer-stat" style={{
+            <motion.div className="footer-stat" initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={defaultTransition} style={{
               padding: '0.75rem 1.5rem',
               backgroundColor: 'rgba(255,255,255,0.05)',
               borderRadius: '12px',
@@ -510,7 +459,7 @@ const FooterB2C = () => {
             }}>
               <Clock size={16} />
               <span>Same-day service available</span>
-            </div>
+            </motion.div>
           </div>
 
           {/* Copyright - Right Side */}

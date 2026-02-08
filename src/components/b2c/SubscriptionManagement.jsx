@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Crown, Pause, Play, X, CreditCard, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
-import { gsap } from 'gsap';
 import { manageSubscription, checkSubscription } from '../../lib/subscription';
 import { getStripe } from '../../lib/stripe';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';

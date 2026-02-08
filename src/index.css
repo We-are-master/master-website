@@ -1,4 +1,4 @@
-/* Reset and Base Styles */
+/* Reset and Base Styles — Enterprise (Brex/Uber/iFood style) */
 * {
   margin: 0;
   padding: 0;
@@ -14,8 +14,19 @@ html {
   -webkit-overflow-scrolling: touch;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -28,6 +39,12 @@ body {
   font-feature-settings: 'kern' 1;
   font-kerning: normal;
   overscroll-behavior-x: none;
+}
+
+/* Enterprise focus styles (a11y + polish) */
+:focus-visible {
+  outline: 2px solid #E94A02;
+  outline-offset: 2px;
 }
 
 /* Ensure all elements inherit SF Pro Display */
