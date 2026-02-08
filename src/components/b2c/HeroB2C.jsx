@@ -148,12 +148,12 @@ const HeroB2C = () => {
         position: 'relative',
         minHeight: '100vh',
         display: 'flex',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         overflow: 'hidden',
         background: '#020034',
         width: '100%',
-        paddingTop: '2rem',
-        paddingBottom: '2rem'
+        paddingTop: 'clamp(1rem, 4vw, 2rem)',
+        paddingBottom: 'clamp(1rem, 2vw, 1.5rem)'
       }}
     >
       <div style={{
@@ -203,12 +203,12 @@ const HeroB2C = () => {
       <div className="container hero-b2c-inner" style={{
         position: 'relative',
         zIndex: 3,
-        padding: 'clamp(2rem, 4vw, 4rem) 0',
+        padding: 'clamp(1rem, 3vw, 2rem) 0 clamp(1.25rem, 2.5vw, 2.5rem)',
         width: '100%',
         maxWidth: '100%',
         overflow: 'hidden'
       }}>
-        <div style={{ maxWidth: 'min(900px, 72vw)', margin: '0 auto', textAlign: 'center' }}>
+        <div className="hero-b2c-content" style={{ maxWidth: 'min(1120px, 94vw)', margin: '0 auto', textAlign: 'center', paddingLeft: 'clamp(0.5rem, 2vw, 1rem)', paddingRight: 'clamp(0.5rem, 2vw, 1rem)' }}>
           <motion.div
             initial={{ opacity: 0, y: -24, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -292,7 +292,7 @@ const HeroB2C = () => {
               marginBottom: 'clamp(1.5rem, 3vw, 2.5rem)',
               fontWeight: '400',
               lineHeight: '1.55',
-              maxWidth: 'min(640px, 52vw)',
+              maxWidth: '42em',
               marginLeft: 'auto',
               marginRight: 'auto',
               letterSpacing: '-0.01em'
@@ -322,7 +322,8 @@ const HeroB2C = () => {
                 borderRadius: '12px',
                 padding: '0.5rem',
                 boxShadow: '0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.08)',
-                maxWidth: '720px',
+                maxWidth: 'min(720px, 100%)',
+                width: '100%',
                 margin: '0 auto',
                 gap: '0.5rem'
               }}
@@ -378,15 +379,16 @@ const HeroB2C = () => {
                       transform: 'translateY(-50%)',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '0.5rem',
+                      gap: '0.35rem',
                       pointerEvents: 'none',
                       zIndex: 1,
                       maxWidth: 'calc(100% - 1rem)',
+                      minWidth: 0,
                       overflow: 'hidden'
                     }}
                   >
-                    <span style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: 'clamp(1rem, 4vw, 1.125rem)', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>Try "</span>
-                    <span style={{ color: '#E94A02', fontSize: 'clamp(1rem, 4vw, 1.125rem)', fontFamily: 'inherit', fontWeight: '500', whiteSpace: 'nowrap' }}>{displayedText}</span>
+                    <span className="hero-placeholder-try" style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: 'clamp(1rem, 4vw, 1.125rem)', fontFamily: 'inherit', whiteSpace: 'nowrap', flexShrink: 0 }}>Try "</span>
+                    <span className="hero-placeholder-service" style={{ color: '#E94A02', fontSize: 'clamp(1rem, 4vw, 1.125rem)', fontFamily: 'inherit', fontWeight: '500', whiteSpace: 'nowrap' }}>{displayedText}</span>
                     <span style={{
                       width: '2px',
                       height: 'clamp(1rem, 4vw, 1.25rem)',
@@ -395,15 +397,23 @@ const HeroB2C = () => {
                       opacity: isTyping ? 1 : 0,
                       flexShrink: 0
                     }} />
-                    <span style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: 'clamp(1rem, 4vw, 1.125rem)', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>"</span>
+                    <span className="hero-placeholder-end" style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: 'clamp(1rem, 4vw, 1.125rem)', fontFamily: 'inherit', whiteSpace: 'nowrap', flexShrink: 0 }}>"</span>
                   </div>
                 )}
                 <style>{`
                   @keyframes blink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0; } }
                   .hero-search-container:focus-within { box-shadow: 0 12px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(233, 74, 2, 0.3); background-color: rgba(255, 255, 255, 0.12); }
+                  @media (min-width: 769px) {
+                    .hero-b2c { min-height: 88vh !important; }
+                  }
                   @media (max-width: 768px) {
-                    .hero-b2c { align-items: flex-start !important; padding-top: 50px !important; padding-bottom: 2rem !important; min-height: auto !important; }
+                    .hero-b2c { align-items: flex-start !important; padding-top: 1.25rem !important; padding-bottom: 2rem !important; min-height: auto !important; }
                     .hero-b2c-inner { padding-top: 0.5rem !important; padding-bottom: 1.5rem !important; }
+                    .hero-b2c-content { max-width: 100% !important; padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
+                    .hero-scroll-indicator { display: none !important; }
+                  }
+                  @media (max-width: 480px) {
+                    .hero-b2c-content { padding-left: 1rem !important; padding-right: 1rem !important; }
                   }
                   @media (max-width: 640px) {
                     .hero-search-container { padding: 0.75rem !important; gap: 0.5rem !important; }
@@ -412,13 +422,15 @@ const HeroB2C = () => {
                     .hero-search-container input { padding: 0.875rem 0.25rem !important; font-size: 0.9375rem !important; }
                     .hero-search-container button { padding: 0.875rem 1.25rem !important; font-size: 0.875rem !important; gap: 0.375rem !important; }
                     .hero-search-container button svg { width: 16px !important; height: 16px !important; }
+                    .hero-placeholder { max-width: calc(100% - 88px) !important; }
+                    .hero-placeholder-try, .hero-placeholder-service, .hero-placeholder-end { font-size: 0.9375rem !important; }
                   }
                   @media (max-width: 480px) {
                     .hero-search-container { padding: 0.5rem !important; gap: 0.375rem !important; }
                     .hero-search-container button span { display: none; }
-                    .hero-search-container button { padding: 0.875rem 1rem !important; min-width: auto; }
-                    .hero-placeholder { left: 0.25rem !important; max-width: calc(100% - 120px) !important; }
-                    .hero-placeholder span { font-size: 0.875rem !important; }
+                    .hero-search-container button { padding: 0.875rem 0.75rem !important; min-width: auto; }
+                    .hero-placeholder { left: 0.25rem !important; max-width: calc(100% - 64px) !important; gap: 0.25rem !important; }
+                    .hero-placeholder-try, .hero-placeholder-service, .hero-placeholder-end { font-size: 0.8125rem !important; }
                   }
                 `}</style>
               </div>
@@ -539,6 +551,7 @@ const HeroB2C = () => {
       </div>
 
       <motion.div
+        className="hero-scroll-indicator"
         style={{
           position: 'absolute',
           bottom: '2rem',
