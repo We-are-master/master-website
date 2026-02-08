@@ -56,7 +56,8 @@ const FooterB2C = () => {
         position: 'relative',
         overflow: 'hidden',
         width: '100%',
-        maxWidth: '100vw'
+        maxWidth: '100vw',
+        zIndex: 10
       }}
     >
       {/* Background Pattern */}

@@ -97,7 +97,7 @@ function AppContent() {
         <Route path="/my-requests" element={<MyRequests />} />
         <Route path="/settings" element={<Settings />} />
       </Routes>
-      {isB2C ? <FooterB2C /> : <Footer />}
+      {isB2C ? (location.pathname === '/checkout' ? null : <FooterB2C />) : <Footer />}
       <CookieConsent />
       <ToastContainer
         position="top-right"
