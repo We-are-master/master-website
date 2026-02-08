@@ -10,6 +10,8 @@ import SubscriptionUpsell from '../components/b2c/SubscriptionUpsell';
 
 // Master Club subscription price - updated to match new design
 const SUBSCRIPTION_PRICE = 9.99;
+// UK VAT rate (prices are VAT-inclusive)
+const VAT_RATE = 0.2;
 import { checkSubscription } from '../lib/subscription';
 import '../styles/booking-premium.css';
 
@@ -906,6 +908,8 @@ const B2CCheckout = () => {
   const savingsAmount = memberDiscount > 0 ? memberDiscount : 0;
   const serviceTotal = totalPrice;
   const finalTotal = orderTotal;
+  // VAT amount (total is VAT-inclusive: VAT = total - total/1.2)
+  const vatAmount = finalTotal - finalTotal / (1 + VAT_RATE);
 
   const paymentBlock = (
     <>
@@ -1629,6 +1633,10 @@ const B2CCheckout = () => {
               </span>
             </div>
           )}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '15px', marginBottom: '20px' }}>
+            <span style={{ opacity: 0.6, fontWeight: 600, color: '#020034' }}>VAT (20% included)</span>
+            <span style={{ fontWeight: 700, color: '#020034' }}>£{vatAmount.toFixed(2)}</span>
+          </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '24px', marginTop: '8px', borderTop: '1px solid #E2E8F0' }}>
             <span style={{ fontSize: '22px', fontWeight: 800, color: '#020034' }}>Total Amount</span>
             <div style={{ textAlign: 'right' }}>
@@ -1636,7 +1644,7 @@ const B2CCheckout = () => {
                 £{finalTotal.toFixed(2)}
               </span>
               <span style={{ fontSize: '11px', fontWeight: 700, opacity: 0.4, textTransform: 'uppercase', color: '#020034' }}>
-                Vat Included
+                VAT included
               </span>
             </div>
           </div>
@@ -1697,10 +1705,15 @@ const B2CCheckout = () => {
                 <span style={{ fontWeight: 700, color: '#059669' }}>-£{savingsAmount.toFixed(2)}</span>
               </div>
             )}
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span style={{ color: '#64748B', fontWeight: 600 }}>VAT (20% included)</span>
+              <span style={{ fontWeight: 700, color: '#020034' }}>£{vatAmount.toFixed(2)}</span>
+            </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 16, marginTop: 8, borderTop: '1px solid #E2E8F0' }}>
               <span style={{ fontSize: '18px', fontWeight: 800, color: '#020034' }}>Total</span>
               <span style={{ fontSize: '28px', fontWeight: 800, letterSpacing: '-0.02em', color: '#020034' }}>£{finalTotal.toFixed(2)}</span>
             </div>
+            <p style={{ fontSize: '11px', fontWeight: 600, color: '#94A3B8', marginTop: 4, marginBottom: 0 }}>VAT included in total</p>
           </div>
           <div style={{ marginTop: 'auto', paddingTop: 24 }}>
             {paymentBlock}
