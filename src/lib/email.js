@@ -44,6 +44,37 @@ export async function sendEmail(template, to, data = {}) {
 }
 
 /**
+ * Save hero lead for remarketing (service + postcode + email from home form)
+ * @param {{ email: string, service?: string, postcode?: string, source?: string }} leadData
+ * @returns {Promise<{success: boolean, error?: string}>}
+ */
+export async function saveHeroLead(leadData) {
+  try {
+    if (!SUPABASE_URL) {
+      return { success: false, error: 'Service not configured' }
+    }
+    const { email, service, postcode, source = 'hero_b2c' } = leadData || {}
+    if (!email || !String(email).trim()) {
+      return { success: false, error: 'Email is required' }
+    }
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/save-hero-lead`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: String(email).trim().toLowerCase(), service: service || null, postcode: postcode || null, source }),
+    })
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}))
+      return { success: false, error: err.error || 'Failed to save lead' }
+    }
+    const result = await response.json()
+    return { success: true, ...result }
+  } catch (error) {
+    console.error('[HeroLead] Error saving lead:', error)
+    return { success: false, error: error.message || 'Failed to save lead' }
+  }
+}
+
+/**
  * Track abandoned checkout
  * Saves checkout data when user leaves without completing
  * @param {object} checkoutData - Checkout data to save

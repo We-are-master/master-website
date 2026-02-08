@@ -9,7 +9,7 @@ import { trackAbandonedCheckout } from '../lib/email';
 import SubscriptionUpsell from '../components/b2c/SubscriptionUpsell';
 
 // Master Club subscription price - updated to match new design
-const SUBSCRIPTION_PRICE = 12.99;
+const SUBSCRIPTION_PRICE = 9.99;
 import { checkSubscription } from '../lib/subscription';
 import '../styles/booking-premium.css';
 

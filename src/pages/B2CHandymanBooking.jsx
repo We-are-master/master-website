@@ -555,12 +555,13 @@ const B2CHandymanBooking = () => {
         </footer>
       </div>
 
-      {/* Help modal */}
+      {/* Help modal — wrapped in .bkp so card and button styles apply; header flex keeps X inside card */}
       {showHelpModal && (
         <div
           role="dialog"
           aria-modal="true"
           aria-labelledby="help-modal-title"
+          className="bkp bkp-dark"
           style={{
             position: 'fixed',
             inset: 0,
@@ -577,18 +578,29 @@ const B2CHandymanBooking = () => {
           <div
             className="bkp-card"
             style={{
+              position: 'relative',
               maxWidth: 400,
               width: '100%',
               padding: 24,
               background: 'var(--bkp-bg-deep)',
               border: '1px solid var(--bkp-border-strong)',
-              boxShadow: 'var(--bkp-shadow-lg)'
+              boxShadow: 'var(--bkp-shadow-lg)',
+              boxSizing: 'border-box'
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-              <h2 id="help-modal-title" style={{ margin: 0, fontSize: 'var(--bkp-text-lg)', fontWeight: 700, color: 'var(--bkp-text)' }}>Need help?</h2>
-              <button type="button" onClick={() => setShowHelpModal(false)} aria-label="Close" className="bkp-btn-icon" style={{ color: 'var(--bkp-text)' }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 12,
+                marginBottom: 16,
+                minWidth: 0
+              }}
+            >
+              <h2 id="help-modal-title" style={{ margin: 0, fontSize: 'var(--bkp-text-lg)', fontWeight: 700, color: 'var(--bkp-text)', flex: '1 1 auto', minWidth: 0 }}>Need help?</h2>
+              <button type="button" onClick={() => setShowHelpModal(false)} aria-label="Close" className="bkp-btn-icon" style={{ color: 'var(--bkp-text)', flexShrink: 0 }}>
                 <X size={22} aria-hidden />
               </button>
             </div>
