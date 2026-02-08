@@ -36,6 +36,7 @@ const B2CHandymanBooking = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const postcode = location.state?.postcode || '';
+  const email = location.state?.email || '';
   const [trade, setTrade] = useState('Handyman');
   const [selectedPlan, setSelectedPlan] = useState('hourly');
   const [hours, setHours] = useState(4);
@@ -134,6 +135,7 @@ const B2CHandymanBooking = () => {
     navigate('/checkout', {
       state: {
         postcode,
+        email,
         service: {
           id: trade.toLowerCase(),
           title: getServiceLabel(),

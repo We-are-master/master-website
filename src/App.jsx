@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
 import HeaderB2B from './components/HeaderB2B'
@@ -34,6 +34,14 @@ import B2CLogin from './pages/B2CLogin'
 import B2CMyOrders from './pages/B2CMyOrders'
 import CheckoutSuccess from './pages/CheckoutSuccess'
 
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
+
 function AppContent() {
   const location = useLocation();
   // B2C is now the default homepage
@@ -46,6 +54,7 @@ function AppContent() {
 
   return (
     <div className="App">
+      <ScrollToTop />
       <SecurityHeaders />
       {isB2C ? <HeaderB2C /> : <HeaderB2B />}
       <Routes>

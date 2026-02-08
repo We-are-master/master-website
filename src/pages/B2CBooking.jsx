@@ -985,7 +985,7 @@ const B2CBooking = () => {
     if (isCleaning) {
       navigate('/cleaning-booking', { state: { service, postcode, jobDescription, services: cart } });
     } else {
-      navigate('/checkout', { state: { service, postcode, jobDescription, services: cart } });
+      navigate('/checkout', { state: { service, postcode, jobDescription, services: cart, email: location.state?.email } });
     }
   };
 

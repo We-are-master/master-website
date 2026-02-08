@@ -118,11 +118,13 @@ const B2CCleaningBooking = () => {
   const getServiceLabel = () => services.find(s => s.id === selectedService)?.label || 'Cleaning';
 
   const postcode = location.state?.postcode || '';
+  const email = location.state?.email || '';
 
   const handleContinue = () => {
     navigate('/checkout', {
       state: {
         postcode,
+        email,
         service: {
           id: 'cleaning',
           title: `Cleaning · ${getServiceLabel()}`,
