@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   ChevronLeft,
   ArrowRight,
@@ -41,6 +41,9 @@ const SKIRTING_ITEMS = [
 
 const B2CCarpentryBooking = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const postcode = location.state?.postcode || '';
+  const email = location.state?.email || '';
   const [activeTab, setActiveTab] = useState(TAB_DOOR);
   const [extraRequests, setExtraRequests] = useState('');
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -87,6 +90,8 @@ const B2CCarpentryBooking = () => {
   const handleContinue = () => {
     navigate('/checkout', {
       state: {
+        postcode,
+        email,
         service: {
           id: 'carpentry',
           title: `Carpentry - ${getTabLabel()}`,

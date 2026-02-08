@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   ChevronLeft,
   ArrowRight,
@@ -23,7 +23,9 @@ const PAINTING_ITEM_ICONS = { bed: Bed, chair_alt: Armchair, layers: Layers, sen
 
 const B2CPaintingBooking = () => {
   const navigate = useNavigate();
-  
+  const location = useLocation();
+  const postcode = location.state?.postcode || '';
+  const email = location.state?.email || '';
   const [propertyType, setPropertyType] = useState('flat');
   const [paintingQuality, setPaintingQuality] = useState('high_standard');
   const [bedrooms, setBedrooms] = useState(0);
@@ -109,6 +111,8 @@ const B2CPaintingBooking = () => {
   const handleBookService = () => {
     navigate('/checkout', {
       state: {
+        postcode,
+        email,
         service: {
           id: 'painting',
           title: `Painting - ${getQualityLabel()}`,

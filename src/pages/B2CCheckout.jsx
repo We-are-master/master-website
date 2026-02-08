@@ -253,7 +253,7 @@ const PaymentForm = ({ onSuccess, clientSecret }) => {
 const B2CCheckout = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { service: serviceFromState, postcode, jobDescription, services: servicesFromState } = location.state || {};
+  const { service: serviceFromState, postcode, jobDescription, services: servicesFromState, email: emailFromState } = location.state || {};
 
   // Hide Zoho SalesIQ chat widget on checkout so "We're offline" popup doesn't cover the Continue button
   useEffect(() => {
@@ -301,10 +301,10 @@ const B2CCheckout = () => {
   const paymentSectionRef = useRef(null);
   const [hasScrolledToPayment, setHasScrolledToPayment] = useState(false);
   
-  // Customer details form
+  // Customer details form (email/postcode pre-filled when coming from hero)
   const [customerDetails, setCustomerDetails] = useState({
     fullName: '',
-    email: '',
+    email: emailFromState || '',
     phone: '',
     addressLine1: '',
     addressLine2: '',
