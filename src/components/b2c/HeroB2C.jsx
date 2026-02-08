@@ -148,12 +148,12 @@ const HeroB2C = () => {
         position: 'relative',
         minHeight: '100vh',
         display: 'flex',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         overflow: 'hidden',
         background: '#020034',
         width: '100%',
-        paddingTop: '2rem',
-        paddingBottom: '2rem'
+        paddingTop: 'clamp(1rem, 4vw, 2rem)',
+        paddingBottom: 'clamp(1rem, 2vw, 1.5rem)'
       }}
     >
       <div style={{
@@ -203,7 +203,7 @@ const HeroB2C = () => {
       <div className="container hero-b2c-inner" style={{
         position: 'relative',
         zIndex: 3,
-        padding: 'clamp(2rem, 4vw, 4rem) 0',
+        padding: 'clamp(1rem, 3vw, 2rem) 0 clamp(1.25rem, 2.5vw, 2.5rem)',
         width: '100%',
         maxWidth: '100%',
         overflow: 'hidden'
@@ -403,10 +403,14 @@ const HeroB2C = () => {
                 <style>{`
                   @keyframes blink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0; } }
                   .hero-search-container:focus-within { box-shadow: 0 12px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(233, 74, 2, 0.3); background-color: rgba(255, 255, 255, 0.12); }
+                  @media (min-width: 769px) {
+                    .hero-b2c { min-height: 88vh !important; }
+                  }
                   @media (max-width: 768px) {
-                    .hero-b2c { align-items: flex-start !important; padding-top: 50px !important; padding-bottom: 2rem !important; min-height: auto !important; }
+                    .hero-b2c { align-items: flex-start !important; padding-top: 1.25rem !important; padding-bottom: 2rem !important; min-height: auto !important; }
                     .hero-b2c-inner { padding-top: 0.5rem !important; padding-bottom: 1.5rem !important; }
                     .hero-b2c-content { max-width: 100% !important; padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
+                    .hero-scroll-indicator { display: none !important; }
                   }
                   @media (max-width: 480px) {
                     .hero-b2c-content { padding-left: 1rem !important; padding-right: 1rem !important; }
@@ -547,6 +551,7 @@ const HeroB2C = () => {
       </div>
 
       <motion.div
+        className="hero-scroll-indicator"
         style={{
           position: 'absolute',
           bottom: '2rem',
