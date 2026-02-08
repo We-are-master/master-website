@@ -254,19 +254,18 @@ const HeroB2C = () => {
                   Enter your postcode
                 </span>
                 <span style={{ color: '#E94A02', fontWeight: '600', display: 'inline-block' }}>
-                  to see pros near you
+                  your postcode
                 </span>
                 <span style={{ color: 'rgba(255, 255, 255, 0.6)' }}>.</span>
               </>
             ) : heroStep === 'email' ? (
               <>
                 <span style={{ color: 'white', display: 'block', marginBottom: '0.25rem' }}>
-                  Almost there —
+                  One step away.
                 </span>
                 <span style={{ color: '#E94A02', fontWeight: '600', display: 'inline-block' }}>
-                  enter your email
+                  Enter your email.
                 </span>
-                <span style={{ color: 'rgba(255, 255, 255, 0.6)' }}>.</span>
               </>
             ) : (
               <>
@@ -299,9 +298,9 @@ const HeroB2C = () => {
             }}
           >
             {heroStep === 'postcode'
-              ? 'We\'ll show you available professionals and instant pricing for your area. Use your full UK postcode (e.g. SW1A 1AA, M1 1AA).'
+              ? 'We\'ll show you instant pricing for your area. Use your full UK postcode (e.g. SW1A 1AA, M1 1AA).'
               : heroStep === 'email'
-                ? 'We\'ll send you your quote and next steps. No spam, just your booking details.'
+                ? 'See the final price and we\'ll take care of the rest.'
                 : 'Professional tradespeople at your doorstep. Book in minutes, get instant pricing, and enjoy peace of mind.'}
           </motion.p>
 
