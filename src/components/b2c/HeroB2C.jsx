@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Search, ArrowRight, Sparkles, MapPin } from 'lucide-react';
+import { Search, ArrowRight, Sparkles, MapPin, Mail } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { fadeInUp, staggerContainer, defaultTransition, springTransition } from '../../hooks/useMotion';
+import { saveHeroLead } from '../../lib/email';
 
 const isValidUKPostcode = (value) => {
   const trimmed = (value || '').trim().toUpperCase().replace(/\s+/g, ' ');
@@ -10,12 +11,19 @@ const isValidUKPostcode = (value) => {
   return match && match[0].length >= 5;
 };
 
+const isValidEmail = (value) => {
+  const trimmed = (value || '').trim();
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed);
+};
+
 const HeroB2C = () => {
   const navigate = useNavigate();
   const [heroStep, setHeroStep] = useState('service');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedService, setSelectedService] = useState('');
+  const [confirmedPostcode, setConfirmedPostcode] = useState('');
   const [postcodeError, setPostcodeError] = useState('');
+  const [emailError, setEmailError] = useState('');
   const [currentServiceIndex, setCurrentServiceIndex] = useState(0);
   const [displayedText, setDisplayedText] = useState('');
   const [isTyping, setIsTyping] = useState(true);
@@ -72,36 +80,56 @@ const HeroB2C = () => {
         setSelectedService(searchTerm.trim());
         setSearchTerm('');
         setHeroStep('postcode');
+        setPostcodeError('');
       }
       return;
     }
-    const postcodeRaw = searchTerm.trim();
-    if (!postcodeRaw) return;
-    const postcodeMatch = postcodeRaw.toUpperCase().replace(/\s+/g, ' ').match(/[A-Z]{1,2}[0-9]{1,2}[A-Z]?\s?[0-9][A-Z]{2}/i);
-    const postcode = postcodeMatch ? postcodeMatch[0].trim() : postcodeRaw.toUpperCase().replace(/[^A-Z0-9\s]/g, '').trim();
-    if (!isValidUKPostcode(postcode)) {
-      setPostcodeError('Please enter a valid UK postcode (e.g. SW1A 1AA, M1 1AA)');
+    if (heroStep === 'postcode') {
+      const postcodeRaw = searchTerm.trim();
+      if (!postcodeRaw) return;
+      const postcodeMatch = postcodeRaw.toUpperCase().replace(/\s+/g, ' ').match(/[A-Z]{1,2}[0-9]{1,2}[A-Z]?\s?[0-9][A-Z]{2}/i);
+      const postcode = postcodeMatch ? postcodeMatch[0].trim() : postcodeRaw.toUpperCase().replace(/[^A-Z0-9\s]/g, '').trim();
+      if (!isValidUKPostcode(postcode)) {
+        setPostcodeError('Please enter a valid UK postcode (e.g. SW1A 1AA, M1 1AA)');
+        return;
+      }
+      setPostcodeError('');
+      setConfirmedPostcode(postcode);
+      setSearchTerm('');
+      setHeroStep('email');
+      setEmailError('');
       return;
     }
-    setPostcodeError('');
+    // Step: email
+    const emailRaw = searchTerm.trim();
+    if (!emailRaw) return;
+    if (!isValidEmail(emailRaw)) {
+      setEmailError('Please enter a valid email address');
+      return;
+    }
+    setEmailError('');
+    const postcode = confirmedPostcode;
+    const email = emailRaw;
+    // Save for remarketing (fire-and-forget; don't block navigation)
+    saveHeroLead({ email, service: selectedService, postcode }).catch(() => {});
     const searchLower = selectedService.toLowerCase().trim();
-    // Redirect to new configurator layouts for these services (old grid page disabled)
     const isCleaning = searchLower.includes('cleaning') || searchLower.includes('clean') ||
       searchLower.includes('deep clean') || searchLower.includes('end of tenancy') ||
       searchLower.includes('upholstery');
     const isHandyman = searchLower.includes('handyman') || searchLower.includes('odd job');
     const isPainter = searchLower.includes('painter') || searchLower.includes('painting') || searchLower.includes('paint');
     const isCarpenter = searchLower.includes('carpenter') || searchLower.includes('carpentry');
+    const state = { jobDescription: selectedService, postcode, email };
     if (isCleaning) {
-      navigate('/cleaning-booking', { state: { jobDescription: selectedService, postcode } });
+      navigate('/cleaning-booking', { state });
     } else if (isHandyman) {
-      navigate('/handyman-booking', { state: { jobDescription: selectedService, postcode } });
+      navigate('/handyman-booking', { state });
     } else if (isPainter) {
-      navigate('/painting-booking', { state: { jobDescription: selectedService, postcode } });
+      navigate('/painting-booking', { state });
     } else if (isCarpenter) {
-      navigate('/carpentry-booking', { state: { jobDescription: selectedService, postcode } });
+      navigate('/carpentry-booking', { state });
     } else {
-      navigate('/booking', { state: { service: selectedService, postcode } });
+      navigate('/booking', { state: { service: selectedService, postcode, email } });
     }
   };
 
@@ -276,7 +304,9 @@ const HeroB2C = () => {
                 padding: '0 1.25rem',
                 color: 'rgba(255, 255, 255, 0.5)'
               }}>
-                {heroStep === 'service' ? <Search size={20} /> : <MapPin size={20} />}
+                {heroStep === 'service' && <Search size={20} />}
+                {heroStep === 'postcode' && <MapPin size={20} />}
+                {heroStep === 'email' && <Mail size={20} />}
               </div>
               <div style={{
                 flex: 1,
@@ -288,10 +318,12 @@ const HeroB2C = () => {
                 overflow: 'hidden'
               }}>
                 <input
-                  type="text"
+                  type={heroStep === 'email' ? 'email' : 'text'}
+                  inputMode={heroStep === 'email' ? 'email' : 'text'}
+                  autoComplete={heroStep === 'email' ? 'email' : 'off'}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder={heroStep === 'postcode' ? 'e.g. SW1A 1AA, M1 1AA' : ''}
+                  placeholder={heroStep === 'postcode' ? 'e.g. SW1A 1AA, M1 1AA' : heroStep === 'email' ? 'your@email.com' : ''}
                   style={{
                     width: '100%',
                     border: 'none',
@@ -382,16 +414,16 @@ const HeroB2C = () => {
                   letterSpacing: '-0.01em'
                 }}
               >
-                <span>{heroStep === 'service' ? 'Continue' : 'Get instant price'}</span>
+                <span>{heroStep === 'email' ? 'Get instant price' : 'Continue'}</span>
                 <ArrowRight size={18} />
               </motion.button>
             </motion.div>
-            {postcodeError && (
-              <p style={{ color: '#f87171', fontSize: '0.875rem', marginTop: '0.5rem', marginBottom: 0 }}>{postcodeError}</p>
+            {(postcodeError || emailError) && (
+              <p style={{ color: '#f87171', fontSize: '0.875rem', marginTop: '0.5rem', marginBottom: 0 }}>{postcodeError || emailError}</p>
             )}
           </motion.form>
 
-          {heroStep === 'postcode' && (
+          {(heroStep === 'postcode' || heroStep === 'email') && (
             <div style={{
               display: 'flex',
               alignItems: 'center',
@@ -406,7 +438,7 @@ const HeroB2C = () => {
               </span>
               <button
                 type="button"
-                onClick={() => { setHeroStep('service'); setSearchTerm(''); setSelectedService(''); setPostcodeError(''); }}
+                onClick={() => { setHeroStep('service'); setSearchTerm(''); setSelectedService(''); setPostcodeError(''); setEmailError(''); setConfirmedPostcode(''); }}
                 style={{
                   background: 'none', border: 'none', color: 'rgba(255,255,255,0.7)',
                   fontSize: '0.875rem', textDecoration: 'underline', cursor: 'pointer', padding: 0
@@ -414,6 +446,24 @@ const HeroB2C = () => {
               >
                 Change service
               </button>
+              {heroStep === 'email' && (
+                <>
+                  <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.9rem' }}>·</span>
+                  <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>
+                    Postcode: <strong style={{ color: '#E94A02' }}>{confirmedPostcode}</strong>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => { setHeroStep('postcode'); setSearchTerm(confirmedPostcode); setEmailError(''); }}
+                    style={{
+                      background: 'none', border: 'none', color: 'rgba(255,255,255,0.7)',
+                      fontSize: '0.875rem', textDecoration: 'underline', cursor: 'pointer', padding: 0
+                    }}
+                  >
+                    Change postcode
+                  </button>
+                </>
+              )}
             </div>
           )}
 
