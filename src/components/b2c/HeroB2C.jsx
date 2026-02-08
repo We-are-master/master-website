@@ -233,6 +233,7 @@ const HeroB2C = () => {
             <span>Trusted by 10,000+ homeowners across the UK</span>
           </motion.div>
 
+          <div className="hero-b2c-headline-desc">
           <motion.h1
             key={`hero-headline-${heroStep}`}
             initial={{ opacity: 0, y: 40 }}
@@ -303,6 +304,7 @@ const HeroB2C = () => {
                 ? 'See the final price and we\'ll take care of the rest.'
                 : 'Professional tradespeople at your doorstep. Book in minutes, get instant pricing, and enjoy peace of mind.'}
           </motion.p>
+          </div>
 
           <motion.form
             initial={{ opacity: 0, y: 32, scale: 0.98 }}
@@ -406,9 +408,10 @@ const HeroB2C = () => {
                     .hero-b2c { min-height: 88vh !important; }
                   }
                   @media (max-width: 768px) {
-                    .hero-b2c { align-items: flex-start !important; padding-top: 1.25rem !important; padding-bottom: 2rem !important; min-height: auto !important; }
+                    .hero-b2c { align-items: flex-start !important; padding-top: 1.25rem !important; padding-bottom: 2rem !important; min-height: 85vh !important; }
                     .hero-b2c-inner { padding-top: 0.5rem !important; padding-bottom: 1.5rem !important; }
                     .hero-b2c-content { max-width: 100% !important; padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
+                    .hero-b2c-headline-desc { min-height: 10.5rem !important; }
                     .hero-scroll-indicator { display: none !important; }
                   }
                   @media (max-width: 480px) {
