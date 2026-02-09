@@ -721,8 +721,8 @@ const B2CCheckout = () => {
       errors.hourlyJobDescription = 'Please describe the work you need done';
     }
 
-    if (selectedDates.length < 2) {
-      errors.date = 'Please select at least 2 preferred dates';
+    if (selectedDates.length < 1) {
+      errors.date = 'Please select at least 1 preferred date';
     }
     
     if (selectedTimeSlots.length === 0) {
@@ -775,7 +775,7 @@ const B2CCheckout = () => {
            customerDetails.addressLine1 && 
            customerDetails.city && 
            customerDetails.postcode &&
-           selectedDates.length >= 2 &&
+           selectedDates.length >= 1 &&
            selectedTimeSlots.length > 0 &&
            agreedToTerms &&
            (!isHourlyService || (agreedToHourlyTerms && hourlyJobDescription.trim()));
@@ -921,7 +921,18 @@ const B2CCheckout = () => {
         <button
           onClick={async () => {
             if (!isFormValid()) {
-              toast.error('Please fill in all required fields');
+              const missing = [];
+              if (!customerDetails.fullName?.trim()) missing.push('name');
+              if (!customerDetails.email?.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerDetails.email)) missing.push('email');
+              if (!customerDetails.phone?.trim()) missing.push('phone');
+              if (!customerDetails.addressLine1?.trim()) missing.push('address');
+              if (!customerDetails.postcode?.trim()) missing.push('postcode');
+              if (selectedDates.length < 1) missing.push('at least 1 date');
+              if (selectedTimeSlots.length === 0) missing.push('a time slot');
+              if (!agreedToTerms) missing.push('terms accepted');
+              if (isHourlyService && !hourlyJobDescription.trim()) missing.push('job description');
+              const msg = missing.length > 0 ? `Please complete: ${missing.slice(0, 4).join(', ')}${missing.length > 4 ? '...' : ''}` : 'Please fill in all required fields';
+              toast.error(msg);
               return;
             }
             await createPaymentIntent();
