@@ -333,6 +333,9 @@ const B2CCheckout = () => {
   const [addSubscriptionToOrder, setAddSubscriptionToOrder] = useState(true); // default checked when no subscription
   const [showSubscriptionUpsell, setShowSubscriptionUpsell] = useState(true); // dismiss banner
 
+  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 768 : false);
+  const [isDesktop, setIsDesktop] = useState(typeof window !== 'undefined' ? window.innerWidth >= 1024 : true);
+
   // Check if (single) service is hourly — only for single-service bookings
   const isHourlyService = servicesList.length === 1 && (
     service?.priceType === 'hourly' ||
@@ -847,7 +850,18 @@ const B2CCheckout = () => {
         });
       }
     };
-  }, [customerDetails.email, customerDetails.fullName, clientSecret, paymentSuccess, service.title, orderTotal]);
+  }, [customerDetails.email, customerDetails.fullName, clientSecret, paymentSuccess, service?.title, orderTotal]);
+
+  // Detect screen size for responsive layout (must run before any early return so hook count is stable)
+  useEffect(() => {
+    const handleResize = () => {
+      const w = window.innerWidth;
+      setIsMobile(w < 768);
+      setIsDesktop(w >= 1024);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   if (paymentSuccess) {
     return (
@@ -887,20 +901,6 @@ const B2CCheckout = () => {
       </div>
     );
   }
-
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
-
-  // Detect screen size for responsive layout
-  useEffect(() => {
-    const handleResize = () => {
-      const w = window.innerWidth;
-      setIsMobile(w < 768);
-      setIsDesktop(w >= 1024);
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   // Format date and time for display in Service Breakdown
   const formatBookingDate = () => {

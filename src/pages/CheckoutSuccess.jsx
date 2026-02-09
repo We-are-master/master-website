@@ -28,118 +28,63 @@ const CheckoutSuccess = () => {
 
   // Verify payment status before showing success
   useEffect(() => {
+    const stateData = location.state;
+    const urlPaymentIntent = searchParams.get('payment_intent');
+    const redirectStatus = searchParams.get('redirect_status');
+
+    // 1) Stripe redirect with success: show thank you immediately (no dependency on getStripe)
+    if (urlPaymentIntent && redirectStatus === 'succeeded') {
+      setPaymentStatus('succeeded');
+      setBookingDetails({
+        paymentIntentId: urlPaymentIntent,
+        fromRedirect: true,
+      });
+      return;
+    }
+    if (urlPaymentIntent && redirectStatus && redirectStatus !== 'succeeded') {
+      setPaymentStatus('failed');
+      setPaymentError('Payment was not completed successfully.');
+      return;
+    }
+
+    let paymentIntentId = stateData?.paymentIntentId || null;
+    const clientSecret = stateData?.clientSecret || null;
+
+    if (!paymentIntentId) {
+      setPaymentStatus('failed');
+      setPaymentError('No payment information found.');
+      return;
+    }
+
     const verifyPayment = async () => {
-      const stateData = location.state;
-      let paymentIntentId = null;
-      let clientSecret = null;
-
-      if (stateData?.paymentIntentId) {
-        paymentIntentId = stateData.paymentIntentId;
-        // If we have clientSecret in state, use it; otherwise we'll need to verify via ID
-        clientSecret = stateData.clientSecret;
-      } else {
-        // Try to get from URL params (Stripe redirect)
-        const paymentIntent = searchParams.get('payment_intent');
-        const redirectStatus = searchParams.get('redirect_status');
-        
-        if (paymentIntent) {
-          paymentIntentId = paymentIntent;
-          // For redirects, we need to verify the status
-          if (redirectStatus !== 'succeeded') {
-            setPaymentStatus('failed');
-            setPaymentError('Payment was not completed successfully.');
-            return;
-          }
-        }
-      }
-
-      if (!paymentIntentId) {
-        setPaymentStatus('failed');
-        setPaymentError('No payment information found.');
-        return;
-      }
-
-      // Verify payment status with Stripe
       try {
+        if (!clientSecret) {
+          setPaymentStatus('failed');
+          setPaymentError('Unable to verify payment. Please use the link from your confirmation or contact support.');
+          return;
+        }
         const stripe = await getStripe();
         if (!stripe) {
           throw new Error('Stripe is not configured');
         }
-
-        // Try to retrieve payment intent - we need clientSecret or paymentIntentId
-        // If we have clientSecret, use it; otherwise try to construct from paymentIntentId
-        let paymentIntent = null;
-        let error = null;
-
-        if (stateData?.clientSecret) {
-          // Use clientSecret if available (most reliable)
-          const result = await stripe.retrievePaymentIntent(stateData.clientSecret);
-          paymentIntent = result.paymentIntent;
-          error = result.error;
-        } else {
-          // For redirects or when we only have ID, we need to verify via backend
-          // Since Stripe.js doesn't support retrieving by ID directly, we'll check the redirect status
-          const redirectStatus = searchParams.get('redirect_status');
-          
-          if (redirectStatus === 'succeeded') {
-            // If redirect_status says succeeded, we still need to verify
-            // In a real scenario, you'd verify via backend, but for now we'll trust the redirect status
-            // and show a warning that verification is pending
-            setPaymentStatus('succeeded');
-            if (stateData) {
-              setBookingDetails({
-                service: stateData.service,
-                postcode: stateData.postcode,
-                jobDescription: stateData.jobDescription,
-                customerDetails: stateData.customerDetails,
-                paymentIntentId: paymentIntentId,
-                scheduledDates: stateData.scheduledDates,
-                scheduledTimeSlots: stateData.scheduledTimeSlots,
-                timeSlotLabels: stateData.timeSlotLabels,
-              });
-            } else {
-              setBookingDetails({
-                paymentIntentId: paymentIntentId,
-                fromRedirect: true,
-              });
-            }
-            return;
-          } else {
-            throw new Error(`Payment redirect status: ${redirectStatus || 'unknown'}`);
-          }
-        }
-
-        if (error) {
-          throw new Error(error.message || 'Failed to verify payment');
-        }
-
-        if (!paymentIntent) {
-          throw new Error('Payment intent not found');
-        }
-
-        // CRITICAL: Only show success if payment is actually succeeded
+        const result = await stripe.retrievePaymentIntent(clientSecret);
+        const paymentIntent = result.paymentIntent;
+        const error = result.error;
+        if (error) throw new Error(error.message || 'Failed to verify payment');
+        if (!paymentIntent) throw new Error('Payment intent not found');
         if (paymentIntent.status === 'succeeded') {
           setPaymentStatus('succeeded');
-          // Set booking details after verification
-          if (stateData) {
-            setBookingDetails({
-              service: stateData.service,
-              postcode: stateData.postcode,
-              jobDescription: stateData.jobDescription,
-              customerDetails: stateData.customerDetails,
-              paymentIntentId: paymentIntent.id,
-              scheduledDates: stateData.scheduledDates,
-              scheduledTimeSlots: stateData.scheduledTimeSlots,
-              timeSlotLabels: stateData.timeSlotLabels,
-            });
-          } else {
-            setBookingDetails({
-              paymentIntentId: paymentIntent.id,
-              fromRedirect: true,
-            });
-          }
+          setBookingDetails(stateData ? {
+            service: stateData.service,
+            postcode: stateData.postcode,
+            jobDescription: stateData.jobDescription,
+            customerDetails: stateData.customerDetails,
+            paymentIntentId: paymentIntent.id,
+            scheduledDates: stateData.scheduledDates,
+            scheduledTimeSlots: stateData.scheduledTimeSlots,
+            timeSlotLabels: stateData.timeSlotLabels,
+          } : { paymentIntentId: paymentIntent.id, fromRedirect: true });
         } else {
-          // Payment not succeeded - show error
           setPaymentStatus('failed');
           setPaymentError(`Payment status: ${paymentIntent.status}. Payment was not completed.`);
         }
