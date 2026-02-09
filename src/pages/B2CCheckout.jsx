@@ -697,16 +697,11 @@ const B2CCheckout = () => {
       errors.phone = 'Please enter a valid UK phone number';
     }
     
-    if (!customerDetails.addressLine1.trim()) {
-      errors.addressLine1 = 'Address is required';
-    }
-    
-    if (!customerDetails.city.trim()) {
-      errors.city = 'City is required';
-    }
-    
     if (!customerDetails.postcode.trim()) {
       errors.postcode = 'Postcode is required';
+    }
+    if (!customerDetails.addressLine1?.trim() && !customerDetails.city?.trim()) {
+      errors.addressLine1 = 'Address or city is required';
     }
     
     if (!agreedToTerms) {
@@ -721,8 +716,8 @@ const B2CCheckout = () => {
       errors.hourlyJobDescription = 'Please describe the work you need done';
     }
 
-    if (selectedDates.length < 1) {
-      errors.date = 'Please select at least 1 preferred date';
+    if (selectedDates.length < 2) {
+      errors.date = 'Please select at least 2 preferred dates';
     }
     
     if (selectedTimeSlots.length === 0) {
@@ -769,16 +764,32 @@ const B2CCheckout = () => {
   };
 
   const isFormValid = () => {
-    return customerDetails.fullName && 
-           customerDetails.email && 
-           customerDetails.phone && 
-           customerDetails.addressLine1 && 
-           customerDetails.city && 
-           customerDetails.postcode &&
-           selectedDates.length >= 1 &&
+    const hasAddress = customerDetails.postcode?.trim() && (customerDetails.addressLine1?.trim() || customerDetails.city?.trim());
+    return customerDetails.fullName?.trim() && 
+           customerDetails.email?.trim() && 
+           /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerDetails.email) &&
+           customerDetails.phone?.trim() && 
+           hasAddress &&
+           selectedDates.length >= 2 &&
            selectedTimeSlots.length > 0 &&
            agreedToTerms &&
            (!isHourlyService || (agreedToHourlyTerms && hourlyJobDescription.trim()));
+  };
+
+  // List what's missing so we can show it under the button when disabled
+  const getMissingRequirements = () => {
+    const missing = [];
+    if (!customerDetails.fullName?.trim()) missing.push('Full name');
+    if (!customerDetails.email?.trim()) missing.push('Email');
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerDetails.email)) missing.push('Valid email');
+    if (!customerDetails.phone?.trim()) missing.push('Phone');
+    if (!customerDetails.postcode?.trim()) missing.push('Postcode');
+    if (!customerDetails.addressLine1?.trim() && !customerDetails.city?.trim()) missing.push('Address or city');
+    if (selectedDates.length < 2) missing.push(`${2 - selectedDates.length} more date(s)`);
+    if (selectedTimeSlots.length === 0) missing.push('Time slot');
+    if (!agreedToTerms) missing.push('Accept terms');
+    if (isHourlyService && !hourlyJobDescription.trim()) missing.push('Job description');
+    return missing;
   };
 
   useEffect(() => {
@@ -918,37 +929,34 @@ const B2CCheckout = () => {
           <PaymentForm onSuccess={handlePaymentSuccess} clientSecret={clientSecret} />
         </Elements>
       ) : (
-        <button
-          onClick={async () => {
-            if (!isFormValid()) {
-              const missing = [];
-              if (!customerDetails.fullName?.trim()) missing.push('name');
-              if (!customerDetails.email?.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerDetails.email)) missing.push('email');
-              if (!customerDetails.phone?.trim()) missing.push('phone');
-              if (!customerDetails.addressLine1?.trim()) missing.push('address');
-              if (!customerDetails.postcode?.trim()) missing.push('postcode');
-              if (selectedDates.length < 1) missing.push('at least 1 date');
-              if (selectedTimeSlots.length === 0) missing.push('a time slot');
-              if (!agreedToTerms) missing.push('terms accepted');
-              if (isHourlyService && !hourlyJobDescription.trim()) missing.push('job description');
-              const msg = missing.length > 0 ? `Please complete: ${missing.slice(0, 4).join(', ')}${missing.length > 4 ? '...' : ''}` : 'Please fill in all required fields';
-              toast.error(msg);
-              return;
-            }
-            await createPaymentIntent();
-          }}
-          disabled={creatingPaymentIntent || !isFormValid()}
-          className="bkp-btn-primary"
-          style={{
-            height: 56,
-            fontSize: 'var(--bkp-text-base)',
-            opacity: creatingPaymentIntent || !isFormValid() ? 0.6 : 1,
-            cursor: creatingPaymentIntent || !isFormValid() ? 'not-allowed' : 'pointer'
-          }}
-        >
-          <span>{creatingPaymentIntent ? 'Processing...' : 'Confirm & pay'}</span>
-          {!creatingPaymentIntent && <ArrowRight size={24} strokeWidth={2.5} />}
-        </button>
+        <>
+          <button
+            onClick={async () => {
+              if (!isFormValid()) {
+                const missing = getMissingRequirements();
+                toast.error(missing.length > 0 ? `Missing: ${missing.slice(0, 5).join(', ')}${missing.length > 5 ? '...' : ''}` : 'Please fill in all required fields');
+                return;
+              }
+              await createPaymentIntent();
+            }}
+            disabled={creatingPaymentIntent || !isFormValid()}
+            className="bkp-btn-primary"
+            style={{
+              height: 56,
+              fontSize: 'var(--bkp-text-base)',
+              opacity: creatingPaymentIntent || !isFormValid() ? 0.6 : 1,
+              cursor: creatingPaymentIntent || !isFormValid() ? 'not-allowed' : 'pointer'
+            }}
+          >
+            <span>{creatingPaymentIntent ? 'Processing...' : 'Confirm & pay'}</span>
+            {!creatingPaymentIntent && <ArrowRight size={24} strokeWidth={2.5} />}
+          </button>
+          {!creatingPaymentIntent && !isFormValid() && getMissingRequirements().length > 0 && (
+            <p style={{ fontSize: '12px', fontWeight: 600, color: '#ED4B00', marginTop: '12px', marginBottom: 0, textAlign: 'center' }}>
+              To enable: {getMissingRequirements().join(', ')}
+            </p>
+          )}
+        </>
       )}
     </>
   );
@@ -1112,7 +1120,7 @@ const B2CCheckout = () => {
                 type="text"
                 placeholder="City / Town"
                 value={customerDetails.city}
-                onChange={(e) => { setCustomerDetails(prev => ({ ...prev, city: e.target.value })); if (formErrors.city) setFormErrors(prev => ({ ...prev, city: '' })); }}
+                onChange={(e) => { setCustomerDetails(prev => ({ ...prev, city: e.target.value })); if (formErrors.city || formErrors.addressLine1) setFormErrors(prev => ({ ...prev, city: '', addressLine1: '' })); }}
                 className={`bkp-input ${formErrors.city ? 'bkp-input-error' : ''}`}
                 style={{ margin: 0 }}
               />
@@ -1154,9 +1162,14 @@ const B2CCheckout = () => {
           }}>
             Preferred Dates
           </h3>
-          <p style={{ fontSize: '13px', color: '#64748B', marginBottom: '16px', padding: '0 4px' }}>
+          <p style={{ fontSize: '13px', color: '#64748B', marginBottom: '8px', padding: '0 4px' }}>
             Select at least 2 dates that work for you (up to 5)
           </p>
+          {selectedDates.length < 2 && (
+            <p style={{ fontSize: '12px', fontWeight: 600, color: '#ED4B00', marginBottom: '16px', padding: '0 4px' }}>
+              Pick at least 2 dates below to enable Confirm & pay
+            </p>
+          )}
           <p style={{ fontSize: '12px', color: '#64748B', marginTop: '4px', marginBottom: '12px', padding: '0 4px' }}>
             Next day available for Master Club members or when adding Master Club. Otherwise booking from 2 days ahead.
           </p>
@@ -1311,9 +1324,14 @@ const B2CCheckout = () => {
           }}>
             Preferred Time Slots
           </h3>
-          <p style={{ fontSize: '13px', color: '#64748B', marginBottom: '16px', padding: '0 4px' }}>
+          <p style={{ fontSize: '13px', color: '#64748B', marginBottom: '8px', padding: '0 4px' }}>
             Select at least one time slot
           </p>
+          {selectedTimeSlots.length === 0 && (
+            <p style={{ fontSize: '12px', fontWeight: 600, color: '#ED4B00', marginBottom: '16px', padding: '0 4px' }}>
+              Pick at least one time slot below
+            </p>
+          )}
           <div style={{
             backgroundColor: 'white',
             borderRadius: '20px',
@@ -1689,6 +1707,11 @@ const B2CCheckout = () => {
               I confirm my booking and agree to the <span style={{ textDecoration: 'underline' }}>Terms of Service</span>. Membership auto-renews until cancelled.
             </p>
           </label>
+          {!agreedToTerms && (
+            <p style={{ fontSize: '12px', fontWeight: 600, color: '#ED4B00', marginTop: '8px', marginBottom: 0 }}>
+              Required to enable Confirm & pay
+            </p>
+          )}
         </section>
       </div>
 
