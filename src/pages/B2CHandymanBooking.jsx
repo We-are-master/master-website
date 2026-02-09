@@ -45,6 +45,8 @@ const B2CHandymanBooking = () => {
   const [selectedElectricianId, setSelectedElectricianId] = useState(null);
   const [plumbingHours, setPlumbingHours] = useState(2);
   const [electricianHours, setElectricianHours] = useState(2);
+  const [jobDescription, setJobDescription] = useState('');
+  const [jobDescriptionError, setJobDescriptionError] = useState('');
   const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 768 : false);
   const [showHelpModal, setShowHelpModal] = useState(false);
 
@@ -132,10 +134,18 @@ const B2CHandymanBooking = () => {
   };
 
   const handleContinue = () => {
+    if (trade === 'Handyman') {
+      if (!jobDescription.trim()) {
+        setJobDescriptionError('Please describe what you need done');
+        return;
+      }
+      setJobDescriptionError('');
+    }
     navigate('/checkout', {
       state: {
         postcode,
         email,
+        jobDescription: trade === 'Handyman' ? jobDescription.trim() : undefined,
         service: {
           id: trade.toLowerCase(),
           title: getServiceLabel(),
@@ -401,6 +411,40 @@ const B2CHandymanBooking = () => {
               </div>
               <div style={{ width: '100%', maxWidth: '120px', aspectRatio: '1', borderRadius: 'var(--bkp-radius-md)', border: '1px solid var(--bkp-border-subtle)', background: 'var(--bkp-bg-surface)', flexShrink: 0 }} aria-hidden />
             </div>
+              </section>
+
+              {/* Job description — handyman only */}
+              <section style={{ padding: '24px 0 0' }}>
+                <label htmlFor="handyman-job-desc" style={{ display: 'block', marginBottom: '8px' }}>
+                  <span className="bkp-label" style={{ color: 'var(--bkp-text)', fontWeight: 700 }}>What do you need done?</span>
+                  <span style={{ color: 'var(--bkp-text-secondary)', fontSize: 'var(--bkp-text-sm)', marginLeft: '6px' }}>(required)</span>
+                </label>
+                <textarea
+                  id="handyman-job-desc"
+                  value={jobDescription}
+                  onChange={(e) => { setJobDescription(e.target.value); if (jobDescriptionError) setJobDescriptionError(''); }}
+                  placeholder="e.g. Mount TV, assemble furniture, fix loose door, small repairs..."
+                  rows={3}
+                  maxLength={500}
+                  required
+                  aria-required="true"
+                  aria-invalid={!!jobDescriptionError}
+                  style={{
+                    width: '100%',
+                    padding: '14px 16px',
+                    borderRadius: 'var(--bkp-radius-md)',
+                    border: jobDescriptionError ? '2px solid #ef4444' : '1px solid var(--bkp-border-subtle)',
+                    background: 'var(--bkp-bg-surface)',
+                    color: 'var(--bkp-text)',
+                    fontSize: 'var(--bkp-text-base)',
+                    fontFamily: 'inherit',
+                    resize: 'vertical',
+                    minHeight: '80px',
+                    boxSizing: 'border-box'
+                  }}
+                />
+                {jobDescriptionError && <p style={{ color: '#ef4444', fontSize: 'var(--bkp-text-sm)', marginTop: '6px', marginBottom: 0 }}>{jobDescriptionError}</p>}
+                <p style={{ color: 'var(--bkp-text-tertiary)', fontSize: 'var(--bkp-text-xs)', marginTop: '6px', marginBottom: 0 }}>{jobDescription.length}/500</p>
               </section>
             </>
           )}

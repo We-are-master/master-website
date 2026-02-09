@@ -317,9 +317,9 @@ const B2CCheckout = () => {
   const [showServiceLocationForm, setShowServiceLocationForm] = useState(false);
   const [postcodeLookupLoading, setPostcodeLookupLoading] = useState(false);
 
-  // Hourly service specific state
+  // Hourly service specific state (pre-fill from Handyman/booking page when passed in state)
   const [selectedHours, setSelectedHours] = useState(1);
-  const [hourlyJobDescription, setHourlyJobDescription] = useState('');
+  const [hourlyJobDescription, setHourlyJobDescription] = useState(jobDescription || '');
   const [uploadedPhotos, setUploadedPhotos] = useState([]);
   const [uploading, setUploading] = useState(false);
 
@@ -712,7 +712,7 @@ const B2CCheckout = () => {
       errors.hourlyTerms = 'You must acknowledge the hourly rate terms';
     }
 
-    if (isHourlyService && !hourlyJobDescription.trim()) {
+    if (isHourlyService && !hourlyJobDescription?.trim() && !jobDescription?.trim()) {
       errors.hourlyJobDescription = 'Please describe the work you need done';
     }
 
@@ -773,7 +773,7 @@ const B2CCheckout = () => {
            selectedDates.length >= 2 &&
            selectedTimeSlots.length > 0 &&
            agreedToTerms &&
-           (!isHourlyService || (agreedToHourlyTerms && hourlyJobDescription.trim()));
+           (!isHourlyService || (agreedToHourlyTerms && (hourlyJobDescription.trim() || jobDescription?.trim())));
   };
 
   // List what's missing so we can show it under the button when disabled
@@ -788,7 +788,7 @@ const B2CCheckout = () => {
     if (selectedDates.length < 2) missing.push(`${2 - selectedDates.length} more date(s)`);
     if (selectedTimeSlots.length === 0) missing.push('Time slot');
     if (!agreedToTerms) missing.push('Accept terms');
-    if (isHourlyService && !hourlyJobDescription.trim()) missing.push('Job description');
+    if (isHourlyService && !hourlyJobDescription?.trim() && !jobDescription?.trim()) missing.push('Job description');
     return missing;
   };
 
