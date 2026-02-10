@@ -16,10 +16,11 @@ import {
 import { SEO } from '../components/SEO';
 import '../styles/booking-premium.css';
 
-// Tabs: Door Installation | Flooring Fitting | Skirting Boards (screenshot design)
+// Pricing from master_carpenter CSV
 const TAB_DOOR = 'door';
 const TAB_FLOORING = 'flooring';
 const TAB_SKIRTING = 'skirting';
+const TAB_CARPET = 'carpet';
 
 const DOOR_ITEMS = [
   { id: 'internal', label: 'Standard Internal Doors', pricePerUnit: 175, key: 'internalDoors' },
@@ -28,16 +29,9 @@ const DOOR_ITEMS = [
   { id: 'frame', label: 'Frame Replacements', pricePerUnit: 80, key: 'frameReplacements' },
 ];
 
-const FLOORING_ITEMS = [
-  { id: 'laminate', label: 'Laminate Flooring', pricePerUnit: 35, key: 'laminate', unit: 'm²' },
-  { id: 'engineered', label: 'Engineered Wood', pricePerUnit: 55, key: 'engineered', unit: 'm²' },
-  { id: 'solid', label: 'Solid Wood', pricePerUnit: 75, key: 'solid', unit: 'm²' },
-];
-
-const SKIRTING_ITEMS = [
-  { id: 'standard', label: 'Standard Skirting', pricePerUnit: 18, key: 'standardSkirting', unit: 'm' },
-  { id: 'mdf', label: 'MDF Skirting', pricePerUnit: 22, key: 'mdfSkirting', unit: 'm' },
-];
+const FLOORING_PRICE_PER_M2 = 30;   // Flooring Fitting £30/m²
+const SKIRTING_PRICE_PER_M2 = 22;   // Skirting Boards £22/m²
+const CARPET_REMOVAL_PRICE_PER_M2 = 7; // Carpet Removal £7/m²
 
 const B2CCarpentryBooking = () => {
   const navigate = useNavigate();
@@ -54,14 +48,14 @@ const B2CCarpentryBooking = () => {
   const [fireDoors, setFireDoors] = useState(0);
   const [frameReplacements, setFrameReplacements] = useState(0);
 
-  // Flooring quantities (m²)
-  const [laminate, setLaminate] = useState(0);
-  const [engineered, setEngineered] = useState(0);
-  const [solid, setSolid] = useState(0);
+  // Flooring (m²) – CSV: £30/m²
+  const [flooringM2, setFlooringM2] = useState(0);
 
-  // Skirting (linear m)
-  const [standardSkirting, setStandardSkirting] = useState(0);
-  const [mdfSkirting, setMdfSkirting] = useState(0);
+  // Skirting (m²) – CSV: £22/m²
+  const [skirtingM2, setSkirtingM2] = useState(0);
+
+  // Carpet Removal (m²) – CSV: £7/m²
+  const [carpetRemovalM2, setCarpetRemovalM2] = useState(0);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -71,20 +65,24 @@ const B2CCarpentryBooking = () => {
 
   const getDoorTotal = () =>
     internalDoors * 175 + externalDoors * 280 + fireDoors * 199 + frameReplacements * 80;
-  const getFlooringTotal = () => laminate * 35 + engineered * 55 + solid * 75;
-  const getSkirtingTotal = () => standardSkirting * 18 + mdfSkirting * 22;
+  const getFlooringTotal = () => flooringM2 * FLOORING_PRICE_PER_M2;
+  const getSkirtingTotal = () => skirtingM2 * SKIRTING_PRICE_PER_M2;
+  const getCarpetTotal = () => carpetRemovalM2 * CARPET_REMOVAL_PRICE_PER_M2;
 
   const estimatedPrice =
     activeTab === TAB_DOOR
       ? getDoorTotal()
       : activeTab === TAB_FLOORING
         ? getFlooringTotal()
-        : getSkirtingTotal();
+        : activeTab === TAB_SKIRTING
+          ? getSkirtingTotal()
+          : getCarpetTotal();
 
   const getTabLabel = () => {
     if (activeTab === TAB_DOOR) return 'Door Installation';
     if (activeTab === TAB_FLOORING) return 'Flooring Fitting';
-    return 'Skirting Boards';
+    if (activeTab === TAB_SKIRTING) return 'Skirting Boards';
+    return 'Carpet Removal';
   };
 
   const handleContinue = () => {
@@ -102,8 +100,10 @@ const B2CCarpentryBooking = () => {
             activeTab === TAB_DOOR
               ? { internalDoors, externalDoors, fireDoors, frameReplacements }
               : activeTab === TAB_FLOORING
-                ? { laminate, engineered, solid }
-                : { standardSkirting, mdfSkirting },
+                ? { flooringM2 }
+                : activeTab === TAB_SKIRTING
+                  ? { skirtingM2 }
+                  : { carpetRemovalM2 },
           extraRequests,
           price: estimatedPrice,
         },
@@ -190,9 +190,10 @@ const B2CCarpentryBooking = () => {
               }}
             >
               {[
-                { id: TAB_DOOR, label: 'Door Installation' },
-                { id: TAB_FLOORING, label: 'Flooring Fitting' },
-                { id: TAB_SKIRTING, label: 'Skirting Boards' },
+                { id: TAB_DOOR, label: 'Doors' },
+                { id: TAB_FLOORING, label: 'Flooring' },
+                { id: TAB_SKIRTING, label: 'Skirting' },
+                { id: TAB_CARPET, label: 'Carpet' },
               ].map((tab) => (
                 <button
                   key={tab.id}
@@ -265,18 +266,14 @@ const B2CCarpentryBooking = () => {
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <p className="bkp-card-title" style={{ margin: 0, fontSize: 'var(--bkp-text-sm)' }}>Flooring Fitting</p>
                     <p style={{ color: 'var(--bkp-text-secondary)', fontSize: 'var(--bkp-text-xs)', margin: '4px 0 0' }}>
-                      Professional fitting. Materials quoted separately.
+                      £30/m². Materials quoted separately.
                     </p>
                   </div>
                 </div>
               </section>
               <section className="bkp-section">
-                <h2 className="bkp-label" style={{ margin: 0 }}>By type (m²)</h2>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  <LineItem label={FLOORING_ITEMS[0].label} pricePerUnit={FLOORING_ITEMS[0].pricePerUnit} value={laminate} setValue={setLaminate} unit="m²" />
-                  <LineItem label={FLOORING_ITEMS[1].label} pricePerUnit={FLOORING_ITEMS[1].pricePerUnit} value={engineered} setValue={setEngineered} unit="m²" />
-                  <LineItem label={FLOORING_ITEMS[2].label} pricePerUnit={FLOORING_ITEMS[2].pricePerUnit} value={solid} setValue={setSolid} unit="m²" />
-                </div>
+                <h2 className="bkp-label" style={{ margin: 0 }}>Area (m²)</h2>
+                <LineItem label="Flooring Fitting" pricePerUnit={FLOORING_PRICE_PER_M2} value={flooringM2} setValue={setFlooringM2} unit="m²" />
               </section>
             </>
           )}
@@ -291,17 +288,36 @@ const B2CCarpentryBooking = () => {
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <p className="bkp-card-title" style={{ margin: 0, fontSize: 'var(--bkp-text-sm)' }}>Skirting Boards</p>
                     <p style={{ color: 'var(--bkp-text-secondary)', fontSize: 'var(--bkp-text-xs)', margin: '4px 0 0' }}>
-                      Supply and fit. Linear metres.
+                      £22/m². Supply and fit.
                     </p>
                   </div>
                 </div>
               </section>
               <section className="bkp-section">
-                <h2 className="bkp-label" style={{ margin: 0 }}>By type (m)</h2>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  <LineItem label={SKIRTING_ITEMS[0].label} pricePerUnit={SKIRTING_ITEMS[0].pricePerUnit} value={standardSkirting} setValue={setStandardSkirting} unit="m" />
-                  <LineItem label={SKIRTING_ITEMS[1].label} pricePerUnit={SKIRTING_ITEMS[1].pricePerUnit} value={mdfSkirting} setValue={setMdfSkirting} unit="m" />
+                <h2 className="bkp-label" style={{ margin: 0 }}>Area (m²)</h2>
+                <LineItem label="Skirting Boards" pricePerUnit={SKIRTING_PRICE_PER_M2} value={skirtingM2} setValue={setSkirtingM2} unit="m²" />
+              </section>
+            </>
+          )}
+
+          {activeTab === TAB_CARPET && (
+            <>
+              <section className="bkp-section">
+                <div className="bkp-card" style={{ flexDirection: 'row', alignItems: 'center', gap: 12, borderColor: 'rgba(237, 75, 0, 0.3)' }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 'var(--bkp-radius-md)', background: 'var(--bkp-primary-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <LayoutGrid size={24} color="var(--bkp-primary)" aria-hidden />
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p className="bkp-card-title" style={{ margin: 0, fontSize: 'var(--bkp-text-sm)' }}>Carpet Removal</p>
+                    <p style={{ color: 'var(--bkp-text-secondary)', fontSize: 'var(--bkp-text-xs)', margin: '4px 0 0' }}>
+                      £7/m². Labour only.
+                    </p>
+                  </div>
                 </div>
+              </section>
+              <section className="bkp-section">
+                <h2 className="bkp-label" style={{ margin: 0 }}>Area (m²)</h2>
+                <LineItem label="Carpet Removal" pricePerUnit={CARPET_REMOVAL_PRICE_PER_M2} value={carpetRemovalM2} setValue={setCarpetRemovalM2} unit="m²" />
               </section>
             </>
           )}

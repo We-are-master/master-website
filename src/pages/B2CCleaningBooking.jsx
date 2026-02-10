@@ -39,8 +39,9 @@ const B2CCleaningBooking = () => {
   const [propertyType, setPropertyType] = useState('flat');
   const [bedrooms, setBedrooms] = useState(2);
   const [bathrooms, setBathrooms] = useState(1);
+  const [furnished, setFurnished] = useState(false);
   const [selectedAddons, setSelectedAddons] = useState(new Set(['oven']));
-  const [estimatedPrice, setEstimatedPrice] = useState(231);
+  const [estimatedPrice, setEstimatedPrice] = useState(216); // EoT 1 bed base + 1 extra bed
   const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' && window.innerWidth < 768);
 
   useEffect(() => {
@@ -60,7 +61,7 @@ const B2CCleaningBooking = () => {
     { id: 'fridge', icon: 'kitchen', label: 'Inside Fridge', price: 12, group: 'kitchen' },
     { id: 'freezer', icon: 'ac_unit', label: 'Inside Freezer', price: 12, group: 'kitchen' },
     { id: 'steam_sofa', icon: 'chair', label: 'Steam - Sofa', price: 25, group: 'steam' },
-    { id: 'steam_carpet', icon: 'carpet', label: 'Steam - Carpet', price: 30, group: 'steam' }
+    { id: 'steam_carpet', icon: 'carpet', label: 'Steam - Carpet', price: 25, group: 'steam' }
   ];
   const kitchenAddons = addons.filter(a => a.group === 'kitchen');
   const steamAddons = addons.filter(a => a.group === 'steam');
@@ -77,43 +78,37 @@ const B2CCleaningBooking = () => {
     });
   };
 
+  // Pricing from master_cleaning CSV: 1-bed base, extra bedroom/bathroom, steam +£25, furnished +£20
   const calculatePrice = () => {
-    let basePrice = 200; // Base price
-    
-    // Adjust base price by service type
-    if (selectedService === 'end-of-tenancy') {
-      basePrice = 191.67; // Base for end of tenancy
-    } else if (selectedService === 'deep-clean') {
-      basePrice = 166.67; // Base for deep clean
-    } else if (selectedService === 'after-builders') {
-      basePrice = 195.00; // Base for after builders
-    }
-    
-    // Property type multiplier
-    if (propertyType === 'house') {
-      basePrice *= 1.3; // Houses are typically more expensive
-    }
-    
-    // Add bedrooms and bathrooms
-    basePrice += bedrooms * 15;
-    basePrice += bathrooms * 20;
-    
-    // Add selected addons
+    const bases = { 'end-of-tenancy': 191, 'deep-clean': 166, 'after-builders': 195 };
+    const extraBedPer = { 'end-of-tenancy': 25, 'deep-clean': 26, 'after-builders': 27 };
+    const extraBathPer = 25;
+    const steamCleanAdd = 25;
+    const furnishedAdd = 20;
+
+    let price = bases[selectedService] ?? 191;
+    const effectiveBedrooms = Math.max(1, bedrooms);
+    const effectiveBathrooms = Math.max(1, bathrooms);
+    price += (effectiveBedrooms - 1) * (extraBedPer[selectedService] ?? 25);
+    price += (effectiveBathrooms - 1) * extraBathPer;
+    if (furnished) price += furnishedAdd;
+    if (selectedAddons.has('steam_carpet')) price += steamCleanAdd;
+
     selectedAddons.forEach(addonId => {
+      if (addonId === 'steam_carpet') return; // already added above
       const addon = addons.find(a => a.id === addonId);
-      if (addon) {
-        basePrice += addon.price;
-      }
+      if (addon) price += addon.price;
     });
-    
-    setEstimatedPrice(Math.round(basePrice));
-    return Math.round(basePrice);
+
+    const rounded = Math.round(price);
+    setEstimatedPrice(rounded);
+    return rounded;
   };
 
   useEffect(() => {
     calculatePrice();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bedrooms, bathrooms, selectedAddons, selectedService, propertyType]);
+  }, [bedrooms, bathrooms, selectedAddons, selectedService, propertyType, furnished]);
 
   const getServiceLabel = () => services.find(s => s.id === selectedService)?.label || 'Cleaning';
 
@@ -133,6 +128,7 @@ const B2CCleaningBooking = () => {
           propertyType,
           bedrooms,
           bathrooms,
+          furnished,
           addons: Array.from(selectedAddons),
           price: estimatedPrice
         }
@@ -278,6 +274,30 @@ const B2CCleaningBooking = () => {
             </div>
           </section>
 
+          <section className="bkp-section" style={{ padding: '0' }} aria-labelledby="furnished-heading">
+            <h2 id="furnished-heading" className="bkp-label" style={{ marginBottom: 12 }}>Is the property furnished?</h2>
+            <div style={{ display: 'flex', gap: 12 }}>
+              <button
+                type="button"
+                onClick={() => setFurnished(false)}
+                className={`bkp-card ${!furnished ? 'bkp-card-selected' : ''}`}
+                style={{ flex: 1, padding: 16, cursor: 'pointer', border: 'none', outline: 'none', font: 'inherit', color: 'inherit', textAlign: 'center' }}
+              >
+                <span className="bkp-card-title" style={{ fontSize: 'var(--bkp-text-base)' }}>No</span>
+                <span className="bkp-card-subtitle" style={{ marginTop: 4, display: 'block' }}>Unfurnished +£0</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setFurnished(true)}
+                className={`bkp-card ${furnished ? 'bkp-card-selected' : ''}`}
+                style={{ flex: 1, padding: 16, cursor: 'pointer', border: 'none', outline: 'none', font: 'inherit', color: 'inherit', textAlign: 'center' }}
+              >
+                <span className="bkp-card-title" style={{ fontSize: 'var(--bkp-text-base)' }}>Yes</span>
+                <span className="bkp-card-subtitle" style={{ marginTop: 4, display: 'block' }}>Furnished +£20</span>
+              </button>
+            </div>
+          </section>
+
           <section className="bkp-section" style={{ padding: '0' }} aria-labelledby="addons-heading">
             <h2 id="addons-heading" className="bkp-label" style={{ marginBottom: 8 }}>Add-ons</h2>
             <p className="bkp-card-subtitle" style={{ marginBottom: 12, marginTop: 0 }}>Kitchen & steam</p>
@@ -371,7 +391,7 @@ const B2CCleaningBooking = () => {
               </button>
               <p style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, color: 'var(--bkp-text-quaternary)', fontSize: 'var(--bkp-text-xs)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', margin: 0 }}>
                 <Info size={12} aria-hidden />
-                Cleaning materials not included by default
+                Materials and equipment included
               </p>
             </div>
           </div>

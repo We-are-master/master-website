@@ -70,6 +70,7 @@ const B2CPaintingBooking = () => {
     }
   ];
 
+  // Pricing from master_painter CSV: Base £200 + Bedroom £250 ea, Living room £175 ea, Ceiling £65 ea, Door/Window £55 ea
   const serviceItems = [
     { id: 'bedrooms', icon: 'bed', label: 'Bedrooms', price: 250, value: bedrooms, setter: setBedrooms },
     { id: 'livingRooms', icon: 'chair_alt', label: 'Living Rooms', price: 175, value: livingRooms, setter: setLivingRooms },
@@ -78,7 +79,7 @@ const B2CPaintingBooking = () => {
   ];
 
   const calculatePrice = () => {
-    let basePrice = 200; // Base price
+    const basePrice = 200; // House or Flat Paint base (master_painter CSV)
     
     // Find selected quality multiplier
     const selectedQuality = paintingQualities.find(q => q.id === paintingQuality);

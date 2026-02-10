@@ -4,13 +4,14 @@ import { ChevronLeft, HelpCircle, Minus, Plus, Star, TrendingDown, Info, Sparkle
 import { SEO } from '../components/SEO';
 import '../styles/booking-premium.css';
 
-const HOURLY_RATE = 60;
-const HALF_DAY_PRICE = 210;
-const FULL_DAY_PRICE = 400;
+// Pricing from master_trades CSV
+const HOURLY_RATE = 60;       // Handyman £60/hr
+const HALF_DAY_PRICE = 145;   // Handyman 3–4h fixed
+const FULL_DAY_PRICE = 190;   // Handyman day rate
 const HALF_DAY_HOURS = 4;
 const FULL_DAY_HOURS = 8;
 
-const PLUMBING_HOURLY = 75;
+const PLUMBING_HOURLY = 72;   // £72/hr; Half Day £150, Day £275
 const PLUMBING_SERVICES = [
   { id: 'tap-leak', label: 'Tap / leak repair', description: 'Fix dripping taps, small leaks', price: 85 },
   { id: 'boiler-service', label: 'Boiler service', description: 'Annual service & safety check', price: 120 },
@@ -18,10 +19,10 @@ const PLUMBING_SERVICES = [
   { id: 'toilet', label: 'Toilet repair / install', description: 'Fix or fit toilet', price: 110 },
   { id: 'radiator', label: 'Radiator install / repair', description: 'Fit or fix radiators', price: 130 },
   { id: 'emergency', label: 'Emergency call-out', description: 'Urgent plumbing (1h minimum)', price: 150 },
-  { id: 'hourly', label: 'Hourly rate', description: 'Other jobs • £75/hr', price: null, hourly: true }
+  { id: 'hourly', label: 'Hourly rate', description: 'Other jobs • £72/hr', price: null, hourly: true }
 ];
 
-const ELECTRICIAN_HOURLY = 70;
+const ELECTRICIAN_HOURLY = 72; // £72/hr; Half Day £150, Day £275
 const ELECTRICIAN_SERVICES = [
   { id: 'lighting', label: 'Light fitting', description: 'Install or repair lights', price: 65 },
   { id: 'sockets', label: 'Sockets & switches', description: 'Add or replace sockets/switches', price: 55 },
@@ -29,7 +30,7 @@ const ELECTRICIAN_SERVICES = [
   { id: 'outdoor', label: 'Outdoor / security lights', description: 'External lighting', price: 85 },
   { id: 'extraction', label: 'Extractor fan', description: 'Fit bathroom/kitchen fan', price: 75 },
   { id: 'eic', label: 'EICR (safety certificate)', description: 'Electrical installation condition', price: 150 },
-  { id: 'hourly', label: 'Hourly rate', description: 'Other jobs • £70/hr', price: null, hourly: true }
+  { id: 'hourly', label: 'Hourly rate', description: 'Other jobs • £72/hr', price: null, hourly: true }
 ];
 
 const B2CHandymanBooking = () => {
