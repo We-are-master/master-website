@@ -451,6 +451,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
       const s = (x: unknown) => (x != null && String(x).trim() !== '' ? String(x) : '—')
       const leadEmail = s(data.email)
       const leadService = s(data.service)
+      const leadServiceType = s(data.service_type)
       const leadPostcode = s(data.postcode)
       const leadSource = s(data.source)
       const leadPhone = s(data.phone)
@@ -485,6 +486,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
         <table class="internal-table">
           <tr><th>Email</th><td><a href="mailto:${leadEmail}">${leadEmail}</a></td></tr>
           <tr><th>Postcode</th><td>${leadPostcode}</td></tr>
+          ${leadServiceType !== '—' ? `<tr><th>Service type</th><td>${leadServiceType}</td></tr>` : ''}
           <tr><th>Service / details</th><td>${leadService}</td></tr>
           <tr><th>Source</th><td>${leadSource}</td></tr>
           ${leadPhone !== '—' ? `<tr><th>Phone</th><td>${leadPhone}</td></tr>` : ''}
@@ -501,7 +503,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
 </body>
 </html>
         `,
-        text: `NEW LEAD – ${leadSource}\n\nEmail: ${leadEmail}\nPostcode: ${leadPostcode}\nService: ${leadService}\nSource: ${leadSource}${leadPhone !== '—' ? `\nPhone: ${leadPhone}` : ''}${leadPreferredContact !== '—' ? `\nPreferred contact: ${leadPreferredContact}` : ''}\n\n— Sent automatically when the lead was saved.`
+        text: `NEW LEAD – ${leadSource}\n\nEmail: ${leadEmail}\nPostcode: ${leadPostcode}${leadServiceType !== '—' ? `\nService type: ${leadServiceType}` : ''}\nService: ${leadService}\nSource: ${leadSource}${leadPhone !== '—' ? `\nPhone: ${leadPhone}` : ''}${leadPreferredContact !== '—' ? `\nPreferred contact: ${leadPreferredContact}` : ''}\n\n— Sent automatically when the lead was saved.`
       }
     }
 

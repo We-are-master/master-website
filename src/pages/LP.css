@@ -224,7 +224,7 @@
   resize: none;
 }
 
-/* Preferred contact */
+/* Preferred contact & Service type */
 .lp-contact-options {
   display: flex;
   padding: 0.25rem;
@@ -232,6 +232,16 @@
   border-radius: 0.5rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
   gap: 0.25rem;
+}
+
+.lp-service-type-options {
+  flex-wrap: wrap;
+}
+
+.lp-service-type-options .lp-contact-btn {
+  flex: 1 1 calc(33.333% - 0.25rem);
+  min-width: 0;
+  font-size: 9px;
 }
 
 .lp-contact-btn {
@@ -552,6 +562,15 @@
   .lp-form {
     padding: 0;
     grid-column: 1;
+  }
+
+  .lp-service-type-options {
+    flex-wrap: nowrap;
+  }
+
+  .lp-service-type-options .lp-contact-btn {
+    flex: 1 1 0;
+    font-size: 10px;
   }
 
   .lp-testimonials {

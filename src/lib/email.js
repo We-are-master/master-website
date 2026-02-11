@@ -46,7 +46,7 @@ export async function sendEmail(template, to, data = {}) {
 /**
  * Save hero lead for remarketing (service + postcode + email from home form or LP).
  * Also triggers an email to hello@wearemaster.com with the lead details.
- * @param {{ email: string, service?: string, postcode?: string, source?: string, phone?: string, preferred_contact?: string }} leadData
+ * @param {{ email: string, service?: string, postcode?: string, source?: string, phone?: string, preferred_contact?: string, service_type?: string }} leadData
  * @returns {Promise<{success: boolean, error?: string}>}
  */
 export async function saveHeroLead(leadData) {
@@ -54,7 +54,7 @@ export async function saveHeroLead(leadData) {
     if (!SUPABASE_URL) {
       return { success: false, error: 'Service not configured' }
     }
-    const { email, service, postcode, source = 'hero_b2c', phone, preferred_contact } = leadData || {}
+    const { email, service, postcode, source = 'hero_b2c', phone, preferred_contact, service_type } = leadData || {}
     if (!email || !String(email).trim()) {
       return { success: false, error: 'Email is required' }
     }
@@ -66,6 +66,7 @@ export async function saveHeroLead(leadData) {
     }
     if (phone != null && String(phone).trim()) payload.phone = String(phone).trim()
     if (preferred_contact != null && String(preferred_contact).trim()) payload.preferred_contact = String(preferred_contact).trim()
+    if (service_type != null && String(service_type).trim()) payload.service_type = String(service_type).trim()
     const response = await fetch(`${SUPABASE_URL}/functions/v1/save-hero-lead`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
