@@ -1,0 +1,482 @@
+/* LP - Landing page at /lp. Manrope + primary #eb4a00, dark gradient. */
+.lp-root {
+  --lp-primary: #eb4a00;
+  --lp-bg-dark: #020034;
+  --lp-bg-darker: #020030;
+  --lp-glass: rgba(255, 255, 255, 0.03);
+  --lp-glass-border: rgba(255, 255, 255, 0.08);
+  font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  min-height: 100dvh;
+  background: linear-gradient(180deg, var(--lp-bg-dark) 0%, var(--lp-bg-darker) 100%);
+  color: #fff;
+}
+
+.lp-wrapper {
+  width: 100%;
+  max-width: 430px;
+  min-height: 100vh;
+  margin: 0 auto;
+  position: relative;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 11rem;
+}
+
+/* Status bar */
+.lp-status-bar {
+  height: 3rem;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 0 1.5rem 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.lp-status-bar .lp-status-icons {
+  display: flex;
+  gap: 0.375rem;
+  align-items: center;
+  font-size: 0.75rem;
+}
+
+.lp-status-bar .lp-status-icons svg.rotate-90 {
+  transform: rotate(90deg);
+}
+
+/* Hero copy */
+.lp-hero {
+  padding: 2rem 1.5rem 2rem;
+}
+
+.lp-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  background: rgba(235, 74, 0, 0.2);
+  border: 1px solid rgba(235, 74, 0, 0.3);
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  margin-bottom: 1.5rem;
+}
+
+.lp-badge span:first-child {
+  font-size: 10px;
+  color: var(--lp-primary);
+}
+
+.lp-badge .lp-badge-text {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--lp-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.lp-title {
+  font-size: 1.875rem;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.lp-title .lp-title-accent {
+  color: var(--lp-primary);
+}
+
+.lp-subtitle {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1rem;
+  margin-top: 0.75rem;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+.lp-disclaimer {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.4);
+  margin-top: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* Form */
+.lp-form {
+  padding: 0 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.lp-field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.5);
+  margin-left: 0.25rem;
+  margin-bottom: 0.375rem;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.lp-input,
+.lp-textarea {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  color: #fff;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.lp-input::placeholder,
+.lp-textarea::placeholder {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.lp-input:focus,
+.lp-textarea:focus {
+  outline: none;
+  border-color: var(--lp-primary);
+  box-shadow: 0 0 0 1px var(--lp-primary);
+}
+
+.lp-input-wrap {
+  position: relative;
+}
+
+.lp-input-wrap .lp-input-ok {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--lp-primary);
+  font-size: 0.875rem;
+  pointer-events: none;
+}
+
+.lp-phone-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.lp-phone-prefix {
+  width: 5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.lp-phone-prefix img {
+  width: 1rem;
+  height: 0.75rem;
+  object-fit: contain;
+}
+
+.lp-phone-input {
+  flex: 1;
+}
+
+.lp-textarea {
+  min-height: 100px;
+  resize: none;
+}
+
+/* Preferred contact */
+.lp-contact-options {
+  display: flex;
+  padding: 0.25rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  gap: 0.25rem;
+}
+
+.lp-contact-btn {
+  flex: 1;
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  font-weight: 700;
+  font-size: 10px;
+  text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.lp-contact-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+
+.lp-contact-btn.lp-contact-active {
+  background: var(--lp-primary);
+  color: #fff;
+}
+
+.lp-contact-btn .lp-contact-icon {
+  font-size: 1.125rem;
+}
+
+/* Testimonials */
+.lp-testimonials {
+  margin-top: 2.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.lp-testimonials-header {
+  padding: 0 1.5rem 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.lp-testimonials-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.lp-testimonials-dots {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.lp-testimonials-dots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.lp-testimonials-dots span:first-child {
+  background: var(--lp-primary);
+}
+
+.lp-testimonials-scroll {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: 0 1.5rem;
+  gap: 1rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+.lp-testimonials-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.lp-testimonials-scroll {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.lp-testimonial-card {
+  min-width: 85%;
+  scroll-snap-align: start;
+  background: var(--lp-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--lp-glass-border);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.lp-testimonial-stars {
+  display: flex;
+  gap: 2px;
+  color: var(--lp-primary);
+  font-size: 0.875rem;
+}
+
+.lp-testimonial-text {
+  font-size: 0.875rem;
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.lp-testimonial-author {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.lp-testimonial-avatar {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lp-testimonial-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.lp-testimonial-name {
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.lp-testimonial-name .lp-testimonial-location {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* Trust badges */
+.lp-trust {
+  padding: 0 1.5rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 3rem;
+}
+
+.lp-trust-card {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+}
+
+.lp-trust-card .lp-trust-icon {
+  color: var(--lp-primary);
+  font-size: 1.125rem;
+}
+
+.lp-trust-card .lp-trust-title {
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.lp-trust-card .lp-trust-sub {
+  font-size: 8px;
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+}
+
+/* CTA bar */
+.lp-cta-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1rem 1.5rem 2.5rem;
+  background: linear-gradient(0deg, var(--lp-bg-darker) 0%, var(--lp-bg-darker) 30%, transparent 100%);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.lp-cta-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.lp-cta-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  animation: lp-pulse 2s infinite;
+}
+
+@keyframes lp-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.lp-cta-status-text {
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.6);
+  letter-spacing: 0.05em;
+}
+
+.lp-cta-btn {
+  width: 100%;
+  max-width: 382px;
+  padding: 1.25rem 1.5rem;
+  background: var(--lp-primary);
+  border: none;
+  border-radius: 0.75rem;
+  font-size: 1.125rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.lp-cta-btn:active {
+  transform: scale(0.98);
+}
+
+.lp-cta-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.lp-cta-footer {
+  margin-top: 1rem;
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.3);
+  text-align: center;
+  padding: 0 1rem;
+}
+
+/* Error state */
+.lp-input.lp-input-error,
+.lp-textarea.lp-input-error {
+  border-color: #ef4444;
+}
+
+.lp-field-error {
+  font-size: 0.75rem;
+  color: #f87171;
+  margin-top: 0.25rem;
+  margin-left: 0.25rem;
+}

@@ -44,8 +44,9 @@ export async function sendEmail(template, to, data = {}) {
 }
 
 /**
- * Save hero lead for remarketing (service + postcode + email from home form)
- * @param {{ email: string, service?: string, postcode?: string, source?: string }} leadData
+ * Save hero lead for remarketing (service + postcode + email from home form or LP).
+ * Also triggers an email to hello@wearemaster.com with the lead details.
+ * @param {{ email: string, service?: string, postcode?: string, source?: string, phone?: string, preferred_contact?: string }} leadData
  * @returns {Promise<{success: boolean, error?: string}>}
  */
 export async function saveHeroLead(leadData) {
@@ -53,14 +54,22 @@ export async function saveHeroLead(leadData) {
     if (!SUPABASE_URL) {
       return { success: false, error: 'Service not configured' }
     }
-    const { email, service, postcode, source = 'hero_b2c' } = leadData || {}
+    const { email, service, postcode, source = 'hero_b2c', phone, preferred_contact } = leadData || {}
     if (!email || !String(email).trim()) {
       return { success: false, error: 'Email is required' }
     }
+    const payload = {
+      email: String(email).trim().toLowerCase(),
+      service: service || null,
+      postcode: postcode || null,
+      source,
+    }
+    if (phone != null && String(phone).trim()) payload.phone = String(phone).trim()
+    if (preferred_contact != null && String(preferred_contact).trim()) payload.preferred_contact = String(preferred_contact).trim()
     const response = await fetch(`${SUPABASE_URL}/functions/v1/save-hero-lead`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: String(email).trim().toLowerCase(), service: service || null, postcode: postcode || null, source }),
+      body: JSON.stringify(payload),
     })
     if (!response.ok) {
       const err = await response.json().catch(() => ({}))

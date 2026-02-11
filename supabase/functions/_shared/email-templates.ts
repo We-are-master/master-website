@@ -447,6 +447,64 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
       }
     }
 
+    case 'lead_notification': {
+      const s = (x: unknown) => (x != null && String(x).trim() !== '' ? String(x) : '—')
+      const leadEmail = s(data.email)
+      const leadService = s(data.service)
+      const leadPostcode = s(data.postcode)
+      const leadSource = s(data.source)
+      const leadPhone = s(data.phone)
+      const leadPreferredContact = s(data.preferred_contact)
+      return {
+        subject: `[New lead] ${leadSource} – ${leadEmail}`,
+        html: `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  ${emailStyles}
+  <style>
+    .internal-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+    .internal-table th { text-align: left; padding: 8px 12px; background: #f3f4f6; border: 1px solid #e5e7eb; }
+    .internal-table td { padding: 8px 12px; border: 1px solid #e5e7eb; }
+    .internal-section { margin: 20px 0; }
+    .internal-section h3 { margin: 0 0 10px 0; font-size: 16px; color: #020034; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <img src="${MASTER_LOGO_URL}" alt="Master" style="display: block; max-height: 44px; width: auto; margin: 0 auto;" />
+    </div>
+    <div class="content">
+      <p style="font-size: 18px; font-weight: 600; color: #020034;">New quote request / lead</p>
+      <p>A new lead was submitted (LP or hero form). Details below.</p>
+
+      <div class="internal-section">
+        <h3>Lead details</h3>
+        <table class="internal-table">
+          <tr><th>Email</th><td><a href="mailto:${leadEmail}">${leadEmail}</a></td></tr>
+          <tr><th>Postcode</th><td>${leadPostcode}</td></tr>
+          <tr><th>Service / details</th><td>${leadService}</td></tr>
+          <tr><th>Source</th><td>${leadSource}</td></tr>
+          ${leadPhone !== '—' ? `<tr><th>Phone</th><td>${leadPhone}</td></tr>` : ''}
+          ${leadPreferredContact !== '—' ? `<tr><th>Preferred contact</th><td>${leadPreferredContact}</td></tr>` : ''}
+        </table>
+      </div>
+
+      <p style="margin-top: 24px; font-size: 13px; color: #6b7280;">This email was sent automatically when the lead was saved to the database.</p>
+    </div>
+    <div class="footer">
+      <p>Master Services | hello@wearemaster.com</p>
+    </div>
+  </div>
+</body>
+</html>
+        `,
+        text: `NEW LEAD – ${leadSource}\n\nEmail: ${leadEmail}\nPostcode: ${leadPostcode}\nService: ${leadService}\nSource: ${leadSource}${leadPhone !== '—' ? `\nPhone: ${leadPhone}` : ''}${leadPreferredContact !== '—' ? `\nPreferred contact: ${leadPreferredContact}` : ''}\n\n— Sent automatically when the lead was saved.`
+      }
+    }
+
     case 'verification_code': {
       const code = (data.code as string) || '000000'
       const email = (data.email as string) || ''

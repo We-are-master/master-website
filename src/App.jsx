@@ -33,6 +33,8 @@ import B2CHandymanBooking from './pages/B2CHandymanBooking'
 import B2CLogin from './pages/B2CLogin'
 import B2CMyOrders from './pages/B2CMyOrders'
 import CheckoutSuccess from './pages/CheckoutSuccess'
+import LP from './pages/LP'
+import QuoteRequestNextSteps from './pages/QuoteRequestNextSteps'
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -50,13 +52,15 @@ function AppContent() {
   const b2bRoutes = ['/b2b', '/dashboard', '/login', '/forgot-password', '/new-request', '/my-requests', '/settings'];
   const isB2BRoute = b2bRoutes.some(route => location.pathname === route) || 
                      location.pathname.startsWith('/request/');
-  const isB2C = !isB2BRoute;
+  const isLP = location.pathname === '/lp';
+  const isRequestReceived = location.pathname === '/request-received';
+  const isB2C = !isB2BRoute && !isLP && !isRequestReceived;
 
   return (
     <div className="App">
       <ScrollToTop />
       <SecurityHeaders />
-      {isB2C ? <HeaderB2C /> : <HeaderB2B />}
+      {!isLP && !isRequestReceived && (isB2C ? <HeaderB2C /> : <HeaderB2B />)}
       <Routes>
         {/* B2C Routes - Rotas principais com layout B2C (HeaderB2C + FooterB2C) */}
         <Route path="/" element={<B2CHome />} />
@@ -70,7 +74,9 @@ function AppContent() {
         <Route path="/checkout-success" element={<CheckoutSuccess />} />
         <Route path="/customer-login" element={<B2CLogin />} />
         <Route path="/my-orders" element={<B2CMyOrders />} />
-        
+        <Route path="/lp" element={<LP />} />
+        <Route path="/request-received" element={<QuoteRequestNextSteps />} />
+
         {/* B2B Routes - Moved to /b2b path */}
         <Route path="/b2b" element={
           <>
@@ -97,7 +103,7 @@ function AppContent() {
         <Route path="/my-requests" element={<MyRequests />} />
         <Route path="/settings" element={<Settings />} />
       </Routes>
-      {isB2C ? (location.pathname === '/checkout' ? null : <FooterB2C />) : <Footer />}
+      {!isLP && !isRequestReceived && (isB2C ? (location.pathname === '/checkout' ? null : <FooterB2C />) : <Footer />)}
       <CookieConsent />
       <ToastContainer
         position="top-right"

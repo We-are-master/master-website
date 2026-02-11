@@ -108,6 +108,42 @@ serve(async (req) => {
       ip: validation.clientIP,
     }, 'low')
 
+    // Notify hello@wearemaster.com (fire-and-forget; do not fail the response if email fails)
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')
+    const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+    const notifyUrl = supabaseUrl && serviceKey ? `${supabaseUrl}/functions/v1/send-email` : null
+    if (notifyUrl) {
+      try {
+        const phone = body.phone != null ? sanitizeString(String(body.phone), 30) : null
+        const preferredContact = body.preferred_contact != null ? sanitizeString(String(body.preferred_contact), 20) : null
+        const emailRes = await fetch(notifyUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${serviceKey}`,
+          },
+          body: JSON.stringify({
+            template: 'lead_notification',
+            to: 'hello@wearemaster.com',
+            data: {
+              email: row.email,
+              service: row.service,
+              postcode: row.postcode,
+              source: row.source,
+              phone: phone || undefined,
+              preferred_contact: preferredContact || undefined,
+            },
+          }),
+        })
+        if (!emailRes.ok) {
+          const errText = await emailRes.text()
+          console.warn('[save-hero-lead] Notify email failed:', emailRes.status, errText)
+        }
+      } catch (notifyErr) {
+        console.warn('[save-hero-lead] Notify email error:', notifyErr)
+      }
+    }
+
     return new Response(
       JSON.stringify({ success: true }),
       {
