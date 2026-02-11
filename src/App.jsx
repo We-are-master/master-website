@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
+import { Analytics } from '@vercel/analytics/react'
 import HeaderB2B from './components/HeaderB2B'
 import HeaderB2C from './components/b2c/HeaderB2C'
 import FooterB2C from './components/b2c/FooterB2C'
@@ -117,6 +118,7 @@ function AppContent() {
         pauseOnHover
         theme="light"
       />
+      <Analytics />
     </div>
   );
 }

@@ -72,6 +72,7 @@ export default function LP() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
+  const [name, setName] = useState('');
   const [postcode, setPostcode] = useState('');
   const [mobile, setMobile] = useState('');
   const [email, setEmail] = useState('');
@@ -129,6 +130,7 @@ export default function LP() {
       service: serviceText,
       service_type: serviceType,
       source: 'lp',
+      name: name.trim() || undefined,
       phone: phoneValue,
       preferred_contact: preferredContact,
     });
@@ -184,6 +186,18 @@ export default function LP() {
         </div>
 
         <form id="lp-form" className="lp-form" onSubmit={handleSubmit} noValidate>
+          <div className="lp-field">
+            <label>Name</label>
+            <input
+              type="text"
+              className="lp-input"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Your name"
+              autoComplete="name"
+            />
+          </div>
+
           <div className="lp-field">
             <label>Postcode</label>
             <div className="lp-input-wrap">

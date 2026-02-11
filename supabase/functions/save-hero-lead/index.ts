@@ -50,7 +50,7 @@ serve(async (req) => {
     }
 
     const body = (validation.body ?? {}) as Record<string, unknown>
-    const { email, service, postcode, source, service_type } = body
+    const { email, service, postcode, source, service_type, name } = body
 
     if (!email || typeof email !== 'string') {
       return new Response(
@@ -80,6 +80,7 @@ serve(async (req) => {
       service: service ? sanitizeString(String(service), 500) : null,
       postcode: postcode ? sanitizeString(String(postcode).trim().toUpperCase(), 20) : null,
       source: source ? sanitizeString(String(source), 50) : 'hero_b2c',
+      ...(name != null && String(name).trim() !== '' && { name: sanitizeString(String(name), 120) }),
       ...(service_type != null && String(service_type).trim() !== '' && { service_type: sanitizeString(String(service_type), 50) }),
     }
 
@@ -116,6 +117,7 @@ serve(async (req) => {
         const phone = body.phone != null ? sanitizeString(String(body.phone), 30) : null
         const preferredContact = body.preferred_contact != null ? sanitizeString(String(body.preferred_contact), 20) : null
         const serviceTypeForEmail = body.service_type != null ? sanitizeString(String(body.service_type), 50) : null
+        const nameForEmail = body.name != null ? sanitizeString(String(body.name), 120) : null
         const emailRes = await fetch(notifyUrl, {
           method: 'POST',
           headers: {
@@ -130,6 +132,7 @@ serve(async (req) => {
               service: row.service,
               postcode: row.postcode,
               source: row.source,
+              name: nameForEmail || undefined,
               phone: phone || undefined,
               preferred_contact: preferredContact || undefined,
               service_type: serviceTypeForEmail || undefined,
