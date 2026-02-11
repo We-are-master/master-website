@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import {
   CheckCircle,
@@ -8,14 +8,34 @@ import {
   Mail,
   Star,
   Shield,
-  Wifi,
-  Signal,
-  Battery,
+  Home,
 } from 'lucide-react';
 import { saveHeroLead } from '../lib/email';
+import logo from '../assets/logo.png';
 import './LP.css';
 
 const UK_FLAG_SRC = 'https://flagcdn.com/w40/gb.png';
+
+const TESTIMONIALS = [
+  { name: 'James P.', location: 'London', text: 'Master took over everything. I didn\'t have to chase anyone. The pro was great, but the management was the real winner.', avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAtdaj6s7X3-1Jr51wq2XKRj8qv3QpGphGObe-ObAkVuZUvA1dnEPIkij81dyLDvzFM0Eau-PGC_HGbM9mrwcWh6yhmcVUbiDz5ht7GTyvMXeCRq59n1IXF1YxjHCO-gRd4GWlAd_xXcfVwXkTlb7JVcdWVs5zgsAKdwg1FeFFHpErRMxvH0_izu1fI5o2pHTX8PVUfQ0CmY_SmsgneWUbr9xY9aYrukAGv-MmB_XIg3q_tIiu-3BqTo3aR_JIRA219k2JHDfyzHow' },
+  { name: 'Sarah L.', location: 'Manchester', text: 'The best managed service I\'ve used. Professional, transparent and Master guarantees the quality themselves.', avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCZgiXZAq3xlibzgkLym3ySEnJ5lH9eIXpiqOhDMqxKRW1FAtI7XiBQLOuhS9zp51JIK6rC39bzN9BZhjNC9ic3CohRSKxgvpBcgkS0PFbnB4NX90u5O5RHs13dom_zeXKL7QhR62dxGWVpZgpBD1LBB_nGshnH-segwati0sIYolRy7dKbiQX3UMwr2Ho7cXWwQf-oD5dzwVN9fFxvCJAZvi_4CsKJnhkgPMUsQFtNBDghxuSDytjV5uu7Ar2rk2A_ZamDg6HLY-c' },
+  { name: 'David M.', location: 'Birmingham', text: 'End of tenancy clean was flawless. One point of contact, clear quote, and the team left the flat spotless. Would use again.', avatar: 'https://ui-avatars.com/api/?name=David+M&background=eb4a00&color=fff&size=80' },
+  { name: 'Emma R.', location: 'Leeds', text: 'Finally a service that does what it says. Booked a painter through Master — he turned up on time and the finish was excellent.', avatar: 'https://ui-avatars.com/api/?name=Emma+R&background=eb4a00&color=fff&size=80' },
+  { name: 'Michael T.', location: 'Bristol', text: 'I used to waste hours finding trades. With Master I sent one message and they sorted everything. Game changer.', avatar: 'https://ui-avatars.com/api/?name=Michael+T&background=eb4a00&color=fff&size=80' },
+  { name: 'Sophie K.', location: 'Edinburgh', text: 'Professional cleaning and they managed the whole thing. No chasing, no stress. Highly recommend.', avatar: 'https://ui-avatars.com/api/?name=Sophie+K&background=eb4a00&color=fff&size=80' },
+  { name: 'Chris W.', location: 'Liverpool', text: 'Had an electrical job that needed doing. Master matched me with a certified pro and guaranteed the work. Brilliant.', avatar: 'https://ui-avatars.com/api/?name=Chris+W&background=eb4a00&color=fff&size=80' },
+  { name: 'Rachel H.', location: 'Sheffield', text: 'The guarantee gives real peace of mind. Something went wrong and Master sorted it the same day. Top service.', avatar: 'https://ui-avatars.com/api/?name=Rachel+H&background=eb4a00&color=fff&size=80' },
+  { name: 'Tom B.', location: 'Cardiff', text: 'Booked a handyman for odd jobs. One quote, one point of contact, job done properly. Will use for all future work.', avatar: 'https://ui-avatars.com/api/?name=Tom+B&background=eb4a00&color=fff&size=80' },
+  { name: 'Laura F.', location: 'Glasgow', text: 'Deep clean before a party — they managed the booking and the team was fantastic. House looked brand new.', avatar: 'https://ui-avatars.com/api/?name=Laura+F&background=eb4a00&color=fff&size=80' },
+  { name: 'James N.', location: 'Southampton', text: 'Transparent pricing and no hidden fees. Master handled the plumber visit and I didn\'t have to do a thing.', avatar: 'https://ui-avatars.com/api/?name=James+N&background=eb4a00&color=fff&size=80' },
+  { name: 'Olivia S.', location: 'Newcastle', text: 'Best decision was using Master for our painting. Quality work, insured, and they coordinate everything.', avatar: 'https://ui-avatars.com/api/?name=Olivia+S&background=eb4a00&color=fff&size=80' },
+  { name: 'Daniel P.', location: 'Nottingham', text: 'From quote to completion they were on it. No chasing contractors — Master does that for you. 10/10.', avatar: 'https://ui-avatars.com/api/?name=Daniel+P&background=eb4a00&color=fff&size=80' },
+  { name: 'Hannah C.', location: 'Brighton', text: 'Used them for a full house clean. Professional, reliable, and the guarantee means you\'re covered. Love it.', avatar: 'https://ui-avatars.com/api/?name=Hannah+C&background=eb4a00&color=fff&size=80' },
+  { name: 'Andrew G.', location: 'Reading', text: 'I was sceptical but they delivered. One message, one quote, job done. This is how it should work.', avatar: 'https://ui-avatars.com/api/?name=Andrew+G&background=eb4a00&color=fff&size=80' },
+  { name: 'Jessica L.', location: 'Belfast', text: 'Master managed our refurb. Cleaning, painting, small fixes — all through one team. So much easier.', avatar: 'https://ui-avatars.com/api/?name=Jessica+L&background=eb4a00&color=fff&size=80' },
+  { name: 'Mark D.', location: 'Leicester', text: 'No more Googling and calling random trades. Master finds the right person and stands behind the work.', avatar: 'https://ui-avatars.com/api/?name=Mark+D&background=eb4a00&color=fff&size=80' },
+  { name: 'Charlotte A.', location: 'Bournemouth', text: 'Quick, clear communication and the job was done to a high standard. Will definitely book again.', avatar: 'https://ui-avatars.com/api/?name=Charlotte+A&background=eb4a00&color=fff&size=80' },
+];
 
 const isValidUKPostcode = (value) => {
   const trimmed = (value || '').trim().toUpperCase().replace(/\s+/g, ' ');
@@ -115,30 +135,32 @@ export default function LP() {
         rel="stylesheet"
       />
       <div className="lp-wrapper">
-        {/* Status bar */}
-        <div className="lp-status-bar">
-          <span>9:41</span>
-          <div className="lp-status-icons">
-            <Signal size={12} />
-            <Wifi size={12} />
-            <Battery size={12} className="rotate-90" />
-          </div>
-        </div>
+        {/* Header: logo + Home */}
+        <header className="lp-header">
+          <Link to="/" className="lp-logo-link" aria-label="Master - Go to home">
+            <img src={logo} alt="Master" className="lp-logo" />
+          </Link>
+          <Link to="/" className="lp-home-btn">
+            <Home size={18} />
+            <span>Home</span>
+          </Link>
+        </header>
 
+        <div className="lp-main">
         <div className="lp-hero">
           <div className="lp-badge">
             <CheckCircle size={10} />
-            <span className="lp-badge-text">We own the job</span>
+            <span className="lp-badge-text">Free quote in 30 seconds</span>
           </div>
           <h1 className="lp-title">
-            Book a Top Pro in Seconds.{' '}
-            <span className="lp-title-accent">We handle the rest.</span>
+            Need a trusted pro?{' '}
+            <span className="lp-title-accent">Get a free quote in 30 seconds.</span>
           </h1>
           <p className="lp-subtitle">
-            No searching. No chasing. No stress. From professional cleaning to expert trades, Master manages your entire job from start to finish.
+            Cleaning • Plumbing • Painting • Handyman — We've got London covered.
           </p>
           <p className="lp-disclaimer">
-            Fully managed, insured, and guaranteed by Master.
+            Trusted pros. Insured & guaranteed by Master.
           </p>
         </div>
 
@@ -206,7 +228,7 @@ export default function LP() {
               className="lp-textarea"
               value={serviceDetails}
               onChange={(e) => setServiceDetails(e.target.value)}
-              placeholder="What can we manage for you? (e.g. end of tenancy clean, electrical repair...)"
+              placeholder="e.g. end of tenancy clean, tap repair, interior painting, odd jobs..."
               rows={4}
             />
           </div>
@@ -242,59 +264,31 @@ export default function LP() {
           </div>
         </form>
 
-        {/* Testimonials */}
+        {/* Testimonials - Real Results */}
         <section className="lp-testimonials">
           <div className="lp-testimonials-header">
             <h3 className="lp-testimonials-title">Real Results</h3>
-            <div className="lp-testimonials-dots">
-              <span />
-              <span />
-              <span />
-            </div>
+            <p className="lp-testimonials-sub">Trusted by customers across the UK</p>
           </div>
           <div className="lp-testimonials-scroll">
-            <div className="lp-testimonial-card">
-              <div className="lp-testimonial-stars">
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <Star key={i} size={14} fill="currentColor" />
-                ))}
-              </div>
-              <p className="lp-testimonial-text">
-                "Master took over everything. I didn't have to chase anyone. The pro was great, but the management was the real winner."
-              </p>
-              <div className="lp-testimonial-author">
-                <div className="lp-testimonial-avatar">
-                  <img
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtdaj6s7X3-1Jr51wq2XKRj8qv3QpGphGObe-ObAkVuZUvA1dnEPIkij81dyLDvzFM0Eau-PGC_HGbM9mrwcWh6yhmcVUbiDz5ht7GTyvMXeCRq59n1IXF1YxjHCO-gRd4GWlAd_xXcfVwXkTlb7JVcdWVs5zgsAKdwg1FeFFHpErRMxvH0_izu1fI5o2pHTX8PVUfQ0CmY_SmsgneWUbr9xY9aYrukAGv-MmB_XIg3q_tIiu-3BqTo3aR_JIRA219k2JHDfyzHow"
-                    alt="James P."
-                  />
+            {TESTIMONIALS.map((t, i) => (
+              <div key={i} className="lp-testimonial-card">
+                <div className="lp-testimonial-stars">
+                  {[1, 2, 3, 4, 5].map((j) => (
+                    <Star key={j} size={14} fill="currentColor" />
+                  ))}
                 </div>
-                <span className="lp-testimonial-name">
-                  James P. • <span className="lp-testimonial-location">London</span>
-                </span>
-              </div>
-            </div>
-            <div className="lp-testimonial-card">
-              <div className="lp-testimonial-stars">
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <Star key={i} size={14} fill="currentColor" />
-                ))}
-              </div>
-              <p className="lp-testimonial-text">
-                "The best managed service I've used. Professional, transparent and Master guarantees the quality themselves."
-              </p>
-              <div className="lp-testimonial-author">
-                <div className="lp-testimonial-avatar">
-                  <img
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZgiXZAq3xlibzgkLym3ySEnJ5lH9eIXpiqOhDMqxKRW1FAtI7XiBQLOuhS9zp51JIK6rC39bzN9BZhjNC9ic3CohRSKxgvpBcgkS0PFbnB4NX90u5O5RHs13dom_zeXKL7QhR62dxGWVpZgpBD1LBB_nGshnH-segwati0sIYolRy7dKbiQX3UMwr2Ho7cXWwQf-oD5dzwVN9fFxvCJAZvi_4CsKJnhkgPMUsQFtNBDghxuSDytjV5uu7Ar2rk2A_ZamDg6HLY-c"
-                    alt="Sarah L."
-                  />
+                <p className="lp-testimonial-text">"{t.text}"</p>
+                <div className="lp-testimonial-author">
+                  <div className="lp-testimonial-avatar">
+                    <img src={t.avatar} alt={t.name} />
+                  </div>
+                  <span className="lp-testimonial-name">
+                    {t.name} • <span className="lp-testimonial-location">{t.location}</span>
+                  </span>
                 </div>
-                <span className="lp-testimonial-name">
-                  Sarah L. • <span className="lp-testimonial-location">Manchester</span>
-                </span>
               </div>
-            </div>
+            ))}
           </div>
         </section>
 
@@ -315,12 +309,13 @@ export default function LP() {
             </div>
           </div>
         </div>
+        </div>
 
         {/* CTA bar */}
         <div className="lp-cta-bar">
           <div className="lp-cta-status">
             <div className="lp-cta-status-dot" />
-            <span className="lp-cta-status-text">Project managers active near you</span>
+            <span className="lp-cta-status-text">Trusted pros available in your area</span>
           </div>
           <button
             type="submit"
@@ -329,10 +324,10 @@ export default function LP() {
             disabled={isSubmitting}
             onClick={handleSubmit}
           >
-            {isSubmitting ? 'Sending…' : 'Get an instant quote →'}
+            {isSubmitting ? 'Sending…' : 'Get my free quote →'}
           </button>
           <p className="lp-cta-footer">
-            Directly managed by Master. Insured & Guaranteed.
+            Free quote. No obligation. Insured & guaranteed by Master.
           </p>
         </div>
       </div>

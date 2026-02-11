@@ -1,15 +1,14 @@
 import React from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Check,
   ShieldCheck,
-  Wifi,
-  Signal,
-  Battery,
+  Home,
   Wrench,
   Award,
   Lock,
 } from 'lucide-react';
+import logo from '../assets/logo.png';
 import './QuoteRequestNextSteps.css';
 
 export default function QuoteRequestNextSteps() {
@@ -31,14 +30,15 @@ export default function QuoteRequestNextSteps() {
         rel="stylesheet"
       />
       <div className="qrns-wrapper">
-        <div className="qrns-status-bar">
-          <span>9:41</span>
-          <div className="qrns-status-icons">
-            <Signal size={12} />
-            <Wifi size={12} />
-            <Battery size={12} className="rotate-90" />
-          </div>
-        </div>
+        <header className="qrns-header">
+          <Link to="/" className="qrns-logo-link" aria-label="Master - Go to home">
+            <img src={logo} alt="Master" className="qrns-logo" />
+          </Link>
+          <Link to="/" className="qrns-home-btn">
+            <Home size={18} />
+            <span>Home</span>
+          </Link>
+        </header>
 
         <div className="qrns-hero">
           <div className="qrns-success-ring">
@@ -46,15 +46,16 @@ export default function QuoteRequestNextSteps() {
               <Check strokeWidth={3} />
             </div>
           </div>
-          <h1 className="qrns-title">Request Received!</h1>
+          <h1 className="qrns-title">Your free quote is on the way</h1>
           <div className="qrns-badge">
             <ShieldCheck size={14} fill="currentColor" />
             <span className="qrns-badge-text">
-              {ref ? `Master Managed Job #${ref}` : 'Master Managed'}
+              {ref ? `Request #${ref}` : "We're on it"}
             </span>
           </div>
         </div>
 
+        <div className="qrns-main-content">
         <div className="qrns-card-wrap">
           <div className="qrns-card">
             <div className="qrns-card-header">
@@ -62,8 +63,8 @@ export default function QuoteRequestNextSteps() {
                 <Wrench />
               </div>
               <div>
-                <h2>Your Master Project Manager is on it.</h2>
-                <p>We've started coordinating your request.</p>
+                <h2>We're finding your trusted pro.</h2>
+                <p>Cleaning, plumbing, painting, handyman — we've got you covered. You'll get your free quote within minutes.</p>
               </div>
             </div>
             <div className="qrns-steps">
@@ -71,29 +72,29 @@ export default function QuoteRequestNextSteps() {
               <div className="qrns-step">
                 <div className="qrns-step-num">1</div>
                 <div>
-                  <h3>AI Analysis</h3>
+                  <h3>Finding your pro</h3>
                   <p>
-                    We're matching your job with the best local pro{' '}
-                    <span className="qrns-step-highlight">(2-5 mins).</span>
+                    We're matching you with a trusted local pro for your job{' '}
+                    <span className="qrns-step-highlight">(usually 2–5 mins).</span>
                   </p>
                 </div>
               </div>
               <div className="qrns-step">
                 <div className="qrns-step-num">2</div>
                 <div>
-                  <h3>Direct Contact</h3>
+                  <h3>Your free quote</h3>
                   <p>
-                    You'll receive a message via{' '}
-                    <span className="qrns-whatsapp">WhatsApp</span>.
+                    You'll receive your quote via{' '}
+                    <span className="qrns-whatsapp">WhatsApp</span> or your preferred contact — no obligation.
                   </p>
                 </div>
               </div>
               <div className="qrns-step">
                 <div className="qrns-step-num">3</div>
                 <div>
-                  <h3>Instant Booking</h3>
+                  <h3>Book when you're ready</h3>
                   <p>
-                    Confirm your time and pay securely via the Master dashboard.
+                    Review the quote and pay securely when you're happy to go ahead. Insured & guaranteed by Master.
                   </p>
                 </div>
               </div>
@@ -127,15 +128,9 @@ export default function QuoteRequestNextSteps() {
             </div>
           </div>
         </div>
+        </div>
 
         <div className="qrns-cta-bar">
-          <button
-            type="button"
-            className="qrns-cta-primary"
-            onClick={() => navigate(bookingPath)}
-          >
-            View request status
-          </button>
           <button
             type="button"
             className="qrns-cta-secondary"
@@ -145,7 +140,7 @@ export default function QuoteRequestNextSteps() {
           </button>
           <div className="qrns-cta-footer">
             <Lock size={12} />
-            <p>Secure managed booking by Master</p>
+            <p>Free quote. No obligation. Insured & guaranteed by Master.</p>
           </div>
         </div>
 

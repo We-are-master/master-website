@@ -109,9 +109,7 @@ serve(async (req) => {
     }, 'low')
 
     // Notify hello@wearemaster.com (fire-and-forget; do not fail the response if email fails)
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')
-    const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
-    const notifyUrl = supabaseUrl && serviceKey ? `${supabaseUrl}/functions/v1/send-email` : null
+    const notifyUrl = supabaseUrl && supabaseServiceKey ? `${supabaseUrl}/functions/v1/send-email` : null
     if (notifyUrl) {
       try {
         const phone = body.phone != null ? sanitizeString(String(body.phone), 30) : null
@@ -120,7 +118,7 @@ serve(async (req) => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${serviceKey}`,
+            'Authorization': `Bearer ${supabaseServiceKey}`,
           },
           body: JSON.stringify({
             template: 'lead_notification',

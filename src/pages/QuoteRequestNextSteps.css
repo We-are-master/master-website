@@ -22,27 +22,47 @@
   flex-direction: column;
 }
 
-.qrns-status-bar {
-  height: 3rem;
-  width: 100%;
+.qrns-header {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  padding: 0 2rem 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 700;
-  color: #fff;
-}
-
-.qrns-status-icons {
-  display: flex;
-  gap: 0.375rem;
   align-items: center;
-  color: #fff;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  background: rgba(2, 0, 52, 0.95);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
 }
 
-.qrns-status-icons svg.rotate-90 {
-  transform: rotate(90deg);
+.qrns-logo-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+}
+
+.qrns-logo {
+  height: 32px;
+  width: auto;
+  display: block;
+}
+
+.qrns-home-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.5rem;
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.qrns-home-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 /* Hero success */
@@ -356,33 +376,16 @@
 /* CTA bar */
 .qrns-cta-bar {
   margin-top: auto;
-  background: linear-gradient(0deg, var(--qrns-deep-dark) 0%, var(--qrns-deep-dark) 30%, transparent 100%);
-  padding: 2.5rem 1.5rem 2.5rem;
+  padding: 2rem 1.5rem 2.5rem;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-}
-
-.qrns-cta-primary {
-  width: 100%;
-  padding: 1.25rem 1.5rem;
-  background: var(--qrns-primary);
-  border: none;
-  border-radius: 1rem;
-  color: #fff;
-  font-size: 1.125rem;
-  font-weight: 800;
-  cursor: pointer;
-  box-shadow: 0 20px 25px -5px rgba(235, 74, 0, 0.2);
-  transition: transform 0.15s;
-}
-
-.qrns-cta-primary:active {
-  transform: scale(0.98);
+  align-items: center;
+  gap: 1rem;
 }
 
 .qrns-cta-secondary {
   width: 100%;
+  max-width: 320px;
   padding: 1rem 1.5rem;
   background: transparent;
   border: 2px solid rgba(255, 255, 255, 0.2);
@@ -391,11 +394,16 @@
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.qrns-cta-secondary:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 .qrns-cta-secondary:active {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .qrns-cta-footer {
@@ -425,4 +433,109 @@
   background: rgba(255, 255, 255, 0.2);
   border-radius: 9999px;
   margin: 0.5rem auto 0;
+}
+
+/* ---------- Desktop ---------- */
+@media (min-width: 900px) {
+  .qrns-root {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .qrns-wrapper {
+    max-width: 1000px;
+    width: 100%;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+
+  .qrns-header {
+    padding: 1rem 2rem;
+    border-radius: 0 0 0.75rem 0.75rem;
+    max-width: 1000px;
+    width: 100%;
+  }
+
+  .qrns-logo {
+    height: 36px;
+  }
+
+  .qrns-home-btn {
+    padding: 0.5rem 1.25rem;
+    font-size: 0.9375rem;
+  }
+
+  .qrns-hero {
+    padding: 3rem 2rem 2rem;
+  }
+
+  .qrns-title {
+    font-size: 2.25rem;
+  }
+
+  .qrns-main-content {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 2rem;
+    align-items: start;
+    margin-top: 0.5rem;
+  }
+
+  .qrns-card-wrap {
+    padding: 0;
+    grid-column: 1;
+  }
+
+  .qrns-card {
+    padding: 2.25rem;
+    border-radius: 1.5rem;
+  }
+
+  .qrns-card-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .qrns-card-header p {
+    font-size: 0.9375rem;
+  }
+
+  .qrns-while {
+    padding: 0;
+    grid-column: 2;
+    grid-row: 1;
+    position: sticky;
+    top: 1.5rem;
+  }
+
+  .qrns-master-club {
+    padding: 1.75rem;
+  }
+
+  .qrns-master-club h3 {
+    font-size: 1.375rem;
+  }
+
+  .qrns-cta-bar {
+    grid-column: 1 / -1;
+    margin-top: 2rem;
+    padding: 2rem 0 2.5rem;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem;
+  }
+
+  .qrns-cta-secondary {
+    max-width: 280px;
+    padding: 1rem 2rem;
+    font-size: 1.0625rem;
+  }
+
+  .qrns-cta-footer {
+    width: 100%;
+    justify-content: center;
+    padding-top: 0.25rem;
+  }
 }
