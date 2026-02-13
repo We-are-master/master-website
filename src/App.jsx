@@ -36,6 +36,8 @@ import B2CMyOrders from './pages/B2CMyOrders'
 import CheckoutSuccess from './pages/CheckoutSuccess'
 import LP from './pages/LP'
 import QuoteRequestNextSteps from './pages/QuoteRequestNextSteps'
+import PartnerApply from './pages/PartnerApply'
+import PartnerApplySuccess from './pages/PartnerApplySuccess'
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -55,13 +57,14 @@ function AppContent() {
                      location.pathname.startsWith('/request/');
   const isLP = location.pathname === '/lp';
   const isRequestReceived = location.pathname === '/request-received';
-  const isB2C = !isB2BRoute && !isLP && !isRequestReceived;
+  const isPartnerApply = location.pathname === '/partner-apply' || location.pathname === '/partner-apply/success';
+  const isB2C = !isB2BRoute && !isLP && !isRequestReceived && !isPartnerApply;
 
   return (
     <div className="App">
       <ScrollToTop />
       <SecurityHeaders />
-      {!isLP && !isRequestReceived && (isB2C ? <HeaderB2C /> : <HeaderB2B />)}
+      {!isLP && !isRequestReceived && !isPartnerApply && (isB2C ? <HeaderB2C /> : <HeaderB2B />)}
       <Routes>
         {/* B2C Routes - Rotas principais com layout B2C (HeaderB2C + FooterB2C) */}
         <Route path="/" element={<B2CHome />} />
@@ -77,6 +80,8 @@ function AppContent() {
         <Route path="/my-orders" element={<B2CMyOrders />} />
         <Route path="/lp" element={<LP />} />
         <Route path="/request-received" element={<QuoteRequestNextSteps />} />
+        <Route path="/partner-apply" element={<PartnerApply />} />
+        <Route path="/partner-apply/success" element={<PartnerApplySuccess />} />
 
         {/* B2B Routes - Moved to /b2b path */}
         <Route path="/b2b" element={
@@ -104,7 +109,7 @@ function AppContent() {
         <Route path="/my-requests" element={<MyRequests />} />
         <Route path="/settings" element={<Settings />} />
       </Routes>
-      {!isLP && !isRequestReceived && (isB2C ? (location.pathname === '/checkout' ? null : <FooterB2C />) : <Footer />)}
+      {!isLP && !isRequestReceived && !isPartnerApply && (isB2C ? (location.pathname === '/checkout' ? null : <FooterB2C />) : <Footer />)}
       <CookieConsent />
       <ToastContainer
         position="top-right"

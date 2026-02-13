@@ -1,0 +1,372 @@
+/* Partner Apply / Careers - Master Partner onboarding */
+.pa-root {
+  --pa-primary: #eb4a00;
+  --pa-bg: #020034;
+  --pa-bg-dark: #020030;
+  font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+  min-height: 100vh;
+  background: linear-gradient(180deg, var(--pa-bg) 0%, var(--pa-bg-dark) 100%);
+  color: #fff;
+  padding-bottom: 4rem;
+}
+
+.pa-container {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.pa-hero {
+  text-align: center;
+  padding: 2.5rem 0 2rem;
+}
+
+.pa-hero-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 0.75rem;
+}
+
+.pa-hero h1 {
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1.3;
+  margin-bottom: 0.5rem;
+}
+
+.pa-hero p {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* Step indicator */
+.pa-steps {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.pa-step-dot {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.875rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.6);
+  transition: all 0.2s;
+}
+
+.pa-step-dot.active {
+  background: var(--pa-primary);
+  border-color: var(--pa-primary);
+  color: #fff;
+}
+
+.pa-step-dot.done {
+  background: rgba(235, 74, 0, 0.4);
+  border-color: var(--pa-primary);
+  color: #fff;
+}
+
+/* Card */
+.pa-card {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 1rem;
+  padding: 1.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.pa-card h2 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin-bottom: 1.25rem;
+  color: #fff;
+}
+
+/* Form */
+.pa-field {
+  margin-bottom: 1.25rem;
+}
+
+.pa-field:last-child {
+  margin-bottom: 0;
+}
+
+.pa-field label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 0.5rem;
+}
+
+.pa-field label .pa-optional {
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.pa-field input[type="text"],
+.pa-field input[type="email"],
+.pa-field input[type="tel"],
+.pa-field input[type="number"],
+.pa-field select,
+.pa-field textarea {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  color: #fff;
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+.pa-field input::placeholder,
+.pa-field textarea::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.pa-field input:focus,
+.pa-field select:focus,
+.pa-field textarea:focus {
+  outline: none;
+  border-color: var(--pa-primary);
+  box-shadow: 0 0 0 2px rgba(235, 74, 0, 0.25);
+}
+
+.pa-field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 540px) {
+  .pa-field-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Checkbox / Radio group */
+.pa-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.pa-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #fff;
+  font-size: 0.9375rem;
+}
+
+.pa-option:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.pa-option.selected {
+  background: var(--pa-primary);
+  border-color: var(--pa-primary);
+  color: #fff;
+}
+
+.pa-option input {
+  margin: 0;
+  accent-color: #fff;
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+/* Multi-select work types */
+.pa-work-types {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.pa-work-type {
+  padding: 0.5rem 0.875rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #fff;
+  transition: all 0.2s;
+}
+
+.pa-work-type:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+.pa-work-type.selected {
+  background: var(--pa-primary);
+  border-color: var(--pa-primary);
+  color: #fff;
+}
+
+/* File upload */
+.pa-file-wrap {
+  position: relative;
+}
+
+.pa-file-wrap input[type="file"] {
+  width: 100%;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px dashed rgba(255, 255, 255, 0.25);
+  border-radius: 0.5rem;
+  color: #fff;
+  font-size: 0.875rem;
+}
+
+.pa-file-wrap input[type="file"]::file-selector-button {
+  padding: 0.5rem 1rem;
+  margin-right: 1rem;
+  background: var(--pa-primary);
+  border: none;
+  border-radius: 0.375rem;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.pa-file-name {
+  font-size: 0.8125rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin-top: 0.375rem;
+}
+
+/* Buttons */
+.pa-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.pa-btn {
+  padding: 0.875rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  font-family: inherit;
+}
+
+.pa-btn-back {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.pa-btn-back:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.pa-btn-next {
+  background: var(--pa-primary);
+  color: #fff;
+}
+
+.pa-btn-next:hover {
+  filter: brightness(1.1);
+}
+
+.pa-btn-next:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.pa-checkbox-wrap {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.pa-checkbox-wrap input {
+  margin-top: 0.25rem;
+  accent-color: var(--pa-primary);
+}
+
+.pa-checkbox-wrap label {
+  font-size: 0.9375rem;
+  color: #fff;
+  cursor: pointer;
+  line-height: 1.4;
+}
+
+.pa-error {
+  font-size: 0.75rem;
+  color: #f87171;
+  margin-top: 0.25rem;
+}
+
+/* Step 3: Review */
+.pa-review-intro {
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 1.5rem;
+  font-size: 0.9375rem;
+}
+
+.pa-review {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.pa-review-section h3 {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 0.5rem;
+}
+
+.pa-review-dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.25rem 1.25rem;
+  margin: 0;
+  font-size: 0.9375rem;
+}
+
+.pa-review-dl dt {
+  color: rgba(255, 255, 255, 0.65);
+  font-weight: 500;
+}
+
+.pa-review-dl dd {
+  margin: 0;
+  color: #fff;
+  word-break: break-word;
+}

@@ -1,0 +1,123 @@
+/* Partner Apply Success - same visual family as PartnerApply */
+.pas-root {
+  --pas-primary: #eb4a00;
+  --pas-bg: #020034;
+  --pas-bg-dark: #020030;
+  font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+  min-height: 100vh;
+  background: linear-gradient(180deg, var(--pas-bg) 0%, var(--pas-bg-dark) 100%);
+  color: #fff;
+  padding-bottom: 4rem;
+}
+
+.pas-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  background: rgba(2, 0, 52, 0.95);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.pas-logo {
+  display: flex;
+  align-items: center;
+}
+
+.pas-logo img {
+  height: 32px;
+  width: auto;
+}
+
+.pas-home {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.pas-home:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+.pas-container {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem;
+}
+
+.pas-card {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 1rem;
+  padding: 2.5rem;
+  text-align: center;
+}
+
+.pas-icon-wrap {
+  margin-bottom: 1.5rem;
+}
+
+.pas-icon {
+  width: 4rem;
+  height: 4rem;
+  color: var(--pas-primary);
+}
+
+.pas-card h1 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin: 0 0 1rem;
+  color: #fff;
+}
+
+.pas-lead {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1rem;
+  line-height: 1.6;
+  margin: 0 0 1.25rem;
+}
+
+.pas-contact {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  margin: 0 0 1.75rem;
+}
+
+.pas-contact a {
+  color: var(--pas-primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.pas-contact a:hover {
+  text-decoration: underline;
+}
+
+.pas-btn {
+  display: inline-block;
+  padding: 0.875rem 1.75rem;
+  background: var(--pas-primary);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  transition: filter 0.2s;
+}
+
+.pas-btn:hover {
+  filter: brightness(1.1);
+  color: #fff;
+}

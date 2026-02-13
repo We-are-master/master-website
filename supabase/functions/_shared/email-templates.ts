@@ -509,6 +509,106 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
       }
     }
 
+    case 'partner_application_notification': {
+      const s = (x: unknown) => (x != null && String(x).trim() !== '' ? String(x) : '—')
+      const id = s(data.id)
+      const fullName = s(data.fullName)
+      const email = s(data.email)
+      const phone = s(data.phone)
+      const street = s(data.street)
+      const city = s(data.city)
+      const state = s(data.state)
+      const postalCode = s(data.postalCode)
+      const country = s(data.country)
+      const businessStructure = s(data.businessStructure)
+      const workTypes = Array.isArray(data.workTypes) ? (data.workTypes as string[]).join(', ') : s(data.workTypes)
+      const areaCoverage = Array.isArray(data.areaCoverage) ? (data.areaCoverage as string[]).join(', ') : s(data.areaCoverage)
+      const vehicle = s(data.vehicle)
+      const teamSize = s(data.teamSize)
+      const link = (label: string, url: unknown) => (url && String(url).trim() !== '' && String(url) !== '—' ? `<a href="${String(url)}" target="_blank" rel="noopener">${label}</a>` : '—')
+      const toolsPhotoUrl = link('Tools photo', data.toolsPhotoUrl)
+      const idDocumentUrl = link('ID document', data.idDocumentUrl)
+      const proofOfAddressUrl = link('Proof of address', data.proofOfAddressUrl)
+      const rightToWorkUrl = link('Right to work', data.rightToWorkUrl)
+      const publicLiabilityUrl = link('Public liability', data.publicLiabilityUrl)
+      const dbsUrl = link('DBS', data.dbsUrl)
+      const profilePhotoUrl = link('Profile photo', data.profilePhotoUrl)
+      return {
+        subject: `[Partner application] ${fullName} – ${email}`,
+        html: `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  ${emailStyles}
+  <style>
+    .internal-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+    .internal-table th { text-align: left; padding: 8px 12px; background: #f3f4f6; border: 1px solid #e5e7eb; }
+    .internal-table td { padding: 8px 12px; border: 1px solid #e5e7eb; }
+    .internal-section { margin: 20px 0; }
+    .internal-section h3 { margin: 0 0 10px 0; font-size: 16px; color: #020034; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <img src="${MASTER_LOGO_URL}" alt="Master" style="display: block; max-height: 44px; width: auto; margin: 0 auto;" />
+    </div>
+    <div class="content">
+      <p style="font-size: 18px; font-weight: 600; color: #020034;">New partner application</p>
+      <p>A new partner application was submitted from /partner-apply. Application ID: <strong>${id}</strong></p>
+
+      <div class="internal-section">
+        <h3>Contact & address</h3>
+        <table class="internal-table">
+          <tr><th>Full name</th><td>${fullName}</td></tr>
+          <tr><th>Email</th><td><a href="mailto:${email}">${email}</a></td></tr>
+          <tr><th>Phone</th><td>${phone}</td></tr>
+          <tr><th>Street</th><td>${street}</td></tr>
+          <tr><th>City</th><td>${city}</td></tr>
+          <tr><th>State</th><td>${state}</td></tr>
+          <tr><th>Postal code</th><td>${postalCode}</td></tr>
+          <tr><th>Country</th><td>${country}</td></tr>
+        </table>
+      </div>
+
+      <div class="internal-section">
+        <h3>Business</h3>
+        <table class="internal-table">
+          <tr><th>Business structure</th><td>${businessStructure}</td></tr>
+          <tr><th>Work types</th><td>${workTypes}</td></tr>
+          <tr><th>Area coverage</th><td>${areaCoverage}</td></tr>
+          <tr><th>Vehicle</th><td>${vehicle}</td></tr>
+          <tr><th>Team size</th><td>${teamSize}</td></tr>
+        </table>
+      </div>
+
+      <div class="internal-section">
+        <h3>Documents (links)</h3>
+        <table class="internal-table">
+          <tr><th>Tools photo</th><td>${toolsPhotoUrl}</td></tr>
+          <tr><th>ID document</th><td>${idDocumentUrl}</td></tr>
+          <tr><th>Proof of address</th><td>${proofOfAddressUrl}</td></tr>
+          <tr><th>Right to work</th><td>${rightToWorkUrl}</td></tr>
+          <tr><th>Public liability</th><td>${publicLiabilityUrl}</td></tr>
+          <tr><th>DBS</th><td>${dbsUrl}</td></tr>
+          <tr><th>Profile photo</th><td>${profilePhotoUrl}</td></tr>
+        </table>
+      </div>
+
+      <p style="margin-top: 24px; font-size: 13px; color: #6b7280;">This email was sent automatically when the partner application was completed.</p>
+    </div>
+    <div class="footer">
+      <p>Master Services | hello@wearemaster.com</p>
+    </div>
+  </div>
+</body>
+</html>
+        `,
+        text: `NEW PARTNER APPLICATION – ${id}\n\n${fullName}\n${email}\n${phone}\n\nAddress: ${street}, ${city} ${state} ${postalCode} ${country}\n\nBusiness: ${businessStructure}\nWork types: ${workTypes}\nAreas: ${areaCoverage}\nVehicle: ${vehicle}\nTeam size: ${teamSize}\n\nDocuments: ${(data.toolsPhotoUrl as string) || '—'} ${(data.idDocumentUrl as string) || '—'} ${(data.proofOfAddressUrl as string) || '—'} ${(data.rightToWorkUrl as string) || '—'}\n\n— Sent automatically when the application was completed.`
+      }
+    }
+
     case 'verification_code': {
       const code = (data.code as string) || '000000'
       const email = (data.email as string) || ''
