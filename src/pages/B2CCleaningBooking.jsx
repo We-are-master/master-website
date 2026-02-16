@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   ChevronLeft,
@@ -19,9 +19,19 @@ import {
   BadgeCheck,
   ArrowRight,
   Info,
+  MapPin,
+  Mail,
 } from 'lucide-react';
 import { SEO } from '../components/SEO';
+import { supabase } from '../lib/supabase';
 import '../styles/booking-premium.css';
+
+const isValidUKPostcode = (value) => {
+  const trimmed = (value || '').trim().toUpperCase().replace(/\s+/g, ' ');
+  const match = trimmed.match(/[A-Z]{1,2}[0-9]{1,2}[A-Z]?\s?[0-9][A-Z]{2}/i);
+  return match && match[0].length >= 5;
+};
+const isValidEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((v || '').trim());
 
 const ADDON_ICONS = {
   oven_gen: Flame,
@@ -43,6 +53,11 @@ const B2CCleaningBooking = () => {
   const [selectedAddons, setSelectedAddons] = useState(new Set(['oven']));
   const [estimatedPrice, setEstimatedPrice] = useState(216); // EoT 1 bed base + 1 extra bed
   const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' && window.innerWidth < 768);
+  const [postcode, setPostcode] = useState(location.state?.postcode || '');
+  const [email, setEmail] = useState(location.state?.email || '');
+  const [postcodeError, setPostcodeError] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const leadNotifiedRef = useRef(false);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -112,14 +127,22 @@ const B2CCleaningBooking = () => {
 
   const getServiceLabel = () => services.find(s => s.id === selectedService)?.label || 'Cleaning';
 
-  const postcode = location.state?.postcode || '';
-  const email = location.state?.email || '';
+  const normalizedPostcode = (postcode || '').trim().toUpperCase().replace(/\s+/g, ' ');
+  const canShowPrice = normalizedPostcode && isValidUKPostcode(normalizedPostcode) && email && isValidEmail(email.trim());
+  const handlePostcodeBlur = () => {
+    if (postcode.trim() && !isValidUKPostcode(normalizedPostcode)) setPostcodeError('Please enter a valid UK postcode (e.g. SW1A 1AA)');
+    else setPostcodeError('');
+  };
+  const handleEmailBlur = () => {
+    if (email && !isValidEmail(email)) setEmailError('Please enter a valid email');
+    else setEmailError('');
+  };
 
   const handleContinue = () => {
     navigate('/checkout', {
       state: {
-        postcode,
-        email,
+        postcode: normalizedPostcode,
+        email: email.trim().toLowerCase(),
         service: {
           id: 'cleaning',
           title: `Cleaning · ${getServiceLabel()}`,
@@ -135,6 +158,16 @@ const B2CCleaningBooking = () => {
       }
     });
   };
+
+  // Notify team when user fills postcode + email (once per session)
+  useEffect(() => {
+    if (!canShowPrice || leadNotifiedRef.current) return;
+    leadNotifiedRef.current = true;
+    const serviceLabel = `Cleaning · ${getServiceLabel()}`;
+    supabase.functions.invoke('notify-booking-lead', {
+      body: { email: email.trim().toLowerCase(), postcode: normalizedPostcode, service: serviceLabel },
+    }).catch(() => { /* fire-and-forget */ });
+  }, [canShowPrice, email, normalizedPostcode]);
 
   return (
     <>
@@ -357,13 +390,44 @@ const B2CCleaningBooking = () => {
 
         <footer className="bkp-footer" style={{ background: 'var(--bkp-bg-deep)', borderTop: '1px solid var(--bkp-border-subtle)', padding: isMobile ? '24px 20px calc(24px + env(safe-area-inset-bottom, 0px))' : '32px 24px 40px', width: '100%' }}>
           <div className="bkp-footer-inner">
+            <p className="bkp-label" style={{ marginBottom: 8 }}>Postcode & email to see your price</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type="text"
+                  placeholder="Postcode (e.g. SW1A 1AA)"
+                  value={postcode}
+                  onChange={(e) => { setPostcode(e.target.value.toUpperCase()); setPostcodeError(''); }}
+                  onBlur={handlePostcodeBlur}
+                  className="bkp-input"
+                  style={{ paddingLeft: 44 }}
+                />
+                <MapPin size={20} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#6b7280', pointerEvents: 'none', zIndex: 1 }} aria-hidden />
+              </div>
+              {postcodeError && <p style={{ color: '#f87171', fontSize: 'var(--bkp-text-sm)', margin: 0 }}>{postcodeError}</p>}
+              <div style={{ position: 'relative' }}>
+                <input
+                  type="email"
+                  placeholder="Your email"
+                  value={email}
+                  onChange={(e) => { setEmail(e.target.value); setEmailError(''); }}
+                  onBlur={handleEmailBlur}
+                  className="bkp-input"
+                  style={{ paddingLeft: 44 }}
+                />
+                <Mail size={20} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#6b7280', pointerEvents: 'none', zIndex: 1 }} aria-hidden />
+              </div>
+              {emailError && <p style={{ color: '#f87171', fontSize: 'var(--bkp-text-sm)', margin: 0 }}>{emailError}</p>}
+            </div>
+            {canShowPrice ? (
+              <>
             <div className="bkp-card bkp-ai-card" style={{ flexDirection: 'row', alignItems: 'center', gap: 14, background: 'rgba(255,255,255,0.03)', borderColor: 'rgba(233, 74, 2, 0.35)' }}>
               <div className="bkp-ai-card-icon" style={{ width: 36, height: 36, flexShrink: 0, background: 'var(--bkp-primary-muted)', borderRadius: 'var(--bkp-radius-md)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Sparkles size={20} color="var(--bkp-primary)" strokeWidth={2} aria-hidden />
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <p className="bkp-label" style={{ margin: 0, color: 'var(--bkp-text)' }}>AI market analysis</p>
-                <p style={{ color: 'var(--bkp-text-secondary)', fontSize: 'var(--bkp-text-xs)', lineHeight: 1.35, margin: '2px 0 0' }}>We’ve analysed the local market and secured the best price for you.</p>
+                <p className="bkp-label" style={{ margin: 0, color: 'var(--bkp-text)' }}>Your quote</p>
+                <p style={{ color: 'var(--bkp-text-secondary)', fontSize: 'var(--bkp-text-xs)', lineHeight: 1.35, margin: '2px 0 0' }}>AI market analysis for your area.</p>
               </div>
             </div>
 
@@ -385,8 +449,8 @@ const B2CCleaningBooking = () => {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <button type="button" onClick={handleContinue} className="bkp-btn-primary" aria-label="Continue to booking with your quote">
-                Continue to booking
+              <button type="button" onClick={handleContinue} className="bkp-btn-primary" aria-label="Book now and pay later">
+                Book Now & Pay Later
                 <ArrowRight size={20} strokeWidth={2.5} aria-hidden />
               </button>
               <p style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, color: 'var(--bkp-text-quaternary)', fontSize: 'var(--bkp-text-xs)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', margin: 0 }}>
@@ -394,6 +458,12 @@ const B2CCleaningBooking = () => {
                 Materials and equipment included
               </p>
             </div>
+              </>
+            ) : (
+              <p style={{ color: 'var(--bkp-text-tertiary)', fontSize: 'var(--bkp-text-sm)', margin: 0 }}>
+                Enter your postcode and email above to see your personalised price.
+              </p>
+            )}
           </div>
         </footer>
       </div>

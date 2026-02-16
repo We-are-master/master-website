@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   ChevronLeft,
@@ -13,19 +13,27 @@ import {
   Armchair,
   Layers,
   DoorOpen,
+  MapPin,
+  Mail,
 } from 'lucide-react';
 import { SEO } from '../components/SEO';
+import { supabase } from '../lib/supabase';
 import '../styles/booking-premium.css';
 
 const PAINTING_PROPERTY_ICONS = { apartment: Building2, home: Home };
 const PAINTING_QUALITY_ICONS = { brush: Paintbrush, format_paint: Palette, shutter_speed: Sparkles };
 const PAINTING_ITEM_ICONS = { bed: Bed, chair_alt: Armchair, layers: Layers, sensor_door: DoorOpen };
 
+const isValidUKPostcode = (v) => (v || '').trim().match(/[A-Z]{1,2}[0-9]{1,2}[A-Z]?\s?[0-9][A-Z]{2}/i);
+const isValidEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((v || '').trim());
+
 const B2CPaintingBooking = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const postcode = location.state?.postcode || '';
-  const email = location.state?.email || '';
+  const [postcode, setPostcode] = useState(location.state?.postcode || '');
+  const [email, setEmail] = useState(location.state?.email || '');
+  const [locationError, setLocationError] = useState('');
+  const [emailError, setEmailError] = useState('');
   const [propertyType, setPropertyType] = useState('flat');
   const [paintingQuality, setPaintingQuality] = useState('high_standard');
   const [bedrooms, setBedrooms] = useState(0);
@@ -35,6 +43,7 @@ const B2CPaintingBooking = () => {
   const [extraRequests, setExtraRequests] = useState('');
   const [estimatedPrice, setEstimatedPrice] = useState(200);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const leadNotifiedRef = useRef(false);
 
   // Detect screen size for responsive layout
   useEffect(() => {
@@ -109,11 +118,23 @@ const B2CPaintingBooking = () => {
 
   const getQualityLabel = () => paintingQualities.find(q => q.id === paintingQuality)?.label || 'High Standard';
 
+  const normalizedPostcode = (postcode || '').trim().toUpperCase().replace(/\s+/g, ' ');
+  const canShowPrice = normalizedPostcode && !!isValidUKPostcode(normalizedPostcode) && email && isValidEmail(email.trim());
+  const handlePostcodeBlur = () => {
+    if (postcode.trim() && !isValidUKPostcode(normalizedPostcode)) setLocationError('Please enter a valid UK postcode (e.g. SW1A 1AA)');
+    else setLocationError('');
+  };
+  const handleEmailBlur = () => {
+    const em = (email || '').trim().toLowerCase();
+    if (em && !isValidEmail(em)) setEmailError('Please enter a valid email address');
+    else setEmailError('');
+  };
+
   const handleBookService = () => {
     navigate('/checkout', {
       state: {
-        postcode,
-        email,
+        postcode: normalizedPostcode,
+        email: email.trim().toLowerCase(),
         service: {
           id: 'painting',
           title: `Painting - ${getQualityLabel()}`,
@@ -131,6 +152,14 @@ const B2CPaintingBooking = () => {
       }
     });
   };
+
+  useEffect(() => {
+    if (!canShowPrice || leadNotifiedRef.current) return;
+    leadNotifiedRef.current = true;
+    supabase.functions.invoke('notify-booking-lead', {
+      body: { email: email.trim().toLowerCase(), postcode: normalizedPostcode, service: `Painting - ${getQualityLabel()}` },
+    }).catch(() => {});
+  }, [canShowPrice, email, normalizedPostcode]);
 
   const StepperControl = ({ value, onDecrement, onIncrement }) => (
     <div style={{
@@ -485,32 +514,69 @@ const B2CPaintingBooking = () => {
 
         <footer className="bkp-footer" style={{ background: 'var(--bkp-bg-deep)', borderTop: '1px solid var(--bkp-border-subtle)', padding: isMobile ? '24px 20px calc(24px + env(safe-area-inset-bottom, 0px))' : '32px 24px 40px', width: '100%' }}>
           <div className="bkp-footer-inner">
-            <div className="bkp-card bkp-ai-card" style={{ flexDirection: 'row', alignItems: 'center', gap: 14, background: 'rgba(255,255,255,0.03)', borderColor: 'rgba(233, 74, 2, 0.35)' }}>
-              <div className="bkp-ai-card-icon" style={{ width: 36, height: 36, flexShrink: 0, background: 'var(--bkp-primary-muted)', borderRadius: 'var(--bkp-radius-md)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Sparkles size={20} color="var(--bkp-primary)" strokeWidth={2} aria-hidden />
+            <p className="bkp-label" style={{ marginBottom: 8 }}>Postcode & email to see your price</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type="text"
+                  placeholder="Postcode (e.g. SW1A 1AA)"
+                  value={postcode}
+                  onChange={(e) => { setPostcode(e.target.value.toUpperCase()); setLocationError(''); }}
+                  onBlur={handlePostcodeBlur}
+                  className="bkp-input"
+                  style={{ paddingLeft: 44 }}
+                />
+                <MapPin size={20} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#6b7280', pointerEvents: 'none', zIndex: 1 }} aria-hidden />
               </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <p className="bkp-label" style={{ margin: 0, color: 'var(--bkp-text)' }}>AI market analysis</p>
-                <p style={{ color: 'var(--bkp-text-secondary)', fontSize: 'var(--bkp-text-xs)', lineHeight: 1.35, margin: '2px 0 0' }}>We've analysed the local market and secured the best price for you.</p>
+              {locationError && <p style={{ color: '#f87171', fontSize: 'var(--bkp-text-sm)', margin: 0 }}>{locationError}</p>}
+              <div style={{ position: 'relative' }}>
+                <input
+                  type="email"
+                  placeholder="Your email"
+                  value={email}
+                  onChange={(e) => { setEmail(e.target.value); setEmailError(''); }}
+                  onBlur={handleEmailBlur}
+                  className="bkp-input"
+                  style={{ paddingLeft: 44 }}
+                />
+                <Mail size={20} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#6b7280', pointerEvents: 'none', zIndex: 1 }} aria-hidden />
               </div>
+              {emailError && <p style={{ color: '#f87171', fontSize: 'var(--bkp-text-sm)', margin: 0 }}>{emailError}</p>}
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
-              <div style={{ flex: 1, minWidth: 120 }}>
-                <span className="bkp-label">Estimated quote</span>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: 2, marginTop: 4 }}>
-                  <span className="bkp-price">£{estimatedPrice}</span>
-                  <span style={{ color: 'var(--bkp-text-quaternary)', fontSize: 'var(--bkp-text-sm)', fontWeight: 700 }}>.00</span>
+            {canShowPrice ? (
+              <>
+                <div className="bkp-card bkp-ai-card" style={{ flexDirection: 'row', alignItems: 'center', gap: 14, background: 'rgba(255,255,255,0.03)', borderColor: 'rgba(233, 74, 2, 0.35)', marginBottom: 16 }}>
+                  <div className="bkp-ai-card-icon" style={{ width: 36, height: 36, flexShrink: 0, background: 'var(--bkp-primary-muted)', borderRadius: 'var(--bkp-radius-md)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Sparkles size={20} color="var(--bkp-primary)" strokeWidth={2} aria-hidden />
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p className="bkp-label" style={{ margin: 0, color: 'var(--bkp-text)' }}>Your quote</p>
+                    <p style={{ color: 'var(--bkp-text-secondary)', fontSize: 'var(--bkp-text-xs)', lineHeight: 1.35, margin: '2px 0 0' }}>AI market analysis for your area.</p>
+                  </div>
                 </div>
-              </div>
-              <div className="bkp-pill bkp-pill-highlight" style={{ padding: '8px 14px' }}>
-                <BadgeCheck size={14} strokeWidth={2.5} aria-hidden />
-                <span>AI price match</span>
-              </div>
-            </div>
-            <button type="button" onClick={handleBookService} className="bkp-btn-primary" aria-label="Continue to booking with your quote">
-              Continue to booking
-              <ArrowRight size={20} strokeWidth={2.5} aria-hidden />
-            </button>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, marginBottom: 16 }}>
+                  <div style={{ flex: 1, minWidth: 120 }}>
+                    <span className="bkp-label">Estimated quote</span>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 2, marginTop: 4 }}>
+                      <span className="bkp-price">£{estimatedPrice}</span>
+                      <span style={{ color: 'var(--bkp-text-quaternary)', fontSize: 'var(--bkp-text-sm)', fontWeight: 700 }}>.00</span>
+                    </div>
+                  </div>
+                  <div className="bkp-pill bkp-pill-highlight" style={{ padding: '8px 14px' }}>
+                    <BadgeCheck size={14} strokeWidth={2.5} aria-hidden />
+                    <span>AI price match</span>
+                  </div>
+                </div>
+                <button type="button" onClick={handleBookService} className="bkp-btn-primary" aria-label="Book now and pay later">
+                  Book Now & Pay Later
+                  <ArrowRight size={20} strokeWidth={2.5} aria-hidden />
+                </button>
+              </>
+            ) : (
+              <p style={{ color: 'var(--bkp-text-tertiary)', fontSize: 'var(--bkp-text-sm)', margin: 0 }}>
+                Enter your postcode and email above to see your personalised price.
+              </p>
+            )}
           </div>
         </footer>
       </div>

@@ -121,6 +121,7 @@ serve(async (req) => {
       customer_email?: string
       booking_data?: Record<string, unknown>
       add_subscription?: string | boolean
+      coupon_code?: string
     }
 
     // Validate amount
@@ -145,6 +146,40 @@ serve(async (req) => {
 
     // Frontend sends amount in pence (GBP); do not multiply by 100
     const amountInPence = Math.round(Number(amountValidation.value))
+
+    // Optional coupon: validate and compute discount (server-side)
+    let finalAmountPence = amountInPence
+    let couponCodeForMetadata: string | null = null
+    const rawCouponCode = typeof body.coupon_code === 'string' ? body.coupon_code.trim().toUpperCase() : ''
+    if (rawCouponCode) {
+      const { data: coupon } = await supabase
+        .from('coupons')
+        .select('id, code, discount_type, discount_value, valid_from, valid_until, max_uses, uses_count, min_order_pence')
+        .ilike('code', rawCouponCode)
+        .limit(1)
+        .maybeSingle()
+
+      const now = new Date()
+      const valid =
+        coupon &&
+        (coupon.valid_from == null || now >= new Date(coupon.valid_from)) &&
+        (coupon.valid_until == null || now <= new Date(coupon.valid_until)) &&
+        (coupon.max_uses == null || (coupon.uses_count ?? 0) < coupon.max_uses) &&
+        (coupon.min_order_pence == null || amountInPence >= coupon.min_order_pence)
+
+      if (valid && coupon) {
+        let discountPence: number
+        if (coupon.discount_type === 'percent') {
+          const pct = Math.min(100, Math.max(0, Number(coupon.discount_value)))
+          discountPence = Math.round((amountInPence * pct) / 100)
+        } else {
+          discountPence = Math.round(Number(coupon.discount_value) * 100)
+        }
+        const cappedDiscount = Math.min(discountPence, amountInPence - 50) // Stripe min 50p
+        finalAmountPence = Math.max(50, amountInPence - Math.max(0, cappedDiscount))
+        couponCodeForMetadata = coupon.code
+      }
+    }
 
     // Validate currency
     const currency = (body.currency || 'gbp').toLowerCase()
@@ -337,7 +372,7 @@ serve(async (req) => {
       }
       [key: string]: unknown
     } = {
-      amount: amountInPence,
+      amount: finalAmountPence,
       currency: currency,
       payment_method_types: addSubscription ? ['card'] : ['card', 'klarna'],
       metadata: {
@@ -348,6 +383,7 @@ serve(async (req) => {
         // CRITICAL: Always include customer_email and customer_phone in metadata so webhook can recover them
         ...(emailForMetadata && { customer_email: emailForMetadata }),
         ...(phoneForMetadata && { customer_phone: phoneForMetadata }),
+        ...(couponCodeForMetadata && { coupon_code: couponCodeForMetadata }),
       },
       ...(emailForMetadata && { receipt_email: emailForMetadata }),
       ...(stripeCustomerId && { customer: stripeCustomerId }),
@@ -410,8 +446,9 @@ serve(async (req) => {
 
     logSecurityEvent('payment_intent_created', {
       payment_intent_id: paymentIntent.id,
-      amount: amountInPence,
+      amount: finalAmountPence,
       currency,
+      coupon: couponCodeForMetadata ?? undefined,
       ip: validation.clientIP,
     }, 'low')
 
@@ -478,7 +515,7 @@ serve(async (req) => {
           stripe_payment_intent_id: paymentIntent.id,
           status: 'pending',
           payment_status: 'pending',
-          amount: amountInPence / 100, // Convert to pounds
+          amount: finalAmountPence / 100, // Convert to pounds
           currency: currency,
           customer_name: bookingData.customer_name && typeof bookingData.customer_name === 'string'
             ? sanitizeString(bookingData.customer_name, 200)

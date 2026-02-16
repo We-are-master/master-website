@@ -98,6 +98,7 @@ export async function createPaymentIntentViaSupabase(paymentData) {
         customer_email: customerEmail,
         add_subscription: addSubscription ? 'true' : 'false',
         booking_data: paymentData.booking_data || null,
+        ...(paymentData.coupon_code && { coupon_code: paymentData.coupon_code }),
       }
     });
 

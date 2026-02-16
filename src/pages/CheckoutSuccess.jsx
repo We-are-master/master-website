@@ -47,6 +47,19 @@ const CheckoutSuccess = () => {
       return;
     }
 
+    const payLater = stateData?.payLater === true;
+    const bookingRefPayLater = stateData?.bookingRef || null;
+
+    if (payLater && bookingRefPayLater) {
+      setPaymentStatus('succeeded');
+      setBookingDetails({
+        ...stateData,
+        payLater: true,
+        bookingRef: bookingRefPayLater,
+      });
+      return;
+    }
+
     let paymentIntentId = stateData?.paymentIntentId || null;
     const clientSecret = stateData?.clientSecret || null;
 
@@ -99,9 +112,11 @@ const CheckoutSuccess = () => {
   }, [location.state, searchParams]);
 
   // Generate a booking reference
-  const bookingRef = bookingDetails?.paymentIntentId 
-    ? `MAS-${bookingDetails.paymentIntentId.slice(-8).toUpperCase()}`
-    : `MAS-${Date.now().toString(36).toUpperCase()}`;
+  const bookingRef = bookingDetails?.payLater && bookingDetails?.bookingRef
+    ? bookingDetails.bookingRef
+    : bookingDetails?.paymentIntentId
+      ? `MAS-${bookingDetails.paymentIntentId.slice(-8).toUpperCase()}`
+      : `MAS-${Date.now().toString(36).toUpperCase()}`;
 
   // Show error if payment verification failed
   if (paymentStatus === 'failed') {
@@ -237,13 +252,15 @@ const CheckoutSuccess = () => {
             fontWeight: '700',
             marginBottom: '0.5rem'
           }}>
-            Payment Successful!
+            {bookingDetails?.payLater ? 'Booking confirmed!' : 'Payment Successful!'}
           </h1>
           <p style={{
             fontSize: '1.125rem',
             opacity: 0.9
           }}>
-            Your booking has been confirmed
+            {bookingDetails?.payLater
+              ? "We'll be in touch to arrange payment. You can pay when the job is done."
+              : 'Your booking has been confirmed'}
           </p>
         </div>
 

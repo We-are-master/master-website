@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, CheckCircle, Shield, Loader2, AlertCircle, Clock, Upload, X, Plus, Minus, Calendar, ChevronLeft, ChevronRight, Lock, Sparkles, Star, MapPin, CreditCard, Percent, CalendarClock, ShieldCheck, PiggyBank, BadgeCheck, ArrowRight, Info } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Shield, Loader2, AlertCircle, Clock, Upload, X, Plus, Minus, Calendar, ChevronLeft, ChevronRight, Lock, Sparkles, Star, MapPin, CreditCard, Percent, CalendarClock, ShieldCheck, PiggyBank, BadgeCheck, ArrowRight, Info, Tag } from 'lucide-react';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
@@ -300,6 +300,8 @@ const B2CCheckout = () => {
   const fileInputRef = useRef(null);
   const paymentSectionRef = useRef(null);
   const [hasScrolledToPayment, setHasScrolledToPayment] = useState(false);
+  const [paymentChoice, setPaymentChoice] = useState(null); // null | 'pay_later' | 'pay_now'
+  const [submittingPayLater, setSubmittingPayLater] = useState(false);
   
   // Customer details form (email/postcode pre-filled when coming from hero)
   const [customerDetails, setCustomerDetails] = useState({
@@ -332,6 +334,12 @@ const B2CCheckout = () => {
   const [hasSubscription, setHasSubscription] = useState(null); // null = loading, true/false = from API
   const [addSubscriptionToOrder, setAddSubscriptionToOrder] = useState(true); // default checked when no subscription
   const [showSubscriptionUpsell, setShowSubscriptionUpsell] = useState(true); // dismiss banner
+
+  // Coupon: input, applied { code, discountPence, label }, error, loading
+  const [couponCodeInput, setCouponCodeInput] = useState('');
+  const [couponApplied, setCouponApplied] = useState(null);
+  const [couponError, setCouponError] = useState('');
+  const [couponLoading, setCouponLoading] = useState(false);
 
   const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 768 : false);
   const [isDesktop, setIsDesktop] = useState(typeof window !== 'undefined' ? window.innerWidth >= 1024 : true);
@@ -450,12 +458,14 @@ const B2CCheckout = () => {
   );
   const newMemberDiscount = subscriptionOfferActive ? totalPrice * 0.27 : 0;
   const memberDiscount = existingMemberDiscount > 0 ? existingMemberDiscount : newMemberDiscount;
-  const orderTotal =
+  const orderTotalBeforeCoupon =
     hasActiveSubscription
       ? totalPrice - existingMemberDiscount
       : subscriptionOfferActive
         ? totalPrice * 0.73 + SUBSCRIPTION_PRICE
         : totalPrice;
+  const couponDiscountPence = couponApplied ? couponApplied.discountPence : 0;
+  const orderTotal = Math.max(0, orderTotalBeforeCoupon - couponDiscountPence / 100);
 
   // Check subscription status when email is available
   useEffect(() => {
@@ -481,6 +491,46 @@ const B2CCheckout = () => {
   // When subscription add-on is toggled, clear payment intent so amount is recalculated
   const handleAddSubscriptionChange = (checked) => {
     setAddSubscriptionToOrder(checked);
+    if (clientSecret) setClientSecret(null);
+  };
+
+  // Apply coupon: validate via edge function and store discount
+  const applyCoupon = async () => {
+    const code = couponCodeInput.trim().toUpperCase();
+    if (!code) {
+      setCouponError('Please enter a coupon code.');
+      return;
+    }
+    setCouponError('');
+    setCouponLoading(true);
+    try {
+      const { supabase } = await import('../lib/supabase');
+      const orderTotalPence = Math.round(orderTotalBeforeCoupon * 100);
+      const { data, error } = await supabase.functions.invoke('validate-coupon', {
+        body: { code, order_total_pence: orderTotalPence },
+      });
+      if (error) throw new Error(error.message || 'Failed to validate coupon');
+      if (data?.valid && data?.discount_pence > 0) {
+        setCouponApplied({ code: data.code, discountPence: data.discount_pence, label: data.label || data.code });
+        setCouponCodeInput('');
+        if (clientSecret) setClientSecret(null);
+        toast.success('Coupon applied!');
+      } else {
+        setCouponApplied(null);
+        setCouponError(data?.error || 'Invalid or expired coupon.');
+      }
+    } catch (err) {
+      setCouponApplied(null);
+      setCouponError(err?.message || 'Could not validate the coupon.');
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
+  const removeCoupon = () => {
+    setCouponApplied(null);
+    setCouponError('');
+    setCouponCodeInput('');
     if (clientSecret) setClientSecret(null);
   };
 
@@ -516,8 +566,9 @@ const B2CCheckout = () => {
         return;
       }
 
-      const amount = Math.round((orderTotal || totalPrice || service.price || 0) * 100);
-      console.log('[Checkout] create-payment-intent iniciado', { amount_pence: amount, amount_gbp: (amount / 100).toFixed(2), currency: 'gbp', add_subscription: addSubscriptionToOrder });
+      // Backend expects pre-discount amount when coupon is used (it applies discount server-side)
+      const amount = Math.round(orderTotalBeforeCoupon * 100);
+      console.log('[Checkout] create-payment-intent iniciado', { amount_pence: amount, amount_gbp: (amount / 100).toFixed(2), currency: 'gbp', add_subscription: addSubscriptionToOrder, coupon_code: couponApplied?.code ?? null });
       
       if (amount <= 0) {
         setPaymentError('Invalid service price');
@@ -536,6 +587,7 @@ const B2CCheckout = () => {
       const paymentData = await createPaymentIntentViaSupabase({
         amount: amount,
         currency: 'gbp',
+        ...(couponApplied?.code && { coupon_code: couponApplied.code }),
         metadata: {
           source: 'website',
           add_subscription: addSubscriptionToOrder ? 'true' : 'false',
@@ -739,6 +791,78 @@ const B2CCheckout = () => {
     }
   };
 
+  const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
+
+  const buildBookingData = () => {
+    let fullJobDescription = jobDescription || '';
+    if (isHourlyService) {
+      fullJobDescription = `[${selectedHours} hour(s) booked] ${hourlyJobDescription || jobDescription || ''}`;
+      if (uploadedPhotos?.length > 0) fullJobDescription += ` [${uploadedPhotos.length} photo(s) attached]`;
+    }
+    return {
+      customer_name: customerDetails?.fullName || '',
+      customer_email: customerDetails?.email || '',
+      customer_phone: customerDetails?.phone || '',
+      address_line1: customerDetails?.addressLine1 || '',
+      address_line2: customerDetails?.addressLine2 || '',
+      city: customerDetails?.city || '',
+      postcode: customerDetails?.postcode || postcode || '',
+      service_id: service?.id || service?.originalService?.id || null,
+      service_name: service?.title || 'Booking',
+      service_category: service?.category || null,
+      job_description: fullJobDescription,
+      property_type: service?.propertyType || null,
+      bedrooms: service?.bedrooms ?? null,
+      bathrooms: service?.bathrooms ?? null,
+      cleaning_addons: Array.isArray(service?.addons) ? service.addons : [],
+      scheduled_dates: selectedDates.map(d => d.toISOString().split('T')[0]),
+      scheduled_time_slots: selectedTimeSlots,
+    };
+  };
+
+  const createBookingPayLater = async () => {
+    if (submittingPayLater || !isFormValid()) return;
+    setSubmittingPayLater(true);
+    setPaymentError(null);
+    try {
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/create-booking-pay-later`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          booking_data: buildBookingData(),
+          amount: orderTotal,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setPaymentError(data.error || 'Failed to save booking. Please try again.');
+        setSubmittingPayLater(false);
+        return;
+      }
+      setPaymentSuccess(true);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setTimeout(() => {
+        navigate('/checkout-success', {
+          state: {
+            service,
+            postcode: customerDetails?.postcode || postcode,
+            jobDescription,
+            customerDetails,
+            payLater: true,
+            bookingRef: data.booking_ref,
+            scheduledDates: selectedDates.map(d => d.toISOString()),
+            scheduledTimeSlots: selectedTimeSlots,
+            timeSlotLabels: selectedTimeSlots.map(id => timeSlots.find(s => s.id === id)?.label).filter(Boolean),
+          },
+        });
+      }, 800);
+    } catch (err) {
+      setPaymentError(err?.message || 'Something went wrong. Please try again.');
+    } finally {
+      setSubmittingPayLater(false);
+    }
+  };
+
   const handlePaymentSuccess = (paymentIntent) => {
     console.log('[Checkout] pagamento concluído', { paymentIntentId: paymentIntent.id, status: paymentIntent.status });
     // Only show success if payment is verified as succeeded
@@ -924,37 +1048,152 @@ const B2CCheckout = () => {
 
   const paymentBlock = (
     <>
-      {stripePromise && clientSecret ? (
-        <Elements stripe={stripePromise} options={{ clientSecret }}>
-          <PaymentForm onSuccess={handlePaymentSuccess} clientSecret={clientSecret} />
-        </Elements>
-      ) : (
-        <>
+      {paymentChoice === null && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <p className="bkp-label" style={{ marginBottom: 4 }}>How would you like to pay?</p>
           <button
-            onClick={async () => {
-              if (!isFormValid()) {
-                const missing = getMissingRequirements();
-                toast.error(missing.length > 0 ? `Missing: ${missing.slice(0, 5).join(', ')}${missing.length > 5 ? '...' : ''}` : 'Please fill in all required fields');
-                return;
-              }
-              await createPaymentIntent();
-            }}
-            disabled={creatingPaymentIntent || !isFormValid()}
+            type="button"
+            onClick={() => setPaymentChoice('pay_later')}
             className="bkp-btn-primary"
             style={{
               height: 56,
               fontSize: 'var(--bkp-text-base)',
-              opacity: creatingPaymentIntent || !isFormValid() ? 0.6 : 1,
-              cursor: creatingPaymentIntent || !isFormValid() ? 'not-allowed' : 'pointer'
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 10,
+              background: 'linear-gradient(135deg, #020034 0%, #1a1a4a 100%)',
+              border: '2px solid #020034',
             }}
           >
-            <span>{creatingPaymentIntent ? 'Processing...' : 'Confirm & pay'}</span>
-            {!creatingPaymentIntent && <ArrowRight size={24} strokeWidth={2.5} />}
+            <Clock size={22} />
+            <span>Book Now & Pay Later</span>
           </button>
-          {!creatingPaymentIntent && !isFormValid() && getMissingRequirements().length > 0 && (
-            <p style={{ fontSize: '12px', fontWeight: 600, color: '#ED4B00', marginTop: '12px', marginBottom: 0, textAlign: 'center' }}>
-              To enable: {getMissingRequirements().join(', ')}
+          <button
+            type="button"
+            onClick={() => setPaymentChoice('pay_now')}
+            className="bkp-btn-primary"
+            style={{
+              height: 56,
+              fontSize: 'var(--bkp-text-base)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 10,
+            }}
+          >
+            <CreditCard size={22} />
+            <span>Pay Now</span>
+          </button>
+          {(paymentError) && (
+            <p style={{ fontSize: '12px', fontWeight: 600, color: '#dc2626', marginTop: 4, marginBottom: 0 }}>{paymentError}</p>
+          )}
+        </div>
+      )}
+      {paymentChoice === 'pay_later' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <button
+            type="button"
+            onClick={() => setPaymentChoice(null)}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#64748B',
+              fontSize: '13px',
+              fontWeight: 600,
+              cursor: 'pointer',
+              padding: 0,
+              textAlign: 'left',
+            }}
+          >
+            ← Change payment option
+          </button>
+          <button
+            onClick={createBookingPayLater}
+            disabled={submittingPayLater || !isFormValid()}
+            className="bkp-btn-primary"
+            style={{
+              height: 56,
+              fontSize: 'var(--bkp-text-base)',
+              opacity: submittingPayLater || !isFormValid() ? 0.6 : 1,
+              cursor: submittingPayLater || !isFormValid() ? 'not-allowed' : 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 10,
+              background: 'linear-gradient(135deg, #020034 0%, #1a1a4a 100%)',
+              border: '2px solid #020034',
+            }}
+          >
+            {submittingPayLater ? (
+              <Loader2 size={22} style={{ animation: 'bkp-spin 0.8s linear infinite' }} />
+            ) : (
+              <Clock size={22} />
+            )}
+            <span>{submittingPayLater ? 'Confirming...' : 'Book Now & Pay Later'}</span>
+          </button>
+          {!isFormValid() && getMissingRequirements().length > 0 && (
+            <p style={{ fontSize: '12px', fontWeight: 600, color: '#ED4B00', marginTop: 4, marginBottom: 0 }}>
+              To enable: {getMissingRequirements().slice(0, 3).join(', ')}{getMissingRequirements().length > 3 ? '...' : ''}
             </p>
+          )}
+          {paymentError && (
+            <p style={{ fontSize: '12px', fontWeight: 600, color: '#dc2626', marginTop: 4, marginBottom: 0 }}>{paymentError}</p>
+          )}
+        </div>
+      )}
+      {paymentChoice === 'pay_now' && (
+        <>
+          <button
+            type="button"
+            onClick={() => setPaymentChoice(null)}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#64748B',
+              fontSize: '13px',
+              fontWeight: 600,
+              cursor: 'pointer',
+              padding: 0,
+              marginBottom: 8,
+              textAlign: 'left',
+            }}
+          >
+            ← Change payment option
+          </button>
+          {stripePromise && clientSecret ? (
+            <Elements stripe={stripePromise} options={{ clientSecret }}>
+              <PaymentForm onSuccess={handlePaymentSuccess} clientSecret={clientSecret} />
+            </Elements>
+          ) : (
+            <>
+              <button
+                onClick={async () => {
+                  if (!isFormValid()) {
+                    const missing = getMissingRequirements();
+                    toast.error(missing.length > 0 ? `Missing: ${missing.slice(0, 5).join(', ')}${missing.length > 5 ? '...' : ''}` : 'Please fill in all required fields');
+                    return;
+                  }
+                  await createPaymentIntent();
+                }}
+                disabled={creatingPaymentIntent || !isFormValid()}
+                className="bkp-btn-primary"
+                style={{
+                  height: 56,
+                  fontSize: 'var(--bkp-text-base)',
+                  opacity: creatingPaymentIntent || !isFormValid() ? 0.6 : 1,
+                  cursor: creatingPaymentIntent || !isFormValid() ? 'not-allowed' : 'pointer'
+                }}
+              >
+                <span>{creatingPaymentIntent ? 'Processing...' : 'Confirm & pay'}</span>
+                {!creatingPaymentIntent && <ArrowRight size={24} strokeWidth={2.5} />}
+              </button>
+              {!creatingPaymentIntent && !isFormValid() && getMissingRequirements().length > 0 && (
+                <p style={{ fontSize: '12px', fontWeight: 600, color: '#ED4B00', marginTop: '12px', marginBottom: 0, textAlign: 'center' }}>
+                  To enable: {getMissingRequirements().join(', ')}
+                </p>
+              )}
+            </>
           )}
         </>
       )}
@@ -1619,6 +1858,88 @@ const B2CCheckout = () => {
           </section>
         )}
 
+        {/* Coupon / Discount code */}
+        <section style={{ marginBottom: '24px' }}>
+          <p style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.1em', color: 'var(--bkp-light-text-tertiary)', marginBottom: 12, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Tag size={14} /> Discount coupon
+          </p>
+          {couponApplied ? (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '14px 18px',
+              backgroundColor: '#D1FAE5',
+              border: '1px solid #059669',
+              borderRadius: '12px',
+              flexWrap: 'wrap',
+              gap: 10,
+            }}>
+              <span style={{ fontSize: '15px', fontWeight: 700, color: '#047857' }}>
+                {couponApplied.code} — {couponApplied.label} (-£{(couponApplied.discountPence / 100).toFixed(2)})
+              </span>
+              <button
+                type="button"
+                onClick={removeCoupon}
+                style={{
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  color: '#047857',
+                  textDecoration: 'underline',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: 0,
+                }}
+              >
+                Remover
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+              <input
+                type="text"
+                value={couponCodeInput}
+                onChange={(e) => { setCouponCodeInput(e.target.value); setCouponError(''); }}
+                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), applyCoupon())}
+                placeholder="Coupon code"
+                disabled={couponLoading}
+                style={{
+                  flex: 1,
+                  minWidth: 140,
+                  padding: '14px 18px',
+                  border: `1px solid ${couponError ? '#dc2626' : '#E2E8F0'}`,
+                  borderRadius: '12px',
+                  fontSize: '15px',
+                  fontWeight: 600,
+                  color: '#020034',
+                }}
+              />
+              <button
+                type="button"
+                onClick={applyCoupon}
+                disabled={couponLoading || !couponCodeInput.trim()}
+                style={{
+                  padding: '14px 24px',
+                  borderRadius: '12px',
+                  fontSize: '15px',
+                  fontWeight: 700,
+                  backgroundColor: '#020034',
+                  color: '#fff',
+                  border: 'none',
+                  cursor: couponLoading || !couponCodeInput.trim() ? 'not-allowed' : 'pointer',
+                  opacity: couponLoading || !couponCodeInput.trim() ? 0.6 : 1,
+                }}
+              >
+                {couponLoading ? '...' : 'Apply'}
+              </button>
+            </div>
+          )}
+          {couponError && (
+            <p style={{ fontSize: '13px', fontWeight: 600, color: '#dc2626', marginTop: 8, marginBottom: 0 }}>{couponError}</p>
+          )}
+        </section>
+
         {/* Price Summary Section (hidden on desktop, shown in sidebar) */}
         <section className="bkp-price-summary-inline" style={{
           backgroundColor: '#F8FAFC',
@@ -1660,6 +1981,12 @@ const B2CCheckout = () => {
               <span style={{ fontWeight: 700, color: '#059669', fontSize: '18px' }}>
                 -£{savingsAmount.toFixed(2)}
               </span>
+            </div>
+          )}
+          {couponDiscountPence > 0 && (
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '15px', marginBottom: '20px' }}>
+              <span style={{ color: '#059669', fontWeight: 700 }}>Coupon {couponApplied?.code}</span>
+              <span style={{ fontWeight: 700, color: '#059669' }}>-£{(couponDiscountPence / 100).toFixed(2)}</span>
             </div>
           )}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '15px', marginBottom: '20px' }}>
@@ -1737,6 +2064,12 @@ const B2CCheckout = () => {
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span style={{ color: '#059669', fontWeight: 700 }}>Savings</span>
                 <span style={{ fontWeight: 700, color: '#059669' }}>-£{savingsAmount.toFixed(2)}</span>
+              </div>
+            )}
+            {couponDiscountPence > 0 && (
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: '#059669', fontWeight: 700 }}>Coupon {couponApplied?.code}</span>
+                <span style={{ fontWeight: 700, color: '#059669' }}>-£{(couponDiscountPence / 100).toFixed(2)}</span>
               </div>
             )}
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
