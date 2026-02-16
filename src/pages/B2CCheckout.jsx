@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, CheckCircle, Shield, Loader2, AlertCircle, Clock, Upload, X, Plus, Minus, Calendar, ChevronLeft, ChevronRight, Lock, Sparkles, Star, MapPin, CreditCard, Percent, CalendarClock, ShieldCheck, PiggyBank, BadgeCheck, ArrowRight, Info, Tag } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Shield, Loader2, AlertCircle, Clock, Upload, X, Plus, Minus, Calendar, ChevronLeft, ChevronRight, Lock, Sparkles, Star, MapPin, CreditCard, Percent, CalendarClock, ShieldCheck, PiggyBank, BadgeCheck, ArrowRight, Info } from 'lucide-react';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
@@ -821,9 +821,23 @@ const B2CCheckout = () => {
   };
 
   const createBookingPayLater = async () => {
-    if (submittingPayLater || !isFormValid()) return;
+    if (submittingPayLater) return;
+    if (!isFormValidForPayLater()) {
+      const missing = getMissingRequirements(true);
+      const msg = missing.length > 0 ? `Complete: ${missing.join(', ')}` : 'Please fill in all required fields';
+      toast.error(msg);
+      setPaymentError(msg);
+      return;
+    }
+    if (!SUPABASE_URL?.trim()) {
+      setPaymentError('Payment service not configured. Please contact support.');
+      toast.error('Payment service not configured. Please contact support.');
+      return;
+    }
     setSubmittingPayLater(true);
     setPaymentError(null);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 25000);
     try {
       const res = await fetch(`${SUPABASE_URL}/functions/v1/create-booking-pay-later`, {
         method: 'POST',
@@ -832,10 +846,14 @@ const B2CCheckout = () => {
           booking_data: buildBookingData(),
           amount: orderTotal,
         }),
+        signal: controller.signal,
       });
+      clearTimeout(timeoutId);
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setPaymentError(data.error || 'Failed to save booking. Please try again.');
+        const msg = data.error || 'Failed to save booking. Please try again.';
+        setPaymentError(msg);
+        toast.error(msg);
         setSubmittingPayLater(false);
         return;
       }
@@ -857,7 +875,12 @@ const B2CCheckout = () => {
         });
       }, 800);
     } catch (err) {
-      setPaymentError(err?.message || 'Something went wrong. Please try again.');
+      clearTimeout(timeoutId);
+      const msg = err?.name === 'AbortError'
+        ? 'Request timed out. Please check your connection and try again.'
+        : (err?.message || 'Something went wrong. Please try again.');
+      setPaymentError(msg);
+      toast.error(msg);
     } finally {
       setSubmittingPayLater(false);
     }
@@ -903,8 +926,22 @@ const B2CCheckout = () => {
            (!isHourlyService || (agreedToHourlyTerms && (hourlyJobDescription.trim() || jobDescription?.trim())));
   };
 
-  // List what's missing so we can show it under the button when disabled
-  const getMissingRequirements = () => {
+  // Pay Later: same as isFormValid but only 1 date required (less strict)
+  const isFormValidForPayLater = () => {
+    const hasAddress = customerDetails.postcode?.trim() && (customerDetails.addressLine1?.trim() || customerDetails.city?.trim());
+    return customerDetails.fullName?.trim() &&
+           customerDetails.email?.trim() &&
+           /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerDetails.email) &&
+           customerDetails.phone?.trim() &&
+           hasAddress &&
+           selectedDates.length >= 1 &&
+           selectedTimeSlots.length > 0 &&
+           agreedToTerms &&
+           (!isHourlyService || (agreedToHourlyTerms && (hourlyJobDescription.trim() || jobDescription?.trim())));
+  };
+
+  // List what's missing (must match isFormValidForPayLater / isFormValid checks)
+  const getMissingRequirements = (forPayLater = false) => {
     const missing = [];
     if (!customerDetails.fullName?.trim()) missing.push('Full name');
     if (!customerDetails.email?.trim()) missing.push('Email');
@@ -912,9 +949,11 @@ const B2CCheckout = () => {
     if (!customerDetails.phone?.trim()) missing.push('Phone');
     if (!customerDetails.postcode?.trim()) missing.push('Postcode');
     if (!customerDetails.addressLine1?.trim() && !customerDetails.city?.trim()) missing.push('Address or city');
-    if (selectedDates.length < 2) missing.push(`${2 - selectedDates.length} more date(s)`);
+    const minDates = forPayLater ? 1 : 2;
+    if (selectedDates.length < minDates) missing.push(`${minDates - selectedDates.length} more date(s)`);
     if (selectedTimeSlots.length === 0) missing.push('Time slot');
     if (!agreedToTerms) missing.push('Accept terms');
+    if (isHourlyService && !agreedToHourlyTerms) missing.push('Accept hourly booking terms');
     if (isHourlyService && !hourlyJobDescription?.trim() && !jobDescription?.trim()) missing.push('Job description');
     return missing;
   };
@@ -1053,7 +1092,8 @@ const B2CCheckout = () => {
           <p className="bkp-label" style={{ marginBottom: 4 }}>How would you like to pay?</p>
           <button
             type="button"
-            onClick={() => setPaymentChoice('pay_later')}
+            onClick={createBookingPayLater}
+            disabled={submittingPayLater}
             className="bkp-btn-primary"
             style={{
               height: 56,
@@ -1064,10 +1104,16 @@ const B2CCheckout = () => {
               gap: 10,
               background: 'linear-gradient(135deg, #020034 0%, #1a1a4a 100%)',
               border: '2px solid #020034',
+              opacity: submittingPayLater ? 0.6 : 1,
+              cursor: submittingPayLater ? 'not-allowed' : 'pointer',
             }}
           >
-            <Clock size={22} />
-            <span>Book Now & Pay Later</span>
+            {submittingPayLater ? (
+              <Loader2 size={22} style={{ animation: 'bkp-spin 0.8s linear infinite' }} />
+            ) : (
+              <Clock size={22} />
+            )}
+            <span>{submittingPayLater ? 'Confirming...' : 'Book Now & Pay Later'}</span>
           </button>
           <button
             type="button"
@@ -1085,56 +1131,9 @@ const B2CCheckout = () => {
             <CreditCard size={22} />
             <span>Pay Now</span>
           </button>
-          {(paymentError) && (
-            <p style={{ fontSize: '12px', fontWeight: 600, color: '#dc2626', marginTop: 4, marginBottom: 0 }}>{paymentError}</p>
-          )}
-        </div>
-      )}
-      {paymentChoice === 'pay_later' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <button
-            type="button"
-            onClick={() => setPaymentChoice(null)}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#64748B',
-              fontSize: '13px',
-              fontWeight: 600,
-              cursor: 'pointer',
-              padding: 0,
-              textAlign: 'left',
-            }}
-          >
-            ← Change payment option
-          </button>
-          <button
-            onClick={createBookingPayLater}
-            disabled={submittingPayLater || !isFormValid()}
-            className="bkp-btn-primary"
-            style={{
-              height: 56,
-              fontSize: 'var(--bkp-text-base)',
-              opacity: submittingPayLater || !isFormValid() ? 0.6 : 1,
-              cursor: submittingPayLater || !isFormValid() ? 'not-allowed' : 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 10,
-              background: 'linear-gradient(135deg, #020034 0%, #1a1a4a 100%)',
-              border: '2px solid #020034',
-            }}
-          >
-            {submittingPayLater ? (
-              <Loader2 size={22} style={{ animation: 'bkp-spin 0.8s linear infinite' }} />
-            ) : (
-              <Clock size={22} />
-            )}
-            <span>{submittingPayLater ? 'Confirming...' : 'Book Now & Pay Later'}</span>
-          </button>
-          {!isFormValid() && getMissingRequirements().length > 0 && (
-            <p style={{ fontSize: '12px', fontWeight: 600, color: '#ED4B00', marginTop: 4, marginBottom: 0 }}>
-              To enable: {getMissingRequirements().slice(0, 3).join(', ')}{getMissingRequirements().length > 3 ? '...' : ''}
+          {!isFormValidForPayLater() && getMissingRequirements(true).length > 0 && (
+            <p style={{ fontSize: '12px', fontWeight: 600, color: '#64748B', marginTop: 0, marginBottom: 0 }}>
+              Coupon is optional. Complete above to continue: {getMissingRequirements(true).slice(0, 4).join(', ')}{getMissingRequirements(true).length > 4 ? '...' : ''}
             </p>
           )}
           {paymentError && (
@@ -1858,88 +1857,6 @@ const B2CCheckout = () => {
           </section>
         )}
 
-        {/* Coupon / Discount code */}
-        <section style={{ marginBottom: '24px' }}>
-          <p style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.1em', color: 'var(--bkp-light-text-tertiary)', marginBottom: 12, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Tag size={14} /> Discount coupon
-          </p>
-          {couponApplied ? (
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '14px 18px',
-              backgroundColor: '#D1FAE5',
-              border: '1px solid #059669',
-              borderRadius: '12px',
-              flexWrap: 'wrap',
-              gap: 10,
-            }}>
-              <span style={{ fontSize: '15px', fontWeight: 700, color: '#047857' }}>
-                {couponApplied.code} — {couponApplied.label} (-£{(couponApplied.discountPence / 100).toFixed(2)})
-              </span>
-              <button
-                type="button"
-                onClick={removeCoupon}
-                style={{
-                  fontSize: '13px',
-                  fontWeight: 700,
-                  color: '#047857',
-                  textDecoration: 'underline',
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  padding: 0,
-                }}
-              >
-                Remover
-              </button>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-              <input
-                type="text"
-                value={couponCodeInput}
-                onChange={(e) => { setCouponCodeInput(e.target.value); setCouponError(''); }}
-                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), applyCoupon())}
-                placeholder="Coupon code"
-                disabled={couponLoading}
-                style={{
-                  flex: 1,
-                  minWidth: 140,
-                  padding: '14px 18px',
-                  border: `1px solid ${couponError ? '#dc2626' : '#E2E8F0'}`,
-                  borderRadius: '12px',
-                  fontSize: '15px',
-                  fontWeight: 600,
-                  color: '#020034',
-                }}
-              />
-              <button
-                type="button"
-                onClick={applyCoupon}
-                disabled={couponLoading || !couponCodeInput.trim()}
-                style={{
-                  padding: '14px 24px',
-                  borderRadius: '12px',
-                  fontSize: '15px',
-                  fontWeight: 700,
-                  backgroundColor: '#020034',
-                  color: '#fff',
-                  border: 'none',
-                  cursor: couponLoading || !couponCodeInput.trim() ? 'not-allowed' : 'pointer',
-                  opacity: couponLoading || !couponCodeInput.trim() ? 0.6 : 1,
-                }}
-              >
-                {couponLoading ? '...' : 'Apply'}
-              </button>
-            </div>
-          )}
-          {couponError && (
-            <p style={{ fontSize: '13px', fontWeight: 600, color: '#dc2626', marginTop: 8, marginBottom: 0 }}>{couponError}</p>
-          )}
-        </section>
-
         {/* Price Summary Section (hidden on desktop, shown in sidebar) */}
         <section className="bkp-price-summary-inline" style={{
           backgroundColor: '#F8FAFC',
@@ -2005,6 +1922,43 @@ const B2CCheckout = () => {
             </div>
           </div>
         </section>
+
+        {/* Hourly booking terms (only for hourly services) */}
+        {isHourlyService && (
+          <section style={{ paddingBottom: '16px', padding: '0 4px' }}>
+            <label style={{ display: 'flex', gap: '16px', cursor: 'pointer' }}>
+              <div style={{ paddingTop: '2px' }}>
+                <input
+                  type="checkbox"
+                  checked={agreedToHourlyTerms}
+                  onChange={(e) => setAgreedToHourlyTerms(e.target.checked)}
+                  style={{
+                    height: '24px',
+                    width: '24px',
+                    borderRadius: '4px',
+                    border: '1px solid #CBD5E1',
+                    accentColor: '#020034'
+                  }}
+                />
+              </div>
+              <p style={{
+                fontSize: '13px',
+                fontWeight: 600,
+                lineHeight: '1.6',
+                opacity: 0.8,
+                color: '#020034',
+                margin: 0
+              }}>
+                I accept the hourly booking terms: billing is based on time booked at the hourly rate; minimum charge may apply.
+              </p>
+            </label>
+            {!agreedToHourlyTerms && (
+              <p style={{ fontSize: '12px', fontWeight: 600, color: '#ED4B00', marginTop: '8px', marginBottom: 0 }}>
+                Required for Book Now & Pay Later / Confirm & pay
+              </p>
+            )}
+          </section>
+        )}
 
         {/* Terms Checkbox */}
         <section style={{ paddingBottom: isMobile ? '64px' : '16px', padding: '0 4px' }}>
@@ -2082,6 +2036,32 @@ const B2CCheckout = () => {
             </div>
             <p style={{ fontSize: '11px', fontWeight: 600, color: '#94A3B8', marginTop: 4, marginBottom: 0 }}>VAT included in total</p>
           </div>
+          {/* Coupon next to payment (visible when choosing Book Now & Pay Later) */}
+          <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #E2E8F0' }}>
+            <p style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.05em', color: '#64748B', marginBottom: 10, textTransform: 'uppercase' }}>Discount code</p>
+            {couponApplied ? (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', backgroundColor: '#D1FAE5', borderRadius: '10px', border: '1px solid #059669' }}>
+                <span style={{ fontSize: '13px', fontWeight: 700, color: '#047857' }}>{couponApplied.code} -£{(couponApplied.discountPence / 100).toFixed(2)}</span>
+                <button type="button" onClick={removeCoupon} style={{ fontSize: '12px', fontWeight: 700, color: '#047857', textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Remove</button>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', gap: 8 }}>
+                <input
+                  type="text"
+                  value={couponCodeInput}
+                  onChange={(e) => { setCouponCodeInput(e.target.value); setCouponError(''); }}
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), applyCoupon())}
+                  placeholder="Coupon code (optional)"
+                  disabled={couponLoading}
+                  style={{ flex: 1, minWidth: 0, padding: '10px 12px', border: `1px solid ${couponError ? '#dc2626' : '#E2E8F0'}`, borderRadius: '10px', fontSize: '14px', fontWeight: 600, color: '#020034' }}
+                />
+                <button type="button" onClick={applyCoupon} disabled={couponLoading || !couponCodeInput.trim()} style={{ padding: '10px 16px', borderRadius: '10px', fontSize: '14px', fontWeight: 700, backgroundColor: '#020034', color: '#fff', border: 'none', cursor: couponLoading || !couponCodeInput.trim() ? 'not-allowed' : 'pointer', opacity: couponLoading || !couponCodeInput.trim() ? 0.6 : 1, whiteSpace: 'nowrap' }}>
+                  {couponLoading ? '...' : 'Apply'}
+                </button>
+              </div>
+            )}
+            {couponError && <p style={{ fontSize: '12px', fontWeight: 600, color: '#dc2626', marginTop: 6, marginBottom: 0 }}>{couponError}</p>}
+          </div>
           <div style={{ marginTop: 'auto', paddingTop: 24 }}>
             {paymentBlock}
           </div>
@@ -2125,6 +2105,32 @@ const B2CCheckout = () => {
               4.9/5 Rating
             </p>
           </div>
+        </div>
+        {/* Discount code above payment (visible on Book Now & Pay Later) */}
+        <div style={{ marginBottom: '16px' }}>
+          <p style={{ fontSize: '10px', fontWeight: 800, letterSpacing: '0.05em', color: '#64748B', marginBottom: 8, textTransform: 'uppercase' }}>Discount code</p>
+          {couponApplied ? (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', backgroundColor: '#D1FAE5', borderRadius: '10px', border: '1px solid #059669' }}>
+              <span style={{ fontSize: '13px', fontWeight: 700, color: '#047857' }}>{couponApplied.code} -£{(couponApplied.discountPence / 100).toFixed(2)}</span>
+              <button type="button" onClick={removeCoupon} style={{ fontSize: '12px', fontWeight: 700, color: '#047857', textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Remove</button>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', gap: 8 }}>
+              <input
+                type="text"
+                value={couponCodeInput}
+                onChange={(e) => { setCouponCodeInput(e.target.value); setCouponError(''); }}
+                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), applyCoupon())}
+                placeholder="Coupon code (optional)"
+                disabled={couponLoading}
+                style={{ flex: 1, minWidth: 0, padding: '12px 14px', border: `1px solid ${couponError ? '#dc2626' : '#E2E8F0'}`, borderRadius: '10px', fontSize: '14px', fontWeight: 600, color: '#020034' }}
+              />
+              <button type="button" onClick={applyCoupon} disabled={couponLoading || !couponCodeInput.trim()} style={{ padding: '12px 18px', borderRadius: '10px', fontSize: '14px', fontWeight: 700, backgroundColor: '#020034', color: '#fff', border: 'none', cursor: couponLoading || !couponCodeInput.trim() ? 'not-allowed' : 'pointer', opacity: couponLoading || !couponCodeInput.trim() ? 0.6 : 1, whiteSpace: 'nowrap' }}>
+                {couponLoading ? '...' : 'Apply'}
+              </button>
+            </div>
+          )}
+          {couponError && <p style={{ fontSize: '12px', fontWeight: 600, color: '#dc2626', marginTop: 6, marginBottom: 0 }}>{couponError}</p>}
         </div>
         {paymentBlock}
         <p style={{

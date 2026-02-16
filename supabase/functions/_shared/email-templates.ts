@@ -253,6 +253,106 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
       }
     }
 
+    case 'internal_new_job_pay_later': {
+      const s = (x: unknown) => (x != null && String(x).trim() !== '' ? String(x) : '—')
+      const bookingRef = s(data.bookingRef)
+      const amountDue = data.amount != null ? `£${Number(data.amount).toFixed(2)} (to be collected)` : '—'
+      const customerName = s(data.customerName)
+      const customerEmail = s(data.customerEmail)
+      const customerPhone = s(data.customerPhone)
+      const addressLine1 = s(data.addressLine1)
+      const addressLine2 = s(data.addressLine2)
+      const city = s(data.city)
+      const postcode = s(data.postcode)
+      const serviceName = s(data.serviceName)
+      const serviceCategory = s(data.serviceCategory)
+      const jobDescription = s(data.jobDescription)
+      const preferredDates = s(data.preferredDates)
+      const preferredTimeSlots = s(data.preferredTimeSlots)
+      const hoursBooked = s(data.hoursBooked)
+      const hourlyRate = s(data.hourlyRate)
+      const createdAt = s(data.createdAt)
+      return {
+        subject: `[New booking – Pay later] ${bookingRef} – ${customerName}`,
+        html: `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  ${emailStyles}
+  <style>
+    .internal-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+    .internal-table th { text-align: left; padding: 8px 12px; background: #f3f4f6; border: 1px solid #e5e7eb; }
+    .internal-table td { padding: 8px 12px; border: 1px solid #e5e7eb; }
+    .internal-section { margin: 20px 0; }
+    .internal-section h3 { margin: 0 0 10px 0; font-size: 16px; color: #020034; }
+    .pay-later-badge { background: #FEF3C7; color: #92400E; padding: 4px 10px; border-radius: 6px; font-weight: 700; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <img src="${MASTER_LOGO_URL}" alt="Master" style="display: block; max-height: 44px; width: auto; margin: 0 auto;" />
+    </div>
+    <div class="content">
+      <p style="font-size: 18px; font-weight: 600; color: #020034;">New booking – Pay later (internal)</p>
+      <p><span class="pay-later-badge">Pay later</span> A customer has booked and will pay later. No payment has been taken yet.</p>
+
+      <div class="internal-section">
+        <h3>Reference and payment</h3>
+        <table class="internal-table">
+          <tr><th>Booking reference</th><td>${bookingRef}</td></tr>
+          <tr><th>Amount due</th><td>${amountDue}</td></tr>
+          <tr><th>Booked at</th><td>${createdAt}</td></tr>
+        </table>
+      </div>
+
+      <div class="internal-section">
+        <h3>Customer</h3>
+        <table class="internal-table">
+          <tr><th>Name</th><td>${customerName}</td></tr>
+          <tr><th>Email</th><td><a href="mailto:${customerEmail}">${customerEmail}</a></td></tr>
+          <tr><th>Phone</th><td>${customerPhone}</td></tr>
+        </table>
+      </div>
+
+      <div class="internal-section">
+        <h3>Address</h3>
+        <table class="internal-table">
+          <tr><th>Line 1</th><td>${addressLine1}</td></tr>
+          <tr><th>Line 2</th><td>${addressLine2}</td></tr>
+          <tr><th>Town/City</th><td>${city}</td></tr>
+          <tr><th>Postcode</th><td>${postcode}</td></tr>
+        </table>
+      </div>
+
+      <div class="internal-section">
+        <h3>Service and job</h3>
+        <table class="internal-table">
+          <tr><th>Service</th><td>${serviceName}</td></tr>
+          <tr><th>Category</th><td>${serviceCategory}</td></tr>
+          ${hoursBooked !== '—' ? `<tr><th>Hours booked</th><td>${hoursBooked}</td></tr>` : ''}
+          ${hourlyRate !== '—' ? `<tr><th>Hourly rate</th><td>${hourlyRate}</td></tr>` : ''}
+          <tr><th>Preferred dates</th><td>${preferredDates}</td></tr>
+          <tr><th>Preferred time slots</th><td>${preferredTimeSlots}</td></tr>
+        </table>
+        <p><strong>Job description:</strong></p>
+        <p style="background: #f9fafb; padding: 12px; border-radius: 8px; border-left: 3px solid #E94A02; white-space: pre-wrap;">${jobDescription}</p>
+      </div>
+
+      <p style="margin-top: 24px; font-size: 13px; color: #6b7280;">This email was sent automatically when the customer chose Book Now & Pay Later (create-booking-pay-later).</p>
+    </div>
+    <div class="footer">
+      <p>Master Services | hello@wearemaster.com</p>
+    </div>
+  </div>
+</body>
+</html>
+        `,
+        text: `NEW BOOKING – PAY LATER – ${bookingRef}\n\nReference: ${bookingRef}\nAmount due: ${amountDue}\nBooked at: ${createdAt}\n\nCUSTOMER\nName: ${customerName}\nEmail: ${customerEmail}\nPhone: ${customerPhone}\n\nADDRESS\n${addressLine1}\n${addressLine2}\n${city} ${postcode}\n\nSERVICE\nService: ${serviceName}\nCategory: ${serviceCategory}\nPreferred dates: ${preferredDates}\nTime slots: ${preferredTimeSlots}\n\nJOB DESCRIPTION\n${jobDescription}\n\n— Sent automatically by create-booking-pay-later.`
+      }
+    }
+
     case 'subscription_welcome': {
       return {
         subject: "Welcome to Master Club, you're all set.",

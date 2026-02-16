@@ -160,6 +160,51 @@ serve(async (req) => {
     )
   }
 
+  // Internal notification email to hello@wearemaster.com (same as paid jobs)
+  const preferredDatesStr = Array.isArray(preferredDates) ? preferredDates.join(', ') : '—'
+  const preferredSlotsStr = Array.isArray(bookingRecord.preferred_time_slots)
+    ? (bookingRecord.preferred_time_slots as string[]).join(', ')
+    : '—'
+  const jobDesc = bookingRecord.job_description && String(bookingRecord.job_description).trim()
+    ? String(bookingRecord.job_description)
+    : '—'
+
+  try {
+    await fetch(`${supabaseUrl}/functions/v1/send-email`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${supabaseServiceKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        template: 'internal_new_job_pay_later',
+        to: 'hello@wearemaster.com',
+        data: {
+          bookingRef: inserted.booking_ref,
+          amount: amountPounds,
+          customerName: bookingRecord.customer_name,
+          customerEmail: bookingRecord.customer_email,
+          customerPhone: bookingRecord.customer_phone ?? '—',
+          addressLine1: bookingRecord.address_line1 ?? '—',
+          addressLine2: bookingRecord.address_line2 ?? '—',
+          city: bookingRecord.city ?? '—',
+          postcode: bookingRecord.postcode ?? '—',
+          serviceName: bookingRecord.service_name,
+          serviceCategory: bookingRecord.service_category ?? '—',
+          jobDescription: jobDesc,
+          preferredDates: preferredDatesStr,
+          preferredTimeSlots: preferredSlotsStr,
+          hoursBooked: (bookingData.hours_booked != null && String(bookingData.hours_booked).trim() !== '') ? String(bookingData.hours_booked) : '—',
+          hourlyRate: (bookingData.hourly_rate != null && String(bookingData.hourly_rate).trim() !== '') ? String(bookingData.hourly_rate) : '—',
+          createdAt: new Date().toISOString(),
+        },
+      }),
+    })
+  } catch (internalEmailErr) {
+    console.warn('[create-booking-pay-later] Failed to send internal notification email:', internalEmailErr)
+    // Don't fail the request – booking was saved
+  }
+
   return new Response(
     JSON.stringify({ success: true, booking_ref: inserted.booking_ref, id: inserted.id }),
     { status: 200, headers: { ...validation.headers, 'Content-Type': 'application/json' } }
