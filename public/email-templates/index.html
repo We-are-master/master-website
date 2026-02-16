@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Master — Email templates preview</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.6;
+      color: #1d1d1f;
+      margin: 0;
+      padding: 40px 20px;
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      min-height: 100vh;
+    }
+    .wrap { max-width: 720px; margin: 0 auto; }
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: #020034;
+      margin: 0 0 8px 0;
+    }
+    .sub {
+      color: #6b7280;
+      font-size: 15px;
+      margin-bottom: 32px;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 12px;
+    }
+    li a {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      background: white;
+      border-radius: 12px;
+      text-decoration: none;
+      color: #1d1d1f;
+      font-weight: 500;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      border: 1px solid #e5e7eb;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    li a:hover {
+      border-color: #E94A02;
+      box-shadow: 0 4px 12px rgba(233, 74, 2, 0.15);
+    }
+    li a span {
+      color: #6b7280;
+      font-size: 13px;
+      font-weight: 400;
+    }
+    .badge {
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      background: #f3f4f6;
+      color: #6b7280;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Master — Email templates</h1>
+    <p class="sub">Clique em cada link para ver o preview do template. Dados de exemplo (ex.: Maria, BK-2024-001).</p>
+    <ul>
+      <li><a href="cart_abandoned_1h.html">Abandono de carrinho (1h) <span>Complete your booking</span></a></li>
+      <li><a href="cart_abandoned_24h.html">Abandono de carrinho (24h) <span>Still need help?</span></a></li>
+      <li><a href="booking_confirmed.html">Reserva confirmada <span>Booking confirmed</span></a></li>
+      <li><a href="subscription_welcome.html">Boas-vindas Master Club <span>Welcome to Master Club</span></a></li>
+      <li><a href="subscription_cancelled.html">Assinatura cancelada <span>Subscription cancelled</span></a></li>
+      <li><a href="payment_failed.html">Falha de pagamento <span>Action needed</span></a></li>
+      <li><a href="job_completed.html">Job concluído <span>Thank you</span></a></li>
+      <li><a href="review_request.html">Pedido de review <span>How did we do?</span></a></li>
+      <li><a href="verification_code.html">Código de verificação (OTP) <span>6-digit code</span></a></li>
+      <li><a href="magic_link.html">Magic link / Login <span>Supabase Auth — {{ .Token }}</span></a></li>
+    </ul>
+  </div>
+</body>
+</html>

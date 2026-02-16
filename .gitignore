@@ -83,9 +83,6 @@ jspm_packages/
 # DynamoDB Local files
 .dynamodb/
 
-# Email template previews (local only, do not push)
-public/email-templates/
-
 # Deployment / server scripts (local only, do not push)
 check_auth_templates.sh
 check_server_payment.sh
