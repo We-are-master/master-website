@@ -316,7 +316,7 @@ const B2CCheckout = () => {
   const [formErrors, setFormErrors] = useState({});
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [agreedToHourlyTerms, setAgreedToHourlyTerms] = useState(false);
-  const [showServiceLocationForm, setShowServiceLocationForm] = useState(false);
+  const [showServiceLocationForm, setShowServiceLocationForm] = useState(true);
   const [postcodeLookupLoading, setPostcodeLookupLoading] = useState(false);
 
   // Hourly service specific state (pre-fill from Handyman/booking page when passed in state)
