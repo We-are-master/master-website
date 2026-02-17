@@ -133,7 +133,7 @@ const BookingQuoteUnlock = ({
                 AI Analysis Complete
               </p>
               <p style={{ margin: '4px 0 0', fontSize: 'var(--bkp-text-sm)', color: 'var(--bkp-text)', lineHeight: 1.4 }}>
-                Master AI has applied our maximum <strong style={{ color: '#86efac' }}>{discountPercent}% discount</strong> based on current local rates.
+                Compared to the London market, your quote is <strong style={{ color: '#86efac' }}>17% cheaper</strong>.
               </p>
             </div>
           </div>
