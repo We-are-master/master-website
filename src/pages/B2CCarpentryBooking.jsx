@@ -12,6 +12,7 @@ import {
   Plus,
 } from 'lucide-react';
 import BookingQuoteUnlock from '../components/BookingQuoteUnlock';
+import NextStepsCard from '../components/NextStepsCard';
 import { SEO } from '../components/SEO';
 import { supabase } from '../lib/supabase';
 import '../styles/booking-premium.css';
@@ -383,6 +384,10 @@ const B2CCarpentryBooking = () => {
               </p>
             </div>
           </div>
+
+          <section style={{ padding: '20px 0 0' }}>
+            <NextStepsCard />
+          </section>
         </main>
 
         <BookingQuoteUnlock

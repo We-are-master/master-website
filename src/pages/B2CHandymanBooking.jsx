@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ChevronLeft, HelpCircle, Minus, Plus, Star, TrendingDown, Info, ShieldCheck, X } from 'lucide-react';
 import BookingQuoteUnlock from '../components/BookingQuoteUnlock';
+import NextStepsCard from '../components/NextStepsCard';
 import { SEO } from '../components/SEO';
 import { supabase } from '../lib/supabase';
 import '../styles/booking-premium.css';
@@ -595,6 +596,10 @@ const B2CHandymanBooking = () => {
                 </p>
               </div>
             </div>
+          </section>
+
+          <section style={{ padding: '20px 0 0' }}>
+            <NextStepsCard />
           </section>
         </main>
 

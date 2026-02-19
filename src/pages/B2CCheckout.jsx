@@ -314,7 +314,7 @@ const B2CCheckout = () => {
     postcode: postcode || '',
   });
   const [formErrors, setFormErrors] = useState({});
-  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(true);
   const [agreedToHourlyTerms, setAgreedToHourlyTerms] = useState(false);
   const [showServiceLocationForm, setShowServiceLocationForm] = useState(true);
   const [postcodeLookupLoading, setPostcodeLookupLoading] = useState(false);
@@ -1252,6 +1252,43 @@ const B2CCheckout = () => {
           </div>
         </section>
 
+        {/* Discount code — between details and service location, prominent */}
+        <section style={{ marginBottom: 24 }}>
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(237, 75, 0, 0.08) 0%, rgba(255, 248, 240, 1) 100%)',
+            border: '2px solid rgba(237, 75, 0, 0.25)',
+            borderRadius: 'var(--bkp-radius-xl)',
+            padding: '20px',
+            boxShadow: '0 4px 16px rgba(237, 75, 0, 0.12)'
+          }}>
+            <p style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.08em', color: '#020034', marginBottom: 12, textTransform: 'uppercase', opacity: 0.8 }}>
+              Discount code
+            </p>
+            {couponApplied ? (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', backgroundColor: '#D1FAE5', borderRadius: '12px', border: '1px solid #059669' }}>
+                <span style={{ fontSize: '14px', fontWeight: 700, color: '#047857' }}>{couponApplied.code} -£{(couponApplied.discountPence / 100).toFixed(2)}</span>
+                <button type="button" onClick={removeCoupon} style={{ fontSize: '12px', fontWeight: 700, color: '#047857', textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Remove</button>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: 10 }}>
+                <input
+                  type="text"
+                  value={couponCodeInput}
+                  onChange={(e) => { setCouponCodeInput(e.target.value); setCouponError(''); }}
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), applyCoupon())}
+                  placeholder="Coupon code (optional)"
+                  disabled={couponLoading}
+                  style={{ flex: 1, minWidth: 0, padding: '14px 16px', border: `2px solid ${couponError ? '#dc2626' : 'rgba(237, 75, 0, 0.3)'}`, borderRadius: '12px', fontSize: '15px', fontWeight: 600, color: '#020034', backgroundColor: '#fff' }}
+                />
+                <button type="button" onClick={applyCoupon} disabled={couponLoading || !couponCodeInput.trim()} style={{ padding: '14px 20px', borderRadius: '12px', fontSize: '14px', fontWeight: 700, backgroundColor: '#ED4B00', color: '#fff', border: 'none', cursor: couponLoading || !couponCodeInput.trim() ? 'not-allowed' : 'pointer', opacity: couponLoading || !couponCodeInput.trim() ? 0.6 : 1, whiteSpace: 'nowrap' }}>
+                  {couponLoading ? '...' : 'Apply'}
+                </button>
+              </div>
+            )}
+            {couponError && <p style={{ fontSize: '12px', fontWeight: 600, color: '#dc2626', marginTop: 8, marginBottom: 0 }}>{couponError}</p>}
+          </div>
+        </section>
+
         {/* Service Location Section — postcode from home, completar endereço inline */}
         <section>
           <h3 style={{
@@ -1960,9 +1997,9 @@ const B2CCheckout = () => {
           </section>
         )}
 
-        {/* Terms Checkbox */}
-        <section style={{ paddingBottom: isMobile ? '64px' : '16px', padding: '0 4px' }}>
-          <label style={{ display: 'flex', gap: '16px', cursor: 'pointer' }}>
+        {/* Terms Checkbox — extra bottom padding on mobile so it stays above sticky payment bar */}
+        <section style={{ paddingBottom: isMobile ? '340px' : '16px', padding: '0 4px' }}>
+          <label style={{ display: 'flex', gap: '16px', cursor: 'pointer', alignItems: 'flex-start' }}>
             <div style={{ paddingTop: '2px' }}>
               <input
                 type="checkbox"
@@ -2036,32 +2073,6 @@ const B2CCheckout = () => {
             </div>
             <p style={{ fontSize: '11px', fontWeight: 600, color: '#94A3B8', marginTop: 4, marginBottom: 0 }}>VAT included in total</p>
           </div>
-          {/* Coupon next to payment (visible when choosing Book Now & Pay Later) */}
-          <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #E2E8F0' }}>
-            <p style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.05em', color: '#64748B', marginBottom: 10, textTransform: 'uppercase' }}>Discount code</p>
-            {couponApplied ? (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', backgroundColor: '#D1FAE5', borderRadius: '10px', border: '1px solid #059669' }}>
-                <span style={{ fontSize: '13px', fontWeight: 700, color: '#047857' }}>{couponApplied.code} -£{(couponApplied.discountPence / 100).toFixed(2)}</span>
-                <button type="button" onClick={removeCoupon} style={{ fontSize: '12px', fontWeight: 700, color: '#047857', textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Remove</button>
-              </div>
-            ) : (
-              <div style={{ display: 'flex', gap: 8 }}>
-                <input
-                  type="text"
-                  value={couponCodeInput}
-                  onChange={(e) => { setCouponCodeInput(e.target.value); setCouponError(''); }}
-                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), applyCoupon())}
-                  placeholder="Coupon code (optional)"
-                  disabled={couponLoading}
-                  style={{ flex: 1, minWidth: 0, padding: '10px 12px', border: `1px solid ${couponError ? '#dc2626' : '#E2E8F0'}`, borderRadius: '10px', fontSize: '14px', fontWeight: 600, color: '#020034' }}
-                />
-                <button type="button" onClick={applyCoupon} disabled={couponLoading || !couponCodeInput.trim()} style={{ padding: '10px 16px', borderRadius: '10px', fontSize: '14px', fontWeight: 700, backgroundColor: '#020034', color: '#fff', border: 'none', cursor: couponLoading || !couponCodeInput.trim() ? 'not-allowed' : 'pointer', opacity: couponLoading || !couponCodeInput.trim() ? 0.6 : 1, whiteSpace: 'nowrap' }}>
-                  {couponLoading ? '...' : 'Apply'}
-                </button>
-              </div>
-            )}
-            {couponError && <p style={{ fontSize: '12px', fontWeight: 600, color: '#dc2626', marginTop: 6, marginBottom: 0 }}>{couponError}</p>}
-          </div>
           <div style={{ marginTop: 'auto', paddingTop: 24 }}>
             {paymentBlock}
           </div>
@@ -2105,32 +2116,6 @@ const B2CCheckout = () => {
               4.9/5 Rating
             </p>
           </div>
-        </div>
-        {/* Discount code above payment (visible on Book Now & Pay Later) */}
-        <div style={{ marginBottom: '16px' }}>
-          <p style={{ fontSize: '10px', fontWeight: 800, letterSpacing: '0.05em', color: '#64748B', marginBottom: 8, textTransform: 'uppercase' }}>Discount code</p>
-          {couponApplied ? (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', backgroundColor: '#D1FAE5', borderRadius: '10px', border: '1px solid #059669' }}>
-              <span style={{ fontSize: '13px', fontWeight: 700, color: '#047857' }}>{couponApplied.code} -£{(couponApplied.discountPence / 100).toFixed(2)}</span>
-              <button type="button" onClick={removeCoupon} style={{ fontSize: '12px', fontWeight: 700, color: '#047857', textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Remove</button>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', gap: 8 }}>
-              <input
-                type="text"
-                value={couponCodeInput}
-                onChange={(e) => { setCouponCodeInput(e.target.value); setCouponError(''); }}
-                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), applyCoupon())}
-                placeholder="Coupon code (optional)"
-                disabled={couponLoading}
-                style={{ flex: 1, minWidth: 0, padding: '12px 14px', border: `1px solid ${couponError ? '#dc2626' : '#E2E8F0'}`, borderRadius: '10px', fontSize: '14px', fontWeight: 600, color: '#020034' }}
-              />
-              <button type="button" onClick={applyCoupon} disabled={couponLoading || !couponCodeInput.trim()} style={{ padding: '12px 18px', borderRadius: '10px', fontSize: '14px', fontWeight: 700, backgroundColor: '#020034', color: '#fff', border: 'none', cursor: couponLoading || !couponCodeInput.trim() ? 'not-allowed' : 'pointer', opacity: couponLoading || !couponCodeInput.trim() ? 0.6 : 1, whiteSpace: 'nowrap' }}>
-                {couponLoading ? '...' : 'Apply'}
-              </button>
-            </div>
-          )}
-          {couponError && <p style={{ fontSize: '12px', fontWeight: 600, color: '#dc2626', marginTop: 6, marginBottom: 0 }}>{couponError}</p>}
         </div>
         {paymentBlock}
         <p style={{
