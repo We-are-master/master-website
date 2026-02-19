@@ -17,6 +17,7 @@ import {
   Shield,
 } from 'lucide-react';
 import BookingQuoteUnlock from '../components/BookingQuoteUnlock';
+import NextStepsCard from '../components/NextStepsCard';
 import { SEO } from '../components/SEO';
 import { supabase } from '../lib/supabase';
 import '../styles/booking-premium.css';
@@ -380,6 +381,10 @@ const B2CCleaningBooking = () => {
                 <p style={{ color: 'var(--bkp-text-secondary)', fontSize: 'var(--bkp-text-xs)', lineHeight: 1.45, margin: '4px 0 0' }}>Professional equipment and 48-hour guarantee. We make sure you pass your check.</p>
               </div>
             </div>
+          </section>
+
+          <section style={{ padding: '20px 0 0' }}>
+            <NextStepsCard />
           </section>
         </main>
 
