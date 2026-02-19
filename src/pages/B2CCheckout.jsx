@@ -757,10 +757,6 @@ const B2CCheckout = () => {
       errors.addressLine1 = 'Address or city is required';
     }
     
-    if (isHourlyService && !hourlyJobDescription?.trim() && !jobDescription?.trim()) {
-      errors.hourlyJobDescription = 'Please describe the work you need done';
-    }
-
     if (selectedDates.length < 2) {
       errors.date = 'Please select at least 2 preferred dates';
     }
@@ -911,8 +907,7 @@ const B2CCheckout = () => {
            customerDetails.phone?.trim() && 
            hasAddress &&
            selectedDates.length >= 2 &&
-           selectedTimeSlots.length > 0 &&
-           (!isHourlyService || (hourlyJobDescription.trim() || jobDescription?.trim()));
+           selectedTimeSlots.length > 0;
   };
 
   // Pay Later: same as isFormValid but only 1 date required (less strict)
@@ -924,8 +919,7 @@ const B2CCheckout = () => {
            customerDetails.phone?.trim() &&
            hasAddress &&
            selectedDates.length >= 1 &&
-           selectedTimeSlots.length > 0 &&
-           (!isHourlyService || (hourlyJobDescription.trim() || jobDescription?.trim()));
+           selectedTimeSlots.length > 0;
   };
 
   // List what's missing (must match isFormValidForPayLater / isFormValid checks)
@@ -940,7 +934,6 @@ const B2CCheckout = () => {
     const minDates = forPayLater ? 1 : 2;
     if (selectedDates.length < minDates) missing.push(`${minDates - selectedDates.length} more date(s)`);
     if (selectedTimeSlots.length === 0) missing.push('Time slot');
-    if (isHourlyService && !hourlyJobDescription?.trim() && !jobDescription?.trim()) missing.push('Job description');
     return missing;
   };
 
