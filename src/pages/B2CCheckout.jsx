@@ -315,7 +315,6 @@ const B2CCheckout = () => {
   });
   const [formErrors, setFormErrors] = useState({});
   const [agreedToTerms, setAgreedToTerms] = useState(true);
-  const [agreedToHourlyTerms, setAgreedToHourlyTerms] = useState(false);
   const [showServiceLocationForm, setShowServiceLocationForm] = useState(true);
   const [postcodeLookupLoading, setPostcodeLookupLoading] = useState(false);
 
@@ -762,10 +761,6 @@ const B2CCheckout = () => {
     if (!agreedToTerms) {
       errors.terms = 'You must agree to the terms and conditions';
     }
-    
-    if (isHourlyService && !agreedToHourlyTerms) {
-      errors.hourlyTerms = 'You must acknowledge the hourly rate terms';
-    }
 
     if (isHourlyService && !hourlyJobDescription?.trim() && !jobDescription?.trim()) {
       errors.hourlyJobDescription = 'Please describe the work you need done';
@@ -923,7 +918,7 @@ const B2CCheckout = () => {
            selectedDates.length >= 2 &&
            selectedTimeSlots.length > 0 &&
            agreedToTerms &&
-           (!isHourlyService || (agreedToHourlyTerms && (hourlyJobDescription.trim() || jobDescription?.trim())));
+           (!isHourlyService || (hourlyJobDescription.trim() || jobDescription?.trim()));
   };
 
   // Pay Later: same as isFormValid but only 1 date required (less strict)
@@ -937,7 +932,7 @@ const B2CCheckout = () => {
            selectedDates.length >= 1 &&
            selectedTimeSlots.length > 0 &&
            agreedToTerms &&
-           (!isHourlyService || (agreedToHourlyTerms && (hourlyJobDescription.trim() || jobDescription?.trim())));
+           (!isHourlyService || (hourlyJobDescription.trim() || jobDescription?.trim()));
   };
 
   // List what's missing (must match isFormValidForPayLater / isFormValid checks)
@@ -953,7 +948,6 @@ const B2CCheckout = () => {
     if (selectedDates.length < minDates) missing.push(`${minDates - selectedDates.length} more date(s)`);
     if (selectedTimeSlots.length === 0) missing.push('Time slot');
     if (!agreedToTerms) missing.push('Accept terms');
-    if (isHourlyService && !agreedToHourlyTerms) missing.push('Accept hourly booking terms');
     if (isHourlyService && !hourlyJobDescription?.trim() && !jobDescription?.trim()) missing.push('Job description');
     return missing;
   };
@@ -966,7 +960,7 @@ const B2CCheckout = () => {
     if (!formValid && hasScrolledToPayment) {
       setHasScrolledToPayment(false);
     }
-  }, [customerDetails, selectedDates, selectedTimeSlots, agreedToTerms, agreedToHourlyTerms, hourlyJobDescription, hasScrolledToPayment, clientSecret]);
+  }, [customerDetails, selectedDates, selectedTimeSlots, agreedToTerms, hourlyJobDescription, hasScrolledToPayment, clientSecret]);
 
   // Track abandoned checkout when user leaves without completing payment
   useEffect(() => {
@@ -1959,43 +1953,6 @@ const B2CCheckout = () => {
             </div>
           </div>
         </section>
-
-        {/* Hourly booking terms (only for hourly services) */}
-        {isHourlyService && (
-          <section style={{ paddingBottom: '16px', padding: '0 4px' }}>
-            <label style={{ display: 'flex', gap: '16px', cursor: 'pointer' }}>
-              <div style={{ paddingTop: '2px' }}>
-                <input
-                  type="checkbox"
-                  checked={agreedToHourlyTerms}
-                  onChange={(e) => setAgreedToHourlyTerms(e.target.checked)}
-                  style={{
-                    height: '24px',
-                    width: '24px',
-                    borderRadius: '4px',
-                    border: '1px solid #CBD5E1',
-                    accentColor: '#020034'
-                  }}
-                />
-              </div>
-              <p style={{
-                fontSize: '13px',
-                fontWeight: 600,
-                lineHeight: '1.6',
-                opacity: 0.8,
-                color: '#020034',
-                margin: 0
-              }}>
-                I accept the hourly booking terms: billing is based on time booked at the hourly rate; minimum charge may apply.
-              </p>
-            </label>
-            {!agreedToHourlyTerms && (
-              <p style={{ fontSize: '12px', fontWeight: 600, color: '#ED4B00', marginTop: '8px', marginBottom: 0 }}>
-                Required for Book Now & Pay Later / Confirm & pay
-              </p>
-            )}
-          </section>
-        )}
 
         {/* Terms Checkbox — extra bottom padding on mobile so it stays above sticky payment bar */}
         <section style={{ paddingBottom: isMobile ? '340px' : '16px', padding: '0 4px' }}>
