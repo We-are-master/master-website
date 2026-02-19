@@ -156,13 +156,7 @@ const B2CHandymanBooking = () => {
   };
 
   const handleContinue = () => {
-    if (trade === 'Handyman') {
-      if (!jobDescription.trim()) {
-        setJobDescriptionError('Please describe what you need done');
-        return;
-      }
-      setJobDescriptionError('');
-    }
+    if (trade === 'Handyman') setJobDescriptionError('');
     navigate('/checkout', {
       state: {
         postcode: normalizedPostcode,
@@ -443,11 +437,11 @@ const B2CHandymanBooking = () => {
             </div>
               </section>
 
-              {/* Job description — handyman only */}
+              {/* Job description — handyman only (optional) */}
               <section style={{ padding: '24px 0 0' }}>
                 <label htmlFor="handyman-job-desc" style={{ display: 'block', marginBottom: '8px' }}>
                   <span className="bkp-label" style={{ color: 'var(--bkp-text)', fontWeight: 700 }}>What do you need done?</span>
-                  <span style={{ color: 'var(--bkp-text-secondary)', fontSize: 'var(--bkp-text-sm)', marginLeft: '6px' }}>(required)</span>
+                  <span style={{ color: 'var(--bkp-text-tertiary)', fontSize: 'var(--bkp-text-sm)', marginLeft: '6px' }}>(optional)</span>
                 </label>
                 <textarea
                   id="handyman-job-desc"
@@ -456,8 +450,6 @@ const B2CHandymanBooking = () => {
                   placeholder="e.g. Mount TV, assemble furniture, fix loose door, small repairs..."
                   rows={3}
                   maxLength={500}
-                  required
-                  aria-required="true"
                   aria-invalid={!!jobDescriptionError}
                   style={{
                     width: '100%',

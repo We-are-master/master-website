@@ -314,8 +314,6 @@ const B2CCheckout = () => {
     postcode: postcode || '',
   });
   const [formErrors, setFormErrors] = useState({});
-  const [agreedToTerms, setAgreedToTerms] = useState(true);
-  const [agreedToHourlyTerms, setAgreedToHourlyTerms] = useState(false);
   const [showServiceLocationForm, setShowServiceLocationForm] = useState(true);
   const [postcodeLookupLoading, setPostcodeLookupLoading] = useState(false);
 
@@ -759,18 +757,6 @@ const B2CCheckout = () => {
       errors.addressLine1 = 'Address or city is required';
     }
     
-    if (!agreedToTerms) {
-      errors.terms = 'You must agree to the terms and conditions';
-    }
-    
-    if (isHourlyService && !agreedToHourlyTerms) {
-      errors.hourlyTerms = 'You must acknowledge the hourly rate terms';
-    }
-
-    if (isHourlyService && !hourlyJobDescription?.trim() && !jobDescription?.trim()) {
-      errors.hourlyJobDescription = 'Please describe the work you need done';
-    }
-
     if (selectedDates.length < 2) {
       errors.date = 'Please select at least 2 preferred dates';
     }
@@ -921,9 +907,7 @@ const B2CCheckout = () => {
            customerDetails.phone?.trim() && 
            hasAddress &&
            selectedDates.length >= 2 &&
-           selectedTimeSlots.length > 0 &&
-           agreedToTerms &&
-           (!isHourlyService || (agreedToHourlyTerms && (hourlyJobDescription.trim() || jobDescription?.trim())));
+           selectedTimeSlots.length > 0;
   };
 
   // Pay Later: same as isFormValid but only 1 date required (less strict)
@@ -935,9 +919,7 @@ const B2CCheckout = () => {
            customerDetails.phone?.trim() &&
            hasAddress &&
            selectedDates.length >= 1 &&
-           selectedTimeSlots.length > 0 &&
-           agreedToTerms &&
-           (!isHourlyService || (agreedToHourlyTerms && (hourlyJobDescription.trim() || jobDescription?.trim())));
+           selectedTimeSlots.length > 0;
   };
 
   // List what's missing (must match isFormValidForPayLater / isFormValid checks)
@@ -952,9 +934,6 @@ const B2CCheckout = () => {
     const minDates = forPayLater ? 1 : 2;
     if (selectedDates.length < minDates) missing.push(`${minDates - selectedDates.length} more date(s)`);
     if (selectedTimeSlots.length === 0) missing.push('Time slot');
-    if (!agreedToTerms) missing.push('Accept terms');
-    if (isHourlyService && !agreedToHourlyTerms) missing.push('Accept hourly booking terms');
-    if (isHourlyService && !hourlyJobDescription?.trim() && !jobDescription?.trim()) missing.push('Job description');
     return missing;
   };
 
@@ -966,7 +945,7 @@ const B2CCheckout = () => {
     if (!formValid && hasScrolledToPayment) {
       setHasScrolledToPayment(false);
     }
-  }, [customerDetails, selectedDates, selectedTimeSlots, agreedToTerms, agreedToHourlyTerms, hourlyJobDescription, hasScrolledToPayment, clientSecret]);
+  }, [customerDetails, selectedDates, selectedTimeSlots, hourlyJobDescription, hasScrolledToPayment, clientSecret]);
 
   // Track abandoned checkout when user leaves without completing payment
   useEffect(() => {
@@ -1824,36 +1803,16 @@ const B2CCheckout = () => {
                     </span>
                   </div>
                 </div>
-                <label style={{
-                  position: 'relative',
-                  display: 'flex',
-                  height: '58px',
-                  width: '96px',
-                  cursor: 'pointer',
-                  alignItems: 'center',
-                  borderRadius: '9999px',
-                  backgroundColor: addSubscriptionToOrder ? '#ED4B00' : '#F1F5F9',
-                  transition: 'background-color 0.2s',
+                <div style={{
                   flexShrink: 0,
-                  border: '2px solid #F1F5F9'
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  color: '#059669',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em'
                 }}>
-                  <input
-                    type="checkbox"
-                    checked={addSubscriptionToOrder}
-                    onChange={(e) => handleAddSubscriptionChange(e.target.checked)}
-                    className="peer"
-                    style={{ position: 'absolute', opacity: 0, pointerEvents: 'none' }}
-                  />
-                  <div style={{
-                    height: '50px',
-                    width: '50px',
-                    borderRadius: '50%',
-                    backgroundColor: 'white',
-                    boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-                    transform: addSubscriptionToOrder ? 'translateX(41px)' : 'translateX(4px)',
-                    transition: 'transform 0.2s'
-                  }}></div>
-                </label>
+                  Included
+                </div>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -1960,76 +1919,11 @@ const B2CCheckout = () => {
           </div>
         </section>
 
-        {/* Hourly booking terms (only for hourly services) */}
-        {isHourlyService && (
-          <section style={{ paddingBottom: '16px', padding: '0 4px' }}>
-            <label style={{ display: 'flex', gap: '16px', cursor: 'pointer' }}>
-              <div style={{ paddingTop: '2px' }}>
-                <input
-                  type="checkbox"
-                  checked={agreedToHourlyTerms}
-                  onChange={(e) => setAgreedToHourlyTerms(e.target.checked)}
-                  style={{
-                    height: '24px',
-                    width: '24px',
-                    borderRadius: '4px',
-                    border: '1px solid #CBD5E1',
-                    accentColor: '#020034'
-                  }}
-                />
-              </div>
-              <p style={{
-                fontSize: '13px',
-                fontWeight: 600,
-                lineHeight: '1.6',
-                opacity: 0.8,
-                color: '#020034',
-                margin: 0
-              }}>
-                I accept the hourly booking terms: billing is based on time booked at the hourly rate; minimum charge may apply.
-              </p>
-            </label>
-            {!agreedToHourlyTerms && (
-              <p style={{ fontSize: '12px', fontWeight: 600, color: '#ED4B00', marginTop: '8px', marginBottom: 0 }}>
-                Required for Book Now & Pay Later / Confirm & pay
-              </p>
-            )}
-          </section>
-        )}
-
-        {/* Terms Checkbox — extra bottom padding on mobile so it stays above sticky payment bar */}
+        {/* Terms notice — no checkbox; by continuing user agrees */}
         <section style={{ paddingBottom: isMobile ? '340px' : '16px', padding: '0 4px' }}>
-          <label style={{ display: 'flex', gap: '16px', cursor: 'pointer', alignItems: 'flex-start' }}>
-            <div style={{ paddingTop: '2px' }}>
-              <input
-                type="checkbox"
-                checked={agreedToTerms}
-                onChange={(e) => setAgreedToTerms(e.target.checked)}
-                style={{
-                  height: '24px',
-                  width: '24px',
-                  borderRadius: '4px',
-                  border: '1px solid #CBD5E1',
-                  accentColor: '#020034'
-                }}
-              />
-            </div>
-            <p style={{
-              fontSize: '13px',
-              fontWeight: 600,
-              lineHeight: '1.6',
-              opacity: 0.5,
-              color: '#020034',
-              margin: 0
-            }}>
-              I confirm my booking and agree to the <span style={{ textDecoration: 'underline' }}>Terms of Service</span>. Membership auto-renews until cancelled.
-            </p>
-          </label>
-          {!agreedToTerms && (
-            <p style={{ fontSize: '12px', fontWeight: 600, color: '#ED4B00', marginTop: '8px', marginBottom: 0 }}>
-              Required to enable Confirm & pay
-            </p>
-          )}
+          <p style={{ fontSize: '12px', fontWeight: 500, lineHeight: 1.5, opacity: 0.6, color: '#020034', margin: 0 }}>
+            By continuing you agree to our <span style={{ textDecoration: 'underline' }}>Terms of Service</span>. Membership auto-renews until cancelled.
+          </p>
         </section>
       </div>
 
