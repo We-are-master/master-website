@@ -5,6 +5,7 @@ import {
   BadgeCheck,
   Building2,
   Home,
+  LayoutGrid,
   Paintbrush,
   Palette,
   Sparkles,
@@ -19,7 +20,7 @@ import { SEO } from '../components/SEO';
 import { supabase } from '../lib/supabase';
 import '../styles/booking-premium.css';
 
-const PAINTING_PROPERTY_ICONS = { apartment: Building2, home: Home };
+const PAINTING_PROPERTY_ICONS = { apartment: Building2, home: Home, single_room: LayoutGrid };
 const PAINTING_QUALITY_ICONS = { brush: Paintbrush, format_paint: Palette, shutter_speed: Sparkles };
 const PAINTING_ITEM_ICONS = { bed: Bed, chair_alt: Armchair, layers: Layers, sensor_door: DoorOpen };
 
@@ -87,16 +88,17 @@ const B2CPaintingBooking = () => {
   ];
 
   const calculatePrice = () => {
-    const basePrice = 200; // House or Flat Paint base (master_painter CSV)
+    // Single room: no base, price only from room selections below. Flat/House: base £200.
+    const basePrice = propertyType === 'single_room' ? 0 : 200;
     
     // Find selected quality multiplier
     const selectedQuality = paintingQualities.find(q => q.id === paintingQuality);
     const qualityMultiplier = selectedQuality?.multiplier || 1.0;
     
-    // Property type multiplier
+    // Property type multiplier (house 1.2; flat or single_room 1.0)
     const propertyMultiplier = propertyType === 'house' ? 1.2 : 1.0;
     
-    // Add service items
+    // Add service items (bedrooms, living rooms, ceilings, doors/windows)
     let serviceTotal = 0;
     serviceTotal += bedrooms * 250;
     serviceTotal += livingRooms * 175;
@@ -288,10 +290,11 @@ const B2CPaintingBooking = () => {
             }}>
               Property Type
             </h3>
-            <div style={{ display: 'flex', gap: '16px' }}>
+            <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
               {[
                 { id: 'flat', icon: 'apartment', label: 'Flat' },
-                { id: 'house', icon: 'home', label: 'House' }
+                { id: 'house', icon: 'home', label: 'House' },
+                { id: 'single_room', icon: 'single_room', label: 'Single Room' }
               ].map((type) => (
                 <label key={type.id} style={{ flex: 1, cursor: 'pointer' }}>
                   <input

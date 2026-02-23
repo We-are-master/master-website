@@ -1,4 +1,5 @@
-import React, { lazy, Suspense } from 'react';
+import React, { lazy, Suspense, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import HeroB2C from '../components/b2c/HeroB2C';
 import { SEO } from '../components/SEO';
 
@@ -35,6 +36,15 @@ const TestimonialsB2C = lazy(() => import('../components/b2c/TestimonialsB2C'));
 );
 
 const B2CHome = () => {
+  const location = useLocation();
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const coupon = params.get('coupon')?.trim().toUpperCase();
+    if (coupon && typeof sessionStorage !== 'undefined') {
+      sessionStorage.setItem('master_pending_coupon', coupon);
+    }
+  }, [location.search]);
+
   const structuredData = {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',

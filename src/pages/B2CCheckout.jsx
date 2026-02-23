@@ -492,9 +492,9 @@ const B2CCheckout = () => {
     if (clientSecret) setClientSecret(null);
   };
 
-  // Apply coupon: validate via edge function and store discount
-  const applyCoupon = async () => {
-    const code = couponCodeInput.trim().toUpperCase();
+  // Apply coupon: validate via edge function and store discount (optional codeOverride for URL pre-fill)
+  const applyCoupon = async (codeOverride) => {
+    const code = (codeOverride ?? couponCodeInput.trim()).toUpperCase();
     if (!code) {
       setCouponError('Please enter a coupon code.');
       return;
@@ -510,7 +510,7 @@ const B2CCheckout = () => {
       if (error) throw new Error(error.message || 'Failed to validate coupon');
       if (data?.valid && data?.discount_pence > 0) {
         setCouponApplied({ code: data.code, discountPence: data.discount_pence, label: data.label || data.code });
-        setCouponCodeInput('');
+        if (!codeOverride) setCouponCodeInput('');
         if (clientSecret) setClientSecret(null);
         toast.success('Coupon applied!');
       } else {
@@ -653,6 +653,21 @@ const B2CCheckout = () => {
       setCustomerDetails(prev => ({ ...prev, postcode }));
     }
   }, [postcode]);
+
+  // Pre-apply coupon from URL (?coupon=HOME20) or sessionStorage (set when landing on site with ?coupon=)
+  const couponAppliedFromUrlRef = useRef(false);
+  useEffect(() => {
+    if (!servicesList?.length || couponAppliedFromUrlRef.current || couponApplied) return;
+    const params = new URLSearchParams(location.search);
+    const fromUrl = params.get('coupon');
+    const fromStorage = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('master_pending_coupon') : null;
+    const code = (fromUrl || fromStorage)?.trim().toUpperCase();
+    if (!code) return;
+    couponAppliedFromUrlRef.current = true;
+    if (typeof sessionStorage !== 'undefined') sessionStorage.removeItem('master_pending_coupon');
+    setCouponCodeInput(code);
+    applyCoupon(code);
+  }, [location.search, servicesList.length, couponApplied]);
 
   // Free UK postcode lookup (Postcodes.io) — fills city/town from postcode, no API key
   const fetchPostcodeDetails = async (rawPostcode) => {
