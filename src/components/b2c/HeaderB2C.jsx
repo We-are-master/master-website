@@ -46,7 +46,7 @@ const HeaderB2C = () => {
         >
           <img 
             src={logo} 
-            alt="Master" 
+            alt="fixfy" 
             style={{
               height: '40px',
               width: 'auto',
