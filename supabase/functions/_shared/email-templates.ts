@@ -46,7 +46,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
 <body>
   <div class="container">
     <div class="header">
-      <img src="${MASTER_LOGO_URL}" alt="Master" style="display: block; max-height: 44px; width: auto; margin: 0 auto;" />
+      <img src="${MASTER_LOGO_URL}" alt="Fixfy" style="display: block; max-height: 44px; width: auto; margin: 0 auto;" />
     </div>
     <div class="content">
       <p>Hi ${firstName},</p>
@@ -57,17 +57,17 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
       </p>
       <p>If you need help, just reply to this email.</p>
       <div class="signature">
-        <p>With Love,<br>Master Team <span class="heart">💙</span></p>
+        <p>With Love,<br>Fixfy Team <span class="heart">💙</span></p>
       </div>
     </div>
     <div class="footer">
-      <p>Master Services | hello@wearemaster.com</p>
+      <p>Fixfy Services | hello@wearemaster.com</p>
     </div>
   </div>
 </body>
 </html>
         `,
-        text: `Hi ${firstName},\n\nYou were just one step away from completing your booking.\n\nYour details are saved, you can finish in under a minute and secure your preferred date.\n\n👉 Complete your booking here: https://www.wearemaster.com\n\nIf you need help, just reply to this email.\n\nWith Love,\nMaster Team 💙`
+        text: `Hi ${firstName},\n\nYou were just one step away from completing your booking.\n\nYour details are saved, you can finish in under a minute and secure your preferred date.\n\n👉 Complete your booking here: https://www.wearemaster.com\n\nIf you need help, just reply to this email.\n\nWith Love,\nFixfy Team 💙`
       }
     }
 
@@ -84,7 +84,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
 <body>
   <div class="container">
     <div class="header">
-      <img src="${MASTER_LOGO_URL}" alt="Master" style="display: block; max-height: 44px; width: auto; margin: 0 auto;" />
+      <img src="${MASTER_LOGO_URL}" alt="Fixfy" style="display: block; max-height: 44px; width: auto; margin: 0 auto;" />
     </div>
     <div class="content">
       <p>Hi ${firstName},</p>
@@ -98,17 +98,17 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
         <a href="https://www.wearemaster.com" class="button">Check availability & finish booking</a>
       </p>
       <div class="signature">
-        <p>With Love,<br>Master Team <span class="heart">💙</span></p>
+        <p>With Love,<br>Fixfy Team <span class="heart">💙</span></p>
       </div>
     </div>
     <div class="footer">
-      <p>Master Services | hello@wearemaster.com</p>
+      <p>Fixfy Services | hello@wearemaster.com</p>
     </div>
   </div>
 </body>
 </html>
         `,
-        text: `Hi ${firstName},\n\nJust checking in, your booking is still waiting.\n\nNo back and forth.\nClear pricing.\nTrusted professionals.\n\nCheck availability & finish booking: https://www.wearemaster.com\n\nWith Love,\nMaster Team 💙`
+        text: `Hi ${firstName},\n\nJust checking in, your booking is still waiting.\n\nNo back and forth.\nClear pricing.\nTrusted professionals.\n\nCheck availability & finish booking: https://www.wearemaster.com\n\nWith Love,\nFixfy Team 💙`
       }
     }
 
@@ -126,7 +126,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
 <body>
   <div class="container">
     <div class="header">
-      <img src="${MASTER_LOGO_URL}" alt="Master" style="display: block; max-height: 44px; width: auto; margin: 0 auto;" />
+      <img src="${MASTER_LOGO_URL}" alt="Fixfy" style="display: block; max-height: 44px; width: auto; margin: 0 auto;" />
     </div>
     <div class="content">
       <p>Hi ${firstName},</p>
@@ -136,17 +136,17 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
       <p>You'll receive updates as the job progresses.</p>
       <p>If you need anything in the meantime, just reply to this email.</p>
       <div class="signature">
-        <p>Kind regards,<br>Master Team <span class="heart">💙</span></p>
+        <p>Kind regards,<br>Fixfy Team <span class="heart">💙</span></p>
       </div>
     </div>
     <div class="footer">
-      <p>Master Services | hello@wearemaster.com</p>
+      <p>Fixfy Services | hello@wearemaster.com</p>
     </div>
   </div>
 </body>
 </html>
         `,
-        text: `Hi ${firstName},\n\nYour booking has been confirmed and payment successfully received.\n\nBooking Reference: ${bookingRef}\n\nEverything is now in place. Your job is scheduled and being managed by our operations team to ensure a smooth delivery.\n\nYou'll receive updates as the job progresses.\n\nIf you need anything in the meantime, just reply to this email.\n\nKind regards,\nMaster Team 💙`
+        text: `Hi ${firstName},\n\nYour booking has been confirmed and payment successfully received.\n\nBooking Reference: ${bookingRef}\n\nEverything is now in place. Your job is scheduled and being managed by our operations team to ensure a smooth delivery.\n\nYou'll receive updates as the job progresses.\n\nIf you need anything in the meantime, just reply to this email.\n\nKind regards,\nFixfy Team 💙`
       }
     }
 
@@ -169,7 +169,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
       const preferredTimeSlots = s(data.preferredTimeSlots)
       const hoursBooked = s(data.hoursBooked)
       const hourlyRate = s(data.hourlyRate)
-      const addSubscription = data.addSubscription === true || data.addSubscription === 'true' ? 'Yes (Master Club)' : 'No'
+      const addSubscription = data.addSubscription === true || data.addSubscription === 'true' ? 'Yes (Fixfy Club)' : 'No'
       const paidAt = s(data.paidAt)
       return {
         subject: `[New job paid] ${bookingRef} – ${customerName}`,
@@ -190,7 +190,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
 <body>
   <div class="container">
     <div class="header">
-      <img src="${MASTER_LOGO_URL}" alt="Master" style="display: block; max-height: 44px; width: auto; margin: 0 auto;" />
+      <img src="${MASTER_LOGO_URL}" alt="Fixfy" style="display: block; max-height: 44px; width: auto; margin: 0 auto;" />
     </div>
     <div class="content">
       <p style="font-size: 18px; font-weight: 600; color: #020034;">New job paid – internal use</p>
@@ -203,7 +203,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
           <tr><th>Payment Intent (Stripe)</th><td>${paymentIntentId}</td></tr>
           <tr><th>Amount paid</th><td>${amount}</td></tr>
           <tr><th>Payment date/time</th><td>${paidAt}</td></tr>
-          <tr><th>Joined Master Club?</th><td>${addSubscription}</td></tr>
+          <tr><th>Joined Fixfy Club?</th><td>${addSubscription}</td></tr>
         </table>
       </div>
 
@@ -243,13 +243,13 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
       <p style="margin-top: 24px; font-size: 13px; color: #6b7280;">This email was sent automatically when the payment was confirmed (Stripe webhook).</p>
     </div>
     <div class="footer">
-      <p>Master Services | hello@wearemaster.com</p>
+      <p>Fixfy Services | hello@wearemaster.com</p>
     </div>
   </div>
 </body>
 </html>
         `,
-        text: `NEW JOB PAID – ${bookingRef}\n\nReference: ${bookingRef}\nPayment Intent: ${paymentIntentId}\nAmount: ${amount}\nPayment date: ${paidAt}\nMaster Club: ${addSubscription}\n\nCUSTOMER\nName: ${customerName}\nEmail: ${customerEmail}\nPhone: ${customerPhone}\n\nADDRESS\n${addressLine1}\n${addressLine2}\n${city} ${postcode}\n\nSERVICE\nService: ${serviceName}\nCategory: ${serviceCategory}\nPreferred dates: ${preferredDates}\nTime slots: ${preferredTimeSlots}\n\nJOB DESCRIPTION\n${jobDescription}\n\n— Sent automatically by Stripe webhook.`
+        text: `NEW JOB PAID – ${bookingRef}\n\nReference: ${bookingRef}\nPayment Intent: ${paymentIntentId}\nAmount: ${amount}\nPayment date: ${paidAt}\nFixfy Club: ${addSubscription}\n\nCUSTOMER\nName: ${customerName}\nEmail: ${customerEmail}\nPhone: ${customerPhone}\n\nADDRESS\n${addressLine1}\n${addressLine2}\n${city} ${postcode}\n\nSERVICE\nService: ${serviceName}\nCategory: ${serviceCategory}\nPreferred dates: ${preferredDates}\nTime slots: ${preferredTimeSlots}\n\nJOB DESCRIPTION\n${jobDescription}\n\n— Sent automatically by Stripe webhook.`
       }
     }
 
@@ -292,7 +292,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
 <body>
   <div class="container">
     <div class="header">
-      <img src="${MASTER_LOGO_URL}" alt="Master" style="display: block; max-height: 44px; width: auto; margin: 0 auto;" />
+      <img src="${MASTER_LOGO_URL}" alt="Fixfy" style="display: block; max-height: 44px; width: auto; margin: 0 auto;" />
     </div>
     <div class="content">
       <p style="font-size: 18px; font-weight: 600; color: #020034;">New booking – Pay later (internal)</p>
@@ -343,7 +343,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
       <p style="margin-top: 24px; font-size: 13px; color: #6b7280;">This email was sent automatically when the customer chose Book Now & Pay Later (create-booking-pay-later).</p>
     </div>
     <div class="footer">
-      <p>Master Services | hello@wearemaster.com</p>
+      <p>Fixfy Services | hello@wearemaster.com</p>
     </div>
   </div>
 </body>
@@ -355,7 +355,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
 
     case 'subscription_welcome': {
       return {
-        subject: "Welcome to Master Club, you're all set.",
+        subject: "Welcome to Fixfy Club, you're all set.",
         html: `
 <!DOCTYPE html>
 <html>
@@ -366,11 +366,11 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
 <body>
   <div class="container">
     <div class="header">
-      <h1 style="margin: 0; font-size: 24px;">Master Club</h1>
+      <h1 style="margin: 0; font-size: 24px;">Fixfy Club</h1>
     </div>
     <div class="content">
       <p>Hi ${firstName},</p>
-      <p>Welcome to Master Club.</p>
+      <p>Welcome to Fixfy Club.</p>
       <p>Your subscription is now active, giving you:</p>
       <ul style="line-height: 2;">
         <li>Priority booking</li>
@@ -382,19 +382,19 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
       <p style="text-align: center;">
         <a href="https://www.wearemaster.com" class="button">👉 Book your next job</a>
       </p>
-      <p>Thanks for being part of the Master Team.</p>
+      <p>Thanks for being part of the Fixfy Team.</p>
       <div class="signature">
-        <p>With Love,<br>Master Team <span class="heart">💙</span></p>
+        <p>With Love,<br>Fixfy Team <span class="heart">💙</span></p>
       </div>
     </div>
     <div class="footer">
-      <p>Master Services | hello@wearemaster.com</p>
+      <p>Fixfy Services | hello@wearemaster.com</p>
     </div>
   </div>
 </body>
 </html>
         `,
-        text: `Hi ${firstName},\n\nWelcome to Master Club.\n\nYour subscription is now active, giving you:\n• Priority booking\n• Up to 30% discount\n• Exclusive member pricing\n• Managed jobs & vetted professionals\n\nYou can start booking immediately.\n\n👉 Book your next job: https://www.wearemaster.com\n\nThanks for being part of the Master Team.\n\nWith Love,\nMaster Team 💙`
+        text: `Hi ${firstName},\n\nWelcome to Fixfy Club.\n\nYour subscription is now active, giving you:\n• Priority booking\n• Up to 30% discount\n• Exclusive member pricing\n• Managed jobs & vetted professionals\n\nYou can start booking immediately.\n\n👉 Book your next job: https://www.wearemaster.com\n\nThanks for being part of the Fixfy Team.\n\nWith Love,\nFixfy Team 💙`
       }
     }
 
@@ -411,26 +411,26 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
 <body>
   <div class="container">
     <div class="header">
-      <h1 style="margin: 0; font-size: 24px;">Master Club</h1>
+      <h1 style="margin: 0; font-size: 24px;">Fixfy Club</h1>
     </div>
     <div class="content">
       <p>Hi ${firstName},</p>
-      <p>Your Master Club subscription has been cancelled successfully.</p>
+      <p>Your Fixfy Club subscription has been cancelled successfully.</p>
       <p>You'll still be able to book services on-demand at standard pricing.</p>
       <p>If you ever want to rejoin, you can do so anytime — no commitment.</p>
-      <p>Thanks for trying Master.</p>
+      <p>Thanks for trying Fixfy.</p>
       <div class="signature">
-        <p>With Love,<br>Master Team <span class="heart">💙</span></p>
+        <p>With Love,<br>Fixfy Team <span class="heart">💙</span></p>
       </div>
     </div>
     <div class="footer">
-      <p>Master Services | hello@wearemaster.com</p>
+      <p>Fixfy Services | hello@wearemaster.com</p>
     </div>
   </div>
 </body>
 </html>
         `,
-        text: `Hi ${firstName},\n\nYour Master Club subscription has been cancelled successfully.\n\nYou'll still be able to book services on-demand at standard pricing.\n\nIf you ever want to rejoin, you can do so anytime — no commitment.\n\nThanks for trying Master.\n\nWith Love,\nMaster Team 💙`
+        text: `Hi ${firstName},\n\nYour Fixfy Club subscription has been cancelled successfully.\n\nYou'll still be able to book services on-demand at standard pricing.\n\nIf you ever want to rejoin, you can do so anytime — no commitment.\n\nThanks for trying Fixfy.\n\nWith Love,\nFixfy Team 💙`
       }
     }
 
@@ -448,7 +448,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
 <body>
   <div class="container">
     <div class="header">
-      <img src="${MASTER_LOGO_URL}" alt="Master" style="display: block; max-height: 44px; width: auto; margin: 0 auto;" />
+      <img src="${MASTER_LOGO_URL}" alt="Fixfy" style="display: block; max-height: 44px; width: auto; margin: 0 auto;" />
     </div>
     <div class="content">
       <p>Hi ${firstName},</p>
@@ -459,23 +459,23 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
       </p>
       <p>If you need help, just reply to this email.</p>
       <div class="signature">
-        <p>With Love,<br>Master Team <span class="heart">💙</span></p>
+        <p>With Love,<br>Fixfy Team <span class="heart">💙</span></p>
       </div>
     </div>
     <div class="footer">
-      <p>Master Services | hello@wearemaster.com</p>
+      <p>Fixfy Services | hello@wearemaster.com</p>
     </div>
   </div>
 </body>
 </html>
         `,
-        text: `Hi ${firstName},\n\nWe couldn't process your payment due to a technical issue.\n\nNo worries — you can retry securely using the link below:\n\n👉 Retry payment: ${retryUrl}\n\nIf you need help, just reply to this email.\n\nWith Love,\nMaster Team 💙`
+        text: `Hi ${firstName},\n\nWe couldn't process your payment due to a technical issue.\n\nNo worries — you can retry securely using the link below:\n\n👉 Retry payment: ${retryUrl}\n\nIf you need help, just reply to this email.\n\nWith Love,\nFixfy Team 💙`
       }
     }
 
     case 'job_completed': {
       return {
-        subject: "Job completed — thank you for choosing Master",
+        subject: "Job completed — thank you for choosing Fixfy",
         html: `
 <!DOCTYPE html>
 <html>
@@ -486,26 +486,26 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
 <body>
   <div class="container">
     <div class="header">
-      <img src="${MASTER_LOGO_URL}" alt="Master" style="display: block; max-height: 44px; width: auto; margin: 0 auto;" />
+      <img src="${MASTER_LOGO_URL}" alt="Fixfy" style="display: block; max-height: 44px; width: auto; margin: 0 auto;" />
     </div>
     <div class="content">
       <p>Hi ${firstName},</p>
       <p>Your job has now been successfully completed.</p>
-      <p>Thank you for choosing Master and trusting us with your property.</p>
+      <p>Thank you for choosing Fixfy and trusting us with your property.</p>
       <p>Our team has carried out final checks to ensure everything meets our quality standards.</p>
       <p>If you need anything else, we're always here to help.</p>
       <div class="signature">
-        <p>Kind regards,<br>Master Team <span class="heart">💙</span></p>
+        <p>Kind regards,<br>Fixfy Team <span class="heart">💙</span></p>
       </div>
     </div>
     <div class="footer">
-      <p>Master Services | hello@wearemaster.com</p>
+      <p>Fixfy Services | hello@wearemaster.com</p>
     </div>
   </div>
 </body>
 </html>
         `,
-        text: `Hi ${firstName},\n\nYour job has now been successfully completed.\n\nThank you for choosing Master and trusting us with your property.\n\nOur team has carried out final checks to ensure everything meets our quality standards.\n\nIf you need anything else, we're always here to help.\n\nKind regards,\nMaster Team 💙`
+        text: `Hi ${firstName},\n\nYour job has now been successfully completed.\n\nThank you for choosing Fixfy and trusting us with your property.\n\nOur team has carried out final checks to ensure everything meets our quality standards.\n\nIf you need anything else, we're always here to help.\n\nKind regards,\nFixfy Team 💙`
       }
     }
 
@@ -523,7 +523,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
 <body>
   <div class="container">
     <div class="header">
-      <img src="${MASTER_LOGO_URL}" alt="Master" style="display: block; max-height: 44px; width: auto; margin: 0 auto;" />
+      <img src="${MASTER_LOGO_URL}" alt="Fixfy" style="display: block; max-height: 44px; width: auto; margin: 0 auto;" />
     </div>
     <div class="content">
       <p>Hi ${firstName},</p>
@@ -531,19 +531,19 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
       <p style="text-align: center;">
         <a href="${reviewUrl}" class="button">👉 Leave a quick review (30 seconds)</a>
       </p>
-      <p>Thanks for choosing Master.</p>
+      <p>Thanks for choosing Fixfy.</p>
       <div class="signature">
-        <p>With Love,<br>Master Team <span class="heart">💙</span></p>
+        <p>With Love,<br>Fixfy Team <span class="heart">💙</span></p>
       </div>
     </div>
     <div class="footer">
-      <p>Master Services | hello@wearemaster.com</p>
+      <p>Fixfy Services | hello@wearemaster.com</p>
     </div>
   </div>
 </body>
 </html>
         `,
-        text: `Hi ${firstName},\n\nWe'd love your feedback — it helps us keep standards high.\n\n👉 Leave a quick review (30 seconds): ${reviewUrl}\n\nThanks for choosing Master.\n\nWith Love,\nMaster Team 💙`
+        text: `Hi ${firstName},\n\nWe'd love your feedback — it helps us keep standards high.\n\n👉 Leave a quick review (30 seconds): ${reviewUrl}\n\nThanks for choosing Fixfy.\n\nWith Love,\nFixfy Team 💙`
       }
     }
 
@@ -576,7 +576,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
 <body>
   <div class="container">
     <div class="header">
-      <img src="${MASTER_LOGO_URL}" alt="Master" style="display: block; max-height: 44px; width: auto; margin: 0 auto;" />
+      <img src="${MASTER_LOGO_URL}" alt="Fixfy" style="display: block; max-height: 44px; width: auto; margin: 0 auto;" />
     </div>
     <div class="content">
       <p style="font-size: 18px; font-weight: 600; color: #020034;">New quote request / lead</p>
@@ -599,7 +599,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
       <p style="margin-top: 24px; font-size: 13px; color: #6b7280;">This email was sent automatically when the lead was saved to the database.</p>
     </div>
     <div class="footer">
-      <p>Master Services | hello@wearemaster.com</p>
+      <p>Fixfy Services | hello@wearemaster.com</p>
     </div>
   </div>
 </body>
@@ -652,7 +652,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
 <body>
   <div class="container">
     <div class="header">
-      <img src="${MASTER_LOGO_URL}" alt="Master" style="display: block; max-height: 44px; width: auto; margin: 0 auto;" />
+      <img src="${MASTER_LOGO_URL}" alt="Fixfy" style="display: block; max-height: 44px; width: auto; margin: 0 auto;" />
     </div>
     <div class="content">
       <p style="font-size: 18px; font-weight: 600; color: #020034;">New partner application</p>
@@ -699,7 +699,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
       <p style="margin-top: 24px; font-size: 13px; color: #6b7280;">This email was sent automatically when the partner application was completed.</p>
     </div>
     <div class="footer">
-      <p>Master Services | hello@wearemaster.com</p>
+      <p>Fixfy Services | hello@wearemaster.com</p>
     </div>
   </div>
 </body>
@@ -714,7 +714,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
       const email = (data.email as string) || ''
       
       return {
-        subject: 'Your Master verification code',
+        subject: 'Your Fixfy verification code',
         html: `
 <!DOCTYPE html>
 <html>
@@ -774,7 +774,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
 <body>
   <div class="container">
     <div class="header grid-pattern" style="position: relative;">
-      <img src="${MASTER_LOGO_URL}" alt="Master" class="master-logo" />
+      <img src="${MASTER_LOGO_URL}" alt="Fixfy" class="master-logo" />
       <p style="margin: 0; color: rgba(255,255,255,0.8); font-size: 16px;">Verification Code</p>
     </div>
     <div class="content">
@@ -792,7 +792,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
       </div>
       
       <div class="security-note">
-        <strong style="color: #E94A02;">🔒 Security Note:</strong> Never share this code with anyone. Master will never ask for your verification code via phone or email.
+        <strong style="color: #E94A02;">🔒 Security Note:</strong> Never share this code with anyone. Fixfy will never ask for your verification code via phone or email.
       </div>
       
       <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
@@ -801,7 +801,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
     </div>
     <div class="footer">
       <p style="margin: 0 0 10px 0;">
-        <strong>Master Team</strong>
+        <strong>Fixfy Team</strong>
       </p>
       <p style="margin: 0; font-size: 12px;">
         Need help? Reply to this email or visit 
@@ -823,11 +823,11 @@ Your Verification Code: ${code}
 
 This code will expire in 10 minutes.
 
-🔒 Security Note: Never share this code with anyone. Master will never ask for your verification code via phone or email.
+🔒 Security Note: Never share this code with anyone. Fixfy will never ask for your verification code via phone or email.
 
 If you didn't request this code, you can safely ignore this email.
 
-Master Team
+Fixfy Team
 Need help? Visit wearemaster.com
 
 This is an automated message. Please do not reply directly to this email.`

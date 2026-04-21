@@ -98,8 +98,10 @@ const FooterB2C = () => {
                     src={logo} 
                     alt="fixfy" 
                     style={{
-                      height: '50px',
-                      width: 'auto'
+                      height: '58px',
+                      width: 'auto',
+                      maxWidth: '260px',
+                      display: 'block',
                     }}
                   />
                 </div>
@@ -475,7 +477,7 @@ const FooterB2C = () => {
               color: 'rgba(255,255,255,0.6)',
               fontSize: '0.875rem'
             }}>
-              © {new Date().getFullYear()} Master Services Trades Ltd. All rights reserved.
+              © {new Date().getFullYear()} Fixfy Services Trades Ltd. All rights reserved.
             </div>
             <div style={{
               display: 'flex',
@@ -508,7 +510,7 @@ const FooterB2C = () => {
               color: 'rgba(255,255,255,0.5)',
               fontSize: '0.75rem'
             }}>
-              MASTER SERVICES TRADES LTD<br />
+              FIXFY SERVICES TRADES LTD<br />
               Company number: 15406523
             </div>
           </div>

@@ -31,8 +31,8 @@ export default function QuoteRequestNextSteps() {
       />
       <div className="qrns-wrapper">
         <header className="qrns-header">
-          <Link to="/" className="qrns-logo-link" aria-label="Master - Go to home">
-            <img src={logo} alt="Master" className="qrns-logo" />
+          <Link to="/" className="qrns-logo-link" aria-label="Fixfy - Go to home">
+            <img src={logo} alt="Fixfy" className="qrns-logo" />
           </Link>
           <Link to="/" className="qrns-home-btn">
             <Home size={18} />
@@ -94,7 +94,7 @@ export default function QuoteRequestNextSteps() {
                 <div>
                   <h3>Book when you're ready</h3>
                   <p>
-                    Review the quote and pay securely when you're happy to go ahead. Insured & guaranteed by Master.
+                    Review the quote and pay securely when you're happy to go ahead. Insured & guaranteed by Fixfy.
                   </p>
                 </div>
               </div>
@@ -110,7 +110,7 @@ export default function QuoteRequestNextSteps() {
               <div className="qrns-master-club-left">
                 <div className="qrns-master-club-label">
                   <Award size={18} />
-                  <span>Master Club</span>
+                  <span>Fixfy Club</span>
                 </div>
                 <h3>Save 27% on<br />this job</h3>
                 <button
@@ -140,7 +140,7 @@ export default function QuoteRequestNextSteps() {
           </button>
           <div className="qrns-cta-footer">
             <Lock size={12} />
-            <p>Free quote. No obligation. Insured & guaranteed by Master.</p>
+            <p>Free quote. No obligation. Insured & guaranteed by Fixfy.</p>
           </div>
         </div>
 

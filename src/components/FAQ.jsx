@@ -18,12 +18,12 @@ const FAQ = () => {
       answer: "Yes - any trade you book will be insured. We offer comprehensive insurance coverage of up to £5 million, ensuring that in the rare event of accidental damage, you are fully protected. We've got great customer service, and our responsive support team are at hand to help if any issues come up during your booking."
     },
     {
-      question: "Does Master offer customer support?",
+      question: "Does Fixfy offer customer support?",
       answer: "Yes! Our support team is available seven days a week to assist with any questions, booking changes, or concerns to ensure you have the best possible experience. You can reach us via phone, email, or through our online portal."
     },
     {
       question: "Are your professionals qualified and insured?",
-      answer: "Yes. All professionals on the Master platform are vetted, trained, and fully insured. Every professional undergoes a thorough DBS (Disclosure and Barring Service) check, along with strict background verification and skill assessments, ensuring safety and peace of mind for every job."
+      answer: "Yes. All professionals on the Fixfy platform are vetted, trained, and fully insured. Every professional undergoes a thorough DBS (Disclosure and Barring Service) check, along with strict background verification and skill assessments, ensuring safety and peace of mind for every job."
     },
     {
       question: "Can we manage multiple sites?",

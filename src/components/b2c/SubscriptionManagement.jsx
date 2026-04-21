@@ -117,7 +117,7 @@ const SubscriptionManagement = ({ userEmail, customerName, onSubscriptionChange 
   };
 
   const handleCancel = async () => {
-    if (!window.confirm('Are you sure you want to cancel your Master Club subscription? This action cannot be undone.')) {
+    if (!window.confirm('Are you sure you want to cancel your Fixfy Club subscription? This action cannot be undone.')) {
       return;
     }
 
@@ -209,7 +209,7 @@ const SubscriptionManagement = ({ userEmail, customerName, onSubscriptionChange 
             marginBottom: '0.25rem',
             letterSpacing: '-0.02em'
           }}>
-            Master Club Subscription
+            Fixfy Club Subscription
           </h3>
           <p style={{
             color: '#86868b',

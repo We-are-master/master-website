@@ -26,7 +26,7 @@ services
 ├── category (TEXT) - Categoria: 'Handyman', 'Plumbing/Electrician', 'Electrician', 'Carpenter', 'Painter'
 ├── service_name (TEXT) - Nome do serviço
 ├── description (TEXT) - Descrição detalhada
-├── master_price (DECIMAL) - Preço Master em GBP
+├── master_price (DECIMAL) - Preço Fixfy em GBP
 ├── housekeep_price (DECIMAL) - Preço concorrente (opcional)
 ├── unit (TEXT) - Unidade: 'Hourly', 'Per m²', 'Per room', etc.
 ├── duration (TEXT) - Duração esperada

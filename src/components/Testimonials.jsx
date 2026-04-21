@@ -7,7 +7,7 @@ const Testimonials = () => {
       name: "Sarah Johnson",
       company: "Property Management Ltd",
       role: "Operations Director",
-      content: "Master has transformed how we manage our property maintenance. Their portal is incredibly user-friendly and the quality of work is consistently excellent. We've reduced our maintenance costs by 30% since partnering with them.",
+      content: "Fixfy has transformed how we manage our property maintenance. Their portal is incredibly user-friendly and the quality of work is consistently excellent. We've reduced our maintenance costs by 30% since partnering with them.",
       rating: 5,
       image: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face"
     },
@@ -15,7 +15,7 @@ const Testimonials = () => {
       name: "Michael Chen",
       company: "London Estates",
       role: "Facilities Manager",
-      content: "The speed and reliability of Master's service is outstanding. We can request cleaning or repairs and have them completed the same day. Their professionals are always punctual and the work quality is top-notch.",
+      content: "The speed and reliability of Fixfy's service is outstanding. We can request cleaning or repairs and have them completed the same day. Their professionals are always punctual and the work quality is top-notch.",
       rating: 5,
       image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face"
     },
@@ -23,7 +23,7 @@ const Testimonials = () => {
       name: "Emma Williams",
       company: "Retail Chain UK",
       role: "Store Operations Manager",
-      content: "Managing maintenance across multiple sites used to be a nightmare. Master's platform makes it so simple - we can track all our requests, get instant updates, and access detailed reports. Highly recommended!",
+      content: "Managing maintenance across multiple sites used to be a nightmare. Fixfy's platform makes it so simple - we can track all our requests, get instant updates, and access detailed reports. Highly recommended!",
       rating: 5,
       image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face"
     },
@@ -31,7 +31,7 @@ const Testimonials = () => {
       name: "David Thompson",
       company: "Construction Group",
       role: "Project Manager",
-      content: "The flexibility and no-contract approach is exactly what we needed. We can scale up or down based on project requirements, and the quality remains consistent. Master understands business needs.",
+      content: "The flexibility and no-contract approach is exactly what we needed. We can scale up or down based on project requirements, and the quality remains consistent. Fixfy understands business needs.",
       rating: 5,
       image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face"
     },
@@ -39,7 +39,7 @@ const Testimonials = () => {
       name: "Lisa Rodriguez",
       company: "Hospitality Group",
       role: "Operations Director",
-      content: "From end-of-tenancy cleaning to emergency repairs, Master handles everything seamlessly. Their 24/7 support and comprehensive insurance give us complete peace of mind. Excellent service!",
+      content: "From end-of-tenancy cleaning to emergency repairs, Fixfy handles everything seamlessly. Their 24/7 support and comprehensive insurance give us complete peace of mind. Excellent service!",
       rating: 5,
       image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=face"
     },
@@ -47,7 +47,7 @@ const Testimonials = () => {
       name: "James Mitchell",
       company: "Real Estate Agency",
       role: "Managing Director",
-      content: "Master has become an essential part of our business operations. Their professionals are reliable, skilled, and always deliver quality work. The reporting features help us track performance and costs effectively.",
+      content: "Fixfy has become an essential part of our business operations. Their professionals are reliable, skilled, and always deliver quality work. The reporting features help us track performance and costs effectively.",
       rating: 5,
       image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=face"
     }
@@ -69,7 +69,7 @@ const Testimonials = () => {
         <div style={{textAlign: 'center', marginBottom: '4rem'}}>
           <h2 style={{fontSize: '2.5rem', fontWeight: '700', marginBottom: '1rem', color: '#2d3748'}}>Chosen by Industry Leaders</h2>
           <p style={{fontSize: '1.2rem', color: '#718096', maxWidth: '600px', margin: '0 auto'}}>
-            From estate agents to retail chains, dozens of businesses already partner with Master
+            From estate agents to retail chains, dozens of businesses already partner with Fixfy
           </p>
         </div>
 

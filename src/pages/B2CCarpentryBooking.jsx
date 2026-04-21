@@ -186,7 +186,7 @@ const B2CCarpentryBooking = () => {
   return (
     <>
       <SEO
-        title="Master Carpentry - Project Configuration"
+        title="Fixfy Carpentry - Project Configuration"
         description="Door installation, flooring fitting, and skirting boards. Labour only – materials on site. Professional carpentry with AI-powered pricing."
       />
       <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />

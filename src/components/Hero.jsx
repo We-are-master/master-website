@@ -150,7 +150,7 @@ const Hero = () => {
 
           </div>
 
-          {/* Right Content - Services with Master Logo Center */}
+          {/* Right Content - Services with Fixfy Logo Center */}
           <div className="hero-right-content" style={{
             position: 'relative',
             height: '600px',
@@ -185,7 +185,7 @@ const Hero = () => {
               animation: 'float 8s ease-in-out infinite reverse'
             }}></div>
 
-            {/* Master Logo - Center */}
+            {/* Fixfy Logo - Center */}
             <div style={{
               position: 'absolute',
               top: '50%',
@@ -203,7 +203,7 @@ const Hero = () => {
               }}>
                 <img 
                   src={logo} 
-                  alt="Master Logo" 
+                  alt="Fixfy Logo" 
                   style={{
                     width: '250px',
                     height: '250px',

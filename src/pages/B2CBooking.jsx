@@ -992,8 +992,8 @@ const B2CBooking = () => {
   return (
     <>
       <SEO 
-        title="Book a Service - Master Services"
-        description="Book your property maintenance or cleaning service with Master Services. Easy online booking, same-day service available, vetted professionals."
+        title="Book a Service - Fixfy Services"
+        description="Book your property maintenance or cleaning service with Fixfy Services. Easy online booking, same-day service available, vetted professionals."
         keywords="book property maintenance, book cleaning service, online booking, same-day service booking"
       />
       <div

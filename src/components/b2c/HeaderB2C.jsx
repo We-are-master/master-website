@@ -48,9 +48,11 @@ const HeaderB2C = () => {
             src={logo} 
             alt="fixfy" 
             style={{
-              height: '40px',
+              height: '52px',
               width: 'auto',
-              flexShrink: 0
+              maxWidth: 'min(260px, 58vw)',
+              flexShrink: 0,
+              display: 'block',
             }}
           />
         </Link>

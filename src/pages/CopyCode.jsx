@@ -32,7 +32,7 @@ const CopyCode = () => {
   };
 
   useEffect(() => {
-    document.title = `Copy code ${codeStr} – Master`;
+    document.title = `Copy code ${codeStr} – Fixfy`;
   }, [codeStr]);
 
   return (

@@ -90,7 +90,7 @@ const RequestDetails = () => {
           assignedTo: request.assigned_to ? {
             name: request.assigned_to,
       phone: '+44 20 7123 4567',
-            email: 'technician@master.com',
+            email: 'technician@wearemaster.com',
       rating: 4.8,
       completedJobs: 156
           } : null,
@@ -385,7 +385,7 @@ const RequestDetails = () => {
           </button>
           <img 
             src={logo} 
-            alt="Master Logo" 
+            alt="Fixfy Logo" 
             style={{
               width: '40px',
               height: '40px',

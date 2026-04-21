@@ -90,7 +90,7 @@ function AppContent() {
         <Route path="/b2b" element={
           <>
             <SEO 
-              title="B2B Property Maintenance Services - Master Services"
+              title="B2B Property Maintenance Services - Fixfy Services"
               description="Enterprise property maintenance solutions for businesses. Streamlined operations, technology-driven matching, and exceptional service standards. Trusted by 500+ businesses."
               keywords="B2B property maintenance, business maintenance services, enterprise maintenance solutions, commercial property management"
             />

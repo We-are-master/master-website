@@ -7,7 +7,7 @@ const HowItWorksB2C = () => {
   const steps = [
     { number: 1, icon: <Search size={40} />, title: 'Describe the job', description: "Explain what you need and we'll handle the rest.", color: '#E94A02' },
     { number: 2, icon: <CreditCard size={40} />, title: 'Create your booking', description: 'Transparent pricing, clear options, no hidden costs.', color: '#E94A02' },
-    { number: 3, icon: <UserCheck size={40} />, title: 'Get it done!', description: 'We will match you internally with a trusted local professional, it will be managed by Master.', color: '#E94A02' }
+    { number: 3, icon: <UserCheck size={40} />, title: 'Get it done!', description: 'We will match you internally with a trusted local professional, it will be managed by Fixfy.', color: '#E94A02' }
   ];
 
   return (

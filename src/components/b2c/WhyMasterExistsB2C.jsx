@@ -68,13 +68,13 @@ const WhyMasterExistsB2C = () => {
               ))}
             </div>
             <motion.p variants={fadeInUp} transition={defaultTransition} style={{ ...paragraphStyle, fontSize: 'clamp(1.125rem, 2vw, 1.5rem)', color: 'rgba(255,255,255,0.95)', fontWeight: '600', marginBottom: '2rem' }}>
-              Master exists to change that.
+              Fixfy exists to change that.
             </motion.p>
             <motion.p variants={fadeInUp} transition={defaultTransition} style={{ ...paragraphStyle, marginBottom: '1.5rem' }}>
               We don't just connect you to a tradesperson — we manage the job properly.
             </motion.p>
             <motion.p variants={fadeInUp} transition={defaultTransition} style={{ ...paragraphStyle, marginBottom: '2rem' }}>
-              From the moment you book to the final checks, Master stays accountable for delivery, quality, and communication.
+              From the moment you book to the final checks, Fixfy stays accountable for delivery, quality, and communication.
             </motion.p>
             <div style={{ marginBottom: '2rem', paddingLeft: '1.5rem' }}>
               {['Every job follows a clear process.', 'Every professional is vetted and insured.', 'Every booking has defined scope and pricing.'].map((text, i) => (

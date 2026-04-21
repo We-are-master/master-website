@@ -87,7 +87,7 @@ const B2CCleaningBooking = () => {
   return (
     <>
       <SEO 
-        title="Master Cleaning Pro - Book Your Cleaning Service"
+        title="Fixfy Cleaning Pro - Book Your Cleaning Service"
         description="Professional cleaning services with AI-powered pricing. End of tenancy, deep clean, and after builders cleaning available."
       />
       
@@ -132,7 +132,7 @@ const B2CCleaningBooking = () => {
               textAlign: 'center',
               fontFamily: "'Manrope', sans-serif"
             }}>
-              Master Cleaning Pro
+              Fixfy Cleaning Pro
             </h1>
             <div style={{ width: '40px', height: '40px', flexShrink: 0 }}></div>
           </div>
@@ -671,7 +671,7 @@ const B2CCleaningBooking = () => {
                   AI Market Analysis
                 </p>
                 <p style={{ color: 'white', fontSize: '11px', lineHeight: '1.3', fontWeight: 500, opacity: 1 }}>
-                  We have analyzed the local market and secured the best available price for you using Master AI.
+                  We have analyzed the local market and secured the best available price for you using Fixfy AI.
                 </p>
               </div>
             </div>

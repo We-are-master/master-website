@@ -962,7 +962,7 @@ const NewRequest = () => {
           </button>
           <img 
             src={logo} 
-            alt="Master Logo" 
+            alt="Fixfy Logo" 
             style={{
               width: '40px',
               height: '40px',

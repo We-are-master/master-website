@@ -109,7 +109,7 @@ const Header = () => {
           <Link to="/" style={{display: 'flex', alignItems: 'center', flexShrink: 0, textDecoration: 'none'}}>
             <img 
               src={logo} 
-              alt="Master" 
+              alt="Fixfy" 
               style={{
                 height: '40px',
                 width: 'auto',

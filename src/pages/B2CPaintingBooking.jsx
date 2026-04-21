@@ -72,7 +72,7 @@ const B2CPaintingBooking = () => {
     { 
       id: 'master_gallery', 
       icon: 'shutter_speed', 
-      label: 'Master Gallery', 
+      label: 'Fixfy Gallery', 
       description: 'Flawless execution, multiple coats, and luxury finish.',
       badge: 'Luxury',
       multiplier: 1.8
@@ -243,7 +243,7 @@ const B2CPaintingBooking = () => {
   return (
     <>
       <SEO 
-        title="Master Painting Service - Professional Interior Painting"
+        title="Fixfy Painting Service - Professional Interior Painting"
         description="Professional painting services with AI-powered pricing. Fresh coat, high standard, and luxury finishes available. Materials and equipment included."
       />
       <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />

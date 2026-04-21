@@ -365,7 +365,7 @@ const B2CMyOrders = () => {
           </div>
         )}
 
-        {/* Master Club Subscription Management */}
+        {/* Fixfy Club Subscription Management */}
         {user?.email && (
           <SubscriptionManagement 
             userEmail={user.email} 
@@ -399,7 +399,7 @@ const B2CMyOrders = () => {
                 flex: 1,
                 minWidth: 0
               }}>
-                <strong>Master Club</strong> — £9.99/month. Member benefits on every booking.{' '}
+                <strong>Fixfy Club</strong> — £9.99/month. Member benefits on every booking.{' '}
                 <a href="/#master-club" style={{ color: '#2001AF', textDecoration: 'underline' }}>Learn more</a>. Cancel anytime.
               </p>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
@@ -418,7 +418,7 @@ const B2CMyOrders = () => {
                     fontFamily: 'inherit'
                   }}
                 >
-                  Join Master Club
+                  Join Fixfy Club
                 </button>
                 <button
                   type="button"

@@ -54,9 +54,9 @@ const Services = () => {
     <section id="services" className="section bg-light">
       <div className="container">
         <div className="text-center mb-16">
-          <h2 className="section-title">How Master can help you?</h2>
+          <h2 className="section-title">How Fixfy can help you?</h2>
           <p className="section-subtitle">
-            Master provides a variety of essential services tailored to meet your needs.
+            Fixfy provides a variety of essential services tailored to meet your needs.
           </p>
         </div>
 

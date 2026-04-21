@@ -87,7 +87,7 @@ const ForgotPassword = () => {
           }}>
             <img 
               src={logo} 
-              alt="Master Logo" 
+              alt="Fixfy Logo" 
               style={{
                 width: '60px',
                 height: '60px',

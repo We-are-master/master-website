@@ -54,7 +54,7 @@ const About = () => {
     '@type': 'AboutPage',
     mainEntity: {
       '@type': 'Organization',
-      name: 'Master Services',
+      name: 'Fixfy Services',
       url: 'https://wearemaster.com',
       logo: 'https://wearemaster.com/favicon.png',
       description: 'London\'s leading property maintenance platform, serving over 500 businesses with 240+ vetted professionals.',
@@ -152,7 +152,7 @@ const About = () => {
                 lineHeight: '1.1'
               }}
             >
-              About Master Services
+              About Fixfy Services
             </motion.h1>
             <motion.p
               variants={fadeInUp}
@@ -262,7 +262,7 @@ const About = () => {
               </motion.h2>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                 {[
-                  "Master Services was founded with a simple vision: to transform how businesses manage their property maintenance needs. We recognised that traditional maintenance services were fragmented, unreliable, and lacked transparency.",
+                  "Fixfy Services was founded with a simple vision: to transform how businesses manage their property maintenance needs. We recognised that traditional maintenance services were fragmented, unreliable, and lacked transparency.",
                   "Starting with a small team of trusted professionals, we've grown to become London's leading property maintenance platform, serving over 500 businesses and completing more than 23,000 jobs with exceptional results.",
                   "Today, we combine cutting-edge technology with a network of 240+ vetted professionals to deliver seamless, reliable, and transparent property maintenance services that businesses can trust."
                 ].map((text, i) => (
@@ -618,7 +618,7 @@ const About = () => {
               lineHeight: '1.5',
               fontWeight: '400'
             }}>
-              Join hundreds of businesses who trust Master for their property maintenance needs. 
+              Join hundreds of businesses who trust Fixfy for their property maintenance needs. 
               Let's discuss how we can help streamline your operations.
             </p>
             <div style={{

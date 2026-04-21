@@ -58,7 +58,7 @@ const TestimonialsB2C = () => {
             fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: '800', color: 'white', marginBottom: '1rem',
             letterSpacing: '-0.02em', fontFamily: 'inherit'
           }}>
-            Hear from people who've used Master
+            Hear from people who've used Fixfy
           </h2>
           <p style={{
             fontSize: '1.25rem', color: 'rgba(255,255,255,0.7)', maxWidth: '600px', margin: '0 auto', fontFamily: 'inherit'

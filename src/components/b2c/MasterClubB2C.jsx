@@ -49,13 +49,13 @@ const MasterClubB2C = () => {
               marginBottom: '1.5rem', border: '1px solid rgba(255,255,255,0.1)', fontFamily: 'inherit'
             }}>
               <Crown size={16} />
-              <span>Master Club</span>
+              <span>Fixfy Club</span>
             </div>
             <h2 style={{
               fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: '800', marginBottom: '1.5rem', color: 'white',
               letterSpacing: '-0.02em', lineHeight: '1.3', maxWidth: '900px', margin: '0 auto 1.5rem', fontFamily: 'inherit'
             }}>
-              The Master Club gives you access to private member rates that are not available to the public.
+              The Fixfy Club gives you access to private member rates that are not available to the public.
             </h2>
             <p style={{
               fontSize: 'clamp(1.125rem, 2vw, 1.5rem)', color: 'rgba(255,255,255,0.7)', lineHeight: '1.7',
@@ -180,7 +180,7 @@ const MasterClubB2C = () => {
                 fontFamily: 'inherit'
               }}
             >
-              <span>Join the Master Club</span>
+              <span>Join the Fixfy Club</span>
               <ArrowRight size={20} />
             </motion.button>
           </motion.div>

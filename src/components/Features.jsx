@@ -115,10 +115,10 @@ const Features = () => {
           ))}
         </div>
 
-        {/* Why Choose Master */}
+        {/* Why Choose Fixfy */}
         <div style={{background: 'linear-gradient(135deg, #2001AF 0%, #020135 100%)', borderRadius: '1.5rem', padding: '3rem', color: 'white'}}>
           <div style={{textAlign: 'center', marginBottom: '3rem'}}>
-            <h2 style={{fontSize: '1.875rem', fontWeight: '700', marginBottom: '1rem'}}>Why Choose Master?</h2>
+            <h2 style={{fontSize: '1.875rem', fontWeight: '700', marginBottom: '1rem'}}>Why Choose Fixfy?</h2>
             <p style={{fontSize: '1.25rem', opacity: '0.9', maxWidth: '48rem', margin: '0 auto'}}>
               We understand that trust, reliability, and quality service are essential when hiring professionals. 
               That's why we go above and beyond to ensure a seamless and secure experience for every customer.

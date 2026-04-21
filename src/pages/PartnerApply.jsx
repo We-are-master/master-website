@@ -190,7 +190,7 @@ export default function PartnerApply() {
         borderBottom: '1px solid rgba(255,255,255,0.08)',
       }}>
         <Link to="/" style={{ display: 'flex', alignItems: 'center' }}>
-          <img src={logo} alt="Master" style={{ height: 32, width: 'auto' }} />
+          <img src={logo} alt="Fixfy" style={{ height: 32, width: 'auto' }} />
         </Link>
         <Link
           to="/"
@@ -215,11 +215,11 @@ export default function PartnerApply() {
 
       <div className="pa-container">
         <div className="pa-hero">
-          <div className="pa-hero-badge">Become a Master Partner</div>
+          <div className="pa-hero-badge">Become a Fixfy Partner</div>
           <h1>More jobs. Less hassle. A real way to grow your revenue.</h1>
           <p>
             You are about to join the fastest-growing team of cleaners and tradespeople in the UK.
-            Master connects you with jobs, manages the admin, and makes sure you get paid on time so you can focus on what you do best: delivering quality work.
+            Fixfy connects you with jobs, manages the admin, and makes sure you get paid on time so you can focus on what you do best: delivering quality work.
           </p>
         </div>
 

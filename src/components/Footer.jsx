@@ -16,7 +16,7 @@ const Footer = () => {
                 <div style={{marginBottom: '1rem'}}>
                   <img 
                     src={logo} 
-                    alt="Master" 
+                    alt="Fixfy" 
                     style={{
                       height: '50px',
                       width: 'auto'
@@ -27,7 +27,7 @@ const Footer = () => {
                   for Business
                 </div>
                 <p style={{color: '#e5e7eb', lineHeight: '1.625', marginBottom: '1.5rem'}}>
-                  Master is an all-in-one platform connecting customers and businesses 
+                  Fixfy is an all-in-one platform connecting customers and businesses 
                   with trusted, vetted professionals for cleaning, repairs and property 
                   maintenance across London.
                 </p>
@@ -105,7 +105,7 @@ const Footer = () => {
             <div>
               <h3 style={{fontSize: '1.125rem', fontWeight: '600', marginBottom: '1.5rem', color: 'white'}}>For Business</h3>
               <ul style={{listStyle: 'none', padding: 0}}>
-                <li style={{marginBottom: '0.75rem'}}><a href="#" style={{color: 'white', textDecoration: 'none', transition: 'color 0.3s ease'}}>Master for Business</a></li>
+                <li style={{marginBottom: '0.75rem'}}><a href="#" style={{color: 'white', textDecoration: 'none', transition: 'color 0.3s ease'}}>Fixfy for Business</a></li>
                 <li style={{marginBottom: '0.75rem'}}><a href="#" style={{color: 'white', textDecoration: 'none', transition: 'color 0.3s ease'}}>Join as a Handyman</a></li>
                 <li style={{marginBottom: '0.75rem'}}><a href="#" style={{color: 'white', textDecoration: 'none', transition: 'color 0.3s ease'}}>Join as a Cleaner</a></li>
                 <li style={{marginBottom: '0.75rem'}}><a href="#" style={{color: 'white', textDecoration: 'none', transition: 'color 0.3s ease'}}>API Integration</a></li>
@@ -170,7 +170,7 @@ const Footer = () => {
             </div>
             
             <div style={{fontSize: '0.875rem', color: '#9ca3af', textAlign: 'center'}}>
-              <strong style={{color: 'white'}}>MASTER SERVICES TRADES LTD</strong><br />
+              <strong style={{color: 'white'}}>FIXFY SERVICES TRADES LTD</strong><br />
               Company number: <strong style={{color: 'white'}}>15406523</strong>
             </div>
           </div>
@@ -180,7 +180,7 @@ const Footer = () => {
         <div style={{padding: '1.5rem 0', borderTop: '1px solid #374151'}}>
           <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between', gap: '1rem'}}>
             <div style={{color: '#9ca3af', fontSize: '0.875rem', textAlign: 'center'}}>
-              © Copyright by Master Services – All right reserved.
+              © Copyright by Fixfy Services – All right reserved.
             </div>
             <div style={{display: 'flex', gap: '1.5rem', fontSize: '0.875rem'}}>
               <a href="#" style={{color: '#2001AF', textDecoration: 'none', transition: 'color 0.3s ease'}}>
