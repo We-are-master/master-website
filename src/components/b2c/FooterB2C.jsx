@@ -96,7 +96,7 @@ const FooterB2C = () => {
                 <div style={{ marginBottom: '1rem' }}>
                   <img 
                     src={logo} 
-                    alt="Master" 
+                    alt="fixfy" 
                     style={{
                       height: '50px',
                       width: 'auto'
