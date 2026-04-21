@@ -48,7 +48,7 @@ const B2CHome = () => {
   const structuredData = {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
-    name: 'Master Services',
+    name: 'Fixfy Services',
     image: 'https://wearemaster.com/favicon.png',
     '@id': 'https://wearemaster.com',
     url: 'https://wearemaster.com',

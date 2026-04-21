@@ -13,7 +13,7 @@ export default function PartnerApplySuccess() {
       />
       <header className="pas-header">
         <Link to="/" className="pas-logo">
-          <img src={logo} alt="Master" />
+          <img src={logo} alt="Fixfy" />
         </Link>
         <Link to="/" className="pas-home">
           <Home size={18} />
@@ -28,7 +28,7 @@ export default function PartnerApplySuccess() {
           </div>
           <h1>Application received</h1>
           <p className="pas-lead">
-            Thank you for applying to become a Master Partner. We have received your application and documents.
+            Thank you for applying to become a Fixfy Partner. We have received your application and documents.
           </p>
           <p className="pas-contact">
             We will be in touch soon. If you have any questions in the meantime, email us at{' '}

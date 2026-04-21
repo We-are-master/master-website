@@ -119,7 +119,7 @@ const PaintingBooking = () => {
     {
       id: 'master_gallery',
       icon: 'shutter_speed',
-      title: 'Master Gallery',
+      title: 'Fixfy Gallery',
       description: 'Flawless execution, multiple coats, and luxury finish.',
       badge: 'Luxury'
     }
@@ -135,7 +135,7 @@ const PaintingBooking = () => {
   return (
     <>
       <SEO 
-        title="Painting Service - Master Services"
+        title="Painting Service - Fixfy Services"
         description="Professional painting services with materials and equipment included. Fresh coat, high standard, and luxury gallery finishes available."
       />
       
@@ -556,7 +556,7 @@ const PaintingBooking = () => {
                 <span className="material-symbols-outlined" style={{ color: 'white', fontSize: '20px', fontVariationSettings: '"FILL" 1' }}>auto_awesome</span>
               </div>
               <p style={{ color: 'white', fontSize: '14px', lineHeight: '1.4', fontWeight: 500 }}>
-                <span style={{ fontWeight: 700 }}>AI MARKET ANALYSIS:</span> We have analyzed the local market and secured the best available price for you using Master AI.
+                <span style={{ fontWeight: 700 }}>AI MARKET ANALYSIS:</span> We have analyzed the local market and secured the best available price for you using Fixfy AI.
               </p>
             </div>
           </div>

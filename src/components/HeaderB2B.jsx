@@ -55,7 +55,7 @@ const HeaderB2B = () => {
             }}>
               <img 
                 src={logo} 
-                alt="Master" 
+                alt="Fixfy" 
                 style={{
                   height: '40px',
                   width: 'auto',
@@ -97,7 +97,7 @@ const HeaderB2B = () => {
               onMouseEnter={(e) => e.target.style.opacity = '0.7'}
               onMouseLeave={(e) => e.target.style.opacity = '1'}
               >
-                Master for Business
+                Fixfy for Business
               </Link>
 
               {/* Services Dropdown */}
@@ -160,7 +160,7 @@ const HeaderB2B = () => {
                 )}
               </div>
 
-              {/* Become a Master Partner Dropdown */}
+              {/* Become a Fixfy Partner Dropdown */}
               <div style={{ position: 'relative' }}
                 onMouseEnter={() => setPartnerOpen(true)}
                 onMouseLeave={() => setPartnerOpen(false)}
@@ -178,7 +178,7 @@ const HeaderB2B = () => {
                   padding: 0,
                   whiteSpace: 'nowrap'
                 }}>
-                  Become a Master Partner
+                  Become a Fixfy Partner
                   <ChevronDown size={16} style={{ 
                     transform: partnerOpen ? 'rotate(180deg)' : 'rotate(0deg)',
                     transition: 'transform 0.3s ease'
@@ -355,7 +355,7 @@ const HeaderB2B = () => {
                 gap: '1rem'
               }}>
                 <Link to="/" style={{ color: 'white', textDecoration: 'none' }}>Home</Link>
-                <Link to="/b2b" style={{ color: 'white', textDecoration: 'none' }}>Master for Business</Link>
+                <Link to="/b2b" style={{ color: 'white', textDecoration: 'none' }}>Fixfy for Business</Link>
                 <Link to="/about" style={{ color: 'white', textDecoration: 'none' }}>About Us</Link>
                 <Link to="/contact" style={{ color: 'white', textDecoration: 'none' }}>Contact Us</Link>
                 <button

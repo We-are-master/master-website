@@ -195,7 +195,7 @@ const Process = () => {
               maxWidth: '42rem',
               margin: '0 auto 2.5rem'
             }}>
-              Join hundreds of businesses who trust Master for their property maintenance needs. 
+              Join hundreds of businesses who trust Fixfy for their property maintenance needs. 
               Get your first quote in minutes.
             </p>
             

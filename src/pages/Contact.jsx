@@ -65,7 +65,7 @@ const Contact = () => {
     '@type': 'ContactPage',
     mainEntity: {
       '@type': 'Organization',
-      name: 'Master Services',
+      name: 'Fixfy Services',
       url: 'https://wearemaster.com',
       contactPoint: [
         {
@@ -174,7 +174,7 @@ const Contact = () => {
               fontWeight: '400'
             }}>
               Ready to streamline your property maintenance? Contact our team to discuss 
-              how Master can help your business.
+              how Fixfy can help your business.
             </motion.p>
             <motion.div variants={fadeInUp} transition={transition} style={{
               display: 'flex',

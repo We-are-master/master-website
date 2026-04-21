@@ -168,7 +168,7 @@ const B2CCleaningBooking = () => {
   return (
     <>
       <SEO
-        title="Cleaning — Master"
+        title="Cleaning — Fixfy"
         description="Professional cleaning: end of tenancy, deep clean, after builders. Transparent pricing, premium equipment."
       />
       <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />

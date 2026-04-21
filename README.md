@@ -1,6 +1,6 @@
-# Master Services - Business Website
+# Fixfy Services - Business Website
 
-A modern, responsive website for Master Services' business clients, built with React and Vite. This website showcases Master's property maintenance services for businesses across London.
+A modern, responsive website for Fixfy Services' business clients, built with React and Vite. This website showcases Fixfy's property maintenance services for businesses across London.
 
 ## Features
 
@@ -89,7 +89,7 @@ src/
 
 1. **Hero Section**: Compelling value proposition with contact form
 2. **Services**: Comprehensive service offerings with trust indicators
-3. **Features**: Key benefits and why choose Master
+3. **Features**: Key benefits and why choose Fixfy
 4. **Process**: Simple 3-step process explanation
 5. **Testimonials**: Client reviews and industry recognition
 6. **FAQ**: Common questions and answers
@@ -167,11 +167,11 @@ This error occurs when the Supabase URL is incorrect or the domain cannot be res
 
 ## License
 
-This project is proprietary to Master Services Trades Ltd.
+This project is proprietary to Fixfy Services Trades Ltd.
 
 ## Contact
 
-For questions about this website or Master Services:
+For questions about this website or Fixfy Services:
 
 - **Email**: hello@wearemaster.com
 - **Phone**: 020 3337 6168
@@ -179,4 +179,4 @@ For questions about this website or Master Services:
 
 ---
 
-Built with ❤️ for Master Services Business Clients
+Built with ❤️ for Fixfy Services Business Clients

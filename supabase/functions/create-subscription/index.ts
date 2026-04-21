@@ -1,5 +1,5 @@
 // Supabase Edge Function: create-subscription
-// Creates a Stripe Subscription for Master Club membership
+// Creates a Stripe Subscription for Fixfy Club membership
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import Stripe from 'https://esm.sh/stripe@14.10.0?target=deno'
@@ -114,7 +114,7 @@ serve(async (req) => {
     if (existingSubscription) {
       return new Response(
         JSON.stringify({ 
-          error: 'You already have an active Master Club subscription',
+          error: 'You already have an active Fixfy Club subscription',
           subscription_id: existingSubscription.stripe_subscription_id 
         }),
         {

@@ -3,7 +3,7 @@ import React from 'react';
 const SUBSCRIPTION_PRICE = 9.99;
 
 /**
- * Clean checkbox-style Master Club upsell for checkout.
+ * Clean checkbox-style Fixfy Club upsell for checkout.
  * Matches the privacy/terms style: simple label + checkbox + text.
  * Controlled: parent passes checked + onChange. When checked, parent adds SUBSCRIPTION_PRICE to order total.
  */
@@ -46,7 +46,7 @@ const SubscriptionUpsell = ({ checked, onChange, onDismiss, disabled = false }) 
             color: '#374151',
             lineHeight: '1.5'
           }}>
-            Add <strong>Master Club</strong> — £{SUBSCRIPTION_PRICE.toFixed(2)}/month. Up to 30% off on every booking.{' '}
+            Add <strong>Fixfy Club</strong> — £{SUBSCRIPTION_PRICE.toFixed(2)}/month. Up to 30% off on every booking.{' '}
             <a href="/" style={{ color: '#2001AF', textDecoration: 'underline' }}>Learn more</a>. Cancel anytime.
           </span>
         </label>

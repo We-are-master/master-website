@@ -22,23 +22,23 @@ import './LP.css';
 const UK_FLAG_SRC = 'https://flagcdn.com/w40/gb.png';
 
 const TESTIMONIALS = [
-  { name: 'James P.', location: 'London', text: 'Master took over everything. I didn\'t have to chase anyone. The pro was great, but the management was the real winner.', avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAtdaj6s7X3-1Jr51wq2XKRj8qv3QpGphGObe-ObAkVuZUvA1dnEPIkij81dyLDvzFM0Eau-PGC_HGbM9mrwcWh6yhmcVUbiDz5ht7GTyvMXeCRq59n1IXF1YxjHCO-gRd4GWlAd_xXcfVwXkTlb7JVcdWVs5zgsAKdwg1FeFFHpErRMxvH0_izu1fI5o2pHTX8PVUfQ0CmY_SmsgneWUbr9xY9aYrukAGv-MmB_XIg3q_tIiu-3BqTo3aR_JIRA219k2JHDfyzHow' },
-  { name: 'Sarah L.', location: 'London', text: 'The best managed service I\'ve used. Professional, transparent and Master guarantees the quality themselves.', avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCZgiXZAq3xlibzgkLym3ySEnJ5lH9eIXpiqOhDMqxKRW1FAtI7XiBQLOuhS9zp51JIK6rC39bzN9BZhjNC9ic3CohRSKxgvpBcgkS0PFbnB4NX90u5O5RHs13dom_zeXKL7QhR62dxGWVpZgpBD1LBB_nGshnH-segwati0sIYolRy7dKbiQX3UMwr2Ho7cXWwQf-oD5dzwVN9fFxvCJAZvi_4CsKJnhkgPMUsQFtNBDghxuSDytjV5uu7Ar2rk2A_ZamDg6HLY-c' },
+  { name: 'James P.', location: 'London', text: 'Fixfy took over everything. I didn\'t have to chase anyone. The pro was great, but the management was the real winner.', avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAtdaj6s7X3-1Jr51wq2XKRj8qv3QpGphGObe-ObAkVuZUvA1dnEPIkij81dyLDvzFM0Eau-PGC_HGbM9mrwcWh6yhmcVUbiDz5ht7GTyvMXeCRq59n1IXF1YxjHCO-gRd4GWlAd_xXcfVwXkTlb7JVcdWVs5zgsAKdwg1FeFFHpErRMxvH0_izu1fI5o2pHTX8PVUfQ0CmY_SmsgneWUbr9xY9aYrukAGv-MmB_XIg3q_tIiu-3BqTo3aR_JIRA219k2JHDfyzHow' },
+  { name: 'Sarah L.', location: 'London', text: 'The best managed service I\'ve used. Professional, transparent and Fixfy guarantees the quality themselves.', avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCZgiXZAq3xlibzgkLym3ySEnJ5lH9eIXpiqOhDMqxKRW1FAtI7XiBQLOuhS9zp51JIK6rC39bzN9BZhjNC9ic3CohRSKxgvpBcgkS0PFbnB4NX90u5O5RHs13dom_zeXKL7QhR62dxGWVpZgpBD1LBB_nGshnH-segwati0sIYolRy7dKbiQX3UMwr2Ho7cXWwQf-oD5dzwVN9fFxvCJAZvi_4CsKJnhkgPMUsQFtNBDghxuSDytjV5uu7Ar2rk2A_ZamDg6HLY-c' },
   { name: 'David M.', location: 'London', text: 'End of tenancy clean was flawless. One point of contact, clear quote, and the team left the flat spotless. Would use again.', avatar: 'https://ui-avatars.com/api/?name=David+M&background=eb4a00&color=fff&size=80' },
-  { name: 'Emma R.', location: 'London', text: 'Finally a service that does what it says. Booked a painter through Master — he turned up on time and the finish was excellent.', avatar: 'https://ui-avatars.com/api/?name=Emma+R&background=eb4a00&color=fff&size=80' },
-  { name: 'Michael T.', location: 'London', text: 'I used to waste hours finding trades. With Master I sent one message and they sorted everything. Game changer.', avatar: 'https://ui-avatars.com/api/?name=Michael+T&background=eb4a00&color=fff&size=80' },
+  { name: 'Emma R.', location: 'London', text: 'Finally a service that does what it says. Booked a painter through Fixfy — he turned up on time and the finish was excellent.', avatar: 'https://ui-avatars.com/api/?name=Emma+R&background=eb4a00&color=fff&size=80' },
+  { name: 'Michael T.', location: 'London', text: 'I used to waste hours finding trades. With Fixfy I sent one message and they sorted everything. Game changer.', avatar: 'https://ui-avatars.com/api/?name=Michael+T&background=eb4a00&color=fff&size=80' },
   { name: 'Sophie K.', location: 'London', text: 'Professional cleaning and they managed the whole thing. No chasing, no stress. Highly recommend.', avatar: 'https://ui-avatars.com/api/?name=Sophie+K&background=eb4a00&color=fff&size=80' },
-  { name: 'Chris W.', location: 'London', text: 'Had an electrical job that needed doing. Master matched me with a certified pro and guaranteed the work. Brilliant.', avatar: 'https://ui-avatars.com/api/?name=Chris+W&background=eb4a00&color=fff&size=80' },
-  { name: 'Rachel H.', location: 'London', text: 'The guarantee gives real peace of mind. Something went wrong and Master sorted it the same day. Top service.', avatar: 'https://ui-avatars.com/api/?name=Rachel+H&background=eb4a00&color=fff&size=80' },
+  { name: 'Chris W.', location: 'London', text: 'Had an electrical job that needed doing. Fixfy matched me with a certified pro and guaranteed the work. Brilliant.', avatar: 'https://ui-avatars.com/api/?name=Chris+W&background=eb4a00&color=fff&size=80' },
+  { name: 'Rachel H.', location: 'London', text: 'The guarantee gives real peace of mind. Something went wrong and Fixfy sorted it the same day. Top service.', avatar: 'https://ui-avatars.com/api/?name=Rachel+H&background=eb4a00&color=fff&size=80' },
   { name: 'Tom B.', location: 'London', text: 'Booked a handyman for odd jobs. One quote, one point of contact, job done properly. Will use for all future work.', avatar: 'https://ui-avatars.com/api/?name=Tom+B&background=eb4a00&color=fff&size=80' },
   { name: 'Laura F.', location: 'London', text: 'Deep clean before a party — they managed the booking and the team was fantastic. House looked brand new.', avatar: 'https://ui-avatars.com/api/?name=Laura+F&background=eb4a00&color=fff&size=80' },
-  { name: 'James N.', location: 'London', text: 'Transparent pricing and no hidden fees. Master handled the plumber visit and I didn\'t have to do a thing.', avatar: 'https://ui-avatars.com/api/?name=James+N&background=eb4a00&color=fff&size=80' },
-  { name: 'Olivia S.', location: 'London', text: 'Best decision was using Master for our painting. Quality work, insured, and they coordinate everything.', avatar: 'https://ui-avatars.com/api/?name=Olivia+S&background=eb4a00&color=fff&size=80' },
-  { name: 'Daniel P.', location: 'London', text: 'From quote to completion they were on it. No chasing contractors — Master does that for you. 10/10.', avatar: 'https://ui-avatars.com/api/?name=Daniel+P&background=eb4a00&color=fff&size=80' },
+  { name: 'James N.', location: 'London', text: 'Transparent pricing and no hidden fees. Fixfy handled the plumber visit and I didn\'t have to do a thing.', avatar: 'https://ui-avatars.com/api/?name=James+N&background=eb4a00&color=fff&size=80' },
+  { name: 'Olivia S.', location: 'London', text: 'Best decision was using Fixfy for our painting. Quality work, insured, and they coordinate everything.', avatar: 'https://ui-avatars.com/api/?name=Olivia+S&background=eb4a00&color=fff&size=80' },
+  { name: 'Daniel P.', location: 'London', text: 'From quote to completion they were on it. No chasing contractors — Fixfy does that for you. 10/10.', avatar: 'https://ui-avatars.com/api/?name=Daniel+P&background=eb4a00&color=fff&size=80' },
   { name: 'Hannah C.', location: 'London', text: 'Used them for a full house clean. Professional, reliable, and the guarantee means you\'re covered. Love it.', avatar: 'https://ui-avatars.com/api/?name=Hannah+C&background=eb4a00&color=fff&size=80' },
   { name: 'Andrew G.', location: 'London', text: 'I was sceptical but they delivered. One message, one quote, job done. This is how it should work.', avatar: 'https://ui-avatars.com/api/?name=Andrew+G&background=eb4a00&color=fff&size=80' },
-  { name: 'Jessica L.', location: 'London', text: 'Master managed our refurb. Cleaning, painting, small fixes — all through one team. So much easier.', avatar: 'https://ui-avatars.com/api/?name=Jessica+L&background=eb4a00&color=fff&size=80' },
-  { name: 'Mark D.', location: 'London', text: 'No more Googling and calling random trades. Master finds the right person and stands behind the work.', avatar: 'https://ui-avatars.com/api/?name=Mark+D&background=eb4a00&color=fff&size=80' },
+  { name: 'Jessica L.', location: 'London', text: 'Fixfy managed our refurb. Cleaning, painting, small fixes — all through one team. So much easier.', avatar: 'https://ui-avatars.com/api/?name=Jessica+L&background=eb4a00&color=fff&size=80' },
+  { name: 'Mark D.', location: 'London', text: 'No more Googling and calling random trades. Fixfy finds the right person and stands behind the work.', avatar: 'https://ui-avatars.com/api/?name=Mark+D&background=eb4a00&color=fff&size=80' },
   { name: 'Charlotte A.', location: 'London', text: 'Quick, clear communication and the job was done to a high standard. Will definitely book again.', avatar: 'https://ui-avatars.com/api/?name=Charlotte+A&background=eb4a00&color=fff&size=80' },
 ];
 
@@ -158,8 +158,8 @@ export default function LP() {
       <div className="lp-wrapper">
         {/* Header: logo + Home */}
         <header className="lp-header">
-          <Link to="/" className="lp-logo-link" aria-label="Master - Go to home">
-            <img src={logo} alt="Master" className="lp-logo" />
+          <Link to="/" className="lp-logo-link" aria-label="Fixfy - Go to home">
+            <img src={logo} alt="Fixfy" className="lp-logo" />
           </Link>
           <Link to="/" className="lp-home-btn">
             <Home size={18} />
@@ -181,7 +181,7 @@ export default function LP() {
             Cleaning • Plumbing • Painting • Handyman — We've got London covered.
           </p>
           <p className="lp-disclaimer">
-            Trusted pros. Insured & guaranteed by Master.
+            Trusted pros. Insured & guaranteed by Fixfy.
           </p>
         </div>
 
@@ -348,14 +348,14 @@ export default function LP() {
             <Shield className="lp-trust-icon" />
             <div>
               <div className="lp-trust-title">£5M Insurance</div>
-              <div className="lp-trust-sub">Fully Covered by Master</div>
+              <div className="lp-trust-sub">Fully Covered by Fixfy</div>
             </div>
           </div>
           <div className="lp-trust-card">
             <Shield className="lp-trust-icon" />
             <div>
               <div className="lp-trust-title">Full Guarantee</div>
-              <div className="lp-trust-sub">Master Certified</div>
+              <div className="lp-trust-sub">Fixfy Certified</div>
             </div>
           </div>
         </div>
@@ -377,7 +377,7 @@ export default function LP() {
             {isSubmitting ? 'Sending…' : 'Get my free quote →'}
           </button>
           <p className="lp-cta-footer">
-            Free quote. No obligation. Insured & guaranteed by Master.
+            Free quote. No obligation. Insured & guaranteed by Fixfy.
           </p>
         </div>
       </div>

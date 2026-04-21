@@ -1,9 +1,9 @@
-// Subscription management utilities for Master Club
+// Subscription management utilities for Fixfy Club
 
 import { getStripe } from './stripe';
 
 /**
- * Check if a customer has an active Master Club subscription
+ * Check if a customer has an active Fixfy Club subscription
  * @param {string} email - Customer email
  * @returns {Promise<Object>} Subscription status
  */
@@ -28,7 +28,7 @@ export async function checkSubscription(email) {
 }
 
 /**
- * Create a Master Club subscription
+ * Create a Fixfy Club subscription
  * @param {Object} subscriptionData - Subscription data
  * @param {string} subscriptionData.email - Customer email
  * @param {string} subscriptionData.customer_name - Customer name

@@ -8,7 +8,7 @@ import { getStripe, createPaymentIntentViaSupabase } from '../lib/stripe';
 import { trackAbandonedCheckout } from '../lib/email';
 import SubscriptionUpsell from '../components/b2c/SubscriptionUpsell';
 
-// Master Club subscription price - updated to match new design
+// Fixfy Club subscription price - updated to match new design
 const SUBSCRIPTION_PRICE = 9.99;
 // UK VAT rate (prices are VAT-inclusive)
 const VAT_RATE = 0.2;
@@ -154,7 +154,7 @@ const PaymentForm = ({ onSuccess, clientSecret }) => {
             paymentMethodTypes: ['card', 'klarna'],
             // Try to keep Klarna inline - some flows may still redirect for authentication
             business: {
-              name: 'Master'
+              name: 'Fixfy'
             },
             terms: {
               card: 'always',
@@ -370,7 +370,7 @@ const B2CCheckout = () => {
     return { daysInMonth, startingDay };
   };
 
-  // Next day only for Master Club members or when adding subscription; otherwise 2 days in advance
+  // Next day only for Fixfy Club members or when adding subscription; otherwise 2 days in advance
   const isDateDisabled = (date) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -448,7 +448,7 @@ const B2CCheckout = () => {
   const existingMemberDiscount = Boolean(customerDetails.email && hasActiveSubscription)
     ? totalPrice * 0.1
     : 0;
-  // New sign-up offer: 27% discount + Master Club add-on when checkbox checked (updated to match new design)
+  // New sign-up offer: 27% discount + Fixfy Club add-on when checkbox checked (updated to match new design)
   const subscriptionOfferActive = Boolean(
     customerDetails.email &&
     !hasActiveSubscription &&
@@ -559,7 +559,7 @@ const B2CCheckout = () => {
 
     try {
       if (addSubscriptionToOrder && (!customerDetails?.email?.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerDetails.email))) {
-        setPaymentError('Please enter a valid email address to add Master Club.');
+        setPaymentError('Please enter a valid email address to add Fixfy Club.');
         setCreatingPaymentIntent(false);
         return;
       }
@@ -1440,7 +1440,7 @@ const B2CCheckout = () => {
             </p>
           )}
           <p style={{ fontSize: '12px', color: '#64748B', marginTop: '4px', marginBottom: '12px', padding: '0 4px' }}>
-            Next day available for Master Club members or when adding Master Club. Otherwise booking from 2 days ahead.
+            Next day available for Fixfy Club members or when adding Fixfy Club. Otherwise booking from 2 days ahead.
           </p>
           <div style={{
             backgroundColor: 'white',
@@ -1675,7 +1675,7 @@ const B2CCheckout = () => {
               <span style={{ fontSize: '12px', fontWeight: 600, color: '#64748B', lineHeight: 1.3 }}>
                 {savingsAmount > 0
                   ? `You're saving £${savingsAmount.toFixed(2)} vs market rate`
-                  : 'Best market rate secured by Master AI'}
+                  : 'Best market rate secured by Fixfy AI'}
               </span>
             </div>
           </div>
@@ -1800,7 +1800,7 @@ const B2CCheckout = () => {
                   </div>
                   <div>
                     <p style={{ fontSize: '18px', fontWeight: 800, lineHeight: '1.2', color: '#020034', margin: 0 }}>
-                      Master Club
+                      Fixfy Club
                     </p>
                     <span style={{
                       fontSize: '11px',
@@ -1882,7 +1882,7 @@ const B2CCheckout = () => {
           </div>
           {subscriptionOfferActive && (
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '15px', marginBottom: '20px' }}>
-              <span style={{ opacity: 0.6, fontWeight: 600, color: '#020034' }}>Master Club Monthly</span>
+              <span style={{ opacity: 0.6, fontWeight: 600, color: '#020034' }}>Fixfy Club Monthly</span>
               <span style={{ fontWeight: 700, color: '#020034' }}>£{SUBSCRIPTION_PRICE.toFixed(2)}</span>
             </div>
           )}
@@ -1890,7 +1890,7 @@ const B2CCheckout = () => {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', fontSize: '15px', marginBottom: '20px' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                 <span style={{ color: '#059669', fontWeight: 700, textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.05em' }}>
-                  Master Club Savings
+                  Fixfy Club Savings
                 </span>
                 <span style={{
                   backgroundColor: '#D1FAE5',
@@ -1956,7 +1956,7 @@ const B2CCheckout = () => {
             </div>
             {subscriptionOfferActive && (
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: '#64748B', fontWeight: 600 }}>Master Club</span>
+                <span style={{ color: '#64748B', fontWeight: 600 }}>Fixfy Club</span>
                 <span style={{ fontWeight: 700, color: '#020034' }}>£{SUBSCRIPTION_PRICE.toFixed(2)}</span>
               </div>
             )}

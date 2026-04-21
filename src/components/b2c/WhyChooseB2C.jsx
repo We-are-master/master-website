@@ -10,9 +10,9 @@ const WhyChooseB2C = () => {
     { icon: <Shield size={28} />, title: 'Checked Tradespeople', description: 'All professionals are vetted, insured, and background-checked.', color: '#E94A02', gradient: 'linear-gradient(135deg, #E94A02 0%, #d13d00 100%)' },
     { icon: <Package size={28} />, title: 'Bundle Tasks Easily', description: 'Add multiple jobs to one booking and save time and money.', color: '#E94A02', gradient: 'linear-gradient(135deg, #E94A02 0%, #d13d00 100%)' },
     { icon: <CreditCard size={28} />, title: 'Secure Payments', description: 'Safe and secure payment processing with industry-leading encryption.', color: '#E94A02', gradient: 'linear-gradient(135deg, #E94A02 0%, #d13d00 100%)' },
-    { icon: <CheckCircle size={28} />, title: 'Backed by Master', description: 'Trusted brand with years of experience and thousands of happy customers.', color: '#E94A02', gradient: 'linear-gradient(135deg, #E94A02 0%, #d13d00 100%)' },
+    { icon: <CheckCircle size={28} />, title: 'Backed by Fixfy', description: 'Trusted brand with years of experience and thousands of happy customers.', color: '#E94A02', gradient: 'linear-gradient(135deg, #E94A02 0%, #d13d00 100%)' },
     { icon: <Shield size={28} />, title: '£5M Insurance', description: 'Comprehensive insurance coverage for complete peace of mind on every job.', color: '#E94A02', gradient: 'linear-gradient(135deg, #E94A02 0%, #d13d00 100%)' },
-    { icon: <Award size={28} />, title: 'Master Club', description: 'Exclusive membership benefits, priority booking, and special discounts.', color: '#E94A02', gradient: 'linear-gradient(135deg, #E94A02 0%, #d13d00 100%)' }
+    { icon: <Award size={28} />, title: 'Fixfy Club', description: 'Exclusive membership benefits, priority booking, and special discounts.', color: '#E94A02', gradient: 'linear-gradient(135deg, #E94A02 0%, #d13d00 100%)' }
   ];
 
   const stats = [
@@ -61,13 +61,13 @@ const WhyChooseB2C = () => {
             fontSize: 'clamp(2.5rem, 5vw, 3.5rem)', fontWeight: '600', marginBottom: '1.5rem', color: 'white',
             letterSpacing: '-0.04em', fontFamily: 'inherit'
           }}>
-            Why homeowners and renters choose Master
+            Why homeowners and renters choose Fixfy
           </h2>
           <p style={{
             fontSize: 'clamp(1.125rem, 2vw, 1.375rem)', color: 'rgba(255,255,255,0.7)', maxWidth: '700px',
             margin: '0 auto', lineHeight: '1.5', letterSpacing: '-0.01em', fontWeight: '400', fontFamily: 'inherit'
           }}>
-            The Master brand you know & trust, with the ease of booking online.
+            The Fixfy brand you know & trust, with the ease of booking online.
           </p>
         </motion.div>
 

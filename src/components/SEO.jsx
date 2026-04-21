@@ -3,56 +3,56 @@ import { useLocation } from 'react-router-dom'
 
 // Default SEO configuration
 const defaultSEO = {
-  title: 'Master Services - Professional Property Maintenance Services',
-  description: 'Master Services - The smarter way to manage maintenance across your business. Professional cleaning, trades services, and property maintenance across London.',
+  title: 'Fixfy Services - Professional Property Maintenance Services',
+  description: 'Fixfy Services - The smarter way to manage maintenance across your business. Professional cleaning, trades services, and property maintenance across London.',
   keywords: 'business cleaning, trades services, property maintenance, London, professional services, property management',
   image: '/favicon.png',
   url: 'https://wearemaster.com',
   type: 'website',
-  siteName: 'Master Services',
+  siteName: 'Fixfy Services',
   locale: 'en_GB'
 }
 
 // Page-specific SEO configurations
 const pageSEO = {
   '/': {
-    title: 'Master Services - Professional Property Maintenance & Cleaning Services in London',
+    title: 'Fixfy Services - Professional Property Maintenance & Cleaning Services in London',
     description: 'Professional property maintenance and cleaning services in London. Trusted by 500+ businesses. Same-day service, vetted professionals, fully insured. Book your service today!',
     keywords: 'property maintenance London, cleaning services London, professional cleaning, trades services, property management, same-day service, vetted professionals',
     type: 'website'
   },
   '/b2c': {
-    title: 'Master Services - Professional Property Maintenance & Cleaning Services in London',
+    title: 'Fixfy Services - Professional Property Maintenance & Cleaning Services in London',
     description: 'Professional property maintenance and cleaning services in London. Trusted by 500+ businesses. Same-day service, vetted professionals, fully insured. Book your service today!',
     keywords: 'property maintenance London, cleaning services London, professional cleaning, trades services, property management, same-day service, vetted professionals',
     type: 'website'
   },
   '/about': {
-    title: 'About Us - Master Services | Property Maintenance Experts',
-    description: 'Learn about Master Services - London\'s leading property maintenance platform. 240+ vetted professionals, 23K+ jobs completed, serving 500+ businesses. Trusted, efficient, and reliable.',
-    keywords: 'about Master Services, property maintenance company, London maintenance services, trusted professionals, DBS certified',
+    title: 'About Us - Fixfy Services | Property Maintenance Experts',
+    description: 'Learn about Fixfy Services - London\'s leading property maintenance platform. 240+ vetted professionals, 23K+ jobs completed, serving 500+ businesses. Trusted, efficient, and reliable.',
+    keywords: 'about Fixfy Services, property maintenance company, London maintenance services, trusted professionals, DBS certified',
     type: 'website'
   },
   '/contact': {
-    title: 'Contact Us - Master Services | Get in Touch Today',
-    description: 'Contact Master Services for your property maintenance needs. Call +44 7983 182332 or email hello@wearemaster.com. Quick response promise - we respond within 2 hours.',
-    keywords: 'contact Master Services, property maintenance contact, London maintenance services contact, customer support',
+    title: 'Contact Us - Fixfy Services | Get in Touch Today',
+    description: 'Contact Fixfy Services for your property maintenance needs. Call +44 7983 182332 or email hello@wearemaster.com. Quick response promise - we respond within 2 hours.',
+    keywords: 'contact Fixfy Services, property maintenance contact, London maintenance services contact, customer support',
     type: 'website'
   },
   '/b2b': {
-    title: 'B2B Property Maintenance Services - Master Services',
+    title: 'B2B Property Maintenance Services - Fixfy Services',
     description: 'Enterprise property maintenance solutions for businesses. Streamlined operations, technology-driven matching, and exceptional service standards. Trusted by 500+ businesses.',
     keywords: 'B2B property maintenance, business maintenance services, enterprise maintenance solutions, commercial property management',
     type: 'website'
   },
   '/booking': {
-    title: 'Book a Service - Master Services',
-    description: 'Book your property maintenance or cleaning service with Master Services. Easy online booking, same-day service available, vetted professionals.',
+    title: 'Book a Service - Fixfy Services',
+    description: 'Book your property maintenance or cleaning service with Fixfy Services. Easy online booking, same-day service available, vetted professionals.',
     keywords: 'book property maintenance, book cleaning service, online booking, same-day service booking',
     type: 'website'
   },
   '/cleaning-booking': {
-    title: 'Book Cleaning Service - Master Services',
+    title: 'Book Cleaning Service - Fixfy Services',
     description: 'Book professional cleaning services in London. Same-day service available. Vetted professionals, fully insured, trusted by 500+ businesses.',
     keywords: 'book cleaning service, professional cleaning London, same-day cleaning, house cleaning, office cleaning',
     type: 'website'
@@ -161,7 +161,7 @@ export function SEO({
       const defaultStructuredData = {
         '@context': 'https://schema.org',
         '@type': 'LocalBusiness',
-        name: 'Master Services',
+        name: 'Fixfy Services',
         image: `${defaultSEO.url}/favicon.png`,
         '@id': defaultSEO.url,
         url: defaultSEO.url,

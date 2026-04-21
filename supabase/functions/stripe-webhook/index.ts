@@ -362,7 +362,7 @@ serve(async (req) => {
           console.error(`PaymentIntent ${paymentIntent.id}: CRITICAL - cannot create fallback booking: no valid email found. Payment succeeded but booking data is incomplete. Check create-payment-intent logs and ensure customer_email is set in metadata.`)
         }
 
-        // If checkout had "Add Master Club" checked, create Stripe subscription (first month already paid in this PaymentIntent)
+        // If checkout had "Add Fixfy Club" checked, create Stripe subscription (first month already paid in this PaymentIntent)
         if (metadata.add_subscription === 'true') {
           const paymentIntentCustomerId =
             typeof paymentIntent.customer === 'string'
@@ -372,7 +372,7 @@ serve(async (req) => {
           if (!paymentIntentCustomerId) {
             console.warn(`PaymentIntent ${paymentIntent.id}: add_subscription=true but PaymentIntent has no customer – subscription skipped. Ensure create-payment-intent is deployed and sets Customer when add_subscription=true (same server as supabase.wearemaster.com).`)
           } else {
-          console.log(`PaymentIntent ${paymentIntent.id}: add_subscription=true – attempting Master Club subscription for ${customerEmail}`)
+          console.log(`PaymentIntent ${paymentIntent.id}: add_subscription=true – attempting Fixfy Club subscription for ${customerEmail}`)
           const paymentMethodId = typeof paymentIntent.payment_method === 'string'
             ? paymentIntent.payment_method
             : (paymentIntent.payment_method as Stripe.PaymentMethod)?.id
@@ -460,9 +460,9 @@ serve(async (req) => {
                         customer_name: customerName || '',
                       },
                     })
-                    console.log(`Master Club subscription created from webhook: ${subscription.id} for ${customerEmail}`)
+                    console.log(`Fixfy Club subscription created from webhook: ${subscription.id} for ${customerEmail}`)
 
-                    // Save to DB immediately so "contracted Master Club" is persisted (trial 30 days; status trialing = active for display)
+                    // Save to DB immediately so "contracted Fixfy Club" is persisted (trial 30 days; status trialing = active for display)
                     const subPeriodStart = unixToISO(subscription.current_period_start) ?? new Date().toISOString()
                     const subPeriodEnd = unixToISO(subscription.current_period_end) ?? new Date().toISOString()
                     const nowIso = new Date().toISOString()
@@ -483,15 +483,15 @@ serve(async (req) => {
                       }, { onConflict: 'stripe_subscription_id' })
                     if (upsertErr) {
                       const errMsg = upsertErr?.message ?? (upsertErr as { code?: string; details?: string })?.code ?? JSON.stringify(upsertErr)
-                      console.error('Failed to save Master Club subscription to DB:', errMsg, upsertErr)
+                      console.error('Failed to save Fixfy Club subscription to DB:', errMsg, upsertErr)
                     } else {
-                      console.log(`Master Club subscription ${subscription.id} saved to master_club_subscriptions_website`)
+                      console.log(`Fixfy Club subscription ${subscription.id} saved to master_club_subscriptions_website`)
                     }
                   }
                 }
               }
             } catch (subErr) {
-              console.error('Error creating Master Club subscription from webhook:', subErr)
+              console.error('Error creating Fixfy Club subscription from webhook:', subErr)
             }
           }
           }
