@@ -26,12 +26,12 @@ html {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--fx-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   line-height: 1.5;
-  color: #1d1d1f;
+  color: var(--fx-ink);
   overflow-x: hidden;
   width: 100%;
   max-width: 100%;
@@ -43,11 +43,10 @@ body {
 
 /* Enterprise focus styles (a11y + polish) */
 :focus-visible {
-  outline: 2px solid #E94A02;
+  outline: 2px solid #ED4B00;
   outline-offset: 2px;
 }
 
-/* Ensure all elements inherit SF Pro Display */
 *, *::before, *::after {
   font-family: inherit;
 }
@@ -224,7 +223,7 @@ body {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #2001AF 0%, #020135 100%);
+  background: linear-gradient(135deg, #020040 0%, #010030 100%);
   color: white;
 }
 
@@ -235,23 +234,23 @@ body {
 
 .btn-secondary {
   background: white;
-  color: #2001AF;
-  border: 2px solid #2001AF;
+  color: #020040;
+  border: 2px solid #020040;
 }
 
 .btn-secondary:hover {
-  background: #2001AF;
+  background: #020040;
   color: white;
 }
 
 .btn-outline {
   background: transparent;
-  color: #2001AF;
-  border: 2px solid #2001AF;
+  color: #020040;
+  border: 2px solid #020040;
 }
 
 .btn-outline:hover {
-  background: #2001AF;
+  background: #020040;
   color: white;
 }
 
@@ -359,9 +358,9 @@ body {
 .text-gray-700 { color: #374151 !important; }
 .text-gray-900 { color: #111827 !important; }
 .text-white { color: white !important; }
-.text-primary { color: #2001AF !important; }
+.text-primary { color: #020040 !important; }
 .text-secondary { color: #718096 !important; }
-.text-accent { color: #E94A02 !important; }
+.text-accent { color: #ED4B00 !important; }
 .text-green-500 { color: #10b981 !important; }
 .text-yellow-400 { color: #fbbf24 !important; }
 
@@ -370,8 +369,8 @@ body {
 .bg-gray-50 { background-color: #f9fafb; }
 .bg-gray-100 { background-color: #f3f4f6; }
 .bg-gray-900 { background-color: #111827; }
-.bg-primary { background: linear-gradient(135deg, #2001AF 0%, #020135 100%); }
-.bg-accent { background-color: #E94A02; }
+.bg-primary { background: linear-gradient(135deg, #020040 0%, #010030 100%); }
+.bg-accent { background-color: #ED4B00; }
 .bg-light { background-color: #f7fafc; }
 .bg-gradient-to-br { background-image: linear-gradient(to bottom right, #f0f4ff, #e6f0ff); }
 
@@ -393,7 +392,7 @@ body {
 .border-t { border-top-width: 1px; }
 .border-gray-300 { border-color: #d1d5db; }
 .border-gray-800 { border-color: #1f2937; }
-.border-primary { border-color: #2001AF; }
+.border-primary { border-color: #020040; }
 .rounded-lg { border-radius: 0.5rem; }
 .rounded-xl { border-radius: 0.75rem; }
 .rounded-2xl { border-radius: 1rem; }
@@ -445,13 +444,13 @@ body {
 /* Hover Effects */
 .hover\:bg-gray-50:hover { background-color: #f9fafb; }
 .hover\:text-white:hover { color: white; }
-.hover\:text-primary:hover { color: #2001AF; }
-.hover\:text-accent:hover { color: #E94A02; }
+.hover\:text-primary:hover { color: #020040; }
+.hover\:text-accent:hover { color: #ED4B00; }
 .hover\:scale-110:hover { transform: scale(1.1); }
 
 /* Focus */
-.focus\:ring-2:focus { box-shadow: 0 0 0 2px #2001AF; }
-.focus\:ring-primary:focus { box-shadow: 0 0 0 2px #2001AF; }
+.focus\:ring-2:focus { box-shadow: 0 0 0 2px #020040; }
+.focus\:ring-primary:focus { box-shadow: 0 0 0 2px #020040; }
 .focus\:border-transparent:focus { border-color: transparent; }
 
 /* Grid utilities */

@@ -6,7 +6,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { getCorsHeaders } from '../_shared/security.ts'
 
 const N8N_CUSTOM_REQUEST_WEBHOOK_URL = Deno.env.get('N8N_CUSTOM_REQUEST_WEBHOOK_URL') || 
-  'https://n8n.wearemaster.com/webhook/42366965-944b-48db-b294-3567f140cbab'
+  'https://n8n.getfixfy.com/webhook/42366965-944b-48db-b294-3567f140cbab'
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {

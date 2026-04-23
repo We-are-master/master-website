@@ -157,7 +157,7 @@ const Settings = () => {
         justifyContent: 'center'
       }}>
         <div style={{ textAlign: 'center' }}>
-          <Loader2 className="w-8 h-8 animate-spin" style={{ color: '#E94A02', margin: '0 auto 1rem' }} />
+          <Loader2 className="w-8 h-8 animate-spin" style={{ color: '#ED4B00', margin: '0 auto 1rem' }} />
           <p style={{ color: '#6b7280' }}>Loading settings...</p>
         </div>
       </div>
@@ -207,7 +207,7 @@ const Settings = () => {
           <h1 style={{
             fontSize: '1.5rem',
             fontWeight: '700',
-            color: '#020135',
+            color: '#010030',
             margin: 0
           }}>
             Settings
@@ -261,7 +261,7 @@ const Settings = () => {
           boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
-            <User style={{ color: '#E94A02', width: '24px', height: '24px' }} />
+            <User style={{ color: '#ED4B00', width: '24px', height: '24px' }} />
             <h2 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#111827', margin: 0 }}>
               Profile Information
             </h2>
@@ -286,7 +286,7 @@ const Settings = () => {
                     outline: 'none',
                     transition: 'all 0.3s ease'
                   }}
-                  onFocus={(e) => e.target.style.borderColor = '#2001AF'}
+                  onFocus={(e) => e.target.style.borderColor = '#020040'}
                   onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
                 />
               </div>
@@ -333,7 +333,7 @@ const Settings = () => {
                     outline: 'none',
                     transition: 'all 0.3s ease'
                   }}
-                  onFocus={(e) => e.target.style.borderColor = '#2001AF'}
+                  onFocus={(e) => e.target.style.borderColor = '#020040'}
                   onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
                 />
               </div>
@@ -345,7 +345,7 @@ const Settings = () => {
                   padding: '0.75rem 1.5rem',
                   border: 'none',
                   borderRadius: '0.5rem',
-                  backgroundColor: saving ? '#9ca3af' : '#E94A02',
+                  backgroundColor: saving ? '#9ca3af' : '#ED4B00',
                   color: 'white',
                   cursor: saving ? 'not-allowed' : 'pointer',
                   fontSize: '0.875rem',
@@ -383,7 +383,7 @@ const Settings = () => {
           boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
-            <Lock style={{ color: '#E94A02', width: '24px', height: '24px' }} />
+            <Lock style={{ color: '#ED4B00', width: '24px', height: '24px' }} />
             <h2 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#111827', margin: 0 }}>
               Change Password
             </h2>
@@ -408,7 +408,7 @@ const Settings = () => {
                     outline: 'none',
                     transition: 'all 0.3s ease'
                   }}
-                  onFocus={(e) => e.target.style.borderColor = '#2001AF'}
+                  onFocus={(e) => e.target.style.borderColor = '#020040'}
                   onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
                 />
               </div>
@@ -430,7 +430,7 @@ const Settings = () => {
                     outline: 'none',
                     transition: 'all 0.3s ease'
                   }}
-                  onFocus={(e) => e.target.style.borderColor = '#2001AF'}
+                  onFocus={(e) => e.target.style.borderColor = '#020040'}
                   onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
                 />
                 <p style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
@@ -455,7 +455,7 @@ const Settings = () => {
                     outline: 'none',
                     transition: 'all 0.3s ease'
                   }}
-                  onFocus={(e) => e.target.style.borderColor = '#2001AF'}
+                  onFocus={(e) => e.target.style.borderColor = '#020040'}
                   onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
                 />
               </div>
@@ -467,7 +467,7 @@ const Settings = () => {
                   padding: '0.75rem 1.5rem',
                   border: 'none',
                   borderRadius: '0.5rem',
-                  backgroundColor: saving ? '#9ca3af' : '#E94A02',
+                  backgroundColor: saving ? '#9ca3af' : '#ED4B00',
                   color: 'white',
                   cursor: saving ? 'not-allowed' : 'pointer',
                   fontSize: '0.875rem',
@@ -504,7 +504,7 @@ const Settings = () => {
           boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
-            <Shield style={{ color: '#E94A02', width: '24px', height: '24px' }} />
+            <Shield style={{ color: '#ED4B00', width: '24px', height: '24px' }} />
             <h2 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#111827', margin: 0 }}>
               Account Actions
             </h2>

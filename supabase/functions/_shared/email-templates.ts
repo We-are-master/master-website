@@ -1,7 +1,7 @@
 // Email templates for transactional emails
 // All templates use consistent branding and styling
 
-const MASTER_LOGO_URL = 'https://storage.wearemaster.com/storage/v1/object/public/templates//Master-branco-1%203%201%20(1).png'
+const MASTER_LOGO_URL = 'https://getfixfy.com/brand/fixfy-primary-white.png'
 
 interface EmailData {
   name?: string
@@ -18,13 +18,13 @@ const emailStyles = `
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif; line-height: 1.6; color: #1d1d1f; }
     .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-    .header { background: #020034; color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+    .header { background: #020040; color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
     .content { background: #ffffff; padding: 30px; border: 1px solid #e5e7eb; }
     .footer { background: #f9fafb; padding: 20px; text-align: center; color: #6b7280; font-size: 14px; border-radius: 0 0 8px 8px; }
-    .button { display: inline-block; background: #E94A02; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600; margin: 20px 0; }
+    .button { display: inline-block; background: #ED4B00; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600; margin: 20px 0; }
     .button:hover { background: #d13d00; }
     .signature { margin-top: 30px; color: #6b7280; }
-    .heart { color: #E94A02; }
+    .heart { color: #ED4B00; }
   </style>
 `
 
@@ -53,7 +53,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
       <p>You were just one step away from completing your booking.</p>
       <p>Your details are saved, you can finish in under a minute and secure your preferred date.</p>
       <p style="text-align: center;">
-        <a href="https://www.wearemaster.com" class="button">👉 Complete your booking here</a>
+        <a href="https://getfixfy.com" class="button">👉 Complete your booking here</a>
       </p>
       <p>If you need help, just reply to this email.</p>
       <div class="signature">
@@ -61,13 +61,13 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
       </div>
     </div>
     <div class="footer">
-      <p>Fixfy Services | hello@wearemaster.com</p>
+      <p>Fixfy Services | hello@getfixfy.com</p>
     </div>
   </div>
 </body>
 </html>
         `,
-        text: `Hi ${firstName},\n\nYou were just one step away from completing your booking.\n\nYour details are saved, you can finish in under a minute and secure your preferred date.\n\n👉 Complete your booking here: https://www.wearemaster.com\n\nIf you need help, just reply to this email.\n\nWith Love,\nFixfy Team 💙`
+        text: `Hi ${firstName},\n\nYou were just one step away from completing your booking.\n\nYour details are saved, you can finish in under a minute and secure your preferred date.\n\n👉 Complete your booking here: https://getfixfy.com\n\nIf you need help, just reply to this email.\n\nWith Love,\nFixfy Team 💙`
       }
     }
 
@@ -95,20 +95,20 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
         <li>Trusted professionals.</li>
       </ul>
       <p style="text-align: center;">
-        <a href="https://www.wearemaster.com" class="button">Check availability & finish booking</a>
+        <a href="https://getfixfy.com" class="button">Check availability & finish booking</a>
       </p>
       <div class="signature">
         <p>With Love,<br>Fixfy Team <span class="heart">💙</span></p>
       </div>
     </div>
     <div class="footer">
-      <p>Fixfy Services | hello@wearemaster.com</p>
+      <p>Fixfy Services | hello@getfixfy.com</p>
     </div>
   </div>
 </body>
 </html>
         `,
-        text: `Hi ${firstName},\n\nJust checking in, your booking is still waiting.\n\nNo back and forth.\nClear pricing.\nTrusted professionals.\n\nCheck availability & finish booking: https://www.wearemaster.com\n\nWith Love,\nFixfy Team 💙`
+        text: `Hi ${firstName},\n\nJust checking in, your booking is still waiting.\n\nNo back and forth.\nClear pricing.\nTrusted professionals.\n\nCheck availability & finish booking: https://getfixfy.com\n\nWith Love,\nFixfy Team 💙`
       }
     }
 
@@ -140,7 +140,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
       </div>
     </div>
     <div class="footer">
-      <p>Fixfy Services | hello@wearemaster.com</p>
+      <p>Fixfy Services | hello@getfixfy.com</p>
     </div>
   </div>
 </body>
@@ -184,7 +184,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
     .internal-table th { text-align: left; padding: 8px 12px; background: #f3f4f6; border: 1px solid #e5e7eb; }
     .internal-table td { padding: 8px 12px; border: 1px solid #e5e7eb; }
     .internal-section { margin: 20px 0; }
-    .internal-section h3 { margin: 0 0 10px 0; font-size: 16px; color: #020034; }
+    .internal-section h3 { margin: 0 0 10px 0; font-size: 16px; color: #020040; }
   </style>
 </head>
 <body>
@@ -193,7 +193,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
       <img src="${MASTER_LOGO_URL}" alt="Fixfy" style="display: block; max-height: 44px; width: auto; margin: 0 auto;" />
     </div>
     <div class="content">
-      <p style="font-size: 18px; font-weight: 600; color: #020034;">New job paid – internal use</p>
+      <p style="font-size: 18px; font-weight: 600; color: #020040;">New job paid – internal use</p>
       <p>A payment has been confirmed and the booking is paid. Details below.</p>
 
       <div class="internal-section">
@@ -237,13 +237,13 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
           <tr><th>Preferred time slots</th><td>${preferredTimeSlots}</td></tr>
         </table>
         <p><strong>Job description:</strong></p>
-        <p style="background: #f9fafb; padding: 12px; border-radius: 8px; border-left: 3px solid #E94A02; white-space: pre-wrap;">${jobDescription}</p>
+        <p style="background: #f9fafb; padding: 12px; border-radius: 8px; border-left: 3px solid #ED4B00; white-space: pre-wrap;">${jobDescription}</p>
       </div>
 
       <p style="margin-top: 24px; font-size: 13px; color: #6b7280;">This email was sent automatically when the payment was confirmed (Stripe webhook).</p>
     </div>
     <div class="footer">
-      <p>Fixfy Services | hello@wearemaster.com</p>
+      <p>Fixfy Services | hello@getfixfy.com</p>
     </div>
   </div>
 </body>
@@ -285,7 +285,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
     .internal-table th { text-align: left; padding: 8px 12px; background: #f3f4f6; border: 1px solid #e5e7eb; }
     .internal-table td { padding: 8px 12px; border: 1px solid #e5e7eb; }
     .internal-section { margin: 20px 0; }
-    .internal-section h3 { margin: 0 0 10px 0; font-size: 16px; color: #020034; }
+    .internal-section h3 { margin: 0 0 10px 0; font-size: 16px; color: #020040; }
     .pay-later-badge { background: #FEF3C7; color: #92400E; padding: 4px 10px; border-radius: 6px; font-weight: 700; font-size: 13px; }
   </style>
 </head>
@@ -295,7 +295,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
       <img src="${MASTER_LOGO_URL}" alt="Fixfy" style="display: block; max-height: 44px; width: auto; margin: 0 auto;" />
     </div>
     <div class="content">
-      <p style="font-size: 18px; font-weight: 600; color: #020034;">New booking – Pay later (internal)</p>
+      <p style="font-size: 18px; font-weight: 600; color: #020040;">New booking – Pay later (internal)</p>
       <p><span class="pay-later-badge">Pay later</span> A customer has booked and will pay later. No payment has been taken yet.</p>
 
       <div class="internal-section">
@@ -337,13 +337,13 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
           <tr><th>Preferred time slots</th><td>${preferredTimeSlots}</td></tr>
         </table>
         <p><strong>Job description:</strong></p>
-        <p style="background: #f9fafb; padding: 12px; border-radius: 8px; border-left: 3px solid #E94A02; white-space: pre-wrap;">${jobDescription}</p>
+        <p style="background: #f9fafb; padding: 12px; border-radius: 8px; border-left: 3px solid #ED4B00; white-space: pre-wrap;">${jobDescription}</p>
       </div>
 
       <p style="margin-top: 24px; font-size: 13px; color: #6b7280;">This email was sent automatically when the customer chose Book Now & Pay Later (create-booking-pay-later).</p>
     </div>
     <div class="footer">
-      <p>Fixfy Services | hello@wearemaster.com</p>
+      <p>Fixfy Services | hello@getfixfy.com</p>
     </div>
   </div>
 </body>
@@ -380,7 +380,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
       </ul>
       <p>You can start booking immediately.</p>
       <p style="text-align: center;">
-        <a href="https://www.wearemaster.com" class="button">👉 Book your next job</a>
+        <a href="https://getfixfy.com" class="button">👉 Book your next job</a>
       </p>
       <p>Thanks for being part of the Fixfy Team.</p>
       <div class="signature">
@@ -388,13 +388,13 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
       </div>
     </div>
     <div class="footer">
-      <p>Fixfy Services | hello@wearemaster.com</p>
+      <p>Fixfy Services | hello@getfixfy.com</p>
     </div>
   </div>
 </body>
 </html>
         `,
-        text: `Hi ${firstName},\n\nWelcome to Fixfy Club.\n\nYour subscription is now active, giving you:\n• Priority booking\n• Up to 30% discount\n• Exclusive member pricing\n• Managed jobs & vetted professionals\n\nYou can start booking immediately.\n\n👉 Book your next job: https://www.wearemaster.com\n\nThanks for being part of the Fixfy Team.\n\nWith Love,\nFixfy Team 💙`
+        text: `Hi ${firstName},\n\nWelcome to Fixfy Club.\n\nYour subscription is now active, giving you:\n• Priority booking\n• Up to 30% discount\n• Exclusive member pricing\n• Managed jobs & vetted professionals\n\nYou can start booking immediately.\n\n👉 Book your next job: https://getfixfy.com\n\nThanks for being part of the Fixfy Team.\n\nWith Love,\nFixfy Team 💙`
       }
     }
 
@@ -424,7 +424,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
       </div>
     </div>
     <div class="footer">
-      <p>Fixfy Services | hello@wearemaster.com</p>
+      <p>Fixfy Services | hello@getfixfy.com</p>
     </div>
   </div>
 </body>
@@ -435,7 +435,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
     }
 
     case 'payment_failed': {
-      const retryUrl = data.retryUrl || 'https://www.wearemaster.com'
+      const retryUrl = data.retryUrl || 'https://getfixfy.com'
       return {
         subject: "Action needed — payment issue",
         html: `
@@ -463,7 +463,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
       </div>
     </div>
     <div class="footer">
-      <p>Fixfy Services | hello@wearemaster.com</p>
+      <p>Fixfy Services | hello@getfixfy.com</p>
     </div>
   </div>
 </body>
@@ -499,7 +499,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
       </div>
     </div>
     <div class="footer">
-      <p>Fixfy Services | hello@wearemaster.com</p>
+      <p>Fixfy Services | hello@getfixfy.com</p>
     </div>
   </div>
 </body>
@@ -510,7 +510,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
     }
 
     case 'review_request': {
-      const reviewUrl = data.reviewUrl || 'https://www.wearemaster.com/review'
+      const reviewUrl = data.reviewUrl || 'https://getfixfy.com/review'
       return {
         subject: "How did we do?",
         html: `
@@ -537,7 +537,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
       </div>
     </div>
     <div class="footer">
-      <p>Fixfy Services | hello@wearemaster.com</p>
+      <p>Fixfy Services | hello@getfixfy.com</p>
     </div>
   </div>
 </body>
@@ -570,7 +570,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
     .internal-table th { text-align: left; padding: 8px 12px; background: #f3f4f6; border: 1px solid #e5e7eb; }
     .internal-table td { padding: 8px 12px; border: 1px solid #e5e7eb; }
     .internal-section { margin: 20px 0; }
-    .internal-section h3 { margin: 0 0 10px 0; font-size: 16px; color: #020034; }
+    .internal-section h3 { margin: 0 0 10px 0; font-size: 16px; color: #020040; }
   </style>
 </head>
 <body>
@@ -579,7 +579,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
       <img src="${MASTER_LOGO_URL}" alt="Fixfy" style="display: block; max-height: 44px; width: auto; margin: 0 auto;" />
     </div>
     <div class="content">
-      <p style="font-size: 18px; font-weight: 600; color: #020034;">New quote request / lead</p>
+      <p style="font-size: 18px; font-weight: 600; color: #020040;">New quote request / lead</p>
       <p>A new lead was submitted (LP or hero form). Details below.</p>
 
       <div class="internal-section">
@@ -599,7 +599,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
       <p style="margin-top: 24px; font-size: 13px; color: #6b7280;">This email was sent automatically when the lead was saved to the database.</p>
     </div>
     <div class="footer">
-      <p>Fixfy Services | hello@wearemaster.com</p>
+      <p>Fixfy Services | hello@getfixfy.com</p>
     </div>
   </div>
 </body>
@@ -646,7 +646,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
     .internal-table th { text-align: left; padding: 8px 12px; background: #f3f4f6; border: 1px solid #e5e7eb; }
     .internal-table td { padding: 8px 12px; border: 1px solid #e5e7eb; }
     .internal-section { margin: 20px 0; }
-    .internal-section h3 { margin: 0 0 10px 0; font-size: 16px; color: #020034; }
+    .internal-section h3 { margin: 0 0 10px 0; font-size: 16px; color: #020040; }
   </style>
 </head>
 <body>
@@ -655,7 +655,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
       <img src="${MASTER_LOGO_URL}" alt="Fixfy" style="display: block; max-height: 44px; width: auto; margin: 0 auto;" />
     </div>
     <div class="content">
-      <p style="font-size: 18px; font-weight: 600; color: #020034;">New partner application</p>
+      <p style="font-size: 18px; font-weight: 600; color: #020040;">New partner application</p>
       <p>A new partner application was submitted from /partner-apply. Application ID: <strong>${id}</strong></p>
 
       <div class="internal-section">
@@ -699,7 +699,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
       <p style="margin-top: 24px; font-size: 13px; color: #6b7280;">This email was sent automatically when the partner application was completed.</p>
     </div>
     <div class="footer">
-      <p>Fixfy Services | hello@wearemaster.com</p>
+      <p>Fixfy Services | hello@getfixfy.com</p>
     </div>
   </div>
 </body>
@@ -724,7 +724,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
   ${emailStyles}
   <style>
     .code-container {
-      background: linear-gradient(135deg, #020034 0%, #1a1a4a 100%);
+      background: linear-gradient(135deg, #020040 0%, #1a1a4a 100%);
       padding: 40px 30px;
       border-radius: 16px;
       text-align: center;
@@ -736,7 +736,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
       font-size: 48px;
       font-weight: 700;
       letter-spacing: 12px;
-      color: #E94A02;
+      color: #ED4B00;
       font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
       margin: 20px 0;
       text-shadow: 0 2px 8px rgba(233, 74, 2, 0.3);
@@ -750,7 +750,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
     }
     .security-note {
       background: rgba(233, 74, 2, 0.1);
-      border-left: 3px solid #E94A02;
+      border-left: 3px solid #ED4B00;
       padding: 15px;
       margin: 20px 0;
       border-radius: 8px;
@@ -792,7 +792,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
       </div>
       
       <div class="security-note">
-        <strong style="color: #E94A02;">🔒 Security Note:</strong> Never share this code with anyone. Fixfy will never ask for your verification code via phone or email.
+        <strong style="color: #ED4B00;">🔒 Security Note:</strong> Never share this code with anyone. Fixfy will never ask for your verification code via phone or email.
       </div>
       
       <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
@@ -805,7 +805,7 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
       </p>
       <p style="margin: 0; font-size: 12px;">
         Need help? Reply to this email or visit 
-        <a href="https://www.wearemaster.com" style="color: #E94A02; text-decoration: none;">wearemaster.com</a>
+        <a href="https://getfixfy.com" style="color: #ED4B00; text-decoration: none;">getfixfy.com</a>
       </p>
       <p style="margin: 15px 0 0 0; font-size: 11px; color: #9ca3af;">
         This is an automated message. Please do not reply directly to this email.
@@ -828,7 +828,7 @@ This code will expire in 10 minutes.
 If you didn't request this code, you can safely ignore this email.
 
 Fixfy Team
-Need help? Visit wearemaster.com
+Need help? Visit getfixfy.com
 
 This is an automated message. Please do not reply directly to this email.`
       }

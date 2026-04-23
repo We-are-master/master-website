@@ -1,5 +1,5 @@
 // Supabase Edge Function: notify-booking-lead
-// Called when user fills postcode + email on a booking page. Sends internal notification to hello@wearemaster.com.
+// Called when user fills postcode + email on a booking page. Sends internal notification to hello@getfixfy.com.
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.0'
@@ -12,7 +12,7 @@ import {
   validateSupabaseEnv,
 } from '../_shared/security.ts'
 
-const NOTIFY_TO = 'hello@wearemaster.com'
+const NOTIFY_TO = 'hello@getfixfy.com'
 const UK_POSTCODE_REGEX = /[A-Z]{1,2}[0-9]{1,2}[A-Z]?\s?[0-9][A-Z]{2}/i
 
 function isValidUKPostcode(v: string): boolean {

@@ -1,7 +1,10 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
+import './styles/fixfy-tokens.css'
 import './index.css'
+import './styles/fixfy.css'
+import './styles/blog.css'
 
 // Lazy load toastify CSS after initial render to improve FCP
 const loadToastifyCSS = () => {

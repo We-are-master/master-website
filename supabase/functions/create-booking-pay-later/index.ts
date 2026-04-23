@@ -160,7 +160,7 @@ serve(async (req) => {
     )
   }
 
-  // Internal notification email to hello@wearemaster.com (same as paid jobs)
+  // Internal notification email to hello@getfixfy.com (same as paid jobs)
   const preferredDatesStr = Array.isArray(preferredDates) ? preferredDates.join(', ') : '—'
   const preferredSlotsStr = Array.isArray(bookingRecord.preferred_time_slots)
     ? (bookingRecord.preferred_time_slots as string[]).join(', ')
@@ -178,7 +178,7 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         template: 'internal_new_job_pay_later',
-        to: 'hello@wearemaster.com',
+        to: 'hello@getfixfy.com',
         data: {
           bookingRef: inserted.booking_ref,
           amount: amountPounds,

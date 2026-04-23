@@ -24,7 +24,7 @@ const HeaderB2B = () => {
   return (
     <>
       <header style={{
-        backgroundColor: '#020034',
+        backgroundColor: '#0A0A2E',
         color: 'white',
         position: 'sticky',
         top: 0,
@@ -259,7 +259,7 @@ const HeaderB2B = () => {
                 onClick={() => navigate('/booking')}
                 style={{
                   backgroundColor: 'white',
-                  color: '#020034',
+                  color: '#0A0A2E',
                   border: 'none',
                   borderRadius: '8px',
                   padding: '0.75rem 1.5rem',
@@ -362,7 +362,7 @@ const HeaderB2B = () => {
                   onClick={() => navigate('/booking')}
                   style={{
                     backgroundColor: 'white',
-                    color: '#020034',
+                    color: '#0A0A2E',
                     border: 'none',
                     borderRadius: '8px',
                     padding: '0.75rem 1.5rem',
@@ -382,7 +382,7 @@ const HeaderB2B = () => {
 
       {/* Hero Section Below Header */}
       <div style={{
-        backgroundColor: '#020034',
+        backgroundColor: '#0A0A2E',
         padding: '3rem 0 4rem',
         width: '100%'
       }}>
@@ -402,7 +402,7 @@ const HeaderB2B = () => {
             {/* Jobs Live Button */}
             <button style={{
               backgroundColor: 'white',
-              color: '#020034',
+              color: '#0A0A2E',
               border: 'none',
               borderRadius: '50px',
               padding: '0.875rem 1.75rem',
@@ -425,8 +425,8 @@ const HeaderB2B = () => {
               e.target.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
             }}
             >
-              <span style={{ color: '#020034', fontWeight: '700' }}>{jobsCount}</span>
-              <span style={{ color: '#020034' }}>Jobs Live Right Now</span>
+              <span style={{ color: '#0A0A2E', fontWeight: '700' }}>{jobsCount}</span>
+              <span style={{ color: '#0A0A2E' }}>Jobs Live Right Now</span>
             </button>
 
             {/* Descriptive Text */}

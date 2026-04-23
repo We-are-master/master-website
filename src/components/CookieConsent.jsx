@@ -167,7 +167,7 @@ const CookieConsent = () => {
                   justifyContent: 'center',
                   flexShrink: 0
                 }}>
-                  <Cookie size={24} style={{ color: '#E94A02' }} />
+                  <Cookie size={24} style={{ color: '#ED4B00' }} />
                 </div>
                 <div>
                   <h3 style={{
@@ -189,14 +189,14 @@ const CookieConsent = () => {
                     Read our{' '}
                     <a 
                       href="/privacy-policy" 
-                      style={{ color: '#E94A02', textDecoration: 'underline' }}
+                      style={{ color: '#ED4B00', textDecoration: 'underline' }}
                     >
                       Privacy Policy
                     </a>
                     {' '}and{' '}
                     <a 
                       href="/cookie-policy" 
-                      style={{ color: '#E94A02', textDecoration: 'underline' }}
+                      style={{ color: '#ED4B00', textDecoration: 'underline' }}
                     >
                       Cookie Policy
                     </a>.
@@ -272,7 +272,7 @@ const CookieConsent = () => {
                     alignItems: 'center',
                     gap: '0.5rem',
                     padding: '0.75rem 1.5rem',
-                    backgroundColor: '#E94A02',
+                    backgroundColor: '#ED4B00',
                     color: 'white',
                     border: 'none',
                     borderRadius: '10px',
@@ -287,7 +287,7 @@ const CookieConsent = () => {
                     e.target.style.transform = 'translateY(-2px)';
                   }}
                   onMouseLeave={(e) => {
-                    e.target.style.backgroundColor = '#E94A02';
+                    e.target.style.backgroundColor = '#ED4B00';
                     e.target.style.transform = 'translateY(0)';
                   }}
                 >
@@ -309,7 +309,7 @@ const CookieConsent = () => {
               borderBottom: '1px solid #e5e7eb'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <Shield size={24} style={{ color: '#E94A02' }} />
+                <Shield size={24} style={{ color: '#ED4B00' }} />
                 <h3 style={{
                   fontSize: '1.125rem',
                   fontWeight: '700',
@@ -416,7 +416,7 @@ const CookieConsent = () => {
                       left: 0,
                       right: 0,
                       bottom: 0,
-                      backgroundColor: preferences[cookie.id] ? '#E94A02' : '#d1d5db',
+                      backgroundColor: preferences[cookie.id] ? '#ED4B00' : '#d1d5db',
                       borderRadius: '26px',
                       transition: 'all 0.3s ease',
                       opacity: cookie.required ? 0.7 : 1
@@ -476,7 +476,7 @@ const CookieConsent = () => {
                 onClick={handleSavePreferences}
                 style={{
                   padding: '0.75rem 1.5rem',
-                  backgroundColor: '#E94A02',
+                  backgroundColor: '#ED4B00',
                   color: 'white',
                   border: 'none',
                   borderRadius: '10px',
@@ -489,7 +489,7 @@ const CookieConsent = () => {
                   e.target.style.backgroundColor = '#d13d00';
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.backgroundColor = '#E94A02';
+                  e.target.style.backgroundColor = '#ED4B00';
                 }}
               >
                 Save Preferences

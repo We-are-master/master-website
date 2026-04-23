@@ -31,13 +31,13 @@ const MyRequests = () => {
   const getServiceIcon = (serviceType) => {
     switch (serviceType?.toLowerCase()) {
       case 'plumbing':
-        return <Droplets className="w-5 h-5" style={{ color: '#E94A02' }} />;
+        return <Droplets className="w-5 h-5" style={{ color: '#ED4B00' }} />;
       case 'electrical':
-        return <Zap className="w-5 h-5" style={{ color: '#2001AF' }} />;
+        return <Zap className="w-5 h-5" style={{ color: '#020040' }} />;
       case 'cleaning':
-        return <Sparkles className="w-5 h-5" style={{ color: '#E94A02' }} />;
+        return <Sparkles className="w-5 h-5" style={{ color: '#ED4B00' }} />;
       case 'maintenance':
-        return <Wrench className="w-5 h-5" style={{ color: '#020135' }} />;
+        return <Wrench className="w-5 h-5" style={{ color: '#010030' }} />;
       default:
         return <Wrench className="w-5 h-5" style={{ color: '#6b7280' }} />;
     }
@@ -197,7 +197,7 @@ const MyRequests = () => {
         justifyContent: 'center'
       }}>
         <div style={{ textAlign: 'center' }}>
-          <Loader2 className="w-8 h-8 animate-spin" style={{ color: '#E94A02', margin: '0 auto 1rem' }} />
+          <Loader2 className="w-8 h-8 animate-spin" style={{ color: '#ED4B00', margin: '0 auto 1rem' }} />
           <p style={{ color: '#6b7280' }}>Loading requests...</p>
         </div>
       </div>
@@ -247,7 +247,7 @@ const MyRequests = () => {
           <h1 style={{
             fontSize: '1.5rem',
             fontWeight: '700',
-            color: '#020135',
+            color: '#010030',
             margin: 0
           }}>
             My Requests
@@ -291,7 +291,7 @@ const MyRequests = () => {
                   outline: 'none',
                   transition: 'all 0.3s ease'
                 }}
-                onFocus={(e) => e.target.style.borderColor = '#2001AF'}
+                onFocus={(e) => e.target.style.borderColor = '#020040'}
                 onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
               />
             </div>
@@ -368,7 +368,7 @@ const MyRequests = () => {
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flex: 1 }}>
-                    <div style={{ color: '#E94A02' }}>
+                    <div style={{ color: '#ED4B00' }}>
                       {getServiceIcon(request.serviceType)}
                     </div>
                     <div style={{ flex: 1 }}>
@@ -462,7 +462,7 @@ const MyRequests = () => {
               <button
                 onClick={() => navigate('/new-request')}
                 style={{
-                  backgroundColor: '#E94A02',
+                  backgroundColor: '#ED4B00',
                   color: 'white',
                   border: 'none',
                   padding: '0.75rem 1.5rem',

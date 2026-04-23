@@ -17,7 +17,7 @@ const Process = () => {
       title: "Submit Your Request",
       description: "Use our portal to request a job from cleaning to repairs. Fast & simple",
       stat: "+1.1K Requests Weekly",
-      color: "#E94A02",
+      color: "#ED4B00",
       bgColor: "rgba(233, 74, 2, 0.1)"
     },
     {
@@ -25,7 +25,7 @@ const Process = () => {
       title: "Get Matched Instantly",
       description: "Our team will use our workforce of 240+ pros to assigns the right vetted professional",
       stat: "+120 Vetted Professionals",
-      color: "#2001AF",
+      color: "#020040",
       bgColor: "rgba(32, 1, 175, 0.1)"
     },
     {
@@ -33,7 +33,7 @@ const Process = () => {
       title: "Get it Sorted",
       description: "Follow progress, receive updates, and access reports, all in one place, fully automated",
       stat: "Instant Job Reports",
-      color: "#020135",
+      color: "#010030",
       bgColor: "rgba(2, 1, 53, 0.1)"
     }
   ]
@@ -135,7 +135,7 @@ const Process = () => {
               boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
               transition: 'all 0.3s ease'
             }}>
-              <div style={{color: '#2001AF', marginBottom: '1rem', display: 'flex', justifyContent: 'center'}}>
+              <div style={{color: '#020040', marginBottom: '1rem', display: 'flex', justifyContent: 'center'}}>
                 {benefit.icon}
               </div>
               <h3 style={{fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem', color: '#111827'}}>
@@ -150,7 +150,7 @@ const Process = () => {
 
         {/* CTA Section */}
         <div style={{
-          background: 'linear-gradient(135deg, #020135 0%, #2001AF 100%)',
+          background: 'linear-gradient(135deg, #010030 0%, #020040 100%)',
           borderRadius: '1.5rem',
           padding: '4rem 3rem',
           textAlign: 'center',
@@ -211,7 +211,7 @@ const Process = () => {
               <a href="/contact" style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                backgroundColor: '#E94A02',
+                backgroundColor: '#ED4B00',
                 color: 'white',
                 padding: '1rem 2rem',
                 borderRadius: '0.75rem',
@@ -255,7 +255,7 @@ const Process = () => {
               flexWrap: 'wrap'
             }}>
               <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
-                <div style={{display: 'flex', color: '#E94A02'}}>
+                <div style={{display: 'flex', color: '#ED4B00'}}>
                   {[...Array(5)].map((_, i) => (
                     <span key={i} style={{fontSize: '1rem'}}>★</span>
                   ))}
@@ -266,7 +266,7 @@ const Process = () => {
                 <div style={{
                   width: '8px',
                   height: '8px',
-                  backgroundColor: '#E94A02',
+                  backgroundColor: '#ED4B00',
                   borderRadius: '50%'
                 }}></div>
                 <span style={{color: 'white', fontSize: '0.875rem', fontWeight: '500'}}>500+ Businesses</span>
@@ -275,7 +275,7 @@ const Process = () => {
                 <div style={{
                   width: '8px',
                   height: '8px',
-                  backgroundColor: '#E94A02',
+                  backgroundColor: '#ED4B00',
                   borderRadius: '50%'
                 }}></div>
                 <span style={{color: 'white', fontSize: '0.875rem', fontWeight: '500'}}>23K+ Jobs Done</span>

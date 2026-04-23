@@ -110,7 +110,7 @@ serve(async (req) => {
       ip: validation.clientIP,
     }, 'low')
 
-    // Notify hello@wearemaster.com (fire-and-forget; do not fail the response if email fails)
+    // Notify hello@getfixfy.com (fire-and-forget; do not fail the response if email fails)
     const notifyUrl = supabaseUrl && supabaseServiceKey ? `${supabaseUrl}/functions/v1/send-email` : null
     if (notifyUrl) {
       try {
@@ -126,7 +126,7 @@ serve(async (req) => {
           },
           body: JSON.stringify({
             template: 'lead_notification',
-            to: 'hello@wearemaster.com',
+            to: 'hello@getfixfy.com',
             data: {
               email: row.email,
               service: row.service,

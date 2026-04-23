@@ -130,7 +130,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Fixfy <hello@wearemaster.com>',
+        from: 'Fixfy <hello@getfixfy.com>',
         to: [emailValidation.sanitized],
         subject: emailContent.subject,
         html: emailContent.html,

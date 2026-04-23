@@ -7,13 +7,8 @@ Disallow: /new-request
 Disallow: /request/
 Disallow: /my-requests
 Disallow: /settings
-Disallow: /checkout
-Disallow: /checkout-success
-Disallow: /customer-login
-Disallow: /my-orders
+Disallow: /partner-apply
 
-# Sitemap
-Sitemap: https://wearemaster.com/sitemap.xml
+Sitemap: https://getfixfy.com/sitemap.xml
 
-# Crawl-delay
 Crawl-delay: 1

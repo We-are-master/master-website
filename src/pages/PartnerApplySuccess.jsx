@@ -32,7 +32,7 @@ export default function PartnerApplySuccess() {
           </p>
           <p className="pas-contact">
             We will be in touch soon. If you have any questions in the meantime, email us at{' '}
-            <a href="mailto:hello@wearemaster.com">hello@wearemaster.com</a>.
+            <a href="mailto:hello@getfixfy.com">hello@getfixfy.com</a>.
           </p>
           <Link to="/" className="pas-btn">
             Back to home

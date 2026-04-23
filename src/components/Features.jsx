@@ -102,7 +102,7 @@ const Features = () => {
         <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem', marginBottom: '5rem'}}>
           {features.map((feature, index) => (
             <div key={index} style={{textAlign: 'center', padding: '1.5rem', backgroundColor: 'white', borderRadius: '0.75rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)'}}>
-              <div style={{color: '#2001AF', marginBottom: '1rem', display: 'flex', justifyContent: 'center'}}>
+              <div style={{color: '#020040', marginBottom: '1rem', display: 'flex', justifyContent: 'center'}}>
                 {feature.icon}
               </div>
               <h3 style={{fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem', color: '#111827'}}>
@@ -116,7 +116,7 @@ const Features = () => {
         </div>
 
         {/* Why Choose Fixfy */}
-        <div style={{background: 'linear-gradient(135deg, #2001AF 0%, #020135 100%)', borderRadius: '1.5rem', padding: '3rem', color: 'white'}}>
+        <div style={{background: 'linear-gradient(135deg, #020040 0%, #010030 100%)', borderRadius: '1.5rem', padding: '3rem', color: 'white'}}>
           <div style={{textAlign: 'center', marginBottom: '3rem'}}>
             <h2 style={{fontSize: '1.875rem', fontWeight: '700', marginBottom: '1rem'}}>Why Choose Fixfy?</h2>
             <p style={{fontSize: '1.25rem', opacity: '0.9', maxWidth: '48rem', margin: '0 auto'}}>
@@ -129,14 +129,14 @@ const Features = () => {
             {whyChooseUs.map((item, index) => (
               <div key={index} style={{backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: '1rem', padding: '2rem'}}>
                 <div style={{display: 'flex', alignItems: 'flex-start', marginBottom: '1rem'}}>
-                  <div style={{color: '#E94A02', marginRight: '1rem'}}>
+                  <div style={{color: '#ED4B00', marginRight: '1rem'}}>
                     {item.icon}
                   </div>
                   <div>
                     <h3 style={{fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem', color: 'white'}}>
                       {item.title}
                     </h3>
-                    <div style={{backgroundColor: '#E94A02', padding: '0.25rem 0.75rem', borderRadius: '9999px', fontSize: '0.875rem', fontWeight: '600', marginBottom: '0.75rem', display: 'inline-block'}}>
+                    <div style={{backgroundColor: '#ED4B00', padding: '0.25rem 0.75rem', borderRadius: '9999px', fontSize: '0.875rem', fontWeight: '600', marginBottom: '0.75rem', display: 'inline-block'}}>
                       {item.highlight}
                     </div>
                   </div>

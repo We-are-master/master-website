@@ -90,7 +90,7 @@ const RequestDetails = () => {
           assignedTo: request.assigned_to ? {
             name: request.assigned_to,
       phone: '+44 20 7123 4567',
-            email: 'technician@wearemaster.com',
+            email: 'technician@getfixfy.com',
       rating: 4.8,
       completedJobs: 156
           } : null,
@@ -137,10 +137,10 @@ const RequestDetails = () => {
 
   const getServiceIcon = (type) => {
     switch (type) {
-      case 'Plumbing': return <Droplets className="w-6 h-6" style={{ color: '#E94A02' }} />;
-      case 'Electrical': return <Zap className="w-6 h-6" style={{ color: '#2001AF' }} />;
-      case 'Maintenance': return <Wrench className="w-6 h-6" style={{ color: '#020135' }} />;
-      case 'Cleaning': return <Sparkles className="w-6 h-6" style={{ color: '#E94A02' }} />;
+      case 'Plumbing': return <Droplets className="w-6 h-6" style={{ color: '#ED4B00' }} />;
+      case 'Electrical': return <Zap className="w-6 h-6" style={{ color: '#020040' }} />;
+      case 'Maintenance': return <Wrench className="w-6 h-6" style={{ color: '#010030' }} />;
+      case 'Cleaning': return <Sparkles className="w-6 h-6" style={{ color: '#ED4B00' }} />;
       default: return <Wrench className="w-6 h-6" style={{ color: '#6b7280' }} />;
     }
   };
@@ -299,7 +299,7 @@ const RequestDetails = () => {
         justifyContent: 'center'
       }}>
         <div style={{ textAlign: 'center' }}>
-          <Loader2 className="w-8 h-8 animate-spin" style={{ color: '#E94A02', margin: '0 auto 1rem' }} />
+          <Loader2 className="w-8 h-8 animate-spin" style={{ color: '#ED4B00', margin: '0 auto 1rem' }} />
           <p style={{ color: '#6b7280' }}>Loading request details...</p>
         </div>
       </div>
@@ -333,7 +333,7 @@ const RequestDetails = () => {
           <button
             onClick={() => navigate('/dashboard')}
             style={{
-              backgroundColor: '#E94A02',
+              backgroundColor: '#ED4B00',
               color: 'white',
               border: 'none',
               padding: '0.75rem 1.5rem',
@@ -397,7 +397,7 @@ const RequestDetails = () => {
             <h1 style={{
               fontSize: '1.5rem',
               fontWeight: '700',
-              color: '#020135',
+              color: '#010030',
               margin: 0
             }}>
               Request Details
@@ -433,7 +433,7 @@ const RequestDetails = () => {
             display: 'flex',
             alignItems: 'center',
             gap: '0.5rem',
-            backgroundColor: '#E94A02',
+            backgroundColor: '#ED4B00',
             border: 'none',
             color: 'white',
             padding: '0.75rem 1rem',
@@ -553,7 +553,7 @@ const RequestDetails = () => {
                       padding: '1rem 1.5rem',
                       border: 'none',
                       backgroundColor: activeTab === tab.id ? '#f0f9ff' : 'transparent',
-                      color: activeTab === tab.id ? '#2001AF' : '#6b7280',
+                      color: activeTab === tab.id ? '#020040' : '#6b7280',
                       cursor: 'pointer',
                       fontSize: '0.875rem',
                       fontWeight: '500',
@@ -625,7 +625,7 @@ const RequestDetails = () => {
                             width: '40px',
                             height: '40px',
                             borderRadius: '50%',
-                            backgroundColor: update.type === 'status' ? '#3b82f6' : '#E94A02',
+                            backgroundColor: update.type === 'status' ? '#3b82f6' : '#ED4B00',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
@@ -789,7 +789,7 @@ const RequestDetails = () => {
                   width: '50px',
                   height: '50px',
                   borderRadius: '50%',
-                  backgroundColor: '#2001AF',
+                  backgroundColor: '#020040',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',

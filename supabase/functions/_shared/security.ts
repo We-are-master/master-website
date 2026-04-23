@@ -8,14 +8,14 @@ const rateLimitStore = new Map<string, { count: number; resetTime: number }>()
 
 // Allowed origins for CORS (configure based on your domains)
 const ALLOWED_ORIGINS = [
-  'https://wearemaster.com',
-  'https://www.wearemaster.com',
-  'https://b2b.wearemaster.com',
-  'https://www.b2b.wearemaster.com',
-  'https://supabase.wearemaster.com',
-  'https://www.supabase.wearemaster.com',
-  'https://www.storage.wearemaster.com',
-  'https://storage.wearemaster.com',
+  'https://getfixfy.com',
+  'https://getfixfy.com',
+  'https://b2b.getfixfy.com',
+  'https://www.b2b.getfixfy.com',
+  'https://supabase.getfixfy.com',
+  'https://www.supabase.getfixfy.com',
+  'https://www.getfixfy.com',
+  'https://getfixfy.com',
 
   // Add your production domains here
   // For development, you can add localhost (but remove in production)
@@ -156,13 +156,13 @@ export function validateSupabaseEnv(
   if (supabaseUrl.includes('storage.')) {
     return {
       valid: false,
-      error: 'SUPABASE_URL must be the main API URL (e.g. https://supabase.wearemaster.com), not the storage subdomain. Fix SUPABASE_URL in the Edge Functions environment (e.g. supabase-project/.env) and restart the container.',
+      error: 'SUPABASE_URL must be the main API URL (e.g. https://supabase.getfixfy.com), not the storage subdomain. Fix SUPABASE_URL in the Edge Functions environment (e.g. supabase-project/.env) and restart the container.',
     }
   }
   if (!supabaseUrl.startsWith('http://') && !supabaseUrl.startsWith('https://')) {
     return {
       valid: false,
-      error: 'SUPABASE_URL must be a valid URL (e.g. https://supabase.wearemaster.com).',
+      error: 'SUPABASE_URL must be a valid URL (e.g. https://supabase.getfixfy.com).',
     }
   }
   return { valid: true }

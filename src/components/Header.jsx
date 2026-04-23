@@ -86,7 +86,7 @@ const Header = () => {
 
   return (
     <header style={{
-      backgroundColor: '#020135',
+      backgroundColor: '#010030',
       boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
       position: 'sticky',
       top: 0,
@@ -119,7 +119,7 @@ const Header = () => {
             />
             <div style={{
               fontSize: '0.875rem',
-              color: '#E94A02',
+              color: '#ED4B00',
               fontWeight: '500',
               whiteSpace: 'nowrap'
             }}>
@@ -196,12 +196,12 @@ const Header = () => {
             flexShrink: 0
           }} className="hidden lg:flex">
             <div style={{display: 'flex', alignItems: 'center', whiteSpace: 'nowrap'}}>
-              <Phone style={{width: '16px', height: '16px', marginRight: '0.25rem', color: '#E94A02', flexShrink: 0}} />
+              <Phone style={{width: '16px', height: '16px', marginRight: '0.25rem', color: '#ED4B00', flexShrink: 0}} />
               <span>+44 7983 182332</span>
             </div>
             <div style={{display: 'flex', alignItems: 'center', whiteSpace: 'nowrap'}}>
-              <Mail style={{width: '16px', height: '16px', marginRight: '0.25rem', color: '#E94A02', flexShrink: 0}} />
-              <span>hello@wearemaster.com</span>
+              <Mail style={{width: '16px', height: '16px', marginRight: '0.25rem', color: '#ED4B00', flexShrink: 0}} />
+              <span>hello@getfixfy.com</span>
             </div>
           </div>
 
@@ -489,7 +489,7 @@ const Header = () => {
                   fontSize: '0.875rem',
                   color: 'rgba(255, 255, 255, 0.8)'
                 }}>
-                  <Phone style={{width: '16px', height: '16px', marginRight: '0.5rem', color: '#E94A02'}} />
+                  <Phone style={{width: '16px', height: '16px', marginRight: '0.5rem', color: '#ED4B00'}} />
                   <span>+44 7983 182332</span>
                 </div>
                 <div style={{
@@ -499,8 +499,8 @@ const Header = () => {
                   fontSize: '0.875rem',
                   color: 'rgba(255, 255, 255, 0.8)'
                 }}>
-                  <Mail style={{width: '16px', height: '16px', marginRight: '0.5rem', color: '#E94A02'}} />
-                  <span>hello@wearemaster.com</span>
+                  <Mail style={{width: '16px', height: '16px', marginRight: '0.5rem', color: '#ED4B00'}} />
+                  <span>hello@getfixfy.com</span>
                 </div>
                 {user && userName ? (
                   <div style={{
