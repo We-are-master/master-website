@@ -42,7 +42,7 @@ const Dashboard = () => {
       value: '0',
       change: '0 this week',
       icon: <Wrench className="w-6 h-6" />,
-      color: '#E94A02'
+      color: '#ED4B00'
     },
     {
       title: 'Completed Requests',
@@ -56,7 +56,7 @@ const Dashboard = () => {
       value: '£0',
       change: '0% vs last month',
       icon: <TrendingUp className="w-6 h-6" />,
-      color: '#2001AF'
+      color: '#020040'
     },
     {
       title: 'Rating',
@@ -253,7 +253,7 @@ const Dashboard = () => {
             value: activeRequests.length.toString(),
             change: `+${thisWeekActive} this week`,
             icon: <Wrench className="w-6 h-6" />,
-            color: '#E94A02'
+            color: '#ED4B00'
           },
           {
             title: 'Completed Requests',
@@ -267,7 +267,7 @@ const Dashboard = () => {
             value: `£${totalSpent.toLocaleString('en-GB', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`,
             change: spentChange,
             icon: <TrendingUp className="w-6 h-6" />,
-            color: '#2001AF'
+            color: '#020040'
           },
           {
             title: 'Rating',
@@ -654,7 +654,7 @@ const Dashboard = () => {
                   padding: '0.75rem 1.5rem',
                   border: 'none',
                   backgroundColor: !item.isExternal && activeTab === item.id ? '#f0f9ff' : 'transparent',
-                  color: !item.isExternal && activeTab === item.id ? '#2001AF' : '#6b7280',
+                  color: !item.isExternal && activeTab === item.id ? '#020040' : '#6b7280',
                   cursor: 'pointer',
                   fontSize: '0.875rem',
                   fontWeight: !item.isExternal && activeTab === item.id ? '600' : '500',
@@ -795,7 +795,7 @@ const Dashboard = () => {
                     display: 'flex',
                     alignItems: 'center',
                     gap: '0.5rem',
-                    backgroundColor: '#E94A02',
+                    backgroundColor: '#ED4B00',
                     color: 'white',
                     border: 'none',
                     padding: '0.5rem 1rem',
@@ -917,7 +917,7 @@ const Dashboard = () => {
               
               {requestsLoading ? (
                 <div style={{ textAlign: 'center', padding: '3rem' }}>
-                  <Loader2 className="w-8 h-8 animate-spin" style={{ color: '#E94A02', margin: '0 auto 1rem' }} />
+                  <Loader2 className="w-8 h-8 animate-spin" style={{ color: '#ED4B00', margin: '0 auto 1rem' }} />
                   <p style={{ color: '#6b7280' }}>Loading requests...</p>
                 </div>
               ) : (
@@ -956,7 +956,7 @@ const Dashboard = () => {
                             outline: 'none',
                             transition: 'all 0.3s ease'
                           }}
-                          onFocus={(e) => e.target.style.borderColor = '#2001AF'}
+                          onFocus={(e) => e.target.style.borderColor = '#020040'}
                           onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
                         />
                       </div>
@@ -1029,7 +1029,7 @@ const Dashboard = () => {
                         >
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flex: 1 }}>
-                              <div style={{ color: '#E94A02' }}>
+                              <div style={{ color: '#ED4B00' }}>
                                 {getServiceIcon(request.serviceType)}
                               </div>
                               <div style={{ flex: 1 }}>
@@ -1123,7 +1123,7 @@ const Dashboard = () => {
                         <button
                           onClick={() => navigate('/new-request')}
                           style={{
-                            backgroundColor: '#E94A02',
+                            backgroundColor: '#ED4B00',
                             color: 'white',
                             border: 'none',
                             padding: '0.75rem 1.5rem',
@@ -1151,7 +1151,7 @@ const Dashboard = () => {
               border: '1px solid #e5e7eb',
               textAlign: 'center'
             }}>
-              <Plus size={48} style={{ color: '#E94A02', marginBottom: '1rem' }} />
+              <Plus size={48} style={{ color: '#ED4B00', marginBottom: '1rem' }} />
               <h3 style={{ fontSize: '1.5rem', fontWeight: '600', color: '#111827', marginBottom: '0.5rem' }}>
                 New Request
               </h3>
@@ -1159,7 +1159,7 @@ const Dashboard = () => {
                 Create a new maintenance request for your business.
               </p>
               <a href="/new-request" style={{
-                backgroundColor: '#E94A02',
+                backgroundColor: '#ED4B00',
                 color: 'white',
                 border: 'none',
                 padding: '1rem 2rem',
@@ -1226,7 +1226,7 @@ const Dashboard = () => {
 
               {scheduleLoading ? (
                 <div style={{ textAlign: 'center', padding: '3rem' }}>
-                  <Loader2 className="w-8 h-8 animate-spin" style={{ color: '#E94A02', margin: '0 auto 1rem' }} />
+                  <Loader2 className="w-8 h-8 animate-spin" style={{ color: '#ED4B00', margin: '0 auto 1rem' }} />
                   <p style={{ color: '#6b7280' }}>Loading schedule...</p>
                 </div>
               ) : (
@@ -1248,7 +1248,7 @@ const Dashboard = () => {
                           transition: 'all 0.2s ease'
                         }}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.borderColor = '#2001AF';
+                          e.currentTarget.style.borderColor = '#020040';
                           e.currentTarget.style.backgroundColor = '#f9fafb';
                         }}
                         onMouseLeave={(e) => {
@@ -1288,7 +1288,7 @@ const Dashboard = () => {
                           transition: 'all 0.2s ease'
                         }}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.borderColor = '#2001AF';
+                          e.currentTarget.style.borderColor = '#020040';
                           e.currentTarget.style.backgroundColor = '#f9fafb';
                         }}
                         onMouseLeave={(e) => {
@@ -1314,7 +1314,7 @@ const Dashboard = () => {
                         transition: 'all 0.2s ease'
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.borderColor = '#2001AF';
+                        e.currentTarget.style.borderColor = '#020040';
                         e.currentTarget.style.backgroundColor = '#f9fafb';
                       }}
                       onMouseLeave={(e) => {
@@ -1371,7 +1371,7 @@ const Dashboard = () => {
                                   key={index}
                                   style={{
                                     minHeight: '100px',
-                                    border: isToday ? '2px solid #2001AF' : '1px solid #e5e7eb',
+                                    border: isToday ? '2px solid #020040' : '1px solid #e5e7eb',
                                     borderRadius: '0.5rem',
                                     padding: '0.5rem',
                                     backgroundColor: isToday ? '#f0f4ff' : 'white',
@@ -1379,7 +1379,7 @@ const Dashboard = () => {
                                   }}
                                   onMouseEnter={(e) => {
                                     if (!isToday) {
-                                      e.currentTarget.style.borderColor = '#2001AF';
+                                      e.currentTarget.style.borderColor = '#020040';
                                       e.currentTarget.style.backgroundColor = '#f9fafb';
                                     }
                                   }}
@@ -1393,7 +1393,7 @@ const Dashboard = () => {
                                   <div style={{ 
                                     fontSize: '0.875rem', 
                                     fontWeight: isToday ? '700' : '600', 
-                                    color: isCurrentMonth ? (isToday ? '#2001AF' : '#111827') : '#9ca3af',
+                                    color: isCurrentMonth ? (isToday ? '#020040' : '#111827') : '#9ca3af',
                                     marginBottom: '0.5rem'
                                   }}>
                                     {date.getDate()}
@@ -1464,11 +1464,11 @@ const Dashboard = () => {
                                   padding: '0.75rem', 
                                   fontSize: '0.875rem', 
                                   fontWeight: '600',
-                                  color: isToday ? '#2001AF' : '#6b7280',
-                                  borderBottom: isToday ? '2px solid #2001AF' : '1px solid #e5e7eb'
+                                  color: isToday ? '#020040' : '#6b7280',
+                                  borderBottom: isToday ? '2px solid #020040' : '1px solid #e5e7eb'
                                 }}>
                                   <div>{day.substring(0, 3)}</div>
-                                  <div style={{ fontSize: '0.75rem', color: isToday ? '#2001AF' : '#9ca3af', marginTop: '0.25rem' }}>
+                                  <div style={{ fontSize: '0.75rem', color: isToday ? '#020040' : '#9ca3af', marginTop: '0.25rem' }}>
                                     {date.getDate()}/{date.getMonth() + 1}
                                   </div>
                                 </div>
@@ -1486,7 +1486,7 @@ const Dashboard = () => {
                                 <div
                                   key={index}
                                   style={{
-                                    border: isToday ? '2px solid #2001AF' : '1px solid #e5e7eb',
+                                    border: isToday ? '2px solid #020040' : '1px solid #e5e7eb',
                                     borderRadius: '0.5rem',
                                     padding: '0.75rem',
                                     backgroundColor: isToday ? '#f0f4ff' : 'white',
@@ -1495,7 +1495,7 @@ const Dashboard = () => {
                                   }}
                                   onMouseEnter={(e) => {
                                     if (!isToday) {
-                                      e.currentTarget.style.borderColor = '#2001AF';
+                                      e.currentTarget.style.borderColor = '#020040';
                                       e.currentTarget.style.backgroundColor = '#f9fafb';
                                     }
                                   }}
@@ -1599,7 +1599,7 @@ const Dashboard = () => {
 
               {settingsLoading ? (
                 <div style={{ textAlign: 'center', padding: '3rem' }}>
-                  <Loader2 className="w-8 h-8 animate-spin" style={{ color: '#E94A02', margin: '0 auto 1rem' }} />
+                  <Loader2 className="w-8 h-8 animate-spin" style={{ color: '#ED4B00', margin: '0 auto 1rem' }} />
                   <p style={{ color: '#6b7280' }}>Loading settings...</p>
                 </div>
               ) : (
@@ -1649,7 +1649,7 @@ const Dashboard = () => {
                     boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
                   }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
-                      <User style={{ color: '#E94A02', width: '24px', height: '24px' }} />
+                      <User style={{ color: '#ED4B00', width: '24px', height: '24px' }} />
                       <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#111827', margin: 0 }}>
                         Profile Information
                       </h3>
@@ -1674,7 +1674,7 @@ const Dashboard = () => {
                               outline: 'none',
                               transition: 'all 0.3s ease'
                             }}
-                            onFocus={(e) => e.target.style.borderColor = '#2001AF'}
+                            onFocus={(e) => e.target.style.borderColor = '#020040'}
                             onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
                           />
                         </div>
@@ -1721,7 +1721,7 @@ const Dashboard = () => {
                               outline: 'none',
                               transition: 'all 0.3s ease'
                             }}
-                            onFocus={(e) => e.target.style.borderColor = '#2001AF'}
+                            onFocus={(e) => e.target.style.borderColor = '#020040'}
                             onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
                           />
                         </div>
@@ -1733,7 +1733,7 @@ const Dashboard = () => {
                             padding: '0.75rem 1.5rem',
                             border: 'none',
                             borderRadius: '0.5rem',
-                            backgroundColor: settingsSaving ? '#9ca3af' : '#E94A02',
+                            backgroundColor: settingsSaving ? '#9ca3af' : '#ED4B00',
                             color: 'white',
                             cursor: settingsSaving ? 'not-allowed' : 'pointer',
                             fontSize: '0.875rem',
@@ -1771,7 +1771,7 @@ const Dashboard = () => {
                     boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
             }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
-                      <Lock style={{ color: '#E94A02', width: '24px', height: '24px' }} />
+                      <Lock style={{ color: '#ED4B00', width: '24px', height: '24px' }} />
                       <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#111827', margin: 0 }}>
                         Change Password
               </h3>
@@ -1796,7 +1796,7 @@ const Dashboard = () => {
                               outline: 'none',
                               transition: 'all 0.3s ease'
                             }}
-                            onFocus={(e) => e.target.style.borderColor = '#2001AF'}
+                            onFocus={(e) => e.target.style.borderColor = '#020040'}
                             onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
                           />
                         </div>
@@ -1818,7 +1818,7 @@ const Dashboard = () => {
                               outline: 'none',
                               transition: 'all 0.3s ease'
                             }}
-                            onFocus={(e) => e.target.style.borderColor = '#2001AF'}
+                            onFocus={(e) => e.target.style.borderColor = '#020040'}
                             onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
                           />
                           <p style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
@@ -1843,7 +1843,7 @@ const Dashboard = () => {
                               outline: 'none',
                               transition: 'all 0.3s ease'
                             }}
-                            onFocus={(e) => e.target.style.borderColor = '#2001AF'}
+                            onFocus={(e) => e.target.style.borderColor = '#020040'}
                             onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
                           />
                         </div>
@@ -1855,7 +1855,7 @@ const Dashboard = () => {
                             padding: '0.75rem 1.5rem',
                             border: 'none',
                             borderRadius: '0.5rem',
-                            backgroundColor: settingsSaving ? '#9ca3af' : '#E94A02',
+                            backgroundColor: settingsSaving ? '#9ca3af' : '#ED4B00',
                             color: 'white',
                             cursor: settingsSaving ? 'not-allowed' : 'pointer',
                             fontSize: '0.875rem',

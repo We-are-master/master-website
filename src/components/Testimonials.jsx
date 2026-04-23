@@ -123,13 +123,13 @@ const Testimonials = () => {
                   <p style={{fontSize: '0.875rem', color: '#6b7280', margin: '0 0 0.25rem 0'}}>
                     {testimonial.role}
                   </p>
-                  <p style={{fontSize: '0.875rem', fontWeight: '500', color: '#2001AF', margin: 0}}>
+                  <p style={{fontSize: '0.875rem', fontWeight: '500', color: '#020040', margin: 0}}>
                     {testimonial.company}
                   </p>
                 </div>
               </div>
               
-              <div style={{display: 'flex', color: '#E94A02', marginBottom: '1rem'}}>
+              <div style={{display: 'flex', color: '#ED4B00', marginBottom: '1rem'}}>
                 {[...Array(testimonial.rating)].map((_, i) => (
                   <Star key={i} className="w-4 h-4" style={{fill: 'currentColor'}} />
                 ))}
@@ -137,7 +137,7 @@ const Testimonials = () => {
               
               <div style={{position: 'relative'}}>
                 <Quote className="w-6 h-6" style={{
-                  color: '#2001AF',
+                  color: '#020040',
                   opacity: '0.2',
                   position: 'absolute',
                   top: '-0.5rem',
@@ -166,19 +166,19 @@ const Testimonials = () => {
         }}>
           <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '2rem'}}>
             <div>
-              <div style={{fontSize: '2.25rem', fontWeight: '700', marginBottom: '0.5rem', color: '#2001AF'}}>4.8</div>
+              <div style={{fontSize: '2.25rem', fontWeight: '700', marginBottom: '0.5rem', color: '#020040'}}>4.8</div>
               <div style={{color: '#6b7280', fontWeight: '500'}}>Average Rating</div>
             </div>
             <div>
-              <div style={{fontSize: '2.25rem', fontWeight: '700', marginBottom: '0.5rem', color: '#2001AF'}}>500+</div>
+              <div style={{fontSize: '2.25rem', fontWeight: '700', marginBottom: '0.5rem', color: '#020040'}}>500+</div>
               <div style={{color: '#6b7280', fontWeight: '500'}}>Business Clients</div>
             </div>
             <div>
-              <div style={{fontSize: '2.25rem', fontWeight: '700', marginBottom: '0.5rem', color: '#2001AF'}}>23K+</div>
+              <div style={{fontSize: '2.25rem', fontWeight: '700', marginBottom: '0.5rem', color: '#020040'}}>23K+</div>
               <div style={{color: '#6b7280', fontWeight: '500'}}>Jobs Completed</div>
             </div>
             <div>
-              <div style={{fontSize: '2.25rem', fontWeight: '700', marginBottom: '0.5rem', color: '#2001AF'}}>98%</div>
+              <div style={{fontSize: '2.25rem', fontWeight: '700', marginBottom: '0.5rem', color: '#020040'}}>98%</div>
               <div style={{color: '#6b7280', fontWeight: '500'}}>Satisfaction Rate</div>
             </div>
           </div>

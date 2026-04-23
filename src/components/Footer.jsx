@@ -5,7 +5,7 @@ import logo from '../assets/logo.png'
 
 const Footer = () => {
   return (
-    <footer style={{backgroundColor: '#020135', color: 'white'}}>
+    <footer style={{backgroundColor: '#010030', color: 'white'}}>
       <div className="container">
         {/* Main footer content */}
         <div style={{padding: '4rem 0'}}>
@@ -23,7 +23,7 @@ const Footer = () => {
                     }}
                   />
                 </div>
-                <div style={{fontSize: '0.875rem', color: '#E94A02', marginBottom: '1rem', fontWeight: '500'}}>
+                <div style={{fontSize: '0.875rem', color: '#ED4B00', marginBottom: '1rem', fontWeight: '500'}}>
                   for Business
                 </div>
                 <p style={{color: '#e5e7eb', lineHeight: '1.625', marginBottom: '1.5rem'}}>
@@ -40,7 +40,7 @@ const Footer = () => {
                   <a href="#" style={{
                     display: 'flex', 
                     alignItems: 'center', 
-                    backgroundColor: '#2001AF', 
+                    backgroundColor: '#020040', 
                     color: 'white', 
                     padding: '0.5rem 1rem', 
                     borderRadius: '0.5rem', 
@@ -55,7 +55,7 @@ const Footer = () => {
                   <a href="#" style={{
                     display: 'flex', 
                     alignItems: 'center', 
-                    backgroundColor: '#E94A02', 
+                    backgroundColor: '#ED4B00', 
                     color: 'white', 
                     padding: '0.5rem 1rem', 
                     borderRadius: '0.5rem', 
@@ -128,7 +128,7 @@ const Footer = () => {
               <h3 style={{fontSize: '1.125rem', fontWeight: '600', marginBottom: '1.5rem', color: 'white'}}>Contact</h3>
               <div style={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
                 <div style={{display: 'flex', alignItems: 'flex-start'}}>
-                  <MapPin className="w-5 h-5" style={{color: '#E94A02', marginRight: '0.75rem', marginTop: '0.25rem', flexShrink: 0}} />
+                  <MapPin className="w-5 h-5" style={{color: '#ED4B00', marginRight: '0.75rem', marginTop: '0.25rem', flexShrink: 0}} />
                   <div>
                     <p style={{color: '#e5e7eb', margin: 0}}>
                       124 City Rd, London<br />
@@ -138,14 +138,14 @@ const Footer = () => {
                   </div>
                 </div>
                 <div style={{display: 'flex', alignItems: 'flex-start'}}>
-                  <Phone className="w-5 h-5" style={{color: '#E94A02', marginRight: '0.75rem', marginTop: '0.25rem', flexShrink: 0}} />
+                  <Phone className="w-5 h-5" style={{color: '#ED4B00', marginRight: '0.75rem', marginTop: '0.25rem', flexShrink: 0}} />
                   <div>
                     <p style={{color: '#e5e7eb', margin: 0}}>+44 7983 182332</p>
                   </div>
                 </div>
                 <div style={{display: 'flex', alignItems: 'center'}}>
-                  <Mail className="w-5 h-5" style={{color: '#E94A02', marginRight: '0.75rem', flexShrink: 0}} />
-                  <p style={{color: '#e5e7eb', margin: 0}}>hello@wearemaster.com</p>
+                  <Mail className="w-5 h-5" style={{color: '#ED4B00', marginRight: '0.75rem', flexShrink: 0}} />
+                  <p style={{color: '#e5e7eb', margin: 0}}>hello@getfixfy.com</p>
                 </div>
               </div>
             </div>
@@ -156,7 +156,7 @@ const Footer = () => {
         <div style={{padding: '2rem 0', borderTop: '1px solid #374151'}}>
           <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between', gap: '1rem'}}>
             <div style={{display: 'flex', alignItems: 'center', gap: '0.75rem'}}>
-              <div style={{display: 'flex', color: '#E94A02', marginRight: '0.75rem'}}>
+              <div style={{display: 'flex', color: '#ED4B00', marginRight: '0.75rem'}}>
                 {[...Array(5)].map((_, i) => (
                   <span key={i} style={{fontSize: '1.125rem'}}>★</span>
                 ))}
@@ -180,13 +180,13 @@ const Footer = () => {
         <div style={{padding: '1.5rem 0', borderTop: '1px solid #374151'}}>
           <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between', gap: '1rem'}}>
             <div style={{color: '#9ca3af', fontSize: '0.875rem', textAlign: 'center'}}>
-              © Copyright by Fixfy Services – All right reserved.
+              © Fixfy Ltd 2026 · Bristol · All rights reserved.
             </div>
             <div style={{display: 'flex', gap: '1.5rem', fontSize: '0.875rem'}}>
-              <a href="#" style={{color: '#2001AF', textDecoration: 'none', transition: 'color 0.3s ease'}}>
+              <a href="#" style={{color: '#020040', textDecoration: 'none', transition: 'color 0.3s ease'}}>
                 Terms and conditions
               </a>
-              <a href="#" style={{color: '#2001AF', textDecoration: 'none', transition: 'color 0.3s ease'}}>
+              <a href="#" style={{color: '#020040', textDecoration: 'none', transition: 'color 0.3s ease'}}>
                 Privacy policy
               </a>
             </div>

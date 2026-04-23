@@ -45,7 +45,7 @@ export async function sendEmail(template, to, data = {}) {
 
 /**
  * Save hero lead for remarketing (service + postcode + email from home form or LP).
- * Also triggers an email to hello@wearemaster.com with the lead details.
+ * Also triggers an email to hello@getfixfy.com with the lead details.
  * @param {{ email: string, service?: string, postcode?: string, source?: string, name?: string, phone?: string, preferred_contact?: string, service_type?: string }} leadData
  * @returns {Promise<{success: boolean, error?: string}>}
  */

@@ -14,7 +14,7 @@ import {
 
 const BUCKET = 'partner-docs'
 // Public storage base URL for document links (DB + email). Avoids internal kong URL.
-const STORAGE_PUBLIC_BASE = Deno.env.get('STORAGE_PUBLIC_URL') || 'https://storage.wearemaster.com'
+const STORAGE_PUBLIC_BASE = Deno.env.get('STORAGE_PUBLIC_URL') || 'https://getfixfy.com'
 
 const FILE_SLOTS = [
   'tools_photo',
@@ -117,7 +117,7 @@ serve(async (req) => {
       )
     }
 
-    // Send email to hello@wearemaster.com
+    // Send email to hello@getfixfy.com
     const notifyUrl = `${supabaseUrl}/functions/v1/send-email`
     try {
       const emailRes = await fetch(notifyUrl, {
@@ -125,7 +125,7 @@ serve(async (req) => {
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${supabaseServiceKey}` },
         body: JSON.stringify({
           template: 'partner_application_notification',
-          to: 'hello@wearemaster.com',
+          to: 'hello@getfixfy.com',
           data: {
             id: applicationId,
             fullName: row.full_name,

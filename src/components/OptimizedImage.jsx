@@ -98,7 +98,7 @@ const OptimizedImage = ({
               width: '40px',
               height: '40px',
               border: '3px solid #e5e7eb',
-              borderTopColor: '#E94A02',
+              borderTopColor: '#ED4B00',
               borderRadius: '50%',
               animation: 'spin 0.8s linear infinite'
             }}

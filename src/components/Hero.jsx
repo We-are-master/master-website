@@ -5,7 +5,7 @@ import logo from '../assets/logo.png';
 const Hero = () => {
   return (
     <div style={{
-      background: 'linear-gradient(135deg, #020135 0%, #2001AF 100%)',
+      background: 'linear-gradient(135deg, #010030 0%, #020040 100%)',
       minHeight: '100vh',
       position: 'relative',
       overflow: 'hidden',
@@ -70,7 +70,7 @@ const Hero = () => {
               <div style={{
                 width: '8px',
                 height: '8px',
-                backgroundColor: '#E94A02',
+                backgroundColor: '#ED4B00',
                 borderRadius: '50%',
                 marginRight: '0.5rem',
                 animation: 'pulse 2s infinite'
@@ -89,7 +89,7 @@ const Hero = () => {
             }} className="hero-title">
               The Smarter Way to Manage
               <br />
-              <span style={{color: '#E94A02'}}>Maintenance Across Your Business</span>
+              <span style={{color: '#ED4B00'}}>Maintenance Across Your Business</span>
             </h1>
 
             {/* Description */}
@@ -113,7 +113,7 @@ const Hero = () => {
               <a href="/contact" style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                backgroundColor: '#E94A02',
+                backgroundColor: '#ED4B00',
                 color: 'white',
                 padding: '1rem 2rem',
                 borderRadius: '0.75rem',
@@ -165,7 +165,7 @@ const Hero = () => {
               right: '10%',
               width: '300px',
               height: '300px',
-              background: 'linear-gradient(135deg, #E94A02 0%, #FF6B35 100%)',
+              background: 'linear-gradient(135deg, #ED4B00 0%, #FF6B35 100%)',
               borderRadius: '50%',
               opacity: '0.8',
               zIndex: 1,
@@ -178,7 +178,7 @@ const Hero = () => {
               right: '30%',
               width: '200px',
               height: '200px',
-              background: 'linear-gradient(135deg, #2001AF 0%, #020135 100%)',
+              background: 'linear-gradient(135deg, #020040 0%, #010030 100%)',
               borderRadius: '50%',
               opacity: '0.6',
               zIndex: 2,
@@ -234,7 +234,7 @@ const Hero = () => {
                 gap: '0.5rem',
                 position: 'relative'
               }}>
-                <Droplets style={{color: '#E94A02', width: '24px', height: '24px'}} />
+                <Droplets style={{color: '#ED4B00', width: '24px', height: '24px'}} />
                 <span style={{fontWeight: '600', color: '#111827'}}>Plumbing</span>
               </div>
             </div>
@@ -257,7 +257,7 @@ const Hero = () => {
                 gap: '0.5rem',
                 position: 'relative'
               }}>
-                <Zap style={{color: '#2001AF', width: '24px', height: '24px'}} />
+                <Zap style={{color: '#020040', width: '24px', height: '24px'}} />
                 <span style={{fontWeight: '600', color: '#111827'}}>Electrical</span>
               </div>
             </div>
@@ -280,7 +280,7 @@ const Hero = () => {
                 gap: '0.5rem',
                 position: 'relative'
               }}>
-                <Wrench style={{color: '#020135', width: '24px', height: '24px'}} />
+                <Wrench style={{color: '#010030', width: '24px', height: '24px'}} />
                 <span style={{fontWeight: '600', color: '#111827'}}>Maintenance</span>
               </div>
             </div>
@@ -303,7 +303,7 @@ const Hero = () => {
                 gap: '0.5rem',
                 position: 'relative'
               }}>
-                <Wrench style={{color: '#E94A02', width: '24px', height: '24px'}} />
+                <Wrench style={{color: '#ED4B00', width: '24px', height: '24px'}} />
                 <span style={{fontWeight: '600', color: '#111827'}}>Repairs</span>
               </div>
             </div>
@@ -327,7 +327,7 @@ const Hero = () => {
                 gap: '0.5rem',
                 position: 'relative'
               }}>
-                <Sparkles style={{color: '#E94A02', width: '24px', height: '24px'}} />
+                <Sparkles style={{color: '#ED4B00', width: '24px', height: '24px'}} />
                 <span style={{fontWeight: '600', color: '#111827'}}>Cleaning</span>
               </div>
             </div>

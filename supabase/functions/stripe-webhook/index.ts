@@ -55,7 +55,7 @@ function unixToISO(ts: number | undefined | null): string | null {
 }
 
 /** n8n webhook URL – notified when payment is confirmed and approved (payment_intent.succeeded). */
-const N8N_PAYMENT_CONFIRMED_WEBHOOK_URL = 'https://n8n.wearemaster.com/webhook/484678e7-a2c2-4178-95e8-49b9bc74870a'
+const N8N_PAYMENT_CONFIRMED_WEBHOOK_URL = 'https://n8n.getfixfy.com/webhook/484678e7-a2c2-4178-95e8-49b9bc74870a'
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -370,7 +370,7 @@ serve(async (req) => {
               : (paymentIntent.customer as Stripe.Customer)?.id
 
           if (!paymentIntentCustomerId) {
-            console.warn(`PaymentIntent ${paymentIntent.id}: add_subscription=true but PaymentIntent has no customer – subscription skipped. Ensure create-payment-intent is deployed and sets Customer when add_subscription=true (same server as supabase.wearemaster.com).`)
+            console.warn(`PaymentIntent ${paymentIntent.id}: add_subscription=true but PaymentIntent has no customer – subscription skipped. Ensure create-payment-intent is deployed and sets Customer when add_subscription=true (same server as supabase.getfixfy.com).`)
           } else {
           console.log(`PaymentIntent ${paymentIntent.id}: add_subscription=true – attempting Fixfy Club subscription for ${customerEmail}`)
           const paymentMethodId = typeof paymentIntent.payment_method === 'string'
@@ -511,7 +511,7 @@ serve(async (req) => {
           ? (bookingRow?.preferred_time_slots as string[]).join(', ')
           : (metadata.scheduled_time_slots ?? '—')
 
-        // Email interno: novo trabalho pago para hello@wearemaster.com (todas as descrições)
+        // Email interno: novo trabalho pago para hello@getfixfy.com (todas as descrições)
         try {
           await fetch(`${supabaseUrl}/functions/v1/send-email`, {
             method: 'POST',
@@ -521,7 +521,7 @@ serve(async (req) => {
             },
             body: JSON.stringify({
               template: 'internal_new_job_paid',
-              to: 'hello@wearemaster.com',
+              to: 'hello@getfixfy.com',
               data: {
                 bookingRef: bookingRow?.booking_ref ?? metadata.booking_ref ?? paymentIntent.id.slice(-8).toUpperCase(),
                 paymentIntentId: paymentIntent.id,
@@ -635,7 +635,7 @@ serve(async (req) => {
                 to: customerEmail,
                 data: {
                   name: metadata.customer_name || 'there',
-                  retryUrl: `https://www.wearemaster.com/checkout?payment_intent=${paymentIntent.id}`,
+                  retryUrl: `https://getfixfy.com/checkout?payment_intent=${paymentIntent.id}`,
                 },
               }),
             })
@@ -913,7 +913,7 @@ serve(async (req) => {
                     to: websiteSubscription.customer_email,
                     data: {
                       name: websiteSubscription.customer_name || websiteSubscription.customer_email.split('@')[0],
-                      retryUrl: `https://www.wearemaster.com/my-bookings`,
+                      retryUrl: `https://getfixfy.com/my-bookings`,
                     },
                   }),
                 })

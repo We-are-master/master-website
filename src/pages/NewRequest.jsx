@@ -192,7 +192,7 @@ const LocationInput = ({ formData, setFormData, onGoogleLoaded }) => {
             backgroundColor: ready ? 'white' : '#f3f4f6'
           }}
           onFocus={(e) => {
-            e.target.style.borderColor = '#2001AF';
+            e.target.style.borderColor = '#020040';
             e.target.style.backgroundColor = 'white';
             setShowSuggestions(true);
           }}
@@ -274,10 +274,10 @@ const NewRequest = () => {
   });
 
   const serviceTypes = [
-    { id: 'plumbing', name: 'Plumbing', icon: <Droplets className="w-6 h-6" />, color: '#E94A02' },
-    { id: 'electrical', name: 'Electrical', icon: <Zap className="w-6 h-6" />, color: '#2001AF' },
-    { id: 'maintenance', name: 'Maintenance', icon: <Wrench className="w-6 h-6" />, color: '#020135' },
-    { id: 'cleaning', name: 'Cleaning', icon: <Sparkles className="w-6 h-6" />, color: '#E94A02' }
+    { id: 'plumbing', name: 'Plumbing', icon: <Droplets className="w-6 h-6" />, color: '#ED4B00' },
+    { id: 'electrical', name: 'Electrical', icon: <Zap className="w-6 h-6" />, color: '#020040' },
+    { id: 'maintenance', name: 'Maintenance', icon: <Wrench className="w-6 h-6" />, color: '#010030' },
+    { id: 'cleaning', name: 'Cleaning', icon: <Sparkles className="w-6 h-6" />, color: '#ED4B00' }
   ];
 
   const priorities = [
@@ -500,7 +500,7 @@ const NewRequest = () => {
 
       // Send to webhook (non-blocking - don't fail if webhook fails)
       try {
-        const webhookResponse = await fetch('https://n8n.wearemaster.com/webhook/9c4a40a5-6e6a-444a-91be-0cb5fdbe1a80', {
+        const webhookResponse = await fetch('https://n8n.getfixfy.com/webhook/9c4a40a5-6e6a-444a-91be-0cb5fdbe1a80', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -877,7 +877,7 @@ const NewRequest = () => {
                   }
                 }}
                 style={{
-                  backgroundColor: '#E94A02',
+                  backgroundColor: '#ED4B00',
                   color: 'white',
                   padding: '0.75rem 1.5rem',
                   borderRadius: '0.5rem',
@@ -973,7 +973,7 @@ const NewRequest = () => {
           <h1 style={{
             fontSize: '1.5rem',
             fontWeight: '700',
-            color: '#020135',
+            color: '#010030',
             margin: 0
           }}>
             New Request
@@ -1009,7 +1009,7 @@ const NewRequest = () => {
                       width: '48px',
                       height: '48px',
                   borderRadius: '50%',
-                      backgroundColor: isActive ? '#E94A02' : '#e5e7eb',
+                      backgroundColor: isActive ? '#ED4B00' : '#e5e7eb',
                       color: isActive ? 'white' : '#6b7280',
                   display: 'flex',
                   alignItems: 'center',
@@ -1152,7 +1152,7 @@ const NewRequest = () => {
                     padding: '0.75rem 1.5rem',
                     border: 'none',
                     borderRadius: '0.75rem',
-                    backgroundColor: '#E94A02',
+                    backgroundColor: '#ED4B00',
                     color: 'white',
                     cursor: 'pointer',
                     fontSize: '1rem',
@@ -1181,7 +1181,7 @@ const NewRequest = () => {
                     padding: '0.75rem 1.5rem',
                     border: 'none',
                     borderRadius: '0.75rem',
-                    backgroundColor: loading ? '#9ca3af' : '#E94A02',
+                    backgroundColor: loading ? '#9ca3af' : '#ED4B00',
                     color: 'white',
                     cursor: loading ? 'not-allowed' : 'pointer',
                     fontSize: '1rem',
