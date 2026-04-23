@@ -10,22 +10,22 @@ import './hero-portal-motion.css'
  * (not screenshots) so no external image assets are needed yet.
  */
 
-// Punchier pacing — keyframes scaled ~0.7x from the design-system reference
-// so the full loop runs in ~11.5s instead of 16.8s. Displayed timer text
-// is decoupled from real time for effect.
+// Punchier pacing — keyframes compressed ~30% further: full loop runs in
+// ~8s instead of ~11.5s. Displayed timer text is decoupled from real time
+// for effect.
 const SCRIPT = [
-  { at: 120,   cursor: [0.62, 0.40], step: 1, timer: 0.1 },
-  { at: 1050,  cursor: [0.42, 0.82], step: 1, timer: 1.0 },
-  { at: 1600,  cursor: [0.42, 0.82], step: 1, timer: 1.6, click: true },
-  { at: 2050,  cursor: [0.60, 0.40], step: 2, timer: 2.0 },
-  { at: 3550,  cursor: [0.55, 0.80], step: 2, timer: 3.5 },
-  { at: 4900,  cursor: [0.80, 0.90], step: 2, timer: 4.9, click: true },
-  { at: 5450,  cursor: [0.60, 0.55], step: 3, timer: 5.4 },
-  { at: 7500,  cursor: [0.80, 0.90], step: 3, timer: 7.5 },
-  { at: 8200,  cursor: [0.80, 0.90], step: 3, timer: 8.2, click: true },
-  { at: 8500,  cursor: [0.80, 0.90], step: 3, timer: 8.5, toast: true },
-  { at: 9800,  cursor: [0.80, 0.90], step: 3, timer: 9.8, toast: true },
-  { at: 11500, cursor: [0.62, 0.40], step: 1, timer: 0.0, toast: false, reset: true },
+  { at: 80,    cursor: [0.62, 0.40], step: 1, timer: 0.1 },
+  { at: 730,   cursor: [0.42, 0.82], step: 1, timer: 0.7 },
+  { at: 1115,  cursor: [0.42, 0.82], step: 1, timer: 1.1, click: true },
+  { at: 1430,  cursor: [0.60, 0.40], step: 2, timer: 1.4 },
+  { at: 2470,  cursor: [0.55, 0.80], step: 2, timer: 2.5 },
+  { at: 3410,  cursor: [0.80, 0.90], step: 2, timer: 3.4, click: true },
+  { at: 3795,  cursor: [0.60, 0.55], step: 3, timer: 3.8 },
+  { at: 5220,  cursor: [0.80, 0.90], step: 3, timer: 5.2 },
+  { at: 5710,  cursor: [0.80, 0.90], step: 3, timer: 5.7, click: true },
+  { at: 5920,  cursor: [0.80, 0.90], step: 3, timer: 5.9, toast: true },
+  { at: 6820,  cursor: [0.80, 0.90], step: 3, timer: 6.8, toast: true },
+  { at: 8000,  cursor: [0.62, 0.40], step: 1, timer: 0.0, toast: false, reset: true },
 ]
 
 export default function HeroPortalMotion() {
@@ -68,7 +68,7 @@ export default function HeroPortalMotion() {
         applyCursor(cur.cursor[0], cur.cursor[1])
         if (cur.click) {
           setClick(true)
-          setTimeout(() => setClick(false), 220)
+          setTimeout(() => setClick(false), 160)
         }
         if (cur.toast === true) setToast(true)
         else if (cur.toast === false) setToast(false)
