@@ -6,33 +6,41 @@
 // Each .md file becomes:
 //   export default { frontmatter: {...}, html: "...", content: "..." }
 
+import { readFileSync } from 'node:fs'
 import matter from 'gray-matter'
 import { marked } from 'marked'
 
 marked.setOptions({ gfm: true, breaks: false, smartypants: true })
 
+function compile(raw) {
+  const { data, content } = matter(raw)
+  const html = marked.parse(content)
+  const frontmatter = { ...data }
+  if (frontmatter.date instanceof Date) {
+    frontmatter.date = frontmatter.date.toISOString()
+  }
+  return `export default ${JSON.stringify({ frontmatter, html, content })};`
+}
+
+function matches(id) {
+  if (!id) return false
+  // Strip querystrings (?import, ?t=xxx, etc.) before matching
+  const clean = id.split('?')[0]
+  return clean.endsWith('.md') && clean.includes('/content/blog/')
+}
+
 export default function blogMarkdownPlugin() {
   return {
     name: 'fx-blog-markdown',
     enforce: 'pre',
-    transform(code, id) {
-      if (!id.endsWith('.md')) return null
-      if (!id.includes('/content/blog/')) return null
-
-      const { data, content } = matter(code)
-      const html = marked.parse(content)
-
-      // Normalise date to ISO string so it survives JSON serialisation
-      const frontmatter = { ...data }
-      if (frontmatter.date instanceof Date) {
-        frontmatter.date = frontmatter.date.toISOString()
-      }
-
-      const payload = { frontmatter, html, content }
-      return {
-        code: `export default ${JSON.stringify(payload)};`,
-        map: null,
-      }
+    // Owning `load` alone is enough: we read the raw .md from disk and
+    // return a compiled JS module. No transform hook — otherwise Rollup
+    // would run it on our own JS output and re-process it as markdown.
+    load(id) {
+      if (!matches(id)) return null
+      const path = id.split('?')[0]
+      const raw = readFileSync(path, 'utf8')
+      return compile(raw)
     },
   }
 }
