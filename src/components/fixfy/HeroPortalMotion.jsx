@@ -10,19 +10,22 @@ import './hero-portal-motion.css'
  * (not screenshots) so no external image assets are needed yet.
  */
 
+// Punchier pacing — keyframes scaled ~0.7x from the design-system reference
+// so the full loop runs in ~11.5s instead of 16.8s. Displayed timer text
+// is decoupled from real time for effect.
 const SCRIPT = [
-  { at: 200,   cursor: [0.62, 0.40], step: 1, timer: 0.2 },
-  { at: 1600,  cursor: [0.42, 0.82], step: 1, timer: 1.6 },
-  { at: 2400,  cursor: [0.42, 0.82], step: 1, timer: 2.4, click: true },
-  { at: 3000,  cursor: [0.60, 0.40], step: 2, timer: 3.0 },
-  { at: 5200,  cursor: [0.55, 0.80], step: 2, timer: 5.2 },
-  { at: 7200,  cursor: [0.80, 0.90], step: 2, timer: 7.2, click: true },
-  { at: 8000,  cursor: [0.60, 0.55], step: 3, timer: 8.0 },
-  { at: 11000, cursor: [0.80, 0.90], step: 3, timer: 11.0 },
-  { at: 12000, cursor: [0.80, 0.90], step: 3, timer: 12.0, click: true },
-  { at: 12400, cursor: [0.80, 0.90], step: 3, timer: 12.4, toast: true },
-  { at: 14200, cursor: [0.80, 0.90], step: 3, timer: 14.2, toast: true },
-  { at: 16800, cursor: [0.62, 0.40], step: 1, timer: 0.0, toast: false, reset: true },
+  { at: 120,   cursor: [0.62, 0.40], step: 1, timer: 0.1 },
+  { at: 1050,  cursor: [0.42, 0.82], step: 1, timer: 1.0 },
+  { at: 1600,  cursor: [0.42, 0.82], step: 1, timer: 1.6, click: true },
+  { at: 2050,  cursor: [0.60, 0.40], step: 2, timer: 2.0 },
+  { at: 3550,  cursor: [0.55, 0.80], step: 2, timer: 3.5 },
+  { at: 4900,  cursor: [0.80, 0.90], step: 2, timer: 4.9, click: true },
+  { at: 5450,  cursor: [0.60, 0.55], step: 3, timer: 5.4 },
+  { at: 7500,  cursor: [0.80, 0.90], step: 3, timer: 7.5 },
+  { at: 8200,  cursor: [0.80, 0.90], step: 3, timer: 8.2, click: true },
+  { at: 8500,  cursor: [0.80, 0.90], step: 3, timer: 8.5, toast: true },
+  { at: 9800,  cursor: [0.80, 0.90], step: 3, timer: 9.8, toast: true },
+  { at: 11500, cursor: [0.62, 0.40], step: 1, timer: 0.0, toast: false, reset: true },
 ]
 
 export default function HeroPortalMotion() {
