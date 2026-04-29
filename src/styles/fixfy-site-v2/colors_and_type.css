@@ -1,0 +1,128 @@
+/* ==========================================================================
+   Fixfy Design System — Colors & Type
+   Import first. All tokens live here.
+   ========================================================================== */
+
+/* -------------------------------------------------------------------------- */
+/* Webfonts — Geist & Geist Mono (Google Fonts mirror — self-host for prod)   */
+/* -------------------------------------------------------------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap');
+
+:root {
+  /* ========== BRAND ========== */
+  --fx-navy:        #020040;
+  --fx-navy-deep:   #010030;     /* darker for gradient end */
+  --fx-navy-soft:   #0A0A2E;     /* lifted navy for cards on dark */
+  --fx-coral:       #ED4B00;
+  --fx-coral-hover: #F26527;
+  --fx-coral-press: #D13F00;
+
+  /* ========== NEUTRALS ========== */
+  --fx-ink:         #0A0A1F;     /* body text on light */
+  --fx-slate:       #3A3A55;     /* secondary text */
+  --fx-mute:        #6B6B85;     /* tertiary / placeholder */
+  --fx-line:        #E4E4EC;     /* borders, dividers */
+  --fx-line-strong: #CDCDD8;     /* borders on hover, input focus */
+  --fx-paper:       #F7F7FB;     /* app background */
+  --fx-paper-2:     #EEEEF5;     /* row hover, subtle fills */
+  --fx-white:       #FFFFFF;
+
+  /* on navy surfaces */
+  --fx-on-navy-1:   rgba(255,255,255,0.92);
+  --fx-on-navy-2:   rgba(255,255,255,0.64);
+  --fx-on-navy-3:   rgba(255,255,255,0.40);
+  --fx-on-navy-line:rgba(255,255,255,0.08);
+  --fx-on-navy-line-strong: rgba(255,255,255,0.16);
+
+  /* ========== SEMANTIC (traffic-light) ========== */
+  --fx-green:       #0E8A5F;
+  --fx-green-50:    #E4F4EC;
+  --fx-amber:       #C47A00;
+  --fx-amber-50:    #FBEFD6;
+  --fx-red:         #C8102E;
+  --fx-red-50:      #FBE3E7;
+  --fx-blue:        #0B5FFF;     /* informational — rare */
+  --fx-blue-50:     #E1ECFF;
+
+  /* ========== TYPE ========== */
+  --fx-sans: 'Geist', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --fx-mono: 'Geist Mono', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* size / line-height pairs */
+  --fx-size-display-xl: 72px;   --fx-lh-display-xl: 76px;
+  --fx-size-display-lg: 56px;   --fx-lh-display-lg: 60px;
+  --fx-size-display-md: 40px;   --fx-lh-display-md: 44px;
+  --fx-size-h1:         32px;   --fx-lh-h1:         38px;
+  --fx-size-h2:         24px;   --fx-lh-h2:         30px;
+  --fx-size-h3:         18px;   --fx-lh-h3:         24px;
+  --fx-size-body:       15px;   --fx-lh-body:       22px;
+  --fx-size-body-sm:    13px;   --fx-lh-body-sm:    18px;
+  --fx-size-caption:    12px;   --fx-lh-caption:    16px;
+
+  /* weights — we do not use 700 for display */
+  --fx-w-regular: 400;
+  --fx-w-medium:  500;
+  --fx-w-semi:    600;
+
+  /* tracking */
+  --fx-track-display: -0.02em;
+  --fx-track-tight:   -0.01em;
+  --fx-track-wide:    0.06em;
+
+  /* ========== SPACING (4px base) ========== */
+  --fx-sp-1:  4px;
+  --fx-sp-2:  8px;
+  --fx-sp-3:  12px;
+  --fx-sp-4:  16px;
+  --fx-sp-5:  20px;
+  --fx-sp-6:  24px;
+  --fx-sp-8:  32px;
+  --fx-sp-10: 40px;
+  --fx-sp-14: 56px;
+  --fx-sp-18: 72px;
+  --fx-sp-24: 96px;
+
+  /* ========== RADII ========== */
+  --fx-r-1:    2px;
+  --fx-r-2:    6px;
+  --fx-r-3:    10px;
+  --fx-r-4:    16px;
+  --fx-r-full: 9999px;
+
+  /* ========== ELEVATION (navy-tinted) ========== */
+  --fx-elev-0: none;
+  --fx-elev-1: 0 1px 2px rgba(2,0,64,0.06), 0 1px 1px rgba(2,0,64,0.04);
+  --fx-elev-2: 0 8px 24px rgba(2,0,64,0.10), 0 2px 6px rgba(2,0,64,0.06);
+  --fx-elev-3: 0 24px 48px rgba(2,0,64,0.16);
+
+  /* ========== MOTION ========== */
+  --fx-dur-fast:  120ms;
+  --fx-dur-med:   200ms;
+  --fx-dur-slow:  320ms;
+  --fx-ease:      cubic-bezier(0.2, 0.0, 0, 1);
+
+  /* ========== FOCUS RING ========== */
+  --fx-focus: 0 0 0 2px rgba(237,75,0,0.5);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Semantic element defaults — use classes, don't reset global tags here      */
+/* -------------------------------------------------------------------------- */
+
+.fx-display-xl { font: var(--fx-w-medium) var(--fx-size-display-xl)/var(--fx-lh-display-xl) var(--fx-sans); letter-spacing: var(--fx-track-display); color: var(--fx-ink); }
+.fx-display-lg { font: var(--fx-w-medium) var(--fx-size-display-lg)/var(--fx-lh-display-lg) var(--fx-sans); letter-spacing: var(--fx-track-display); color: var(--fx-ink); }
+.fx-display-md { font: var(--fx-w-medium) var(--fx-size-display-md)/var(--fx-lh-display-md) var(--fx-sans); letter-spacing: var(--fx-track-tight); color: var(--fx-ink); }
+
+.fx-h1       { font: var(--fx-w-semi) var(--fx-size-h1)/var(--fx-lh-h1) var(--fx-sans); letter-spacing: var(--fx-track-tight); color: var(--fx-ink); }
+.fx-h2       { font: var(--fx-w-semi) var(--fx-size-h2)/var(--fx-lh-h2) var(--fx-sans); letter-spacing: var(--fx-track-tight); color: var(--fx-ink); }
+.fx-h3       { font: var(--fx-w-medium) var(--fx-size-h3)/var(--fx-lh-h3) var(--fx-sans); color: var(--fx-ink); }
+.fx-body     { font: var(--fx-w-regular) var(--fx-size-body)/var(--fx-lh-body) var(--fx-sans); color: var(--fx-ink); }
+.fx-body-sm  { font: var(--fx-w-regular) var(--fx-size-body-sm)/var(--fx-lh-body-sm) var(--fx-sans); color: var(--fx-slate); }
+.fx-caption  { font: var(--fx-w-regular) var(--fx-size-caption)/var(--fx-lh-caption) var(--fx-sans); color: var(--fx-mute); letter-spacing: var(--fx-track-wide); text-transform: uppercase; }
+.fx-mono-sm  { font: var(--fx-w-regular) var(--fx-size-body-sm)/var(--fx-lh-body-sm) var(--fx-mono); color: var(--fx-ink); }
+
+/* -------------------------------------------------------------------------- */
+/* Reset-ish helpers for preview cards                                        */
+/* -------------------------------------------------------------------------- */
+.fx-reset, .fx-reset * { box-sizing: border-box; }
+.fx-reset { font-family: var(--fx-sans); color: var(--fx-ink); -webkit-font-smoothing: antialiased; }

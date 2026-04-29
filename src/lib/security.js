@@ -321,11 +321,9 @@ export function initSecurity() {
     }
   }
   
-  // Prevent common XSS attacks
-  if (typeof window !== 'undefined') {
-    // Override dangerous functions (for additional protection)
-    const originalEval = window.eval
-    window.eval = function() {
+  // Prevent common XSS in production only — Vite dev (HMR) requires eval()
+  if (typeof window !== 'undefined' && import.meta.env?.PROD) {
+    window.eval = function () {
       console.warn('[SECURITY] eval() usage blocked')
       throw new Error('eval() is disabled for security reasons')
     }

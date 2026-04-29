@@ -3,25 +3,31 @@ import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'r
 import { ToastContainer } from 'react-toastify'
 import { Analytics } from '@vercel/analytics/react'
 
-import HeaderFixfy from './components/fixfy/Header'
-import FooterFixfy from './components/fixfy/Footer'
+import FixfyV2Nav from './components/fixfy-v2/FixfyV2Nav'
+import FixfyV2Footer from './components/fixfy-v2/FixfyV2Footer'
 import HeaderB2B from './components/HeaderB2B'
 import Footer from './components/Footer'
 import CookieConsent from './components/CookieConsent'
 import ExternalRedirect from './components/fixfy/ExternalRedirect'
 import { SecurityHeaders } from './middleware/SecurityHeaders'
 
-// Marketing pages
-import Home from './pages/Home'
-import Platform from './pages/Platform'
-import ForFMs from './pages/ForFMs'
-import ForOwners from './pages/ForOwners'
-import ForTrades from './pages/ForTrades'
-import Customers from './pages/Customers'
-import Trust from './pages/Trust'
-import Resources from './pages/Resources'
-import About from './pages/About'
-import Contact from './pages/Contact'
+// Marketing — Fixfy Design System website v2 (static HTML modules + CSS)
+import {
+  HomeV2,
+  FixfyProV2,
+  PlatformV2,
+  SolutionRealEstateV2,
+  SolutionFranchisesV2,
+  SolutionEnterpriseV2,
+  SolutionServicePlatformsV2,
+  AboutV2,
+  ContactV2,
+  CareersStubV2,
+  PrivacyStubV2,
+  TermsStubV2,
+  SecurityStubV2,
+  DpaStubV2,
+} from './pages/fixfySiteV2Pages.jsx'
 import Blog from './pages/Blog'
 import BlogPost from './pages/BlogPost'
 import PartnerApply from './pages/PartnerApply'
@@ -44,7 +50,7 @@ function ScrollToTop() {
 
 /**
  * Route buckets:
- *   marketing — rendered inside the Fixfy shell (navy background, Fixfy nav + footer)
+ *   marketing — Fixfy website v2 shell (nav + footer, data-tone backgrounds)
  *   portal    — authenticated B2B portal (existing HeaderB2B + Footer)
  *   bare      — no chrome (partner application screens, etc.)
  */
@@ -63,25 +69,39 @@ function AppContent() {
   const chrome = chromeFor(location.pathname)
 
   return (
-    <div className={`App ${chrome === 'marketing' ? 'fx-shell' : ''}`}>
+    <div className={`App${chrome === 'marketing' ? ' fixfy-site-v2-app' : ''}`}>
       <ScrollToTop />
       <SecurityHeaders />
 
-      {chrome === 'marketing' && <HeaderFixfy />}
+      {chrome === 'marketing' && <FixfyV2Nav />}
       {chrome === 'portal'    && <HeaderB2B />}
 
       <Routes>
-        {/* Marketing */}
-        <Route path="/"           element={<Home />} />
-        <Route path="/platform"   element={<Platform />} />
-        <Route path="/for-fms"    element={<ForFMs />} />
-        <Route path="/for-owners" element={<ForOwners />} />
-        <Route path="/for-trades" element={<ForTrades />} />
-        <Route path="/customers"  element={<Customers />} />
-        <Route path="/trust"      element={<Trust />} />
-        <Route path="/resources"  element={<Resources />} />
-        <Route path="/about"      element={<About />} />
-        <Route path="/contact"    element={<Contact />} />
+        {/* Marketing — website v2 */}
+        <Route path="/" element={<HomeV2 />} />
+        <Route path="/fixfypro" element={<FixfyProV2 />} />
+        <Route path="/platform" element={<PlatformV2 />} />
+        <Route path="/solutions/real-estate" element={<SolutionRealEstateV2 />} />
+        <Route path="/solutions/franchises" element={<SolutionFranchisesV2 />} />
+        <Route path="/solutions/enterprise-operations" element={<SolutionEnterpriseV2 />} />
+        <Route path="/solutions/service-platforms" element={<SolutionServicePlatformsV2 />} />
+        <Route path="/about" element={<AboutV2 />} />
+        <Route path="/contact" element={<ContactV2 />} />
+        <Route path="/careers" element={<CareersStubV2 />} />
+        <Route path="/privacy" element={<PrivacyStubV2 />} />
+        <Route path="/terms" element={<TermsStubV2 />} />
+        <Route path="/security" element={<SecurityStubV2 />} />
+        <Route path="/dpa" element={<DpaStubV2 />} />
+        <Route path="/fixfypro/start" element={<Navigate to="/contact" replace />} />
+        <Route path="/fixfypro/demo" element={<Navigate to="/contact" replace />} />
+
+        {/* Legacy marketing URLs */}
+        <Route path="/for-fms" element={<Navigate to="/solutions/real-estate" replace />} />
+        <Route path="/for-owners" element={<Navigate to="/solutions/real-estate" replace />} />
+        <Route path="/for-trades" element={<Navigate to="/fixfypro" replace />} />
+        <Route path="/customers" element={<Navigate to="/contact" replace />} />
+        <Route path="/trust" element={<Navigate to="/contact" replace />} />
+        <Route path="/resources" element={<Navigate to="/contact" replace />} />
         <Route path="/blog"       element={<Blog />} />
         <Route path="/blog/:slug" element={<BlogPost />} />
 
@@ -120,7 +140,7 @@ function AppContent() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 
-      {chrome === 'marketing' && <FooterFixfy />}
+      {chrome === 'marketing' && <FixfyV2Footer />}
       {chrome === 'portal'    && <Footer />}
 
       <CookieConsent />
