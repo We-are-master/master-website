@@ -24,11 +24,6 @@
   align-items: center;
 }
 
-.pas-logo img {
-  height: 32px;
-  width: auto;
-}
-
 .pas-home {
   display: inline-flex;
   align-items: center;

@@ -92,7 +92,7 @@
 }
 .fx-nav-inner { display: flex; align-items: center; justify-content: space-between; padding: 14px 32px; max-width: 1320px; margin: 0 auto; gap: 24px; }
 .fx-nav-brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; flex-shrink: 0; }
-.fx-nav-brand img { height: 24px; display: block; }
+.fx-nav-brand .fixfy-logo { margin: 0; }
 .fx-nav-links { display: flex; gap: 4px; align-items: center; }
 .fx-nav-links a {
   padding: 8px 14px; border-radius: 4px;
@@ -114,7 +114,7 @@
 .fx-footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; padding: 0; }
 .fx-footer-col a { color: rgba(255,255,255,0.7); text-decoration: none; font-size: 14px; }
 .fx-footer-col a:hover { color: #fff; }
-.fx-footer-brand img { height: 28px; margin-bottom: 20px; }
+.fx-footer-brand .fixfy-logo { margin-bottom: 20px; }
 .fx-footer-brand p { font-size: 14px; color: rgba(255,255,255,0.6); max-width: 28ch; }
 .fx-footer-bottom { display: flex; justify-content: space-between; align-items: center; padding-top: 32px; font-family: var(--fx-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.36); }
 .fx-footer-bottom .fx-links { display: flex; gap: 24px; }
@@ -125,6 +125,100 @@
 .fx-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
 .fx-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
 .fx-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+
+/* How it works — visual timeline (navy section) */
+.fx-how-timeline {
+  margin-top: 64px;
+}
+
+/* Desktop / tablet: horizontal rail */
+.fx-how-timeline-rail {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto 40px;
+  padding: 0 8px;
+  gap: 0;
+}
+.fx-how-timeline-node {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 2px solid var(--fx-coral);
+  background: rgba(237, 75, 0, 0.1);
+  font-family: var(--fx-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: #fff;
+  z-index: 1;
+  box-shadow: 0 0 0 6px var(--fx-navy);
+}
+.fx-how-timeline-line {
+  flex: 1 1 40px;
+  min-width: 32px;
+  max-width: 200px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--fx-coral), rgba(255, 255, 255, 0.14));
+  border-radius: 1px;
+}
+
+/* Step columns */
+.fx-how-timeline-panels {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px 32px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+.fx-how-timeline-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.fx-how-timeline-nodeDim {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--fx-coral);
+  background: rgba(237, 75, 0, 0.1);
+  font-family: var(--fx-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: #fff;
+}
+.fx-how-timeline-copy {
+  max-width: 100%;
+}
+.fx-how-timeline-panel .fx-h3,
+.fx-how-timeline-panel .fx-body {
+  text-align: center;
+  max-width: 32ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (min-width: 961px) {
+  .fx-how-timeline-rail {
+    display: flex;
+  }
+  .fx-how-timeline-nodeDim {
+    display: none;
+  }
+}
 
 /* ---------- card ---------- */
 .fx-card {
@@ -244,6 +338,33 @@
   .fx-press-row { gap: 24px; }
   .fx-press-row-logos { gap: 20px; }
   .fx-container, .fx-container-narrow, .fx-nav-inner { padding: 0 20px; }
+  .fx-how-timeline-panels {
+    grid-template-columns: 1fr;
+    gap: 32px 0;
+  }
+  .fx-how-timeline-panel {
+    flex-direction: row;
+    align-items: flex-start;
+    text-align: left;
+    gap: 20px;
+  }
+  .fx-how-timeline-nodeDim {
+    margin-bottom: 0;
+  }
+  .fx-how-timeline-panel .fx-h3,
+  .fx-how-timeline-panel .fx-body {
+    text-align: left;
+    max-width: none;
+    margin-left: 0;
+  }
+  .fx-how-timeline-panel + .fx-how-timeline-panel {
+    padding-top: 32px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .fx-how-timeline-copy {
+    flex: 1;
+    min-width: 0;
+  }
 }
 @media (max-width: 600px) {
   .fx-stats-grid { grid-template-columns: 1fr; }

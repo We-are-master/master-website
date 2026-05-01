@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { Home } from 'lucide-react';
-import logo from '../assets/logo.png';
+import FixfyLogo from '../components/FixfyLogo';
 import { submitPartnerApplication } from '../lib/partnerApply';
 import './PartnerApply.css';
 
@@ -190,7 +190,7 @@ export default function PartnerApply() {
         borderBottom: '1px solid rgba(255,255,255,0.08)',
       }}>
         <Link to="/" style={{ display: 'flex', alignItems: 'center' }}>
-          <img src={logo} alt="Fixfy" style={{ height: 32, width: 'auto' }} />
+          <FixfyLogo variant="onDark" alt="Fixfy" />
         </Link>
         <Link
           to="/"

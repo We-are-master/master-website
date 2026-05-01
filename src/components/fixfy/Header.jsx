@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
+import FixfyLogo from '../FixfyLogo'
 import Button from './Button'
 
 const NAV_LINKS = [
@@ -20,7 +21,7 @@ export default function Header() {
     <nav className="fx-nav">
       <div className="fx-nav-inner">
         <Link to="/" className="fx-nav-brand" onClick={() => setOpen(false)}>
-          <img src="/brand/fixfy-primary-white.png" alt="Fixfy" />
+          <FixfyLogo variant="onDark" />
         </Link>
 
         <div className="fx-nav-links">

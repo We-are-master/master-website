@@ -12,7 +12,7 @@ import {
   AlertCircle,
   CheckCircle
 } from 'lucide-react';
-import logo from '../assets/logo.png';
+import FixfyLogo from '../components/FixfyLogo';
 import { supabase } from '../lib/supabase';
 
 const Settings = () => {
@@ -195,15 +195,7 @@ const Settings = () => {
           >
             <ArrowLeft size={20} />
           </button>
-          <img 
-            src={logo} 
-            alt="Fixfy Logo" 
-            style={{
-              width: '40px',
-              height: '40px',
-              objectFit: 'contain'
-            }}
-          />
+          <FixfyLogo variant="onLight" mark alt="Fixfy" />
           <h1 style={{
             fontSize: '1.5rem',
             fontWeight: '700',
