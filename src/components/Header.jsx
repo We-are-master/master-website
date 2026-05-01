@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Menu, X, Phone, Mail, LogOut, Bell } from 'lucide-react'
-import logo from '../assets/logo.png'
+import FixfyLogo from './FixfyLogo'
 import { supabase } from '../lib/supabase'
 
 const Header = () => {
@@ -107,16 +107,7 @@ const Header = () => {
         }}>
           {/* Logo */}
           <Link to="/" style={{display: 'flex', alignItems: 'center', flexShrink: 0, textDecoration: 'none'}}>
-            <img 
-              src={logo} 
-              alt="Fixfy" 
-              style={{
-                height: '40px',
-                width: 'auto',
-                marginRight: '0.75rem',
-                flexShrink: 0
-              }}
-            />
+            <FixfyLogo variant="onDark" alt="Fixfy" style={{ marginRight: '0.75rem' }} />
             <div style={{
               fontSize: '0.875rem',
               color: '#ED4B00',

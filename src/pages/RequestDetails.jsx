@@ -21,7 +21,7 @@ import {
   Trash2,
   Loader2
 } from 'lucide-react';
-import logo from '../assets/logo.png';
+import FixfyLogo from '../components/FixfyLogo';
 import { toast } from 'react-toastify';
 import { supabase } from '../lib/supabase';
 
@@ -383,16 +383,7 @@ const RequestDetails = () => {
             <ArrowLeft size={20} />
             Back
           </button>
-          <img 
-            src={logo} 
-            alt="Fixfy Logo" 
-            style={{
-              width: '40px',
-              height: '40px',
-              objectFit: 'contain',
-              marginRight: '1rem'
-            }}
-          />
+          <FixfyLogo variant="onLight" mark alt="Fixfy" style={{ marginRight: '1rem' }} />
           <div>
             <h1 style={{
               fontSize: '1.5rem',

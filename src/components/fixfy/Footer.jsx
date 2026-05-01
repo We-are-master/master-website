@@ -1,5 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import FixfyLogo from '../FixfyLogo'
 
 export default function Footer() {
   return (
@@ -7,7 +8,7 @@ export default function Footer() {
       <div className="fx-container">
         <div className="fx-footer-top">
           <div className="fx-footer-brand">
-            <img src="/brand/fixfy-primary-white.png" alt="Fixfy" />
+            <FixfyLogo variant="onDark" />
             <p>Maintenance infrastructure for British business. Free to list — forever.</p>
           </div>
 

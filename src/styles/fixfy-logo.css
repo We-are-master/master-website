@@ -1,0 +1,40 @@
+/* ==========================================================================
+   Fixfy brand logo — single responsive scale site-wide
+   Use <FixfyLogo /> or class .fixfy-logo / .fixfy-logo--mark
+   ========================================================================== */
+
+:root {
+  --fixfy-logo-height: clamp(26px, 3.2vw + 0.45rem, 40px);
+  --fixfy-logo-max-width: min(204px, 58vw);
+}
+
+.fixfy-logo {
+  height: var(--fixfy-logo-height);
+  width: auto;
+  max-width: var(--fixfy-logo-max-width);
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
+}
+
+/* Icon mark (compact rows, white headers) */
+.fixfy-logo--mark {
+  max-width: none;
+  width: var(--fixfy-logo-height);
+  height: var(--fixfy-logo-height);
+}
+
+@media (min-width: 768px) {
+  :root {
+    /* Desktop: previous 80px / 1.3 */
+    --fixfy-logo-height: 62px;
+    --fixfy-logo-max-width: min(335px, 37vw);
+  }
+}
+
+@media (max-width: 380px) {
+  :root {
+    --fixfy-logo-height: clamp(24px, 7vw, 30px);
+    --fixfy-logo-max-width: min(158px, 52vw);
+  }
+}

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Home, CheckCircle } from 'lucide-react';
-import logo from '../assets/logo.png';
+import FixfyLogo from '../components/FixfyLogo';
 import './PartnerApplySuccess.css';
 
 export default function PartnerApplySuccess() {
@@ -13,7 +13,7 @@ export default function PartnerApplySuccess() {
       />
       <header className="pas-header">
         <Link to="/" className="pas-logo">
-          <img src={logo} alt="Fixfy" />
+          <FixfyLogo variant="onDark" alt="Fixfy" />
         </Link>
         <Link to="/" className="pas-home">
           <Home size={18} />

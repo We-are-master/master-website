@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { Phone, Mail, MapPin, Facebook, Twitter, Instagram, Linkedin, Apple, Play } from 'lucide-react'
-import logo from '../assets/logo.png'
+import FixfyLogo from './FixfyLogo'
 
 const Footer = () => {
   return (
@@ -14,14 +14,7 @@ const Footer = () => {
             <div>
               <div style={{marginBottom: '1.5rem'}}>
                 <div style={{marginBottom: '1rem'}}>
-                  <img 
-                    src={logo} 
-                    alt="Fixfy" 
-                    style={{
-                      height: '50px',
-                      width: 'auto'
-                    }}
-                  />
+                  <FixfyLogo variant="onDark" alt="Fixfy" />
                 </div>
                 <div style={{fontSize: '0.875rem', color: '#ED4B00', marginBottom: '1rem', fontWeight: '500'}}>
                   for Business

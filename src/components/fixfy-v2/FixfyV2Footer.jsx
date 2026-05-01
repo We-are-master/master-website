@@ -1,13 +1,5 @@
 import { Link } from 'react-router-dom'
-
-const logoSvg = (
-  <svg width="22" height="22" viewBox="0 0 32 32" aria-hidden>
-    <rect width="32" height="32" rx="6" fill="#ED4B00" />
-    <text x="16" y="22" fontFamily="ui-monospace,monospace" fontSize="18" fontWeight="600" fill="white" textAnchor="middle">
-      F
-    </text>
-  </svg>
-)
+import FixfyLogo from '../FixfyLogo'
 
 export default function FixfyV2Footer() {
   return (
@@ -15,10 +7,9 @@ export default function FixfyV2Footer() {
       <div className="v2-container">
         <div className="v2-footer-grid">
           <div className="v2-footer-brand">
-            <div className="v2-nav-brand" style={{ fontSize: 18, color: '#fff' }}>
-              {logoSvg}
-              Fixfy
-            </div>
+            <Link to="/" className="v2-footer-brand-lockup" aria-label="Fixfy — Home">
+              <FixfyLogo variant="onDark" />
+            </Link>
             <p>Maintenance infrastructure for British business — and a £49 operating system for every trade.</p>
           </div>
           <div>

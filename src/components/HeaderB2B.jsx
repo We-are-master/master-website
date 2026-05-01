@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ChevronDown, ArrowUpRight, Menu, X } from 'lucide-react';
-import logo from '../assets/logo.png';
+import FixfyLogo from './FixfyLogo';
 
 const HeaderB2B = () => {
   const navigate = useNavigate();
@@ -53,15 +53,7 @@ const HeaderB2B = () => {
               textDecoration: 'none',
               flexShrink: 0
             }}>
-              <img 
-                src={logo} 
-                alt="Fixfy" 
-                style={{
-                  height: '40px',
-                  width: 'auto',
-                  flexShrink: 0
-                }}
-              />
+              <FixfyLogo variant="onDark" alt="Fixfy" />
             </Link>
 
             {/* Desktop Navigation */}

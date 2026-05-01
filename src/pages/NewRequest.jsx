@@ -17,7 +17,7 @@ import {
 import usePlacesAutocomplete, { getGeocode, getLatLng } from 'use-places-autocomplete';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import logo from '../assets/logo.png';
+import FixfyLogo from '../components/FixfyLogo';
 
 // Location Input Component with Google Places Autocomplete
 const LocationInput = ({ formData, setFormData, onGoogleLoaded }) => {
@@ -960,16 +960,7 @@ const NewRequest = () => {
             <ArrowLeft size={20} />
             Back
           </button>
-          <img 
-            src={logo} 
-            alt="Fixfy Logo" 
-            style={{
-              width: '40px',
-              height: '40px',
-              objectFit: 'contain',
-              marginRight: '1rem'
-            }}
-          />
+          <FixfyLogo variant="onLight" mark alt="Fixfy" style={{ marginRight: '1rem' }} />
           <h1 style={{
             fontSize: '1.5rem',
             fontWeight: '700',
