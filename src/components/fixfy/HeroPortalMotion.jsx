@@ -29,10 +29,13 @@ const SCRIPT = [
 ]
 
 export default function HeroPortalMotion() {
+  const rootRef = useRef(null)
   const stageRef = useRef(null)
   const cursorRef = useRef(null)
   const rafRef = useRef(0)
-  const startRef = useRef(0)
+  const baseTimeRef = useRef(0)
+  const segmentStartRef = useRef(0)
+  const visibleRef = useRef(false)
   const lastFrameRef = useRef(null)
   const [step, setStep] = useState(1)
   const [click, setClick] = useState(false)
@@ -43,6 +46,9 @@ export default function HeroPortalMotion() {
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (prefersReduced) return
 
+    const root = rootRef.current
+    if (!root) return
+
     const applyCursor = (xRatio, yRatio) => {
       const stage = stageRef.current
       const cursor = cursorRef.current
@@ -51,11 +57,10 @@ export default function HeroPortalMotion() {
       cursor.style.transform = `translate(${xRatio * r.width}px, ${yRatio * r.height}px)`
     }
 
-    startRef.current = performance.now()
-    lastFrameRef.current = null
-
     const loop = (now) => {
-      const t = now - startRef.current
+      if (!visibleRef.current) return
+
+      const t = baseTimeRef.current + (now - segmentStartRef.current)
       const cur = [...SCRIPT].reverse().find((k) => k.at <= t) || SCRIPT[0]
       const next = SCRIPT.find((k) => k.at > t)
       const lerpT = next ? (t - cur.at) / (next.at - cur.at) : 1
@@ -74,7 +79,8 @@ export default function HeroPortalMotion() {
         else if (cur.toast === false) setToast(false)
         if (cur.reset) {
           setToast(false)
-          startRef.current = performance.now()
+          baseTimeRef.current = 0
+          segmentStartRef.current = now
           lastFrameRef.current = null
         }
       }
@@ -82,12 +88,37 @@ export default function HeroPortalMotion() {
       rafRef.current = requestAnimationFrame(loop)
     }
 
-    rafRef.current = requestAnimationFrame(loop)
-    return () => cancelAnimationFrame(rafRef.current)
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const intersecting = !!(entry && entry.isIntersecting)
+        if (intersecting) {
+          visibleRef.current = true
+          if (!rafRef.current) {
+            segmentStartRef.current = performance.now()
+            rafRef.current = requestAnimationFrame(loop)
+          }
+        } else {
+          const freezeAt = performance.now()
+          baseTimeRef.current =
+            baseTimeRef.current + (freezeAt - segmentStartRef.current)
+          visibleRef.current = false
+          cancelAnimationFrame(rafRef.current)
+          rafRef.current = 0
+        }
+      },
+      { threshold: 0.25, rootMargin: '0px 0px -5% 0px' }
+    )
+
+    observer.observe(root)
+    return () => {
+      observer.disconnect()
+      cancelAnimationFrame(rafRef.current)
+      rafRef.current = 0
+    }
   }, [])
 
   return (
-    <div className="fxhpm-root">
+    <div className="fxhpm-root" ref={rootRef}>
       <div className="fxhpm-chrome">
         <div className="fxhpm-dots">
           <span className="fxhpm-dot" style={{ background: '#ff5f57' }} />

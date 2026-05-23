@@ -9,40 +9,88 @@ import Button from '../components/fixfy/Button'
 import Card from '../components/fixfy/Card'
 import Stat from '../components/fixfy/Stat'
 import HeroPortalMotion from '../components/fixfy/HeroPortalMotion'
+import HowItWorksHome from '../components/fixfy/HowItWorksHome'
 
-const PRESS = ['BBC', 'Financial Times', 'The Times', 'Sifted', 'PBC Today', 'FM Business Daily']
+const HOW_IT_WORKS = {
+  title: 'From request to resolution, one flow',
+  lede: 'Post jobs, assign vetted trades, and close with proof — all in one ledger.',
+  steps: [
+    {
+      n: '01',
+      title: 'Post & triage',
+      body: 'Raise reactive or planned work in seconds. SLAs, priorities and escalation paths use your rules.',
+    },
+    {
+      n: '02',
+      title: 'Assign & execute',
+      body: 'Dispatch to your supply or ours. Track ETAs, evidence on site and completion in real time.',
+    },
+    {
+      n: '03',
+      title: 'Report & close',
+      body: 'Invoices, compliance records and audit-ready exports — without piecing together spreadsheets.',
+    },
+  ],
+}
 
 const CUSTOMERS = [
-  'The Crown Estate', 'Pret a Manger', 'John Lewis & Partners', 'British Land',
-  'Selfridges', 'Mitie', 'NHS Property', 'Canary Wharf Group',
-  'Landsec', 'Grosvenor', 'Segro', 'Hammerson',
+  'Kvadrat',
+  'Li & Fung',
+  'Good Place Lettings',
+  'Cornwallis',
+  'Eagle Vision',
+  'Crystal Facilities',
+  'SC Johnson',
+  'Fantastic Services',
+  'StyleSmith',
+  'NHS Property',
+  'Homyze',
+  'Checkatrade',
 ]
 
 const PLATFORM_CARDS = [
-  { icon: '⌘', title: 'Jobs & SLAs',      body: 'Post reactive, planned and compliance work. Automatic SLA tracking, escalation, photos on completion.' },
-  { icon: '◇', title: 'Asset register',   body: 'Every plant item, every site, one QR code. Service history, warranty, parts spend — in one place.' },
-  { icon: '◯', title: 'Supplier network', body: '3,400+ vetted UK trades. Insurance and qualifications verified. Rate-carded or marketplace.' },
-  { icon: '△', title: 'Compliance',       body: 'Legionella, fire doors, PAT, gas, LOLER. Automated scheduling. Auditor-ready paper trail.' },
+  {
+    icon: '◇',
+    title: 'Assets',
+    body: 'Every site, every asset — fully tracked. Service history, warranties and spend, all linked and accessible.',
+  },
+  {
+    icon: '⌘',
+    title: 'Jobs & SLAs',
+    body: 'Manage reactive, planned and compliance work in one place. Track SLAs automatically, escalate when needed and close with full reports.',
+  },
+  {
+    icon: '◯',
+    title: 'Supply network',
+    body: 'Access a network of vetted professionals. Fully vetted and approved, insured and ready to deliver at scale.',
+  },
+  {
+    icon: '△',
+    title: 'Compliance',
+    body: 'Stay compliant without the manual work. Automated scheduling, complete records and audit-ready reporting.',
+  },
 ]
 
-const PERSONAS = [
+const AUDIENCE_CARDS = [
   {
-    to: '/for-fms',
-    kicker: 'For facilities managers',
-    h: ['Stop chasing emails.', 'Start closing jobs.'],
-    body: 'Multi-site visibility, SLA tracking, and a supplier network your finance team will actually sign off.',
+    to: '/platform',
+    kicker: 'For real estate',
+    line: 'Manage portfolios, compliance and maintenance across every asset.',
   },
   {
-    to: '/for-owners',
-    kicker: 'For property owners',
-    h: ['One dashboard.', 'Every building.'],
-    body: 'Portfolio-level spend, compliance and asset condition. White-label for your tenants if you want.',
+    to: '/platform',
+    kicker: 'For franchises',
+    line: 'Standardise maintenance across locations, with full control and visibility.',
   },
   {
-    to: '/for-trades',
-    kicker: 'For tradespeople',
-    h: ['Fair work.', 'Paid in seven days.'],
-    body: 'No commission. No marketplace fees. Transparent rate cards. 98.4% of invoices paid within a week.',
+    to: '/platform',
+    kicker: 'For enterprise operations',
+    line: 'Handle high-volume requests with consistent delivery and reporting.',
+  },
+  {
+    to: '/platform',
+    kicker: 'For service platforms',
+    line: 'Plug into our infrastructure to manage jobs, suppliers and reporting at scale.',
   },
 ]
 
@@ -60,23 +108,27 @@ export default function Home() {
         <Container>
           <div className="fx-hero-grid">
             <div>
-              <Chip dot>Free to list · No ticket fees, ever</Chip>
+              <Chip dot>Pre-fixed pricing · Certified partners</Chip>
               <h1 className="fx-display-lg fx-mt-24">
                 Maintenance <span className="fx-coral-text">infrastructure</span> for British business.
               </h1>
               <p className="fx-lede fx-mt-24">
-                One calm place for facilities teams, property owners and 3,400+ vetted tradespeople.
-                Free to list. No ticket fees. Ever.
+                {
+                  'Fully handled, end to end. Trades, scheduling, compliance, execution & reporting — all in one place.'
+                }
               </p>
               <div className="fx-flex fx-gap-8 fx-mt-32" style={{ flexWrap: 'wrap' }}>
                 <Button to="/contact" arrow>Book a demo</Button>
                 <Button to="/platform" variant="ghost">See the platform</Button>
               </div>
               <div className="fx-hero-meta fx-mt-48">
-                <span className="fx-mono">SOC 2 Type II</span>
-                <span className="fx-mono">ISO 27001</span>
-                <span className="fx-mono">Cyber Essentials Plus</span>
-                <span className="fx-mono">GDPR</span>
+                <span className="fx-hero-cert-label">Certified ›</span>
+                <div className="fx-hero-certs">
+                  <span className="fx-mono">Gas Safe</span>
+                  <span className="fx-mono">NICEIC</span>
+                  <span className="fx-mono">OFTEC</span>
+                  <span className="fx-mono">NAPIT</span>
+                </div>
               </div>
             </div>
 
@@ -87,34 +139,42 @@ export default function Home() {
         </Container>
       </section>
 
-      {/* PRESS */}
-      <section className="fx-press-section">
-        <Container>
-          <div className="fx-press-row">
-            <div className="fx-press-row-lbl">As covered by</div>
-            <div className="fx-press-row-logos">
-              {PRESS.map((p) => <span key={p} className="fx-press-logo">{p}</span>)}
-            </div>
-          </div>
-        </Container>
-      </section>
-
       {/* STATS */}
       <Section size="compact">
         <Container>
           <Eyebrow>By the numbers · Q1 2026</Eyebrow>
           <div className="fx-stats-grid fx-mt-32">
-            <Stat kicker="Tradespeople" number="3,412"
-                  label="Vetted, insured UK tradespeople active on the platform today." />
-            <Stat kicker="Jobs · last 30d" number="14,219"
-                  label="Reactive, planned and compliance jobs completed this month." />
-            <Stat kicker="Avg SLA" number={<>3<span className="fx-unit">h</span> 48<span className="fx-unit">m</span></>}
-                  label="Median time from job post to trade on-site for P1 reactive." />
-            <Stat kicker="Paid in 7 days" number="98.4" unit="%"
-                  label="Of trade invoices settled within a week of completion." />
+            <Stat
+              kicker="AVG SLA P1"
+              number={<>17<span className="fx-unit">h</span> 48<span className="fx-unit">m</span></>}
+              label="Average time to fully resolve urgent P1 jobs."
+            />
+            <Stat
+              kicker="Trades compliance"
+              number="99.7"
+              unit="%"
+              label="Vetted, insured and continuously monitored professionals."
+            />
+            <Stat
+              kicker="Avg response time"
+              number={<>8<span className="fx-unit">m</span> 4<span className="fx-unit">s</span></>}
+              label="From first contact to job acknowledgement."
+            />
+            <Stat
+              kicker="Fast partner payouts"
+              number="98.4"
+              unit="%"
+              label="Paid within 7 days. Trade invoices settled within a week of completion."
+            />
           </div>
         </Container>
       </Section>
+
+      <HowItWorksHome
+        title={HOW_IT_WORKS.title}
+        lede={HOW_IT_WORKS.lede}
+        steps={HOW_IT_WORKS.steps}
+      />
 
       {/* CUSTOMER WALL */}
       <Section tone="paper">
@@ -134,13 +194,12 @@ export default function Home() {
       {/* PLATFORM */}
       <Section>
         <Container>
-          <Eyebrow>The platform</Eyebrow>
-          <h2 className="fx-display fx-mt-16" style={{ maxWidth: '18ch' }}>
-            Everything a building needs. Nothing it doesn&rsquo;t.
+          <Eyebrow>The infrastructure</Eyebrow>
+          <h2 className="fx-display fx-mt-16" style={{ maxWidth: '32ch' }}>
+            Everything your properties need, without the overhead.
           </h2>
           <p className="fx-lede fx-mt-24">
-            Four modules. One ledger. Built so the facilities manager, the finance director
-            and the trade on site are looking at the same truth.
+            Four modules. One system. Everyone working from the same source of truth.
           </p>
           <div className="fx-grid-4 fx-mt-64">
             {PLATFORM_CARDS.map((c) => (
@@ -156,37 +215,37 @@ export default function Home() {
       {/* CORAL PULLQUOTE */}
       <Section tone="coral">
         <Container narrow>
-          <Eyebrow style={{ color: 'rgba(255,255,255,0.76)' }}>Customer · Selfridges</Eyebrow>
+          <Eyebrow style={{ color: 'rgba(255,255,255,0.76)' }}>Customer · Li &amp; Fung</Eyebrow>
           <blockquote className="fx-pullquote fx-mt-24">
-            We moved 340 sites onto Fixfy in seven weeks. The dashboard tells us more in a glance
-            than our last CAFM platform did in a monthly export.
+            A backlog of critical jobs was resolved in weeks. Fixfy quoted, planned and delivered
+            everything — with trades fully managed and no chasing required.
           </blockquote>
           <div className="fx-quote-cite fx-mt-32">
-            <div className="fx-quote-avatar">EH</div>
+            <div className="fx-quote-avatar">SB</div>
             <div>
-              <div style={{ fontWeight: 500, fontSize: 16 }}>Eleanor Harding</div>
-              <div style={{ fontSize: 13, opacity: 0.8 }}>Group Head of Facilities · Selfridges</div>
+              <div style={{ fontWeight: 500, fontSize: 16 }}>Sabrina Braz</div>
+              <div style={{ fontSize: 13, opacity: 0.8 }}>Facilities Manager · Li &amp; Fung</div>
             </div>
           </div>
         </Container>
       </Section>
 
-      {/* THREE AUDIENCES */}
+      {/* LIVE SMART PORTAL */}
       <Section tone="paper">
         <Container>
-          <Eyebrow>Built for three audiences</Eyebrow>
-          <h2 className="fx-display fx-mt-16" style={{ maxWidth: '16ch' }}>
-            One platform, three points of view.
+          <Eyebrow>LIVE SMART PORTAL</Eyebrow>
+          <h2 className="fx-display fx-mt-16" style={{ maxWidth: '22ch' }}>
+            One dashboard for every property.
           </h2>
-          <div className="fx-grid-3 fx-mt-64">
-            {PERSONAS.map((p) => (
-              <Link key={p.to} to={p.to} className="fx-persona-card">
+          <p className="fx-lede fx-mt-24">
+            Manage one or thousands, with the same control.
+          </p>
+          <div className="fx-grid-4 fx-mt-64">
+            {AUDIENCE_CARDS.map((p) => (
+              <Link key={p.kicker} to={p.to} className="fx-persona-card">
                 <div>
                   <div className="fx-persona-kicker">{p.kicker}</div>
-                  <h3 className="fx-h2 fx-mt-16">
-                    {p.h[0]}<br />{p.h[1]}
-                  </h3>
-                  <p className="fx-body fx-mt-16">{p.body}</p>
+                  <h3 className="fx-h3 fx-mt-16">{p.line}</h3>
                 </div>
                 <span className="fx-persona-link fx-mt-32">Learn more →</span>
               </Link>
