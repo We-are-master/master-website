@@ -53,6 +53,9 @@ export default function FixfyV2Nav() {
           </NavLink>
         </div>
         <div className="v2-nav-cta">
+          <Link to="/partners" className="v2-nav-link ghost">
+            Become a partner
+          </Link>
           <Link to="/login" className="v2-nav-link ghost">
             Log in
           </Link>
