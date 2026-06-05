@@ -80,9 +80,9 @@ export default function FixfyV2Nav() {
             </NavLink>
           </div>
           <div className="v2-nav-cta">
-            <Link to="/partners" className="v2-nav-link ghost" onClick={closeMenu}>
+            <a href="/partners" className="v2-nav-link ghost" onClick={closeMenu}>
               Become a partner
-            </Link>
+            </a>
             <Link to="/login" className="v2-nav-link ghost" onClick={closeMenu}>
               Log in
             </Link>
