@@ -1,5 +1,5 @@
 import { useLayoutEffect } from 'react'
-import { PageHome } from '../fixfy-site-v2/page-home-v2.js'
+import { CinematicHome, initCinematic } from '../fixfy-site-v2/page-home-cinematic.js'
 import { PageFixfyPro } from '../fixfy-site-v2/page-fixfypro.js'
 import {
   PageRealEstate,
@@ -11,7 +11,6 @@ import { PagePlatform } from '../fixfy-site-v2/page-platform-v2.js'
 import { PageAbout, PageContact } from '../fixfy-site-v2/page-about-contact.js'
 import {
   htmlPageStub,
-  initInfraModules,
   initHeroScenes,
   initPlatformReveal,
   initContactForm,
@@ -21,13 +20,13 @@ import {
 export function HomeV2() {
   useLayoutEffect(() => {
     document.body.setAttribute('data-tone', 'navy')
-    const cleanupInfra = initInfraModules()
+    const cleanupCinematic = initCinematic()
     return () => {
       document.body.removeAttribute('data-tone')
-      cleanupInfra?.()
+      cleanupCinematic?.()
     }
   }, [])
-  return <main dangerouslySetInnerHTML={{ __html: PageHome() }} />
+  return <main dangerouslySetInnerHTML={{ __html: CinematicHome() }} />
 }
 
 export function FixfyProV2() {

@@ -103,7 +103,7 @@ const Footer = () => {
                 <li style={{marginBottom: '0.75rem'}}><a href="#" style={{color: 'white', textDecoration: 'none', transition: 'color 0.3s ease'}}>Join as a Cleaner</a></li>
                 <li style={{marginBottom: '0.75rem'}}><a href="#" style={{color: 'white', textDecoration: 'none', transition: 'color 0.3s ease'}}>API Integration</a></li>
                 <li style={{marginBottom: '0.75rem'}}><a href="#" style={{color: 'white', textDecoration: 'none', transition: 'color 0.3s ease'}}>Partner Portal</a></li>
-                <li style={{marginBottom: '0.75rem'}}><a href="/partners" style={{color: 'white', textDecoration: 'none', transition: 'color 0.3s ease'}}>Become a Partner</a></li>
+                <li style={{marginBottom: '0.75rem'}}><a href="https://getfixfy.com/partners" style={{color: 'white', textDecoration: 'none', transition: 'color 0.3s ease'}}>Become a Partner</a></li>
               </ul>
             </div>
 

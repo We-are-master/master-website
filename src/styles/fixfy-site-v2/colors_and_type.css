@@ -45,8 +45,8 @@
   --fx-blue-50:     #E1ECFF;
 
   /* ========== TYPE ========== */
-  --fx-sans: 'Geist', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --fx-mono: 'Geist Mono', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --fx-sans: 'Geist', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; /* @kind font */
+  --fx-mono: 'Geist Mono', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace; /* @kind font */
 
   /* size / line-height pairs */
   --fx-size-display-xl: 72px;   --fx-lh-display-xl: 76px;
@@ -60,14 +60,14 @@
   --fx-size-caption:    12px;   --fx-lh-caption:    16px;
 
   /* weights — we do not use 700 for display */
-  --fx-w-regular: 400;
-  --fx-w-medium:  500;
-  --fx-w-semi:    600;
+  --fx-w-regular: 400; /* @kind font */
+  --fx-w-medium:  500; /* @kind font */
+  --fx-w-semi:    600; /* @kind font */
 
   /* tracking */
-  --fx-track-display: -0.02em;
-  --fx-track-tight:   -0.01em;
-  --fx-track-wide:    0.06em;
+  --fx-track-display: -0.02em; /* @kind font */
+  --fx-track-tight:   -0.01em; /* @kind font */
+  --fx-track-wide:    0.06em; /* @kind font */
 
   /* ========== SPACING (4px base) ========== */
   --fx-sp-1:  4px;
@@ -96,13 +96,13 @@
   --fx-elev-3: 0 24px 48px rgba(2,0,64,0.16);
 
   /* ========== MOTION ========== */
-  --fx-dur-fast:  120ms;
-  --fx-dur-med:   200ms;
-  --fx-dur-slow:  320ms;
-  --fx-ease:      cubic-bezier(0.2, 0.0, 0, 1);
+  --fx-dur-fast:  120ms; /* @kind other */
+  --fx-dur-med:   200ms; /* @kind other */
+  --fx-dur-slow:  320ms; /* @kind other */
+  --fx-ease:      cubic-bezier(0.2, 0.0, 0, 1); /* @kind other */
 
   /* ========== FOCUS RING ========== */
-  --fx-focus: 0 0 0 2px rgba(237,75,0,0.5);
+  --fx-focus: 0 0 0 2px rgba(237,75,0,0.5); /* @kind shadow */
 }
 
 /* -------------------------------------------------------------------------- */

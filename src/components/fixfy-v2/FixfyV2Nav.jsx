@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import FixfyLogo from '../FixfyLogo'
+import { PARTNERS_LANDING_URL } from '../../lib/partnerUrls'
 import { initBgToggle } from '../../fixfy-site-v2/v2Effects.js'
 
 function navCls({ isActive }) {
@@ -80,7 +81,7 @@ export default function FixfyV2Nav() {
             </NavLink>
           </div>
           <div className="v2-nav-cta">
-            <a href="/partners" className="v2-nav-link ghost" onClick={closeMenu}>
+            <a href={PARTNERS_LANDING_URL} className="v2-nav-link ghost" onClick={closeMenu}>
               Become a partner
             </a>
             <Link to="/login" className="v2-nav-link ghost" onClick={closeMenu}>

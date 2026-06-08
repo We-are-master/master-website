@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import FixfyLogo from '../FixfyLogo'
+import { PARTNERS_LANDING_URL } from '../../lib/partnerUrls'
 
 export default function FixfyV2Footer() {
   return (
@@ -56,6 +57,9 @@ export default function FixfyV2Footer() {
                 <Link to="/contact">Emergency support</Link>
               </li>
               <li>
+                <a href={PARTNERS_LANDING_URL}>Become a partner</a>
+              </li>
+              <li>
                 <Link to="/contact">Partner inquiries</Link>
               </li>
               <li>
@@ -83,7 +87,7 @@ export default function FixfyV2Footer() {
         </div>
         <div className="v2-footer-bot">
           <span>© {new Date().getFullYear()} Fixfy Ltd · United Kingdom · All rights reserved.</span>
-          <span className="v2-mono">website v2</span>
+          <span className="v2-mono">website v3</span>
         </div>
       </div>
     </footer>

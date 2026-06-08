@@ -1,0 +1,420 @@
+/* ============================================================
+   Fixfy Website V3 — Cinematic Home
+   Layers on top of colors_and_type.css + site-v2.css
+   Atmosphere · depth · 3D float · parallax · scroll reveal
+   ============================================================ */
+
+/* ---------- shared cinematic tokens ---------- */
+:root{
+  --cin-glow-coral: rgba(237,75,0,0.55);
+  --cin-glow-blue:  rgba(40,70,220,0.40);
+  --cin-stage-h: 92vh;
+}
+
+/* kill the old hero block padding so our full-bleed stage owns the fold */
+.cin-home .v2-hero{display:none}
+
+/* reveal primitive — transform-only so a throttled/frozen frame, no-JS, static
+   capture, and reduced-motion always show the content (opacity never hides it). */
+.cin-reveal{
+  opacity:1;transform:translateY(38px);
+  transition:transform .85s var(--fx-ease);
+  will-change:transform;
+}
+.cin-reveal.in{transform:none}
+@media (prefers-reduced-motion:reduce){
+  .cin-reveal{transform:none;transition:none}
+}
+
+/* ============================================================
+   HERO STAGE — full-bleed atmospheric shell (shared by variants)
+   ============================================================ */
+.cin-hero{
+  position:relative;
+  min-height:clamp(600px, 92vh, 980px);
+  display:flex;align-items:center;
+  overflow:hidden;
+  background:var(--v2-bg);
+  isolation:isolate;
+  perspective:1600px;
+  padding:64px 0;
+}
+
+/* layered atmosphere — drifting light, vignette, grid, noise */
+.cin-atmos{position:absolute;inset:0;z-index:0;pointer-events:none}
+.cin-atmos .blob{
+  position:absolute;border-radius:50%;
+  filter:blur(80px);opacity:.9;
+  will-change:transform;
+}
+.cin-atmos .b1{width:760px;height:760px;left:-8%;top:-22%;
+  background:radial-gradient(circle at 50% 50%, var(--cin-glow-coral), transparent 64%);}
+.cin-atmos .b2{width:680px;height:680px;right:-10%;top:6%;
+  background:radial-gradient(circle at 50% 50%, var(--cin-glow-blue), transparent 66%);}
+.cin-atmos .b3{width:520px;height:520px;left:30%;bottom:-28%;
+  background:radial-gradient(circle at 50% 50%, rgba(237,75,0,0.22), transparent 70%);}
+@media (prefers-reduced-motion:no-preference){
+  .cin-atmos .b1{animation:cinDrift1 18s ease-in-out infinite alternate}
+  .cin-atmos .b2{animation:cinDrift2 22s ease-in-out infinite alternate}
+  .cin-atmos .b3{animation:cinDrift3 26s ease-in-out infinite alternate}
+}
+@keyframes cinDrift1{to{transform:translate(60px,40px) scale(1.08)}}
+@keyframes cinDrift2{to{transform:translate(-50px,30px) scale(1.12)}}
+@keyframes cinDrift3{to{transform:translate(30px,-40px) scale(1.05)}}
+
+.cin-grid{
+  position:absolute;inset:-2px;z-index:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px);
+  background-size:64px 64px;
+  mask-image:radial-gradient(ellipse 80% 70% at 50% 40%, #000 30%, transparent 78%);
+  -webkit-mask-image:radial-gradient(ellipse 80% 70% at 50% 40%, #000 30%, transparent 78%);
+}
+.cin-vignette{
+  position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:
+    radial-gradient(ellipse 120% 80% at 50% 0%, transparent 40%, rgba(0,0,0,0.35) 100%),
+    linear-gradient(to bottom, transparent 55%, transparent 100%);
+}
+.cin-noise{
+  position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.04;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+/* slow scan-line drifting down the stage for a 'live' feel (decorative) */
+.cin-scan{position:absolute;left:0;right:0;height:160px;z-index:1;pointer-events:none;top:-200px;
+  background:linear-gradient(to bottom, transparent, rgba(237,75,0,0.06), transparent)}
+@media (prefers-reduced-motion:no-preference){
+  .cin-scan{animation:cinScan 8s linear infinite}
+}
+@keyframes cinScan{0%{top:-200px}100%{top:100%}}
+
+.cin-hero-inner{position:relative;z-index:3;width:100%}
+
+/* hero variant visibility */
+.cin-hero[data-variant="A"] .hv-B,
+.cin-hero[data-variant="A"] .hv-C,
+.cin-hero[data-variant="A"] .cin-drift,
+.cin-hero[data-variant="B"] .hv-A,
+.cin-hero[data-variant="B"] .hv-C,
+.cin-hero[data-variant="C"] .hv-A,
+.cin-hero[data-variant="C"] .hv-B,
+.cin-hero[data-variant="C"] .cin-drift{display:none !important}
+
+/* ---------- shared hero copy ---------- */
+.cin-eyebrow{
+  display:inline-flex;align-items:center;gap:10px;
+  font-family:var(--fx-mono);font-size:11px;letter-spacing:0.24em;
+  color:var(--fx-coral);text-transform:uppercase;font-weight:500;
+}
+.cin-eyebrow .pip{width:6px;height:6px;border-radius:50%;background:var(--fx-coral);box-shadow:0 0 12px var(--fx-coral);animation:cinPip 2.4s ease-in-out infinite}
+@keyframes cinPip{0%,100%{opacity:.4}50%{opacity:1}}
+
+.cin-h1{
+  font-size:clamp(44px,6.2vw,92px);line-height:0.96;letter-spacing:-0.038em;
+  font-weight:500;margin:22px 0 0;color:#fff;text-wrap:balance;
+}
+.cin-h1 .word{display:inline-block;opacity:1;transform:none}
+/* entrance is transform-only: opacity stays 1 throughout, so a frozen frame,
+   no-JS, reduced-motion, or static capture always shows the text. */
+.cin-hero.is-armed .cin-h1 .word{animation:cinWordIn .72s var(--fx-ease) backwards}
+@media (prefers-reduced-motion:reduce){.cin-hero.is-armed .cin-h1 .word{animation:none}}
+@keyframes cinWordIn{0%{transform:translateY(24px) rotateX(34deg)}100%{transform:none}}
+.cin-coral{color:var(--fx-coral)}
+.cin-h1 .grad{
+  background:linear-gradient(110deg,#fff 10%, var(--fx-coral) 55%, #ff8a4c 90%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+
+.cin-lede{font-size:clamp(16px,1.4vw,20px);line-height:1.55;color:rgba(255,255,255,0.74);
+  max-width:52ch;text-wrap:pretty;margin:24px 0 0}
+.cin-ctas{display:flex;gap:14px;flex-wrap:wrap;margin-top:36px}
+.cin-cta-primary{
+  display:inline-flex;align-items:center;gap:9px;padding:16px 26px;border-radius:8px;
+  background:var(--fx-coral);color:#fff;font-size:15px;font-weight:500;
+  box-shadow:0 12px 40px rgba(237,75,0,0.36);transition:all .18s var(--fx-ease);
+}
+.cin-cta-primary:hover{transform:translateY(-2px);box-shadow:0 18px 52px rgba(237,75,0,0.5)}
+.cin-cta-primary .arr{transition:transform .18s ease}
+.cin-cta-primary:hover .arr{transform:translateX(4px)}
+.cin-cta-ghost{
+  display:inline-flex;align-items:center;gap:9px;padding:16px 24px;border-radius:8px;
+  color:#fff;border:1px solid rgba(255,255,255,0.18);font-size:15px;font-weight:500;
+  background:rgba(255,255,255,0.02);backdrop-filter:blur(6px);transition:all .18s var(--fx-ease);
+}
+.cin-cta-ghost:hover{border-color:var(--fx-coral);color:var(--fx-coral)}
+
+.cin-cert{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:40px}
+.cin-cert .lbl{font-family:var(--fx-mono);font-size:10.5px;letter-spacing:0.16em;color:rgba(255,255,255,0.4);text-transform:uppercase}
+.cin-cert .badge{font-family:var(--fx-mono);font-size:11px;letter-spacing:0.08em;color:rgba(255,255,255,0.62);
+  padding:5px 11px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;background:rgba(255,255,255,0.02);white-space:nowrap}
+
+/* ============================================================
+   VARIANT A — Floating console (split, 3D card stack right)
+   ============================================================ */
+.hv-A{display:grid;grid-template-columns:1.05fr 1fr;gap:56px;align-items:center}
+.cin-stage3d{position:relative;height:560px;transform-style:preserve-3d;will-change:transform}
+.cin-panel{
+  position:absolute;border-radius:16px;overflow:hidden;
+  background:linear-gradient(160deg, rgba(20,20,38,0.96), rgba(8,8,20,0.96));
+  border:1px solid rgba(255,255,255,0.10);
+  box-shadow:0 40px 90px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06);
+  transform-style:preserve-3d;
+}
+/* primary panel */
+.cin-panel.p-main{inset:4% 0 4% 8%;z-index:3;transform:translateZ(60px)}
+.cin-panel.p-main::after{content:"";position:absolute;inset:0;border-radius:16px;
+  box-shadow:inset 0 0 0 1px rgba(237,75,0,0.16);pointer-events:none;z-index:7}
+/* light-sweep sheen across the console (decorative, frozen-safe) */
+.cin-panel.p-main::before{content:"";position:absolute;top:0;bottom:0;width:60%;z-index:6;pointer-events:none;
+  background:linear-gradient(115deg, transparent 0%, rgba(255,255,255,0.07) 50%, transparent 100%);
+  mix-blend-mode:overlay;left:-60%}
+@media (prefers-reduced-motion:no-preference){
+  .cin-panel.p-main::before{animation:cinSweep 6.5s ease-in-out infinite}
+}
+@keyframes cinSweep{0%{left:-60%}55%{left:120%}100%{left:120%}}
+/* back panels for depth */
+.cin-panel.p-b1{inset:0 6% 30% 2%;z-index:2;transform:translateZ(0px);opacity:.6}
+.cin-panel.p-b2{inset:26% 2% 2% 24%;z-index:1;transform:translateZ(-50px);opacity:.38}
+
+.cin-panel .pn-h{display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.07);
+  font-family:var(--fx-mono);font-size:10.5px;letter-spacing:0.1em;color:rgba(255,255,255,0.55);text-transform:uppercase}
+.cin-led{display:inline-flex;align-items:center;gap:6px;color:#4ade80}
+.cin-led .d{width:6px;height:6px;border-radius:50%;background:#4ade80;box-shadow:0 0 8px #4ade80;animation:cinPip 1.8s infinite}
+.cin-panel .pn-body{padding:18px}
+
+/* live KPI rows inside main panel */
+.cin-kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cin-kpi{padding:13px 14px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07)}
+.cin-kpi .k{font-family:var(--fx-mono);font-size:9.5px;letter-spacing:0.12em;color:rgba(255,255,255,0.45);text-transform:uppercase}
+.cin-kpi .v{font-size:26px;font-weight:600;color:#fff;margin-top:4px;letter-spacing:-0.02em;font-variant-numeric:tabular-nums}
+.cin-kpi .v .u{font-size:13px;color:rgba(255,255,255,0.5);font-weight:400}
+.cin-kpi .t{font-family:var(--fx-mono);font-size:10px;color:#4ade80;margin-top:3px}
+.cin-spark{margin-top:14px;height:64px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);overflow:hidden;position:relative}
+.cin-spark svg{width:100%;height:100%;display:block}
+.cin-flow{margin-top:12px;display:flex;flex-direction:column;gap:7px}
+.cin-flow .row{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:8px;
+  background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);font-size:12px;color:rgba(255,255,255,0.8)}
+.cin-flow .row .tag{font-family:var(--fx-mono);font-size:9px;letter-spacing:0.1em;padding:2px 6px;border-radius:3px;text-transform:uppercase}
+.cin-flow .row .tag.req{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7)}
+.cin-flow .row .tag.live{background:rgba(237,75,0,0.16);color:var(--fx-coral)}
+.cin-flow .row .tag.ok{background:rgba(74,222,128,0.12);color:#4ade80}
+.cin-flow .row .stamp{margin-left:auto;font-family:var(--fx-mono);font-size:10px;color:rgba(255,255,255,0.45)}
+
+/* ============================================================
+   VARIANT B — Full-bleed telemetry (centered type, drifting cards)
+   ============================================================ */
+.hv-B{text-align:center;max-width:1000px;margin:0 auto;position:relative;z-index:3}
+.hv-B .cin-eyebrow{justify-content:center}
+.hv-B .cin-lede{margin-left:auto;margin-right:auto}
+.hv-B .cin-ctas{justify-content:center}
+.hv-B .cin-cert{justify-content:center}
+/* drifting telemetry cards behind centered copy */
+.cin-drift{position:absolute;inset:0;z-index:0;pointer-events:none}
+.cin-chip{
+  position:absolute;padding:11px 14px;border-radius:11px;
+  background:linear-gradient(160deg, rgba(18,18,34,0.9), rgba(8,8,18,0.9));
+  border:1px solid rgba(255,255,255,0.10);
+  box-shadow:0 24px 60px rgba(0,0,0,0.5);
+  font-size:12px;color:rgba(255,255,255,0.82);min-width:150px;
+  backdrop-filter:blur(4px);will-change:transform;
+}
+.cin-chip .ct{font-family:var(--fx-mono);font-size:9px;letter-spacing:0.12em;color:var(--fx-coral);text-transform:uppercase}
+.cin-chip .cm{font-size:12.5px;color:#fff;margin-top:3px;font-weight:500}
+.cin-chip .cs{font-family:var(--fx-mono);font-size:10px;color:rgba(255,255,255,0.5);margin-top:2px}
+.cin-chip.x1{left:4%;top:16%}
+.cin-chip.x2{right:3%;top:24%}
+.cin-chip.x3{left:8%;bottom:20%}
+.cin-chip.x4{right:7%;bottom:14%}
+@media (prefers-reduced-motion:no-preference){
+  .cin-chip.x1{animation:cinFloat 7s ease-in-out infinite}
+  .cin-chip.x2{animation:cinFloat 9s ease-in-out infinite .4s}
+  .cin-chip.x3{animation:cinFloat 8s ease-in-out infinite .8s}
+  .cin-chip.x4{animation:cinFloat 10s ease-in-out infinite .2s}
+}
+@keyframes cinFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-16px)}}
+
+/* ============================================================
+   VARIANT C — Command deck (type top, wide tilted console below)
+   ============================================================ */
+.hv-C{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;width:100%}
+.hv-C .cin-eyebrow{justify-content:center}
+.hv-C .cin-lede{margin:18px auto 0;text-align:center}
+.hv-C .cin-ctas{justify-content:center}
+.hv-C .cin-cert{justify-content:center}
+.cin-deck-wrap{margin-top:14px;width:100%;perspective:1400px;perspective-origin:50% 0%}
+.cin-deck{
+  position:relative;margin:0 auto;max-width:1040px;border-radius:16px 16px 0 0;overflow:hidden;
+  background:linear-gradient(160deg, rgba(20,20,40,0.97), rgba(8,8,20,0.97));
+  border:1px solid rgba(255,255,255,0.10);border-bottom:none;
+  box-shadow:0 -10px 80px rgba(237,75,0,0.18), 0 40px 100px rgba(0,0,0,0.6);
+  transform:rotateX(26deg);transform-origin:50% 0%;will-change:transform;
+}
+.cin-deck .pn-h{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;
+  border-bottom:1px solid rgba(255,255,255,0.07);
+  font-family:var(--fx-mono);font-size:10.5px;letter-spacing:0.1em;color:rgba(255,255,255,0.55);text-transform:uppercase}
+.cin-deck-body{padding:20px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.cin-deck-glow{position:absolute;left:0;right:0;bottom:-2px;height:140px;
+  background:linear-gradient(to top, rgba(10,10,15,0.92), transparent);pointer-events:none;z-index:5}
+
+/* ---------- KPI "validating" border sweep (entrance) ---------- */
+@property --cin-ang{syntax:'<angle>';inherits:false;initial-value:0deg}
+
+.cin-deck-body{position:relative}
+/* a soft coral beam that travels left→right behind the boxes, tying the sequence together */
+.cin-deck-body::before{content:"";position:absolute;top:8px;bottom:8px;left:0;width:36%;
+  background:linear-gradient(90deg,transparent,rgba(237,75,0,0.16),transparent);
+  transform:translateX(-130%);opacity:0;pointer-events:none;z-index:0;filter:blur(2px)}
+.cin-deck-body.is-validating::before{animation:cinScanBeam 1.7s cubic-bezier(.4,0,.2,1)}
+@keyframes cinScanBeam{
+  0%{transform:translateX(-130%);opacity:0}
+  12%{opacity:1}
+  88%{opacity:1}
+  100%{transform:translateX(230%);opacity:0}
+}
+
+.cin-deck-body .cin-kpi{position:relative;z-index:1;
+  transition:border-color .5s ease, box-shadow .5s ease}
+/* resting "validated" look after the sweep */
+.cin-deck-body .cin-kpi.cin-done{border-color:rgba(237,75,0,0.7);
+  box-shadow:0 0 0 1px rgba(237,75,0,0.22), inset 0 0 22px -12px rgba(237,75,0,0.7)}
+/* traced orange ring that draws around each box */
+.cin-deck-body .cin-kpi::after{content:"";position:absolute;inset:-1px;border-radius:11px;padding:2.5px;
+  background:conic-gradient(from var(--cin-ang,0deg),
+    transparent 0deg, transparent 195deg,
+    rgba(242,101,39,0.95) 275deg, #ED4B00 330deg, transparent 360deg);
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite:exclude;opacity:0;pointer-events:none}
+
+.cin-deck-body .cin-kpi.cin-val{animation:cinValGlow 1s ease-out}
+.cin-deck-body .cin-kpi.cin-val::after{animation:cinValTrace .82s ease-out}
+.cin-deck-body .cin-kpi.cin-val .v{animation:cinValNum 1s ease-out}
+.cin-deck-body .cin-kpi.cin-val .t{animation:cinValTick 1s ease-out}
+
+@keyframes cinValTrace{
+  0%{opacity:0;--cin-ang:0deg}
+  18%{opacity:1}
+  82%{opacity:1;--cin-ang:360deg}
+  100%{opacity:0;--cin-ang:360deg}
+}
+@keyframes cinValGlow{
+  0%{border-color:rgba(255,255,255,0.07);box-shadow:0 0 0 0 rgba(237,75,0,0)}
+  40%{border-color:#ED4B00;
+      box-shadow:0 0 0 1.5px rgba(237,75,0,0.55), 0 12px 40px -8px rgba(237,75,0,0.7), inset 0 0 26px -8px rgba(237,75,0,0.6)}
+  100%{border-color:rgba(237,75,0,0.7);box-shadow:0 0 0 1px rgba(237,75,0,0.22), inset 0 0 22px -12px rgba(237,75,0,0.7)}
+}
+@keyframes cinValNum{0%,18%{color:#fff}46%{color:#F26527}100%{color:#fff}}
+@keyframes cinValTick{0%,30%{color:#4ade80}50%{color:#ED4B00}100%{color:#4ade80}}
+
+@media (prefers-reduced-motion:reduce){
+  .cin-deck-body::before,
+  .cin-deck-body .cin-kpi.cin-val,
+  .cin-deck-body .cin-kpi.cin-val::after{animation:none}
+}
+
+/* ============================================================
+   HERO VARIANT SWITCHER
+   ============================================================ */
+.cin-switch{
+  position:fixed;right:18px;bottom:18px;z-index:80;
+  display:flex;align-items:center;gap:4px;padding:5px;border-radius:12px;
+  background:rgba(12,12,24,0.82);border:1px solid rgba(255,255,255,0.12);
+  backdrop-filter:blur(14px);box-shadow:0 16px 40px rgba(0,0,0,0.5);
+}
+.cin-switch .lbl{font-family:var(--fx-mono);font-size:9px;letter-spacing:0.14em;
+  color:rgba(255,255,255,0.42);text-transform:uppercase;padding:0 8px 0 6px}
+.cin-switch button{
+  font-family:var(--fx-mono);font-size:11px;letter-spacing:0.04em;
+  color:rgba(255,255,255,0.6);padding:7px 12px;border-radius:8px;transition:all .16s ease;
+}
+.cin-switch button:hover{color:#fff;background:rgba(255,255,255,0.06)}
+.cin-switch button[aria-pressed="true"]{background:var(--fx-coral);color:#fff}
+
+/* ============================================================
+   SECTION ATMOSPHERE — give dark sections subtle depth + parallax accents
+   ============================================================ */
+.cin-home .v2-section.dark,
+.cin-home .v2-section.light{
+  position:relative;
+  overflow:visible;
+  border-top:none;
+  border-bottom:none;
+}
+.cin-home .cin-reveal{overflow:visible}
+
+/* collapse double padding + divider seams between same-tone blocks */
+.cin-home .cin-reveal:has(.v2-section.dark) + .cin-reveal:has(.v2-section.dark) .v2-section.dark{
+  padding-top:0;
+}
+.cin-home .cin-reveal:has(.v2-section.light) + .cin-reveal:has(.v2-section.light) .v2-section.light{
+  padding-top:0;
+}
+
+/* hero → first dark section: one continuous canvas on navy */
+body[data-tone="navy"] .cin-home .cin-hero{background:transparent}
+body[data-tone="navy"] .cin-home .cin-sec-band{background:transparent}
+
+/* gradient bridge — hero deck fades into navy body (no hard cut) */
+.cin-hero::after{
+  content:"";
+  position:absolute;left:0;right:0;bottom:0;
+  height:clamp(140px, 22vh, 280px);
+  z-index:4;pointer-events:none;
+  background:linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(2,0,64,0.35) 45%,
+    #020040 100%
+  );
+}
+body[data-tone="navy"] .cin-deck-glow{
+  background:linear-gradient(to top, rgba(2,0,64,0.75) 0%, transparent 100%);
+}
+body[data-tone="navy"] .cin-vignette{
+  background:
+    radial-gradient(ellipse 120% 80% at 50% 0%, transparent 40%, rgba(0,0,0,0.30) 100%),
+    linear-gradient(to bottom, transparent 40%, rgba(2,0,64,0.20) 75%, transparent 100%);
+}
+
+/* pull first content block into the fade zone */
+.cin-home .cin-hero + .cin-reveal{
+  margin-top:clamp(-72px, -9vh, -36px);
+  position:relative;
+  z-index:5;
+}
+
+.cin-sec-glow{position:absolute;z-index:0;border-radius:50%;filter:blur(90px);pointer-events:none;opacity:.5;will-change:transform}
+.cin-sec-glow.g-coral{width:600px;height:600px;background:radial-gradient(circle,var(--cin-glow-coral),transparent 66%)}
+.cin-sec-glow.g-blue{width:560px;height:560px;background:radial-gradient(circle,var(--cin-glow-blue),transparent 66%)}
+.cin-home .v2-section.dark > .v2-container,
+.cin-home .v2-section.light > .v2-container{position:relative;z-index:2}
+
+/* numbers — make the figures feel like a cinematic title card */
+.cin-home .v2-metric .num{font-variant-numeric:tabular-nums}
+
+/* infra stage — float in 3D with depth */
+.cin-home .v2-infra-stage{perspective:1400px}
+.cin-home .v2-infra-mock.active{transform:rotateY(-7deg) rotateX(3deg);transform-style:preserve-3d;
+  box-shadow:0 50px 110px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.05)}
+@media (prefers-reduced-motion:reduce){
+  .cin-home .v2-infra-mock.active{transform:none}
+}
+
+/* scroll progress hairline */
+.cin-progress{position:fixed;top:0;left:0;height:2px;width:0;z-index:120;
+  background:linear-gradient(90deg,var(--fx-coral),#ff8a4c);box-shadow:0 0 12px rgba(237,75,0,0.6)}
+
+/* ---------- responsive ---------- */
+@media (max-width:1080px){
+  .hv-A{grid-template-columns:1fr;gap:40px}
+  .cin-stage3d{height:440px}
+  .cin-deck-body{grid-template-columns:repeat(2,1fr)}
+  .cin-chip{display:none}
+}
+@media (max-width:640px){
+  .cin-stage3d{height:380px}
+  .cin-switch{right:10px;bottom:10px}
+  .cin-switch .lbl{display:none}
+}
