@@ -246,7 +246,7 @@ export function HeroSceneStage(){
 }
 
 /* ---------- Block 2: NUMBERS Q1 2026 ---------- */
-function HomeNumbers(){
+export function HomeNumbers(){
   return `
 <section class="v2-section dark">
   <div class="v2-container">
@@ -278,7 +278,7 @@ function HomeNumbers(){
 }
 
 /* ---------- Block 3: HOW IT WORKS ---------- */
-function HomeHowItWorks(){
+export function HomeHowItWorks(){
   return `
 <section class="v2-section dark">
   <div class="v2-container">
@@ -325,7 +325,7 @@ function HomeHowItWorks(){
 }
 
 /* ---------- Block 4: TRUSTED CLIENTS (light) ---------- */
-function HomeClients(){
+export function HomeClients(){
   const clients = [
     'Kvadrat','Li & Fung','Good Place Lettings','Cornwallis',
     'Eagle Vision','Crystal Facilities','SC Johnson','Fantastic Services',
@@ -344,7 +344,7 @@ function HomeClients(){
 }
 
 /* ---------- Block 5: THE INFRASTRUCTURE (4 modules animated) ---------- */
-function HomeInfrastructure(){
+export function HomeInfrastructure(){
   return `
 <section class="v2-section dark">
   <div class="v2-container">
@@ -641,7 +641,7 @@ function InfraMockCompliance(){
 }
 
 /* ---------- Block 6: TESTIMONIAL (coral band) ---------- */
-function HomeTestimonial(){
+export function HomeTestimonial(){
   return `
 <section class="v2-section coral-band">
   <div class="v2-container">
@@ -659,7 +659,7 @@ function HomeTestimonial(){
 }
 
 /* ---------- Block 7: SOLUTIONS PREVIEW (light) ---------- */
-function HomeSolutionsPreview(){
+export function HomeSolutionsPreview(){
   return `
 <section class="v2-section light">
   <div class="v2-container">
@@ -693,7 +693,7 @@ function HomeSolutionsPreview(){
 }
 
 /* ---------- Block 8: FINAL CTA ---------- */
-function HomeFinalCTA(){
+export function HomeFinalCTA(){
   return `
 <section class="v2-section dark" style="text-align:center">
   <div class="v2-narrow">

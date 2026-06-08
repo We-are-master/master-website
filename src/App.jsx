@@ -92,13 +92,13 @@ function AppContent() {
         <Route path="/terms" element={<TermsStubV2 />} />
         <Route path="/security" element={<SecurityStubV2 />} />
         <Route path="/dpa" element={<DpaStubV2 />} />
-        <Route path="/fixfypro/start" element={<Navigate to="/contact" replace />} />
+        <Route path="/fixfypro/start" element={<ExternalRedirect to="https://partners.getfixfy.com" />} />
         <Route path="/fixfypro/demo" element={<Navigate to="/contact" replace />} />
 
         {/* Legacy marketing URLs */}
         <Route path="/for-fms" element={<Navigate to="/solutions/real-estate" replace />} />
         <Route path="/for-owners" element={<Navigate to="/solutions/real-estate" replace />} />
-        <Route path="/for-trades" element={<Navigate to="/fixfypro" replace />} />
+        <Route path="/for-trades" element={<Navigate to="/partners" replace />} />
         <Route path="/customers" element={<Navigate to="/contact" replace />} />
         <Route path="/trust" element={<Navigate to="/contact" replace />} />
         <Route path="/resources" element={<Navigate to="/contact" replace />} />

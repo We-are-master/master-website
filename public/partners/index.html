@@ -8,7 +8,7 @@
 <base href="/partners/"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link rel="stylesheet" href="/partners/partners.css?v=4"/>
+<link rel="stylesheet" href="/partners/partners.css?v=5"/>
 <link rel="icon" type="image/png" href="/favicon.png"/>
 <link rel="apple-touch-icon" href="/favicon.png"/>
 <meta name="theme-color" content="#ED4B00"/>
@@ -16,22 +16,27 @@
 <body>
 
 <!-- ============================== NAV ============================== -->
-<nav class="nav">
+<nav class="nav" id="p-nav">
   <div class="nav-inner">
     <a href="#top" class="nav-brand">
       <img src="/partners/fixfy-white.png" alt="fixfy"/>
       <span class="nav-tag">Partners</span>
     </a>
-    <div class="nav-links">
-      <a class="nav-link" href="#why">Why join</a>
-      <a class="nav-link" href="#how">How it works</a>
-      <a class="nav-link" href="#earnings">Earnings</a>
-      <a class="nav-link" href="#system">The system</a>
-      <a class="nav-link" href="#requirements">Requirements</a>
-    </div>
-    <div class="nav-right">
-      <span class="nav-price"><b>£99</b>/mo · 7-day free trial</span>
-      <a class="btn btn-primary" href="#apply">Apply now <span class="arr">→</span></a>
+    <button type="button" class="nav-toggle" id="p-nav-toggle" aria-expanded="false" aria-controls="p-nav-panel" aria-label="Open menu">
+      <span class="nav-toggle-icon" aria-hidden="true"></span>
+    </button>
+    <div class="nav-panel" id="p-nav-panel">
+      <div class="nav-links">
+        <a class="nav-link" href="#why">Why join</a>
+        <a class="nav-link" href="#how">How it works</a>
+        <a class="nav-link" href="#earnings">Earnings</a>
+        <a class="nav-link" href="#system">The system</a>
+        <a class="nav-link" href="#requirements">Requirements</a>
+      </div>
+      <div class="nav-right">
+        <span class="nav-price"><b>£99</b>/mo · 7-day free trial</span>
+        <a class="btn btn-primary" href="https://partners.getfixfy.com/">Apply now <span class="arr">→</span></a>
+      </div>
     </div>
   </div>
 </nav>
@@ -47,7 +52,7 @@
       <h1 class="hero-h1">Join the infrastructure behind <span class="accent">modern maintenance</span></h1>
       <p class="hero-lede">Get access to daily quote requests, recurring maintenance work and pre-booked jobs from commercial clients across London — all run through one operating system.</p>
       <div class="hero-cta">
-        <a class="btn btn-primary btn-lg" href="#apply">Apply now <span class="arr">→</span></a>
+        <a class="btn btn-primary btn-lg" href="https://partners.getfixfy.com/">Apply now <span class="arr">→</span></a>
         <a class="btn btn-outline btn-lg" href="#how">See how it works</a>
       </div>
     </div>
@@ -359,7 +364,7 @@
         <li><svg data-lucide="check"></svg>Direct payments through the platform</li>
         <li><svg data-lucide="check"></svg>Dedicated operational support</li>
       </ul>
-      <a class="btn btn-primary btn-lg btn-block" href="#apply-form">Apply to become a partner <span class="arr">→</span></a>
+      <a class="btn btn-primary btn-lg btn-block" href="https://partners.getfixfy.com/">Apply to become a partner <span class="arr">→</span></a>
       <p class="pc-fine">No setup fees · Some partners earn during the trial</p>
     </div>
   </div>
@@ -372,7 +377,7 @@
     <h2 style="margin-top:18px">Built for serious trades and maintenance companies</h2>
     <p>Join the platform helping maintenance companies grow with better systems, recurring work and operational support.</p>
     <div class="actions">
-      <a class="btn btn-primary btn-lg" href="#apply-form">Apply to become a partner <span class="arr">→</span></a>
+      <a class="btn btn-primary btn-lg" href="https://partners.getfixfy.com/">Apply to become a partner <span class="arr">→</span></a>
       <a class="btn btn-outline btn-lg" href="#system">Explore the system</a>
     </div>
     <p class="fine">7-day free trial · £99/month after trial · Cancel anytime</p>
@@ -391,7 +396,7 @@
       </div>
       <div class="foot-cta">
         <span class="nav-price" style="margin-bottom:4px">7-day free trial · <b>£99</b>/month after</span>
-        <a class="btn btn-primary" href="#apply-form">Apply now <span class="arr">→</span></a>
+        <a class="btn btn-primary" href="https://partners.getfixfy.com/">Apply now <span class="arr">→</span></a>
       </div>
     </div>
     <div class="foot-bot">
@@ -402,7 +407,7 @@
 </footer>
 
 <!-- sticky apply for mobile -->
-<div class="sticky-apply"><a class="btn btn-primary" href="#apply-form">Apply now — 7-day free trial</a></div>
+<div class="sticky-apply"><a class="btn btn-primary" href="https://partners.getfixfy.com/">Apply now — 7-day free trial</a></div>
 
 <!-- bundler thumbnail -->
 <template id="__bundler_thumbnail">
@@ -414,6 +419,6 @@
 </template>
 
 <script src="https://unpkg.com/lucide@latest"></script>
-<script src="/partners/partners.js?v=2"></script>
+<script src="/partners/partners.js?v=3"></script>
 </body>
 </html>

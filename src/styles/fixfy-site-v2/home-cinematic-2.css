@@ -1,0 +1,114 @@
+/* ============================================================
+   Fixfy V3 — Cinematic Home · extended sections styling
+   ============================================================ */
+
+/* shared list tick */
+.cin-uc .tick,.cin-sec-list .tick{display:inline-flex;align-items:center;justify-content:center;
+  width:18px;height:18px;border-radius:50%;background:rgba(237,75,0,0.14);color:var(--fx-coral);
+  font-size:11px;margin-right:10px;flex-shrink:0}
+
+/* ---------- Problem → Solution ---------- */
+.cin-ps-grid{display:grid;grid-template-columns:1fr auto 1fr;gap:28px;align-items:stretch;margin-top:44px}
+.cin-ps-col{display:flex;flex-direction:column;gap:14px;padding:26px;border-radius:16px}
+.cin-ps-col.problem{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07)}
+.cin-ps-col.solution{background:linear-gradient(160deg,rgba(237,75,0,0.10),rgba(237,75,0,0.02));border:1px solid rgba(237,75,0,0.22)}
+.cin-ps-tag{font-family:var(--fx-mono);font-size:10.5px;letter-spacing:0.16em;text-transform:uppercase;
+  color:rgba(255,255,255,0.45);margin-bottom:6px}
+.cin-ps-tag.coral{color:var(--fx-coral)}
+.cin-pain,.cin-gain{display:flex;gap:14px;align-items:flex-start}
+.cin-pain .ic{width:34px;height:34px;border-radius:9px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.55);font-size:16px}
+.cin-gain .ic{width:34px;height:34px;border-radius:9px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  background:rgba(237,75,0,0.16);color:var(--fx-coral);font-size:14px}
+.cin-pain h4,.cin-gain h4{margin:0 0 3px;font-size:15px;font-weight:600;color:#fff}
+.cin-pain p,.cin-gain p{margin:0;font-size:13px;line-height:1.5;color:rgba(255,255,255,0.6)}
+.cin-ps-arrow{display:flex;align-items:center;justify-content:center;color:var(--fx-coral);font-size:26px;opacity:.7}
+
+/* ---------- Deeper capabilities ---------- */
+.cin-feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:44px}
+.cin-feat{padding:24px;border-radius:14px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.07);
+  transition:transform .2s var(--fx-ease),border-color .2s,background .2s}
+.cin-feat:hover{transform:translateY(-3px);border-color:rgba(237,75,0,0.3);background:rgba(237,75,0,0.04)}
+.cin-feat-ic{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;
+  background:rgba(237,75,0,0.14);color:var(--fx-coral);font-size:20px;margin-bottom:14px}
+.cin-feat h4{margin:0 0 6px;font-size:16px;font-weight:600;color:#fff}
+.cin-feat p{margin:0;font-size:13.5px;line-height:1.55;color:rgba(255,255,255,0.62)}
+
+/* ---------- Use cases (light, tabbed) ---------- */
+.cin-uc-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-top:36px;padding:5px;border-radius:12px;
+  background:#fff;border:1px solid var(--fx-line);width:fit-content;box-shadow:var(--fx-elev-1)}
+.cin-uc-tab{padding:10px 18px;border-radius:8px;font-size:14px;font-weight:500;color:var(--fx-slate);transition:all .16s var(--fx-ease)}
+.cin-uc-tab:hover{color:var(--fx-ink)}
+.cin-uc-tab.active{background:var(--fx-coral);color:#fff}
+.cin-uc-stage{margin-top:24px;position:relative}
+.cin-uc-panel{display:none;grid-template-columns:1.6fr 1fr;gap:32px;align-items:center;
+  background:#fff;border:1px solid var(--fx-line);border-radius:18px;padding:40px;box-shadow:var(--fx-elev-2)}
+.cin-uc-panel.active{display:grid;animation:cinFade .4s var(--fx-ease)}
+@keyframes cinFade{from{transform:translateY(10px)}to{transform:none}}
+.cin-uc-copy h3{margin:0;font-size:24px;font-weight:600;letter-spacing:-0.02em;color:var(--fx-ink);max-width:20ch}
+.cin-uc-copy p{margin:14px 0 0;font-size:15px;line-height:1.6;color:var(--fx-slate);max-width:52ch}
+.cin-uc-copy ul{list-style:none;padding:0;margin:18px 0 22px;display:flex;flex-direction:column;gap:10px}
+.cin-uc-copy li{display:flex;align-items:center;font-size:14px;color:var(--fx-ink)}
+.cin-uc-metric{border-left:1px solid var(--fx-line);padding-left:32px;text-align:left}
+.cin-uc-metric .big{font-size:clamp(44px,5vw,68px);font-weight:600;letter-spacing:-0.03em;color:var(--fx-coral);
+  line-height:1;font-variant-numeric:tabular-nums}
+.cin-uc-metric .lbl{font-size:14px;color:var(--fx-mute);margin-top:10px;max-width:18ch}
+
+/* ---------- Case studies ---------- */
+.cin-case-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:44px}
+.cin-case{display:flex;flex-direction:column;padding:26px;border-radius:16px;
+  background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.08)}
+.cin-case .q{margin:0;font-size:16px;line-height:1.55;color:#fff;font-weight:500;letter-spacing:-0.01em;flex:1}
+.cin-case-stats{display:flex;gap:24px;margin:22px 0 18px;padding-top:18px;border-top:1px solid rgba(255,255,255,0.08)}
+.cin-case-stats .v{font-size:24px;font-weight:600;color:var(--fx-coral);letter-spacing:-0.02em}
+.cin-case-stats .l{font-size:11.5px;color:rgba(255,255,255,0.5);margin-top:2px}
+.cin-case-attr{display:flex;align-items:center;gap:12px}
+.cin-case-attr .ava{width:40px;height:40px;border-radius:50%;background:rgba(237,75,0,0.18);color:var(--fx-coral);
+  display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;flex-shrink:0}
+.cin-case-attr .who{font-size:14px;font-weight:600;color:#fff}
+.cin-case-attr .role{font-size:12px;color:rgba(255,255,255,0.55)}
+
+/* ---------- Security & compliance ---------- */
+.cin-sec-band{background:var(--v2-bg-darker)}
+.cin-sec-2col{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+.cin-sec-list{list-style:none;padding:0;margin:26px 0 0;display:flex;flex-direction:column;gap:14px}
+.cin-sec-list li{display:flex;align-items:center;font-size:15px;color:rgba(255,255,255,0.82)}
+.cin-cert-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.cin-cert-card{padding:24px;border-radius:14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.09);
+  transition:transform .2s var(--fx-ease),border-color .2s}
+.cin-cert-card:hover{transform:translateY(-3px);border-color:rgba(237,75,0,0.3)}
+.cin-cert-shield{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  background:rgba(237,75,0,0.14);color:var(--fx-coral);font-size:20px;margin-bottom:14px}
+.cin-cert-card h4{margin:0 0 6px;font-size:16px;font-weight:600;color:#fff}
+.cin-cert-card p{margin:0;font-size:13px;line-height:1.5;color:rgba(255,255,255,0.6)}
+
+/* ---------- FAQ ---------- */
+.cin-faq-list{margin-top:36px;max-width:860px;border-top:1px solid var(--fx-line)}
+.cin-faq-item{border-bottom:1px solid var(--fx-line)}
+.cin-faq-q{width:100%;display:flex;align-items:center;justify-content:space-between;gap:18px;
+  padding:24px 4px;font-size:18px;font-weight:500;letter-spacing:-0.01em;color:var(--fx-ink);text-align:left;
+  cursor:pointer;transition:color .15s}
+.cin-faq-q:hover{color:var(--fx-coral)}
+.cin-faq-ic{flex-shrink:0;width:28px;height:28px;border-radius:8px;border:1px solid var(--fx-line);
+  display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--fx-coral);
+  transition:transform .2s var(--fx-ease),background .2s}
+.cin-faq-item.open .cin-faq-ic{transform:rotate(45deg);background:var(--fx-coral);color:#fff;border-color:var(--fx-coral)}
+.cin-faq-a{max-height:0;overflow:hidden;transition:max-height .3s var(--fx-ease)}
+.cin-faq-item.open .cin-faq-a{max-height:260px}
+.cin-faq-a p{margin:0;padding:0 60px 24px 4px;font-size:15px;line-height:1.65;color:var(--fx-slate);max-width:70ch}
+
+/* ---------- responsive ---------- */
+@media (max-width:1080px){
+  .cin-ps-grid{grid-template-columns:1fr;gap:18px}
+  .cin-ps-arrow{transform:rotate(90deg);padding:4px 0}
+  .cin-feat-grid{grid-template-columns:1fr 1fr}
+  .cin-case-grid{grid-template-columns:1fr}
+  .cin-sec-2col{grid-template-columns:1fr;gap:32px}
+  .cin-uc-panel.active{grid-template-columns:1fr;gap:24px}
+  .cin-uc-metric{border-left:none;border-top:1px solid var(--fx-line);padding-left:0;padding-top:24px}
+}
+@media (max-width:640px){
+  .cin-feat-grid{grid-template-columns:1fr}
+  .cin-uc-tabs{width:100%}
+  .cin-cert-grid{grid-template-columns:1fr}
+}
