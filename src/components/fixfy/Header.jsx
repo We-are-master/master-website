@@ -32,7 +32,7 @@ export default function Header() {
 
         <div className="fx-nav-cta">
           <a href="https://portal.getfixfy.com" className="fx-nav-signin">Sign in</a>
-          <Button to="/contact" arrow>Book a demo</Button>
+          <Button to="/contact" arrow>Get in touch</Button>
           <button
             className="fx-nav-toggle"
             aria-label="Open menu"

@@ -96,7 +96,10 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
   display:flex;align-items:center;gap:32px;
 }
 .v2-nav-brand{display:flex;align-items:center;gap:8px;font-weight:500;font-size:18px;letter-spacing:-0.02em}
-.v2-nav-brand img{height:22px;width:auto}
+.v2-nav-brand .fixfy-logo{
+  height:clamp(36px,3.5vw + 0.75rem,52px);
+  max-width:min(280px,42vw);
+}
 .v2-nav-links{display:flex;align-items:center;gap:4px;flex:1}
 .v2-nav-link{
   padding:8px 14px;border-radius:6px;

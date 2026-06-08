@@ -51,7 +51,7 @@ export default function FixfyV2Footer() {
             <h5>Resources</h5>
             <ul>
               <li>
-                <Link to="/contact">Book a demo</Link>
+                <Link to="/contact">Get in touch</Link>
               </li>
               <li>
                 <Link to="/contact">Emergency support</Link>

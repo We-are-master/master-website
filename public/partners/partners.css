@@ -105,7 +105,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 }
 .nav-inner{max-width:var(--maxw);margin:0 auto;padding:14px 32px;display:flex;align-items:center;gap:28px}
 .nav-brand{display:flex;align-items:center;gap:10px;flex-shrink:0}
-.nav-brand img{height:24px;width:auto}
+.nav-brand img{height:clamp(36px,4.5vw,48px);width:auto}
 .nav-tag{
   font-family:var(--fx-mono);font-size:9.5px;letter-spacing:0.14em;text-transform:uppercase;
   padding:3px 8px;border-radius:5px;color:var(--coral);

@@ -31,7 +31,7 @@ function FinalCTA(label, sub){
     <h2 class="v2-h2" style="margin-top:18px">${label||'See Fixfy with your portfolio.'}</h2>
     <p class="v2-lede" style="margin:24px auto 0;max-width:60ch">${sub||'30-minute demo. We&rsquo;ll load three of your sites into a sandbox so you can see exactly what your team would use on day one.'}</p>
     <div style="margin-top:36px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-      <a href="/contact" class="v2-btn v2-btn-primary">Book a demo <span class="arr">→</span></a>
+      <a href="/contact" class="v2-btn v2-btn-primary">Get in touch <span class="arr">→</span></a>
       <a href="/platform" class="v2-btn v2-btn-outline">See the platform</a>
     </div>
   </div>
@@ -48,7 +48,7 @@ function SolHero(eyebrow, h1, lede, mockHTML){
         <h1>${h1}</h1>
         <p class="lede">${lede}</p>
         <div style="margin-top:32px;display:flex;gap:12px;flex-wrap:wrap">
-          <a href="/contact" class="v2-btn v2-btn-primary">Book a demo <span class="arr">→</span></a>
+          <a href="/contact" class="v2-btn v2-btn-primary">Get in touch <span class="arr">→</span></a>
           <a href="/platform" class="v2-btn v2-btn-outline">See the platform</a>
         </div>
       </div>

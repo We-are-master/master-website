@@ -591,7 +591,7 @@ function PfFinalCTA(){
     <h2 class="v2-coral-quote" style="font-size:clamp(28px,3.6vw,46px);max-width:22ch;margin:0 auto;line-height:1.1">Run maintenance like infrastructure. Not like a backlog.</h2>
     <p style="margin:24px auto 0;max-width:60ch;font-size:17px;color:rgba(255,255,255,0.95);line-height:1.55">30-minute demo. We&rsquo;ll load three of your sites into a sandbox so you can see exactly what your team would use on day one.</p>
     <div style="margin-top:36px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-      <a href="/contact" class="v2-btn v2-btn-light">Book a demo <span class="arr">→</span></a>
+      <a href="/contact" class="v2-btn v2-btn-light">Get in touch <span class="arr">→</span></a>
     </div>
   </div>
 </section>`;

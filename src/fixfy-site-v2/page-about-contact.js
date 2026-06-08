@@ -142,7 +142,7 @@ export function PageContact(){
 
       <div class="v2-contact-side">
         <div class="v2-contact-block">
-          <div class="l">Book a demo</div>
+          <div class="l">Get in touch</div>
           <div class="v">30-minute walkthrough<small>We&rsquo;ll load three of your sites into a sandbox.</small></div>
         </div>
         <div class="v2-contact-block">

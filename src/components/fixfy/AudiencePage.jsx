@@ -18,7 +18,7 @@ export default function AudiencePage({
   eyebrow,
   headline,   // string or ReactNode (supports <br/>)
   lede,
-  ctaLabel = 'Book a demo',
+  ctaLabel = 'Get in touch',
   stats,      // [{ number, unit, label }]
   features,   // [{ title, body }]
   quote,
