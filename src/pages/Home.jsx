@@ -118,7 +118,7 @@ export default function Home() {
                 }
               </p>
               <div className="fx-flex fx-gap-8 fx-mt-32" style={{ flexWrap: 'wrap' }}>
-                <Button to="/contact" arrow>Book a demo</Button>
+                <Button to="/contact" arrow>Get in touch</Button>
                 <Button to="/platform" variant="ghost">See the platform</Button>
               </div>
               <div className="fx-hero-meta fx-mt-48">
@@ -267,7 +267,7 @@ export default function Home() {
               what your team would use on day one.
             </p>
             <div className="fx-flex fx-gap-8 fx-mt-32" style={{ justifyContent: 'center', flexWrap: 'wrap' }}>
-              <Button to="/contact" arrow>Book a demo</Button>
+              <Button to="/contact" arrow>Get in touch</Button>
               <Button to="/platform" variant="ghost">See the platform</Button>
             </div>
           </div>

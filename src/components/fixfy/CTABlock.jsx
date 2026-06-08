@@ -18,7 +18,7 @@ export default function CTABlock() {
             exactly what your team would use on day one.
           </p>
           <div className="fx-flex fx-gap-8 fx-mt-32" style={{ justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Button to="/contact" arrow>Book a demo</Button>
+            <Button to="/contact" arrow>Get in touch</Button>
           </div>
         </div>
       </Container>

@@ -34,7 +34,7 @@ export default function Contact() {
         <Container>
           <Eyebrow>Talk to us</Eyebrow>
           <h1 className="fx-display fx-mt-16" style={{ maxWidth: '20ch' }}>
-            Book a demo. Or don&rsquo;t &mdash; look around first.
+            Get in touch. Or don&rsquo;t &mdash; look around first.
           </h1>
           <p className="fx-lede fx-mt-24">
             30-minute call. No slide deck. We&rsquo;ll load three of your sites into a sandbox
@@ -65,7 +65,7 @@ export default function Contact() {
               <Field label="What&rsquo;s on your mind?" name="message" as="textarea" rows={5}
                      value={form.message} onChange={onChange} />
 
-              <Button type="submit" arrow>Book a demo</Button>
+              <Button type="submit" arrow>Get in touch</Button>
             </form>
 
             {/* Info */}
