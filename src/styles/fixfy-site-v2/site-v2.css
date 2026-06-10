@@ -166,7 +166,10 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
   box-shadow:0 24px 48px rgba(0,0,0,0.6);
 }
 .v2-nav-link-wrap{position:relative}
-.v2-nav-link-wrap:hover .v2-dropdown{opacity:1;pointer-events:auto;transform:translateY(0)}
+.v2-nav-link-wrap:hover .v2-dropdown,
+.v2-nav-link-wrap:focus-within .v2-dropdown{opacity:1;pointer-events:auto;transform:translateY(0)}
+.v2-nav-cta .v2-nav-link-wrap--login .v2-dropdown{left:auto;right:0;min-width:240px}
+.v2-nav-cta .v2-nav-link-wrap--login .v2-nav-link.ghost{cursor:default}
 .v2-dd-item{
   display:flex;flex-direction:column;gap:2px;
   padding:10px 12px;border-radius:6px;
@@ -228,6 +231,9 @@ body.v2-nav-menu-open{overflow:hidden}
   }
   .v2-nav-cta .v2-btn{width:100%;justify-content:center}
   .v2-nav-cta .ghost{width:100%;justify-content:center;text-align:center;padding:12px 14px}
+  .v2-nav-cta .v2-nav-link-wrap--login{width:100%}
+  .v2-nav-cta .v2-nav-link-wrap--login .v2-nav-link.ghost{width:100%}
+  .v2-nav-cta .v2-nav-link-wrap--login .v2-dropdown{left:0;right:auto;min-width:0}
 }
 
 /* ---------- HERO ---------- */
@@ -429,6 +435,8 @@ body.v2-nav-menu-open{overflow:hidden}
   gap:1px;background:rgba(255,255,255,0.08);
   border:1px solid rgba(255,255,255,0.08);border-radius:10px;overflow:hidden;
 }
+.v2-metrics--5{grid-template-columns:repeat(5,1fr)}
+@media (max-width:1180px){.v2-metrics--5{grid-template-columns:repeat(3,1fr)}}
 .v2-metric{
   background:#0A0A0F;padding:36px 32px;
   display:flex;flex-direction:column;gap:8px;
