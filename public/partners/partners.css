@@ -115,6 +115,8 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .nav-link{padding:8px 14px;border-radius:7px;font-size:13.5px;color:var(--p-t2);transition:all .14s var(--fx-ease)}
 .nav-link:hover{color:#fff;background:rgba(255,255,255,0.05)}
 .nav-right{display:flex;align-items:center;gap:12px;flex-shrink:0}
+.nav-signin{font-weight:500;color:var(--p-t1)}
+.nav-signin:hover{color:#fff}
 .nav-price{font-family:var(--fx-mono);font-size:12px;color:var(--p-t2);letter-spacing:0.02em}
 .nav-price b{color:#fff;font-weight:500}
 .nav-panel{display:flex;align-items:center;gap:28px;flex:1;min-width:0}
@@ -263,11 +265,69 @@ body.p-nav-open{overflow:hidden}
   .hero-stage{height:520px;margin:0 auto;max-width:560px;width:100%}
   .notif.n2{left:-6px}
 }
+@media (max-width:720px){
+  .wrap{padding:0 20px}
+  .sec{padding:72px 0}
+  .sec.tight{padding:56px 0}
+  .hero{padding:48px 0 56px}
+  .hero-h1{font-size:clamp(28px,7.2vw,40px);letter-spacing:-0.03em}
+  .hero-lede{font-size:16px;margin-top:20px}
+  .hero-pill{white-space:normal;flex-wrap:wrap;max-width:100%;font-size:12px;line-height:1.45;margin-bottom:20px}
+  .hero-cta{flex-direction:column;margin-top:28px;gap:10px}
+  .hero-cta .btn{width:100%;justify-content:center}
+  .hero-trust{gap:8px;font-size:11px}
+  .lede{font-size:16px}
+  .h-display{font-size:clamp(28px,6.8vw,40px)}
+  .h-sec{font-size:clamp(26px,6vw,36px)}
+  .final{padding:80px 0}
+  .final .actions{flex-direction:column;align-items:stretch;max-width:360px;margin-left:auto;margin-right:auto}
+  .final .actions .btn{width:100%;justify-content:center}
+  .price-card{padding:28px 22px}
+  .price-card .pc-price .amt{font-size:clamp(44px,12vw,64px)}
+  .sys-panel{padding:20px 16px;min-height:0}
+  .foot{padding:40px 0 28px}
+  .foot-top{flex-direction:column;gap:24px}
+  body{padding-bottom:76px}
+}
 @media (max-width:620px){
-  .hero-stage{height:auto;transform:none}
-  .dash{position:static;transform:none;animation:none;right:0}
+  .hero-stage{height:auto;transform:none;margin-top:8px}
+  .dash{position:static;transform:none;animation:none;right:0;left:0}
   .hero-glow{display:none}
   .notif{display:none}
+  .dash-bar{flex-wrap:wrap;gap:6px;padding:11px 12px}
+  .dash-bar .crumb{
+    flex:1;min-width:0;margin-left:0;
+    font-size:9.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .dash-bar .live{margin-left:0}
+  .dash-body{padding:14px 12px}
+  .dash-kpis{grid-template-columns:1fr;gap:8px}
+  .dash-kpi{padding:11px 12px}
+  .dash-kpi .v{font-size:20px}
+  .dash-job{flex-wrap:wrap;gap:8px;padding:10px}
+  .dash-job .jmain{flex:1 1 100%;order:1}
+  .dash-job .jid{order:0}
+  .dash-job .jval{order:2;margin-left:auto}
+  .dash-job .dash-badge{order:3}
+  .dash-job .jt{white-space:normal}
+}
+@media (max-width:480px){
+  .wrap{padding:0 16px}
+  .nav-inner{padding:10px 16px}
+  .nav-brand{gap:8px;min-width:0}
+  .nav-brand img{height:clamp(30px,8vw,40px)}
+  .nav-tag{font-size:8.5px;padding:2px 6px;letter-spacing:0.1em}
+  .hero-h1{font-size:clamp(26px,7.8vw,34px)}
+  .btn-lg{padding:14px 20px;font-size:14.5px}
+  .trust{padding:48px 0}
+  .trust-lead{font-size:13px;margin-bottom:28px}
+  .why-card{padding:22px 18px;min-height:0}
+  .earn-metrics{grid-template-columns:1fr}
+  .metric{padding:22px 18px;min-height:0}
+  .cert{padding:22px 18px}
+  .chip{font-size:12.5px;padding:8px 12px}
+  .cal{gap:4px}
+  .cal .cd{padding:4px;font-size:8.5px}
 }
 
 /* ============================================================

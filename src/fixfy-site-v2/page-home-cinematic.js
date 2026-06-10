@@ -57,21 +57,86 @@ function CinHeroCopy() {
     </div>`
 }
 
+const CIN_ICONS = {
+  request: '<path d="M6 3h9l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/>',
+  booked: '<path d="M16 19a4 4 0 0 0-8 0"/><circle cx="12" cy="9" r="3.2"/><path d="M19 14.5l1.6 1.6 3-3"/>',
+  finished: '<path d="M14.7 6.3a2 2 0 0 1 0 2.8l-8.2 8.2-3.2.8.8-3.2 8.2-8.2a2 2 0 0 1 2.6-.2z"/><path d="M16.5 12.5l4 4M14 21h7"/>',
+  report: '<path d="M6 3h12a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M9 8h6M9 12h6M9 16h3"/>',
+  check: '<path d="M5 12.5l4.2 4.2L19 7"/>',
+}
+
+function CinIcon(path, size) {
+  const s = size || 16
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="${s}" height="${s}">${path}</svg>`
+}
+
 function CinHeroDeck() {
-  const cells = [
-    { k: 'Quotes ongoing', v: '12', t: 'Avg £274 per quote' },
-    { k: 'Jobs ongoing', v: '16', t: 'open right now' },
-    { k: 'Avg response', v: '8m 4s', t: 'to acknowledgement' },
-    { k: 'Assets', v: '37', t: 'active' },
+  const stages = [
+    {
+      ic: 'request',
+      k: 'Request',
+      v: 'You (or your tenant) raise it',
+      m: 'That&rsquo;s the last thing you do',
+      stamp: '00:00s',
+      pill: 'Logged',
+    },
+    {
+      ic: 'booked',
+      k: 'We allocate',
+      v: 'Vetted, insured trade assigned',
+      m: 'Matched from our own network',
+      stamp: '00:08s',
+      pill: 'Allocated',
+    },
+    {
+      ic: 'finished',
+      k: 'We deliver',
+      v: 'On site · on SLA',
+      m: 'Evidence captured',
+      stamp: '03h 41m',
+      pill: 'Complete',
+    },
+    {
+      ic: 'report',
+      k: 'Done',
+      v: 'Closed, certified, logged',
+      m: 'You just got the update',
+      stamp: 'live',
+      pill: 'Published',
+      live: true,
+    },
   ]
   return `
 <div class="hv-C">
   <div class="cin-hero-copy" style="max-width:900px">${CinHeroCopy()}</div>
   <div class="cin-deck-wrap">
     <div class="cin-deck" id="cin-deck" data-tilt-deck>
-      <div class="pn-h"><span>› Fixfy command · live portfolio</span><span class="cin-led"><span class="d"></span>Live 14:23 BST</span></div>
-      <div class="cin-deck-body">
-        ${cells.map((c) => `<div class="cin-kpi"><div class="k">${c.k}</div><div class="v">${c.v}</div><div class="t">${c.t}</div></div>`).join('')}
+      <div class="pn-h"><span>› Send your demand to Fixfy · one job, end to end</span><span class="cin-led"><span class="d"></span><span id="cin-live-clock">Live</span></span></div>
+      <div class="cin-deck-body cin-job" id="cin-job">
+        ${stages
+          .map(
+            (s, i) => `
+        <div class="cin-stage" data-stage="${i}">
+          <span class="cin-link"></span>
+          <div class="cin-stage-top">
+            <span class="cin-stage-node">
+              <span class="ic-main">${CinIcon(CIN_ICONS[s.ic], 15)}</span>
+              <span class="ic-check">${CinIcon(CIN_ICONS.check, 14)}</span>
+            </span>
+            <span class="cin-stage-stamp${s.live ? ' live' : ''}">${s.stamp}</span>
+          </div>
+          <div class="cin-stage-k">${s.k}</div>
+          <div class="cin-stage-v">${s.v}</div>
+          <div class="cin-stage-m">${s.m}</div>
+          <span class="cin-stage-pill${s.live ? ' is-live' : ''}">${s.pill}</span>
+        </div>`,
+          )
+          .join('')}
+      </div>
+      <div class="cin-job-foot">
+        <span class="lbl">End to end</span>
+        <span class="path">Request <i>›</i> Allocated <i>›</i> Delivered <i>›</i> Done</span>
+        <span class="own">The trade is ours.</span>
       </div>
       <div class="cin-deck-glow"></div>
     </div>
@@ -125,9 +190,33 @@ export function CinematicHome() {
 </div>`
 }
 
+function formatUkLiveClock() {
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Europe/London',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+    timeZoneName: 'short',
+  }).formatToParts(new Date())
+  const hour = parts.find((p) => p.type === 'hour')?.value ?? '00'
+  const minute = parts.find((p) => p.type === 'minute')?.value ?? '00'
+  const tz = parts.find((p) => p.type === 'timeZoneName')?.value ?? 'UK'
+  return `Live ${hour}:${minute} ${tz}`
+}
+
 export function initCinematic() {
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
   const cleanups = []
+
+  const liveClock = document.getElementById('cin-live-clock')
+  if (liveClock) {
+    const tick = () => {
+      liveClock.textContent = formatUkLiveClock()
+    }
+    tick()
+    const clockTimer = setInterval(tick, 30_000)
+    cleanups.push(() => clearInterval(clockTimer))
+  }
 
   const heroEl = document.getElementById('cin-hero')
   if (heroEl && !reduce) heroEl.classList.add('is-armed')
@@ -222,39 +311,70 @@ export function initCinematic() {
   const sectionsCleanup = initCinematicSections()
   if (sectionsCleanup) cleanups.push(sectionsCleanup)
 
-  const deckBody = document.querySelector('.cin-deck-body')
-  if (deckBody && !reduce) {
-    const kpis = [...deckBody.querySelectorAll('.cin-kpi')]
-    let armed = false
-    const timeouts = []
-    function runValidate() {
-      deckBody.classList.remove('is-validating')
-      kpis.forEach((k) => k.classList.remove('cin-val', 'cin-done'))
-      void deckBody.offsetWidth
-      deckBody.classList.add('is-validating')
-      kpis.forEach((k, i) => {
-        const t = 240 + i * 260
-        timeouts.push(setTimeout(() => k.classList.add('cin-val'), t))
-        timeouts.push(setTimeout(() => k.classList.add('cin-done'), t + 560))
+  const jobDeck = document.querySelector('.cin-deck-body.cin-job')
+  if (jobDeck) {
+    const stages = [...jobDeck.querySelectorAll('.cin-stage')]
+    const STEP = 1150
+    const START = 480
+    const HOLD = 2400
+    let timers = []
+    const clearTimers = () => {
+      timers.forEach(clearTimeout)
+      timers = []
+    }
+    const settleAll = () => {
+      stages.forEach((s) => {
+        s.classList.add('done')
+        s.classList.remove('active')
       })
     }
-    function checkDeck() {
-      const r = deckBody.getBoundingClientRect()
-      const inView = r.top < window.innerHeight * 0.85 && r.bottom > 0
-      if (inView && !armed) {
-        armed = true
-        runValidate()
-      } else if (!inView && r.top > window.innerHeight) {
-        armed = false
-      }
+    const runOnce = () => {
+      clearTimers()
+      stages.forEach((s) => s.classList.remove('active', 'done'))
+      void jobDeck.offsetWidth
+      stages.forEach((s, i) => {
+        timers.push(
+          setTimeout(() => {
+            if (i > 0) {
+              stages[i - 1].classList.remove('active')
+              stages[i - 1].classList.add('done')
+            }
+            s.classList.add('active')
+          }, START + i * STEP),
+        )
+      })
+      const last = stages[stages.length - 1]
+      timers.push(
+        setTimeout(() => {
+          last.classList.remove('active')
+          last.classList.add('done')
+        }, START + stages.length * STEP),
+      )
+      timers.push(setTimeout(runOnce, START + stages.length * STEP + HOLD))
     }
-    window.addEventListener('scroll', checkDeck, { passive: true })
-    const deckTimer = setTimeout(checkDeck, 650)
-    cleanups.push(() => {
-      window.removeEventListener('scroll', checkDeck)
-      clearTimeout(deckTimer)
-      timeouts.forEach(clearTimeout)
-    })
+    if (reduce) {
+      settleAll()
+    } else {
+      let armed = false
+      const checkJob = () => {
+        const r = jobDeck.getBoundingClientRect()
+        const inView = r.top < window.innerHeight * 0.85 && r.bottom > 0
+        if (inView && !armed) {
+          armed = true
+          runOnce()
+        } else if (!inView && r.top > window.innerHeight) {
+          armed = false
+          clearTimers()
+        }
+      }
+      window.addEventListener('scroll', checkJob, { passive: true })
+      const jobTimer = setTimeout(checkJob, 650)
+      cleanups.push(() => {
+        window.removeEventListener('scroll', checkJob)
+        clearTimeout(jobTimer)
+        clearTimers()
+      })
+    }
   }
 
   return () => cleanups.forEach((fn) => fn())

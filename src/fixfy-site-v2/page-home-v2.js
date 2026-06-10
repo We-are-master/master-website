@@ -251,7 +251,7 @@ export function HomeNumbers(){
 <section class="v2-section dark">
   <div class="v2-container">
     <div class="v2-eyebrow">By the numbers · Q1 2026</div>
-    <div class="v2-metrics" style="margin-top:36px">
+    <div class="v2-metrics v2-metrics--5" style="margin-top:36px">
       <div class="v2-metric">
         <div class="k">Avg SLA P1</div>
         <div class="num">17<span class="u">h</span> 48<span class="u">m</span></div>
@@ -268,9 +268,14 @@ export function HomeNumbers(){
         <div class="v">From first contact to job acknowledgement.</div>
       </div>
       <div class="v2-metric">
-        <div class="k">Fast partner payouts</div>
+        <div class="k">Partner payouts</div>
         <div class="num">98.4<span class="u">%</span></div>
-        <div class="v">Paid within 7 days. Trade invoices settled within a week of completion.</div>
+        <div class="v">Within 7 days of job completion.</div>
+      </div>
+      <div class="v2-metric">
+        <div class="k">In-house &amp; insured</div>
+        <div class="num">100<span class="u">%</span></div>
+        <div class="v">Managed by our team · fully covered.</div>
       </div>
     </div>
   </div>
@@ -283,8 +288,8 @@ export function HomeHowItWorks(){
 <section class="v2-section dark">
   <div class="v2-container">
     <div class="v2-eyebrow">How it works</div>
-    <h2 class="v2-h2" style="margin-top:18px">From request to resolution, one flow.</h2>
-    <p class="v2-lede" style="margin-top:18px;max-width:60ch">Post jobs, assign vetted trades, and close with proof — all in one ledger.</p>
+    <h2 class="v2-h2" style="margin-top:18px">You raise it. We handle the rest.</h2>
+    <p class="v2-lede" style="margin-top:18px;max-width:60ch">Reactive or planned — one channel in, fully managed delivery out. You get the proof, not the paperwork.</p>
 
     <div class="v2-how">
       <svg class="v2-how-path" viewBox="0 0 1000 60" preserveAspectRatio="none" aria-hidden="true">
@@ -302,18 +307,18 @@ export function HomeHowItWorks(){
       </svg>
       <div class="v2-how-step">
         <div class="v2-how-num">01</div>
-        <h4>Post &amp; triage</h4>
-        <p>Raise reactive or planned work in seconds. SLAs, priorities and escalation paths use your rules.</p>
+        <h4>You raise it (or your tenants do)</h4>
+        <p>Reactive or planned, one channel. Your rules, your SLAs — we apply them. Then you&rsquo;re out of the loop, in a good way.</p>
       </div>
       <div class="v2-how-step">
         <div class="v2-how-num">02</div>
-        <h4>Assign &amp; execute</h4>
-        <p>Dispatch to your supply or ours. Track ETAs, evidence on site and completion in real time.</p>
+        <h4>We dispatch and deliver</h4>
+        <p>We assign from our own vetted, insured trades network and manage the job on the ground — ETAs, on-site evidence, completion. No coordinating, no chasing.</p>
       </div>
       <div class="v2-how-step">
         <div class="v2-how-num">03</div>
-        <h4>Report &amp; close</h4>
-        <p>Invoices, compliance records and audit-ready exports — without piecing together spreadsheets.</p>
+        <h4>We close, certify and report</h4>
+        <p>Invoices, compliance records and audit-ready exports — handled. You get the proof, not the paperwork.</p>
       </div>
     </div>
 
@@ -669,22 +674,22 @@ export function HomeSolutionsPreview(){
     <div class="v2-sols-light">
       <a class="v2-sol-light" href="/solutions/real-estate">
         <span class="lbl">For real estate</span>
-        <h4>Manage portfolios, compliance and maintenance across every asset.</h4>
+        <h4>We&rsquo;re the maintenance operation behind your portfolio — compliance, reactive and planned, fully managed.</h4>
         <span class="arr">Learn more</span>
       </a>
       <a class="v2-sol-light" href="/solutions/franchises">
         <span class="lbl">For franchises</span>
-        <h4>Standardise maintenance across locations, with full control and visibility.</h4>
+        <h4>One operational standard across every location. We run it; you keep brand control.</h4>
         <span class="arr">Learn more</span>
       </a>
       <a class="v2-sol-light" href="/solutions/enterprise-operations">
         <span class="lbl">For enterprise operations</span>
-        <h4>Handle high-volume requests with consistent delivery and reporting.</h4>
+        <h4>High volume, consistently delivered — by our team and our trades, not your overhead.</h4>
         <span class="arr">Learn more</span>
       </a>
       <a class="v2-sol-light" href="/solutions/service-platforms">
         <span class="lbl">For service platforms</span>
-        <h4>Plug into our infrastructure to manage jobs, suppliers and reporting at scale.</h4>
+        <h4>Plug our operation into yours. Jobs, trades and reporting, delivered at scale.</h4>
         <span class="arr">Learn more</span>
       </a>
     </div>
