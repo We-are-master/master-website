@@ -86,6 +86,50 @@ export async function saveHeroLead(leadData) {
 }
 
 /**
+ * Submit contact page enquiry — sends internal notification to victor@getfixfy.com via edge function.
+ * @param {{ name: string, email: string, company?: string, phone?: string, industry?: string, message?: string, website?: string }} enquiry
+ * @returns {Promise<{success: boolean, error?: string}>}
+ */
+export async function submitContactEnquiry(enquiry) {
+  try {
+    if (!SUPABASE_URL) {
+      return { success: false, error: 'Service not configured' }
+    }
+    const { name, email, company, phone, industry, message, website } = enquiry || {}
+    if (!name || !String(name).trim()) {
+      return { success: false, error: 'Name is required' }
+    }
+    if (!email || !String(email).trim()) {
+      return { success: false, error: 'Email is required' }
+    }
+    const payload = {
+      name: String(name).trim(),
+      email: String(email).trim().toLowerCase(),
+    }
+    if (company != null && String(company).trim()) payload.company = String(company).trim()
+    if (phone != null && String(phone).trim()) payload.phone = String(phone).trim()
+    if (industry != null && String(industry).trim()) payload.industry = String(industry).trim()
+    if (message != null && String(message).trim()) payload.message = String(message).trim()
+    if (website != null && String(website).trim()) payload.website = String(website).trim()
+
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/submit-contact-enquiry`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}))
+      return { success: false, error: err.error || 'Failed to send enquiry' }
+    }
+    const result = await response.json()
+    return { success: true, ...result }
+  } catch (error) {
+    console.error('[Contact] Error submitting enquiry:', error)
+    return { success: false, error: error.message || 'Failed to send enquiry' }
+  }
+}
+
+/**
  * Track abandoned checkout
  * Saves checkout data when user leaves without completing
  * @param {object} checkoutData - Checkout data to save

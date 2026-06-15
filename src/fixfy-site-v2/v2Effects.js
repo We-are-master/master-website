@@ -3,6 +3,7 @@
  * Run these after the corresponding HTML is in the DOM (useLayoutEffect).
  */
 import { tourMock } from './page-fixfypro.js'
+import { submitContactEnquiry } from '../lib/email.js'
 
 export function htmlPageStub(name, blurb) {
   return `
@@ -160,16 +161,51 @@ export function initPlatformReveal() {
   return () => io.disconnect()
 }
 
-/** Contact placeholder submit */
+/** Contact form submit → Supabase edge function → Resend notification */
 export function initContactForm() {
   const form = document.getElementById('v2-contact-form')
   if (!form) return () => {}
-  const onSubmit = (e) => {
+  const btn = form.querySelector('button[type="submit"]')
+  const defaultLabel = btn?.textContent || 'Send message →'
+
+  const onSubmit = async (e) => {
     e.preventDefault()
-    const btn = form.querySelector('button')
-    btn.textContent = "✓ Sent — we'll be in touch within a working day"
+    if (!btn || btn.disabled) return
+
+    const fd = new FormData(form)
+    const enquiry = {
+      name: fd.get('name'),
+      email: fd.get('email'),
+      company: fd.get('company'),
+      phone: fd.get('phone'),
+      industry: fd.get('industry'),
+      message: fd.get('message'),
+      website: fd.get('website'),
+    }
+
     btn.disabled = true
-    btn.style.background = '#4ade80'
+    btn.textContent = 'Sending…'
+    btn.style.background = ''
+
+    const result = await submitContactEnquiry(enquiry)
+
+    if (result.success) {
+      btn.textContent = "✓ Sent — we'll be in touch within a working day"
+      btn.style.background = '#4ade80'
+      form.querySelectorAll('input, select, textarea').forEach((el) => {
+        if (el.name !== 'website') el.disabled = true
+      })
+    } else {
+      btn.disabled = false
+      btn.textContent = result.error || 'Something went wrong — try again'
+      btn.style.background = '#ef4444'
+      setTimeout(() => {
+        if (btn.textContent !== defaultLabel) {
+          btn.textContent = defaultLabel
+          btn.style.background = ''
+        }
+      }, 4000)
+    }
   }
   form.addEventListener('submit', onSubmit)
   return () => form.removeEventListener('submit', onSubmit)
