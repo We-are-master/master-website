@@ -709,6 +709,78 @@ function getEmailTemplate(template: string, data: EmailData = {}): EmailContent 
       }
     }
 
+    case 'contact_enquiry_notification': {
+      const s = (x: unknown) => (x != null && String(x).trim() !== '' ? String(x) : '—')
+      const contactName = s(data.name)
+      const contactEmail = s(data.email)
+      const contactCompany = s(data.company)
+      const contactPhone = s(data.phone)
+      const contactIndustry = s(data.industry)
+      const contactMessage = s(data.message)
+      const contactSource = s(data.source)
+      const submittedAt = s(data.submitted_at)
+      const clientIp = s(data.client_ip)
+      const subjectSuffix = contactCompany !== '—' ? contactCompany : contactEmail
+      return {
+        subject: `[Contact enquiry] ${contactName} – ${subjectSuffix}`,
+        html: `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  ${emailStyles}
+  <style>
+    .internal-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+    .internal-table th { text-align: left; padding: 8px 12px; background: #f3f4f6; border: 1px solid #e5e7eb; }
+    .internal-table td { padding: 8px 12px; border: 1px solid #e5e7eb; }
+    .internal-section { margin: 20px 0; }
+    .internal-section h3 { margin: 0 0 10px 0; font-size: 16px; color: #020040; }
+    .message-block { white-space: pre-wrap; background: #f9fafb; padding: 12px 16px; border-radius: 8px; border: 1px solid #e5e7eb; font-size: 14px; line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <img src="${MASTER_LOGO_URL}" alt="Fixfy" style="display: block; max-height: 44px; width: auto; margin: 0 auto;" />
+    </div>
+    <div class="content">
+      <p style="font-size: 18px; font-weight: 600; color: #020040;">New contact page enquiry</p>
+      <p>Someone submitted the getfixfy.com/contact form. Details below.</p>
+
+      <div class="internal-section">
+        <h3>Enquiry details</h3>
+        <table class="internal-table">
+          <tr><th>Name</th><td>${contactName}</td></tr>
+          <tr><th>Email</th><td><a href="mailto:${contactEmail}">${contactEmail}</a></td></tr>
+          ${contactCompany !== '—' ? `<tr><th>Company</th><td>${contactCompany}</td></tr>` : ''}
+          ${contactPhone !== '—' ? `<tr><th>Phone</th><td><a href="tel:${contactPhone}">${contactPhone}</a></td></tr>` : ''}
+          ${contactIndustry !== '—' ? `<tr><th>Industry</th><td>${contactIndustry}</td></tr>` : ''}
+          <tr><th>Source</th><td>${contactSource}</td></tr>
+          ${submittedAt !== '—' ? `<tr><th>Submitted</th><td>${submittedAt}</td></tr>` : ''}
+          ${clientIp !== '—' ? `<tr><th>IP</th><td>${clientIp}</td></tr>` : ''}
+        </table>
+      </div>
+
+      ${contactMessage !== '—' ? `
+      <div class="internal-section">
+        <h3>Message</h3>
+        <div class="message-block">${contactMessage}</div>
+      </div>
+      ` : ''}
+
+      <p style="margin-top: 24px; font-size: 13px; color: #6b7280;">Reply directly to ${contactEmail} to follow up.</p>
+    </div>
+    <div class="footer">
+      <p>Fixfy Services | hello@getfixfy.com</p>
+    </div>
+  </div>
+</body>
+</html>
+        `,
+        text: `CONTACT ENQUIRY – ${contactSource}\n\nName: ${contactName}\nEmail: ${contactEmail}${contactCompany !== '—' ? `\nCompany: ${contactCompany}` : ''}${contactPhone !== '—' ? `\nPhone: ${contactPhone}` : ''}${contactIndustry !== '—' ? `\nIndustry: ${contactIndustry}` : ''}\nSource: ${contactSource}${submittedAt !== '—' ? `\nSubmitted: ${submittedAt}` : ''}${contactMessage !== '—' ? `\n\nMessage:\n${contactMessage}` : ''}\n\n— Sent automatically from the contact page form.`
+      }
+    }
+
     case 'verification_code': {
       const code = (data.code as string) || '000000'
       const email = (data.email as string) || ''

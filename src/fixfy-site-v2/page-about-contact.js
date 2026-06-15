@@ -118,15 +118,15 @@ export function PageContact(){
     <div class="v2-contact" style="margin-top:48px">
       <form class="v2-form" id="v2-contact-form">
         <div class="v2-form-row">
-          <label><span class="l">Name</span><input type="text" required placeholder="Your name"/></label>
-          <label><span class="l">Email</span><input type="email" required placeholder="you@company.co.uk"/></label>
+          <label><span class="l">Name</span><input type="text" name="name" required placeholder="Your name"/></label>
+          <label><span class="l">Email</span><input type="email" name="email" required placeholder="you@company.co.uk"/></label>
         </div>
         <div class="v2-form-row">
-          <label><span class="l">Company</span><input type="text" placeholder="Company name"/></label>
-          <label><span class="l">Phone</span><input type="tel" placeholder="+44"/></label>
+          <label><span class="l">Company</span><input type="text" name="company" placeholder="Company name"/></label>
+          <label><span class="l">Phone</span><input type="tel" name="phone" placeholder="+44"/></label>
         </div>
         <label><span class="l">Industry</span>
-          <select>
+          <select name="industry">
             <option>Real Estate · landlords, BTR, agencies</option>
             <option>Franchises · multi-site brand operators</option>
             <option>Enterprise · corporate facilities</option>
@@ -135,8 +135,9 @@ export function PageContact(){
           </select>
         </label>
         <label><span class="l">Message</span>
-          <textarea placeholder="Tell us about your portfolio, what you&rsquo;re using today, and what you&rsquo;d like to fix."></textarea>
+          <textarea name="message" placeholder="Tell us about your portfolio, what you&rsquo;re using today, and what you&rsquo;d like to fix."></textarea>
         </label>
+        <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0" />
         <button type="submit">Send message →</button>
       </form>
 
