@@ -12,7 +12,8 @@
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "deploy:functions": "supabase functions deploy",
-    "deploy:function": "supabase functions deploy"
+    "deploy:function": "supabase functions deploy",
+    "deploy:contact": "supabase functions deploy submit-contact-enquiry send-email"
   },
   "dependencies": {
     "@react-google-maps/api": "^2.19.3",

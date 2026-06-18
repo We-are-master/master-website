@@ -150,11 +150,10 @@ export function CinUseCases() {
 
 export function CinCaseStudies() {
   return `
-<section class="v2-section dark">
-  ${cinGlowsLocal()}
+<section class="v2-section light cin-case-band">
   <div class="v2-container">
-    <div class="v2-eyebrow">Customer · Li &amp; Fung</div>
-    <h2 class="v2-h2" style="margin-top:18px;max-width:22ch">Teams that run Britain&rsquo;s estates trust Fixfy to deliver.</h2>
+    <div class="v2-eyebrow" style="color:var(--fx-coral)">Customer · Li &amp; Fung</div>
+    <h2 class="v2-h2" style="margin-top:18px;max-width:22ch;color:var(--fx-ink)">Teams that run Britain&rsquo;s estates trust Fixfy to deliver.</h2>
     <div class="cin-case-grid" style="grid-template-columns:1fr;max-width:720px">
       <div class="cin-case">
         <p class="q">A backlog of critical jobs was resolved in weeks. Fixfy quoted, planned and delivered everything — with trades fully managed and no chasing required.</p>
@@ -186,14 +185,13 @@ export function CinSecurity() {
     'Continuous vetting — certifications, ratings and complaints watched',
   ]
   return `
-<section class="v2-section dark cin-sec-band">
-  ${cinGlowsLocal()}
+<section class="v2-section light cin-sec-band">
   <div class="v2-container">
     <div class="cin-sec-2col">
       <div>
-        <div class="v2-eyebrow">Security &amp; compliance</div>
-        <h2 class="v2-h2" style="margin-top:18px;max-width:18ch">Vetted trades. Audit-ready records. From day one.</h2>
-        <p class="v2-lede" style="margin-top:18px;max-width:46ch">Your compliance obligations and supplier standards are handled to the level your auditors, insurers and board expect.</p>
+        <div class="v2-eyebrow" style="color:var(--fx-coral)">Security &amp; compliance</div>
+        <h2 class="v2-h2" style="margin-top:18px;max-width:18ch;color:var(--fx-ink)">Vetted trades. Audit-ready records. From day one.</h2>
+        <p class="v2-lede" style="margin-top:18px;max-width:46ch;color:var(--fx-slate)">Your compliance obligations and supplier standards are handled to the level your auditors, insurers and board expect.</p>
         <ul class="cin-sec-list">
           ${points.map((p) => `<li><span class="tick">✓</span>${p}</li>`).join('')}
         </ul>
@@ -219,11 +217,11 @@ export function CinFAQ() {
     },
     {
       q: 'How long does onboarding take?',
-      a: 'Most teams are live in days, not months. We load a sample of your sites into a sandbox during the demo, then migrate assets and rules with you. No big-bang cutover required.',
+      a: 'Same day you&rsquo;re live. After a short scoping call we load your sites into a sandbox portal — operational the same day, not months of cutover.',
     },
     {
       q: 'How does pricing work?',
-      a: 'A platform subscription scaled to your portfolio, plus pre-fixed pricing on managed work so there are no surprises. We&rsquo;ll size it precisely after a 30-minute scoping call.',
+      a: 'No platform cost. The Customer Portal and Fixfy operation are included in the managed service — you only pay for work delivered, at pre-fixed rates. No software subscription, no surprises.',
     },
     {
       q: 'Can Fixfy handle our compliance regime?',

@@ -54,33 +54,59 @@
   line-height:1;font-variant-numeric:tabular-nums}
 .cin-uc-metric .lbl{font-size:14px;color:var(--fx-mute);margin-top:10px;max-width:18ch}
 
+/* ---------- Trust logos (dark, partners-style grid) ---------- */
+.cin-trust{padding:72px 0;background:transparent}
+.cin-trust-lead{text-align:center;font-size:15px;line-height:1.55;color:rgba(255,255,255,0.62);max-width:64ch;margin:0 auto 40px;text-wrap:pretty}
+.cin-trust-logos{
+  display:grid;grid-template-columns:repeat(6,1fr);gap:1px;
+  background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.08);border-radius:12px;overflow:hidden;
+}
+.cin-logo-cell{
+  background:rgba(255,255,255,0.02);min-height:84px;
+  display:flex;align-items:center;justify-content:center;padding:18px;
+  transition:background .18s var(--fx-ease);
+}
+.cin-logo-cell:hover{background:rgba(255,255,255,0.05)}
+.cin-logo-mark{
+  font-size:16px;font-weight:600;letter-spacing:-0.01em;color:rgba(255,255,255,0.62);
+  transition:color .18s var(--fx-ease);text-align:center;line-height:1.15;
+}
+.cin-logo-cell:hover .cin-logo-mark{color:#fff}
+.cin-logo-mark .sm{font-size:11px;font-weight:400;letter-spacing:0.04em;color:rgba(255,255,255,0.45)}
+.cin-logo-mark .sm.coral{color:var(--fx-coral)}
+.cin-logo-cell.is-coral .cin-logo-mark{color:var(--fx-coral)}
+.cin-logo-cell.is-coral .cin-logo-mark .sm.coral{color:var(--fx-coral)}
+@media (max-width:900px){.cin-trust-logos{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:520px){.cin-trust-logos{grid-template-columns:repeat(2,1fr)}.cin-trust{padding:56px 0}}
+
 /* ---------- Case studies ---------- */
+.cin-case-band .v2-h2{color:var(--fx-ink)}
 .cin-case-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:44px}
 .cin-case{display:flex;flex-direction:column;padding:26px;border-radius:16px;
-  background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.08)}
-.cin-case .q{margin:0;font-size:16px;line-height:1.55;color:#fff;font-weight:500;letter-spacing:-0.01em;flex:1}
-.cin-case-stats{display:flex;gap:24px;margin:22px 0 18px;padding-top:18px;border-top:1px solid rgba(255,255,255,0.08)}
+  background:#fff;border:1px solid var(--fx-line);box-shadow:var(--fx-elev-1)}
+.cin-case .q{margin:0;font-size:16px;line-height:1.55;color:var(--fx-ink);font-weight:500;letter-spacing:-0.01em;flex:1}
+.cin-case-stats{display:flex;gap:24px;margin:22px 0 18px;padding-top:18px;border-top:1px solid var(--fx-line)}
 .cin-case-stats .v{font-size:24px;font-weight:600;color:var(--fx-coral);letter-spacing:-0.02em}
-.cin-case-stats .l{font-size:11.5px;color:rgba(255,255,255,0.5);margin-top:2px}
+.cin-case-stats .l{font-size:11.5px;color:var(--fx-slate);margin-top:2px}
 .cin-case-attr{display:flex;align-items:center;gap:12px}
-.cin-case-attr .ava{width:40px;height:40px;border-radius:50%;background:rgba(237,75,0,0.18);color:var(--fx-coral);
+.cin-case-attr .ava{width:40px;height:40px;border-radius:50%;background:rgba(237,75,0,0.12);color:var(--fx-coral);
   display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;flex-shrink:0}
-.cin-case-attr .who{font-size:14px;font-weight:600;color:#fff}
-.cin-case-attr .role{font-size:12px;color:rgba(255,255,255,0.55)}
+.cin-case-attr .who{font-size:14px;font-weight:600;color:var(--fx-ink)}
+.cin-case-attr .role{font-size:12px;color:var(--fx-slate)}
 
-/* ---------- Security & compliance ---------- */
-.cin-sec-band{background:var(--v2-bg-darker)}
+/* ---------- Security & compliance (light) ---------- */
+.cin-sec-band .v2-h2{color:var(--fx-ink)}
 .cin-sec-2col{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
 .cin-sec-list{list-style:none;padding:0;margin:26px 0 0;display:flex;flex-direction:column;gap:14px}
-.cin-sec-list li{display:flex;align-items:center;font-size:15px;color:rgba(255,255,255,0.82)}
+.cin-sec-list li{display:flex;align-items:center;font-size:15px;color:var(--fx-ink)}
 .cin-cert-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.cin-cert-card{padding:24px;border-radius:14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.09);
-  transition:transform .2s var(--fx-ease),border-color .2s}
-.cin-cert-card:hover{transform:translateY(-3px);border-color:rgba(237,75,0,0.3)}
+.cin-cert-card{padding:24px;border-radius:14px;background:#fff;border:1px solid var(--fx-line);
+  transition:transform .2s var(--fx-ease),border-color .2s;box-shadow:var(--fx-elev-1)}
+.cin-cert-card:hover{transform:translateY(-3px);border-color:rgba(237,75,0,0.35)}
 .cin-cert-shield{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;
-  background:rgba(237,75,0,0.14);color:var(--fx-coral);font-size:20px;margin-bottom:14px}
-.cin-cert-card h4{margin:0 0 6px;font-size:16px;font-weight:600;color:#fff}
-.cin-cert-card p{margin:0;font-size:13px;line-height:1.5;color:rgba(255,255,255,0.6)}
+  background:rgba(237,75,0,0.12);color:var(--fx-coral);font-size:20px;margin-bottom:14px}
+.cin-cert-card h4{margin:0 0 6px;font-size:16px;font-weight:600;color:var(--fx-ink)}
+.cin-cert-card p{margin:0;font-size:13px;line-height:1.5;color:var(--fx-slate)}
 
 /* ---------- FAQ ---------- */
 .cin-faq-list{margin-top:36px;max-width:860px;border-top:1px solid var(--fx-line)}

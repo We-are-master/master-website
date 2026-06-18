@@ -369,7 +369,6 @@
 
 /* hero → first dark section: one continuous canvas on navy */
 body[data-tone="navy"] .cin-home .cin-hero{background:transparent}
-body[data-tone="navy"] .cin-home .cin-sec-band{background:transparent}
 
 /* gradient bridge — hero deck fades into navy body (no hard cut) */
 .cin-hero::after{

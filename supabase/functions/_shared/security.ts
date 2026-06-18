@@ -14,6 +14,8 @@ const ALLOWED_ORIGINS = [
   'https://www.b2b.getfixfy.com',
   'https://supabase.getfixfy.com',
   'https://www.supabase.getfixfy.com',
+  'https://supabase.wearemaster.com',
+  'https://www.supabase.wearemaster.com',
   'https://www.getfixfy.com',
   'https://getfixfy.com',
 
