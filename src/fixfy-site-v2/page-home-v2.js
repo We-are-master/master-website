@@ -329,33 +329,41 @@ export function HomeHowItWorks(){
 </section>`;
 }
 
-/* ---------- Block 4: TRUSTED CLIENTS (light) ---------- */
+/* ---------- Block 4: TRUSTED CLIENTS (dark, partners-style grid) ---------- */
 export function HomeClients(){
-  const clients = [
-    'Kvadrat','Li & Fung','Good Place Lettings','Cornwallis',
-    'Eagle Vision','Crystal Facilities','SC Johnson','Fantastic Services',
-    'StyleSmith','NHS Property','Homyze','Checkatrade'
-  ];
+  const logos = [
+    { t: 'Kvadrat' },
+    { t: 'Li&nbsp;&amp;&nbsp;Fung' },
+    { t: 'Good&nbsp;Place<br/><span class="sm">Lettings</span>' },
+    { t: 'Cornwallis' },
+    { t: 'Eagle&nbsp;Vision' },
+    { t: 'Crystal<br/><span class="sm">Facilities</span>' },
+    { t: 'SC&nbsp;Johnson' },
+    { t: 'Fantastic<br/><span class="sm">Services</span>' },
+    { t: 'StyleSmith' },
+    { t: 'NHS<br/><span class="sm">Property</span>' },
+    { t: 'Homyze' },
+    { t: '+ more<br/><span class="sm coral">joining weekly</span>', coral: true },
+  ]
   return `
-<section class="v2-section light">
+<section class="v2-section dark cin-trust">
   <div class="v2-container">
-    <div class="v2-eyebrow">Trusted by the estates that run Britain</div>
-    <h2 class="v2-h2" style="margin-top:18px;max-width:22ch">From listed estates to high-street chains, Fixfy keeps the lights on.</h2>
-    <div class="v2-clients-grid">
-      ${clients.map(c=>`<div class="v2-client">${c}</div>`).join('')}
+    <p class="cin-trust-lead">Trusted by property managers, facilities companies, service platforms and commercial clients across London.</p>
+    <div class="cin-trust-logos">
+      ${logos.map((l) => `<div class="cin-logo-cell${l.coral ? ' is-coral' : ''}"><span class="cin-logo-mark">${l.t}</span></div>`).join('')}
     </div>
   </div>
 </section>`;
 }
 
-/* ---------- Block 5: THE INFRASTRUCTURE (4 modules animated) ---------- */
+/* ---------- Block 5: CUSTOMER PORTAL (interactive modules) ---------- */
 export function HomeInfrastructure(){
   return `
 <section class="v2-section dark">
   <div class="v2-container">
-    <div class="v2-eyebrow">The infrastructure</div>
-    <h2 class="v2-h2" style="margin-top:18px;max-width:22ch">Everything your properties need, without the overhead.</h2>
-    <p class="v2-lede" style="margin-top:18px;max-width:60ch">Four modules. One system. Everyone working from the same source of truth.</p>
+    <div class="v2-eyebrow">Customer Portal</div>
+    <h2 class="v2-h2" style="margin-top:18px;max-width:24ch">Partner with us — your portfolio, live in one place.</h2>
+    <p class="v2-lede" style="margin-top:18px;max-width:60ch">Every client gets access to the Fixfy Customer Portal: full visibility across jobs, assets, compliance and spend — without building your own ops team.</p>
 
     <div class="v2-infra" id="v2-infra">
       <div class="v2-infra-list" id="v2-infra-list">
@@ -365,7 +373,7 @@ export function HomeInfrastructure(){
             <h4>Dashboard</h4>
             <span class="open">01</span>
           </div>
-          <p>Real-time view of every job, quote and SLA across your portfolio. Compliance at a glance — no spreadsheets, no chasing.</p>
+          <p>Your command centre. Every open job, quote, SLA and compliance flag across the portfolio — live on one screen, not buried in email.</p>
         </div>
         <div class="v2-infra-item" data-mod="assets">
           <div class="row">
@@ -373,7 +381,7 @@ export function HomeInfrastructure(){
             <h4>Assets</h4>
             <span class="open">02</span>
           </div>
-          <p>Every site, every asset — fully tracked. Service history, warranties and spend, all linked and accessible.</p>
+          <p>Every site and asset, fully mapped. Service history, warranties and spend linked together — so nothing falls through the cracks.</p>
         </div>
         <div class="v2-infra-item" data-mod="jobs">
           <div class="row">
@@ -381,7 +389,7 @@ export function HomeInfrastructure(){
             <h4>Jobs &amp; SLAs</h4>
             <span class="open">03</span>
           </div>
-          <p>Manage reactive, planned and compliance work in one place. Track SLAs automatically, escalate when needed and close with full reports.</p>
+          <p>Reactive, planned and compliance work in one flow. SLAs tracked automatically, escalated when needed, closed with proof you can show the board.</p>
         </div>
         <div class="v2-infra-item" data-mod="supply">
           <div class="row">
@@ -389,7 +397,7 @@ export function HomeInfrastructure(){
             <h4>Supply network</h4>
             <span class="open">04</span>
           </div>
-          <p>Access a network of vetted professionals. Fully vetted and approved, insured and ready to deliver at scale.</p>
+          <p>Our vetted, insured trades — or yours — dispatched and managed through the portal. No WhatsApp threads, no chasing, no guesswork.</p>
         </div>
         <div class="v2-infra-item" data-mod="compliance">
           <div class="row">
@@ -397,7 +405,7 @@ export function HomeInfrastructure(){
             <h4>Compliance</h4>
             <span class="open">05</span>
           </div>
-          <p>Stay compliant without the manual work. Automated scheduling, complete records and audit-ready reporting.</p>
+          <p>Certificates scheduled, tracked and escalated before they lapse. Audit-ready records on every asset — gas, electrical, fire and more.</p>
         </div>
       </div>
 

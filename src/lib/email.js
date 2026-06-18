@@ -1,7 +1,7 @@
 // Email service helper functions
 // Handles sending transactional emails via Supabase Edge Functions
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || ''
+import { invokeSupabaseFunction, isSupabaseFunctionsConfigured } from './supabaseEdge.js'
 
 /**
  * Send a transactional email
@@ -12,31 +12,18 @@ const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || ''
  */
 export async function sendEmail(template, to, data = {}) {
   try {
-    if (!SUPABASE_URL) {
-      console.error('[Email] SUPABASE_URL not configured')
+    if (!isSupabaseFunctionsConfigured()) {
+      console.error('[Email] Supabase not configured')
       return { success: false, error: 'Email service not configured' }
     }
 
-    const response = await fetch(`${SUPABASE_URL}/functions/v1/send-email`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        template,
-        to,
-        data,
-      }),
-    })
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
-      console.error('[Email] Failed to send email:', errorData)
-      return { success: false, error: errorData.error || 'Failed to send email' }
+    const result = await invokeSupabaseFunction('send-email', { template, to, data })
+    if (!result.ok) {
+      console.error('[Email] Failed to send email:', result.error)
+      return { success: false, error: result.error || 'Failed to send email' }
     }
 
-    const result = await response.json()
-    return { success: true, ...result }
+    return { success: true, ...result.data }
   } catch (error) {
     console.error('[Email] Error sending email:', error)
     return { success: false, error: error.message || 'Failed to send email' }
@@ -51,7 +38,7 @@ export async function sendEmail(template, to, data = {}) {
  */
 export async function saveHeroLead(leadData) {
   try {
-    if (!SUPABASE_URL) {
+    if (!isSupabaseFunctionsConfigured()) {
       return { success: false, error: 'Service not configured' }
     }
     const { email, service, postcode, source = 'hero_b2c', name, phone, preferred_contact, service_type } = leadData || {}
@@ -68,17 +55,11 @@ export async function saveHeroLead(leadData) {
     if (phone != null && String(phone).trim()) payload.phone = String(phone).trim()
     if (preferred_contact != null && String(preferred_contact).trim()) payload.preferred_contact = String(preferred_contact).trim()
     if (service_type != null && String(service_type).trim()) payload.service_type = String(service_type).trim()
-    const response = await fetch(`${SUPABASE_URL}/functions/v1/save-hero-lead`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    })
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({}))
-      return { success: false, error: err.error || 'Failed to save lead' }
+    const result = await invokeSupabaseFunction('save-hero-lead', payload)
+    if (!result.ok) {
+      return { success: false, error: result.error || 'Failed to save lead' }
     }
-    const result = await response.json()
-    return { success: true, ...result }
+    return { success: true, ...result.data }
   } catch (error) {
     console.error('[HeroLead] Error saving lead:', error)
     return { success: false, error: error.message || 'Failed to save lead' }
@@ -92,7 +73,7 @@ export async function saveHeroLead(leadData) {
  */
 export async function submitContactEnquiry(enquiry) {
   try {
-    if (!SUPABASE_URL) {
+    if (!isSupabaseFunctionsConfigured()) {
       return { success: false, error: 'Service not configured' }
     }
     const { name, email, company, phone, industry, message, website } = enquiry || {}
@@ -112,17 +93,11 @@ export async function submitContactEnquiry(enquiry) {
     if (message != null && String(message).trim()) payload.message = String(message).trim()
     if (website != null && String(website).trim()) payload.website = String(website).trim()
 
-    const response = await fetch(`${SUPABASE_URL}/functions/v1/submit-contact-enquiry`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    })
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({}))
-      return { success: false, error: err.error || 'Failed to send enquiry' }
+    const result = await invokeSupabaseFunction('submit-contact-enquiry', payload)
+    if (!result.ok) {
+      return { success: false, error: result.error || 'Failed to send enquiry' }
     }
-    const result = await response.json()
-    return { success: true, ...result }
+    return { success: true, ...result.data }
   } catch (error) {
     console.error('[Contact] Error submitting enquiry:', error)
     return { success: false, error: error.message || 'Failed to send enquiry' }
@@ -137,28 +112,20 @@ export async function submitContactEnquiry(enquiry) {
  */
 export async function trackAbandonedCheckout(checkoutData) {
   try {
-    if (!SUPABASE_URL) {
+    if (!isSupabaseFunctionsConfigured()) {
       return { success: false, error: 'Service not configured' }
     }
 
-    const response = await fetch(`${SUPABASE_URL}/functions/v1/track-checkout`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        action: 'abandon',
-        ...checkoutData,
-      }),
+    const result = await invokeSupabaseFunction('track-checkout', {
+      action: 'abandon',
+      ...checkoutData,
     })
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
-      return { success: false, error: errorData.error || 'Failed to track checkout' }
+    if (!result.ok) {
+      return { success: false, error: result.error || 'Failed to track checkout' }
     }
 
-    const result = await response.json()
-    return { success: true, checkoutId: result.checkoutId }
+    return { success: true, checkoutId: result.data?.checkoutId }
   } catch (error) {
     console.error('[Checkout] Error tracking abandoned checkout:', error)
     return { success: false, error: error.message || 'Failed to track checkout' }

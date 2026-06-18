@@ -15,7 +15,6 @@ import {
 import {
   CinProblemSolution,
   CinCapabilities,
-  CinUseCases,
   CinCaseStudies,
   CinSecurity,
   CinFAQ,
@@ -175,13 +174,12 @@ export function CinematicHome() {
   return `
 <div class="cin-home">
   ${CinHero()}
+  <div class="cin-reveal">${decorate(HomeClients(), false)}</div>
   <div class="cin-reveal">${decorate(HomeNumbers(), true)}</div>
   <div class="cin-reveal">${CinProblemSolution()}</div>
   <div class="cin-reveal">${decorate(HomeHowItWorks(), true)}</div>
   <div class="cin-reveal">${decorate(HomeInfrastructure(), true)}</div>
   <div class="cin-reveal">${CinCapabilities()}</div>
-  <div class="cin-reveal">${CinUseCases()}</div>
-  <div class="cin-reveal">${decorate(HomeClients(), false)}</div>
   <div class="cin-reveal">${CinCaseStudies()}</div>
   <div class="cin-reveal">${decorate(HomeSolutionsPreview(), false)}</div>
   <div class="cin-reveal">${CinSecurity()}</div>
