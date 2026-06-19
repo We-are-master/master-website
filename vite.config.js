@@ -1,10 +1,11 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import blogMarkdown from './scripts/vite-plugin-blog.mjs'
+import staticSites from './scripts/vite-plugin-static-sites.mjs'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [blogMarkdown(), react()],
+  plugins: [staticSites(), blogMarkdown(), react()],
   server: {
     port: 3000,
     open: true

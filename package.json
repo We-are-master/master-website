@@ -13,7 +13,8 @@
     "preview": "vite preview",
     "deploy:functions": "supabase functions deploy",
     "deploy:function": "supabase functions deploy",
-    "deploy:contact": "supabase functions deploy submit-contact-enquiry send-email"
+    "deploy:contact": "supabase functions deploy submit-contact-enquiry send-email",
+    "deploy:growth": "supabase functions deploy growth-availability create-growth-checkout growth-calendar-event stripe-webhook send-email"
   },
   "dependencies": {
     "@react-google-maps/api": "^2.19.3",
