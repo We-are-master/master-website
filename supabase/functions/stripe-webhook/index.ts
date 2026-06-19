@@ -14,6 +14,7 @@ import {
   validateEmail,
   validateSupabaseEnv,
 } from '../_shared/security.ts'
+import { createOnboardingEvent } from '../_shared/google-calendar.ts'
 
 /** Verify Stripe webhook signature manually (exact raw body + secret, no SDK normalization). */
 async function verifyStripeSignature(rawBody: string, signatureHeader: string, secret: string): Promise<boolean> {
@@ -56,6 +57,116 @@ function unixToISO(ts: number | undefined | null): string | null {
 
 /** n8n webhook URL – notified when payment is confirmed and approved (payment_intent.succeeded). */
 const N8N_PAYMENT_CONFIRMED_WEBHOOK_URL = 'https://n8n.getfixfy.com/webhook/484678e7-a2c2-4178-95e8-49b9bc74870a'
+
+async function handleGrowthPayment(
+  supabase: ReturnType<typeof createClient>,
+  supabaseUrl: string,
+  supabaseServiceKey: string,
+  paymentIntentId: string,
+): Promise<boolean> {
+  const { data: booking, error } = await supabase
+    .from('growth_bookings')
+    .select('*')
+    .eq('stripe_payment_intent_id', paymentIntentId)
+    .maybeSingle()
+
+  if (error || !booking) return false
+  if (booking.status === 'paid') return true
+
+  const notifyEmail = Deno.env.get('GROWTH_NOTIFY_EMAIL') || 'victor@getfixfy.com'
+  let eventId = booking.google_event_id as string | null
+  let calendarLink = booking.google_event_link as string | null
+
+  if (!eventId) {
+    try {
+      const event = await createOnboardingEvent({
+        businessName: booking.biz_name || booking.lead_name,
+        leadName: booking.lead_name,
+        leadEmail: booking.lead_email,
+        leadPhone: booking.lead_phone || undefined,
+        slotStart: booking.slot_start,
+        plan: booking.plan,
+        payMode: booking.pay_mode,
+        quizAnswers: (booking.quiz_answers || {}) as Record<string, unknown>,
+        notifyEmail,
+      })
+      eventId = event.eventId
+      calendarLink = event.htmlLink
+    } catch (calendarErr) {
+      console.error('[growth] calendar event failed:', calendarErr)
+    }
+  }
+
+  await supabase
+    .from('growth_bookings')
+    .update({
+      status: 'paid',
+      google_event_id: eventId,
+      google_event_link: calendarLink,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', booking.id)
+
+  const slotLabel = new Date(booking.slot_start).toLocaleString('en-GB', {
+    timeZone: 'Europe/London',
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+
+  const emailPayload = {
+    name: booking.lead_name,
+    businessName: booking.biz_name || booking.lead_name,
+    plan: booking.plan,
+    payMode: booking.pay_mode,
+    slotLabel,
+    calendarLink: calendarLink || '',
+    amountPence: booking.amount_pence,
+    quizAnswers: booking.quiz_answers,
+    leadEmail: booking.lead_email,
+    leadPhone: booking.lead_phone,
+    paymentIntentId,
+  }
+
+  try {
+    await fetch(`${supabaseUrl}/functions/v1/send-email`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${supabaseServiceKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        template: 'growth_booking_confirmed',
+        to: booking.lead_email,
+        data: emailPayload,
+      }),
+    })
+  } catch (emailErr) {
+    console.warn('[growth] customer email failed:', emailErr)
+  }
+
+  try {
+    await fetch(`${supabaseUrl}/functions/v1/send-email`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${supabaseServiceKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        template: 'growth_booking_internal',
+        to: notifyEmail,
+        data: emailPayload,
+      }),
+    })
+  } catch (emailErr) {
+    console.warn('[growth] internal email failed:', emailErr)
+  }
+
+  console.log(`[growth] booking paid: ${booking.id}`)
+  return true
+}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -181,6 +292,14 @@ serve(async (req) => {
       case 'payment_intent.succeeded': {
         const paymentIntent = event.data.object as Stripe.PaymentIntent
         console.log(`PaymentIntent succeeded: ${paymentIntent.id}`)
+
+        const growthHandled = await handleGrowthPayment(
+          supabase,
+          supabaseUrl!,
+          supabaseServiceKey!,
+          paymentIntent.id,
+        )
+        if (growthHandled) break
 
         // Extract metadata from payment intent
         const metadata = paymentIntent.metadata || {}

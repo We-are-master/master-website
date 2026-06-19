@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8"/>
+<script src="growth-boot.js"></script>
+<title>You're in! — Fixfy Growth</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<base href="/growth/"/>
+<link rel="stylesheet" href="growth.css?v=3"/>
+<link rel="stylesheet" href="funnel.css?v=3"/>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23ED4B00'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='18' font-weight='600' fill='white' text-anchor='middle'%3EF%3C/text%3E%3C/svg%3E"/>
+</head>
+<body class="fn-body">
+
+<div class="fn-top">
+  <div class="fn-top-in">
+    <a href="index.html" class="g-brand">
+      <img src="/brand/fixfy-primary-white.png" alt="Fixfy" class="g-brand-logo g-brand-logo--word g-on-dark"/>
+      <img src="/brand/fixfy-primary-navy.png" alt="Fixfy" class="g-brand-logo g-brand-logo--word g-on-light"/>
+      <img src="/brand/fixfy-icon-white.png" alt="" class="g-brand-logo g-brand-logo--icon g-on-dark" aria-hidden="true"/>
+      <img src="/brand/fixfy-icon-navy.png" alt="" class="g-brand-logo g-brand-logo--icon g-on-light" aria-hidden="true"/>
+      <span class="g-brand-tag">Growth</span>
+    </a>
+    <div class="fn-progress"><i style="width:100%"></i></div>
+    <span class="fn-step-label">Confirmed ✓</span>
+  </div>
+</div>
+
+<main>
+  <div class="fn-shell">
+    <div class="fn-confirm fn-stage" id="ty-root">
+      <div class="fn-celebrate">
+        <div class="fn-confirm-ico"><svg width="44" height="44" viewBox="0 0 24 24"><path d="M5 12.5l4.2 4.2L19 7" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="fn-q-kicker" style="color:var(--g-green-press)">✓ Payment confirmed · slot locked</div>
+        <h2 id="ty-headline" style="font:var(--fx-w-semi) clamp(30px,4vw,46px)/1.05 var(--fx-sans);letter-spacing:-.025em">You're in! 🎉</h2>
+        <p id="ty-sub" class="sub" style="font-size:19px;max-width:50ch;margin-inline:auto;color:var(--fx-slate)">Your 7-day build starts now — here's exactly what happens next.</p>
+        <div class="fn-trust-chips">
+          <span><span class="fn-lock">✓</span> Fully refundable until work begins</span>
+          <span><span class="fn-lock">✓</span> You approve before go-live</span>
+          <span>★ Joining 5,000+ businesses</span>
+        </div>
+      </div>
+
+      <div class="fn-next-head">Your next 7 days</div>
+      <div class="fn-next">
+        <div class="fn-next-step done">
+          <span class="ns-n"><svg width="15" height="15" viewBox="0 0 16 16"><path d="M3 8.5l3.2 3.2L13 4.5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <div class="ns-body">
+            <h4>Your onboarding call</h4>
+            <p id="ty-slot">—</p>
+            <span class="ns-tag">Locked in — link in your inbox</span>
+          </div>
+        </div>
+        <div class="fn-next-step">
+          <span class="ns-n">2</span>
+          <div class="ns-body"><h4>We build everything</h4><p>Website, booking system, CRM, Google SEO, automations &amp; review engine — done for you in 7 days.</p></div>
+        </div>
+        <div class="fn-next-step">
+          <span class="ns-n">3</span>
+          <div class="ns-body"><h4>You review &amp; go live</h4><p>Approve the direction and start taking bookings straight into your CRM. That's it.</p></div>
+        </div>
+      </div>
+
+      <div id="ty-addons" class="fn-addon-recap" style="display:none"></div>
+
+      <div class="fn-prep">
+        <h3 class="g-h3">One small thing — have these ready for the call:</h3>
+        <ul>
+          <li>Your logo (if you have one)</li>
+          <li>5–10 photos of your work</li>
+          <li>Your list of services and typical pricing</li>
+          <li>Your business hours and service area</li>
+        </ul>
+        <p class="g-mute" style="margin-top:14px;font-size:14px">No logo or photos yet? No problem — we'll sort it together on the call.</p>
+      </div>
+
+      <details class="fn-email" id="ty-email-details">
+        <summary class="fn-email-hd" id="ty-email-summary">📧 We've emailed your confirmation — tap to preview</summary>
+        <div class="fn-email-bd" id="ty-email-body"></div>
+      </details>
+
+      <div class="fn-confirm-cta">
+        <a id="ty-calendar" href="#" class="g-btn g-btn-green g-btn-lg" style="display:none">Add call to my calendar</a>
+        <a href="index.html" class="g-btn g-btn-ghost g-btn-lg">Back to home</a>
+      </div>
+      <p class="g-mono g-mute" style="margin-top:18px;font-size:11px;text-align:center">Google Calendar invite sent to you and our team · 24h + 1h reminders scheduled</p>
+    </div>
+  </div>
+</main>
+
+<script src="thank-you.js?v=1"></script>
+</body>
+</html>

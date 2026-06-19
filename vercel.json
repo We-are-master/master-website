@@ -7,6 +7,10 @@
       "destination": "/partners/index.html"
     },
     {
+      "source": "/growth",
+      "destination": "/growth/index.html"
+    },
+    {
       "source": "/((?!.*\\.).*)",
       "destination": "/index.html"
     }

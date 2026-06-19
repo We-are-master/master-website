@@ -906,6 +906,78 @@ This is an automated message. Please do not reply directly to this email.`
       }
     }
 
+    case 'growth_booking_confirmed': {
+      const businessName = String(data.businessName || 'your business')
+      const slotLabel = String(data.slotLabel || 'your scheduled time')
+      const calendarLink = String(data.calendarLink || '')
+      const plan = String(data.plan || 'monthly')
+      return {
+        subject: `You're in, ${firstName} — your Fixfy Growth onboarding is locked in`,
+        html: `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8">${emailStyles}</head>
+<body>
+  <div class="container">
+    <div class="header"><img src="${MASTER_LOGO_URL}" alt="Fixfy" style="display:block;max-height:44px;width:auto;margin:0 auto;" /></div>
+    <div class="content">
+      <p>Hi ${firstName},</p>
+      <p>Welcome to <strong>Fixfy Growth</strong> — your onboarding for <strong>${businessName}</strong> is confirmed.</p>
+      <p><strong>Onboarding call:</strong> ${slotLabel} (London time) · 15 minutes</p>
+      ${calendarLink ? `<p style="text-align:center;"><a href="${calendarLink}" class="button">Add to calendar</a></p>` : '<p>You will receive a Google Calendar invite shortly with the video link.</p>'}
+      <p><strong>Plan:</strong> ${plan === 'onetime' ? 'One-time £499' : 'Monthly £79/mo'}</p>
+      <p>Before the call, have ready: your logo, 5–10 photos of your work, your services list, and your service area.</p>
+      <p>Next: onboarding call → we build (7 days) → you review &amp; go live.</p>
+      <div class="signature"><p>Fixfy Growth Team <span class="heart">🧡</span></p></div>
+    </div>
+    <div class="footer"><p>Fixfy Growth · hello@getfixfy.com</p></div>
+  </div>
+</body>
+</html>`,
+        text: `Hi ${firstName},\n\nWelcome to Fixfy Growth — your onboarding for ${businessName} is confirmed.\n\nOnboarding call: ${slotLabel} (London time)\n\nPlan: ${plan}\n\nYou will receive a calendar invite with the video link.\n\nFixfy Growth Team`,
+      }
+    }
+
+    case 'growth_booking_internal': {
+      const businessName = String(data.businessName || '')
+      const slotLabel = String(data.slotLabel || '')
+      const calendarLink = String(data.calendarLink || '')
+      const quiz = data.quizAnswers as Record<string, unknown> | undefined
+      const quizLines = quiz
+        ? Object.entries(quiz).map(([k, v]) => `<li><strong>${k}:</strong> ${String(v)}</li>`).join('')
+        : ''
+      return {
+        subject: `New Fixfy Growth booking — ${businessName || data.name}`,
+        html: `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8">${emailStyles}</head>
+<body>
+  <div class="container">
+    <div class="header"><img src="${MASTER_LOGO_URL}" alt="Fixfy" style="display:block;max-height:44px;width:auto;margin:0 auto;" /></div>
+    <div class="content">
+      <p><strong>New Fixfy Growth onboarding booked</strong></p>
+      <ul style="line-height:1.8">
+        <li><strong>Name:</strong> ${String(data.name || '')}</li>
+        <li><strong>Email:</strong> ${String(data.leadEmail || '')}</li>
+        <li><strong>Phone:</strong> ${String(data.leadPhone || '—')}</li>
+        <li><strong>Business:</strong> ${businessName}</li>
+        <li><strong>Plan:</strong> ${String(data.plan || '')} (${String(data.payMode || '')})</li>
+        <li><strong>Slot:</strong> ${slotLabel}</li>
+        <li><strong>Amount:</strong> £${((Number(data.amountPence) || 0) / 100).toFixed(2)}</li>
+        <li><strong>Stripe PI:</strong> ${String(data.paymentIntentId || '')}</li>
+      </ul>
+      ${quizLines ? `<p><strong>Quiz</strong></p><ul>${quizLines}</ul>` : ''}
+      ${calendarLink ? `<p><a href="${calendarLink}" class="button">Open calendar event</a></p>` : ''}
+    </div>
+    <div class="footer"><p>Fixfy Growth internal</p></div>
+  </div>
+</body>
+</html>`,
+        text: `New Fixfy Growth booking\n${String(data.name)}\n${String(data.leadEmail)}\n${businessName}\n${slotLabel}`,
+      }
+    }
+
     default:
       return null
   }
