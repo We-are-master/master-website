@@ -84,6 +84,20 @@ export default function FixfyV2Footer() {
               </li>
             </ul>
           </div>
+          <div>
+            <h5>Fixfy</h5>
+            <ul>
+              <li>
+                <a href="https://getfixfy.com">Fixfy</a>
+              </li>
+              <li>
+                <a href="https://getfixfy.com/growth">Fixfy Growth</a>
+              </li>
+              <li>
+                <a href="https://partners.getfixfy.com/">Fixfy Partners</a>
+              </li>
+            </ul>
+          </div>
         </div>
         <div className="v2-footer-bot">
           <span>© {new Date().getFullYear()} Fixfy Ltd · United Kingdom · All rights reserved.</span>

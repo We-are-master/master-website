@@ -52,6 +52,7 @@
           ${col('Product', [['How it works', 'how-it-works.html'], ["What's included", 'features.html'], ['Pricing', 'pricing.html'], ['Results', 'results.html']])}
           ${col('Industries', [['Plumbers', 'industry-plumbers.html'], ['Electricians', 'industry-electricians.html'], ['HVAC', 'industry-hvac.html'], ['Roofers', 'industry-roofers.html']])}
           ${col('Company', [['About Fixfy', 'about.html'], ['FAQ', 'faq.html'], ['Blog', 'blog.html'], ['Build my site', 'start.html']])}
+          ${col('Fixfy', [['Fixfy', 'https://getfixfy.com'], ['Fixfy Growth', 'https://getfixfy.com/growth'], ['Fixfy Partners', 'https://partners.getfixfy.com/']])}
         </div>
         <div class="g-footer-bot">
           <span>© 2026 Fixfy Ltd · United Kingdom · Fixfy Growth is a product of Fixfy.</span>
