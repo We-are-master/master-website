@@ -1,4 +1,4 @@
-/* Fixfy Growth — funnel engine. Renders into #fn-root. */
+/* Fixfy Growth, funnel engine. Renders into #fn-root. */
 (function () {
   const PLANS = {
     monthly:  { id:'monthly',  name:'Monthly',  amt:'£79', per:'/mo', old:'£199/mo', desc:'Cancel anytime. No contracts.', full:'£79 (first month now)' },
@@ -27,10 +27,10 @@
 
   const ADDONS = {
     gbp:    { name:'Google Business Profile setup', price:199, ico:'📍', tag:'Most added',
-              desc:'Rank #1 locally and get up to <b>60% more visibility on Google</b> — free organic traffic, no ads.' },
+              desc:'Rank #1 locally and get up to <b>60% more visibility on Google</b>, free organic traffic, no ads.' },
     brand:  { name:'Professional brand manual', price:199, ico:'🎨', tag:'',
-              desc:'Logo, colours, fonts and usage rules — a consistent, professional brand across everything you put out.' },
-    social: { name:'Social media — 12-month plan', price:109, ico:'📱', tag:'Best value',
+              desc:'Logo, colours, fonts and usage rules, a consistent, professional brand across everything you put out.' },
+    social: { name:'Social media, 12-month plan', price:109, ico:'📱', tag:'Best value',
               desc:'A full year of done-for-you social content to keep <b>your business top of mind</b> in your area.' }
   };
   const addonTotal = () => Object.keys(ADDONS).reduce((t,k)=> t + (S.addons[k] ? ADDONS[k].price : 0), 0);
@@ -40,7 +40,7 @@
 
   let S = {
     dir: document.body.dataset.fn || 'conversational',
-    i: 0,                // 0 intro, 1-7 quiz, 8 lead, 9 summary, 10 booking, 11 payment, 12 downsell, 13 confirm
+    i: 1,                // start straight on Q1 (0 intro skipped); 1-7 quiz, 8 lead, 9 summary, 10 booking, 11 payment, 12 downsell, 13 confirm
     answers: {},
     plan: new URLSearchParams(location.search).get('plan') || 'monthly',
     lead: { name:'', email:'', phone:'' },
@@ -147,7 +147,7 @@
     return `<div class="fn-q fn-stage" style="text-align:center;max-width:620px">
       ${window.GrowthBrand ? window.GrowthBrand.hero() : '<div class="g-mark" style="margin:0 auto 22px;width:46px;height:46px;font-size:24px;border-radius:12px">F</div>'}
       <h2 style="font-size:clamp(30px,4vw,44px)">Let's build your booking machine.</h2>
-      <p class="sub" style="font-size:19px;max-width:46ch;margin-inline:auto">7 quick questions — about 2 minutes. Then pick a time and lock in your 7-day build.</p>
+      <p class="sub" style="font-size:19px;max-width:46ch;margin-inline:auto">7 quick questions, about 2 minutes. Then pick a time and lock in your 7-day build.</p>
       <div style="margin-top:32px"><button class="g-btn g-btn-primary g-btn-lg" onclick="__fn.next()">Start <span class="arr">→</span></button></div>
       <p class="g-mono g-mute" style="margin-top:20px;font-size:12px">No payment until you've chosen a time · Fully refundable before work begins</p>
     </div>`;
@@ -212,22 +212,26 @@
     const goal = S.answers.goal || 'more bookings';
     return `<div class="fn-summary fn-stage">
       <div class="fn-q-kicker" style="text-align:center">Your tailored plan</div>
-      <h2 style="text-align:center;font:var(--fx-w-semi) clamp(26px,3.4vw,38px)/1.1 var(--fx-sans);letter-spacing:-.02em">Perfect, ${esc(firstName())} — here's your Fixfy Growth plan for ${esc(bizName())}.</h2>
+      <h2 style="text-align:center;font:var(--fx-w-semi) clamp(26px,3.4vw,38px)/1.1 var(--fx-sans);letter-spacing:-.02em">Perfect, ${esc(firstName())}. Here's your Fixfy Growth plan for ${esc(bizName())}.</h2>
       <div class="fn-sum-card">
         <div class="fn-sum-hd">
           <div class="g-mono">${esc(String(trade).toUpperCase())} · ${esc(p.name.toUpperCase())} PLAN · LIVE IN 7 DAYS</div>
-          <div style="font-size:22px;font-weight:600;margin-top:6px">Built to ${esc(String(goal).toLowerCase())}</div>
+          <div class="fn-sum-hd-row">
+            <div class="fn-sum-built">Built to ${esc(String(goal).toLowerCase())}</div>
+            <div class="fn-sum-price"><s>${p.old}</s> <b>${p.amt}</b><span>${p.per || ' one-time'}</span></div>
+          </div>
         </div>
         <div class="fn-sum-body">
           ${[
-            ['🌐','Professional website','A fast, mobile-first site for '+esc(bizName())+' — up to 10 pages, built to convert.'],
+            ['🌐','Professional website','A fast, mobile-first site for '+esc(bizName())+', up to 10 pages, built to convert.'],
             ['📅','Job-based booking','Tuned to your '+esc(String(S.answers.services||'core'))+' service types so customers book the right job.'],
-            ['⚡','Bookings into your CRM','Every lead and booking in one place — no more lost jobs.'],
+            ['⚡','Bookings into your CRM','Every lead and booking in one place, with no more lost jobs.'],
             ['🔍','Local Google SEO','Show up for "'+esc(String(trade).toLowerCase())+' near me" in '+esc(S.biz.area||'your area')+'.'],
             ['🔁','Automations + reviews','Follow-ups, reminders and a 5-star review engine, running for you.']
           ].map(([ic,h,p2])=>`<div class="fn-sum-item"><span class="ic">${ic}</span><div><h4>${h}</h4><p>${p2}</p></div></div>`).join('')}
         </div>
       </div>
+      <p class="fn-sum-reassure g-mono">No payment until you pick a time · Fully refundable before work begins</p>
       <div class="fn-nav" style="justify-content:center"><button class="fn-back" onclick="__fn.back()">← Back</button>
         <button class="g-btn g-btn-primary g-btn-lg" onclick="__fn.next()">Book my onboarding <span class="arr">→</span></button></div>
     </div>`;
@@ -248,7 +252,7 @@
         </button>`).join('')}</div>
       ${S.day!==null && times.length ? `<div class="fn-times">${times.map(t=>`
         <button class="${S.time===t.time?'sel':''}" onclick="__fn.pickTime('${t.time}','${t.iso}')">${t.time}</button>`).join('')}</div>`:''}
-      ${S.day!==null&&S.time?`<div class="fn-hold">⏳ Your time is held for <b id="fn-hold-clock">${fmtClock(S.holdLeft)}</b> — complete payment to lock it in.</div>`:''}
+      ${S.day!==null&&S.time?`<div class="fn-hold">⏳ Your time is held for <b id="fn-hold-clock">${fmtClock(S.holdLeft)}</b></div>`:''}
       <div class="fn-nav"><button class="fn-back" onclick="__fn.back()">← Back</button><span class="fn-spacer"></span>
         <button class="g-btn g-btn-primary g-btn-lg" ${(S.day!==null&&S.time)?'':'disabled style="opacity:.4;pointer-events:none"'} onclick="__fn.next()">Continue to payment <span class="arr">→</span></button></div>
     </div>`;
@@ -263,7 +267,7 @@
       <h2 style="text-align:center;font:var(--fx-w-semi) clamp(24px,3vw,34px)/1.1 var(--fx-sans);letter-spacing:-.02em">Your slot is held. Pay to confirm it.</h2>
       <div class="fn-hold fn-hold--pay">
         <span class="fn-hold-ic">⏳</span>
-        <span>Slot held for <b id="fn-hold-clock">${fmtClock(S.holdLeft)}</b> — complete payment to lock it in</span>
+        <span>Slot held for <b id="fn-hold-clock">${fmtClock(S.holdLeft)}</b></span>
       </div>
       <div class="fn-pay-grid">
         <div class="fn-paybox">
@@ -271,7 +275,7 @@
           <div class="fn-payopts">
             <div class="fn-payopt ${S.payMode==='full'?'sel':''}" onclick="__fn.setPay('full')">
               <span class="radio"></span>
-              <div><div class="lbl">Pay in full now</div><div class="hint">${S.plan==='onetime'?'Own it outright — nothing recurring.':'First month now, then £79/mo. Cancel anytime.'}</div></div>
+              <div><div class="lbl">Pay in full now</div><div class="hint">${S.plan==='onetime'?'Own it outright, nothing recurring.':'First month now, then £79/mo. Cancel anytime.'}</div></div>
               <span class="price">${S.plan==='onetime'?'£499':'£79'}</span>
             </div>
             <div class="fn-payopt ${S.payMode==='deposit'?'sel':''}" onclick="__fn.setPay('deposit')">
@@ -289,7 +293,7 @@
         </div>
         <div class="fn-recap">
           <h4 class="g-h3" style="margin-bottom:14px">Your order</h4>
-          <div class="row"><span>Plan</span><b>${p.name} — ${p.amt}${p.per}</b></div>
+          <div class="row"><span>Plan</span><b>${p.name}, ${p.amt}${p.per}</b></div>
           <div class="row"><span>Business</span><b>${esc(bizName())}</b></div>
           <div class="row"><span>Onboarding</span><b>${slotLabel()}</b></div>
           <div class="row"><span>${S.payMode==='deposit'?'Deposit now':'Pay now'}</span><b>${payAmt}</b></div>
@@ -316,22 +320,22 @@
       <p class="sub" style="font-size:18px">Your onboarding is locked and your 7-day build for ${esc(bizName())} starts now. Check your inbox.</p>
       <div class="fn-locked">
         <span class="cal-ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M3 9h18M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>
-        <div><div style="font-weight:600">Onboarding call — locked in</div><div class="g-mute" style="font-size:15px">${when} · 15 min · video link in your email</div></div>
+        <div><div style="font-weight:600">Onboarding call, locked in</div><div class="g-mute" style="font-size:15px">${when} · 15 min · video link in your email</div></div>
       </div>
-      ${addonsChosen().length ? `<div class="fn-addon-recap"><div class="har">Added to your build — charged to your card on file</div>${addonsChosen().map(k=>`<div class="row"><span>${ADDONS[k].ico} ${ADDONS[k].name}</span><b>£${ADDONS[k].price}</b></div>`).join('')}<div class="row tot"><span>Add-ons total</span><b>£${addonTotal()}</b></div></div>`:''}
+      ${addonsChosen().length ? `<div class="fn-addon-recap"><div class="har">Added to your build, charged to your card on file</div>${addonsChosen().map(k=>`<div class="row"><span>${ADDONS[k].ico} ${ADDONS[k].name}</span><b>£${ADDONS[k].price}</b></div>`).join('')}<div class="row tot"><span>Add-ons total</span><b>£${addonTotal()}</b></div></div>`:''}
       <div class="fn-prep">
         <h3 class="g-h3">To make your call fast, have these ready:</h3>
         <ul><li>Your logo (if you have one)</li><li>5–10 photos of your work</li><li>Your list of services and typical pricing</li><li>Your business hours and service area</li></ul>
       </div>
       <div class="fn-email">
-        <div class="fn-email-hd">📧 Welcome email — sent to ${esc(S.lead.email||'your inbox')}</div>
+        <div class="fn-email-hd">📧 Welcome email, sent to ${esc(S.lead.email||'your inbox')}</div>
         <div class="fn-email-bd">
           <b>Subject:</b> You're in, ${esc(firstName())} 🎉 Your Fixfy Growth build starts now<br><br>
-          Hi ${esc(firstName())}, welcome to Fixfy Growth — you just took the step that gets ${esc(bizName())} off the lead-rental treadmill for good.<br><br>
+          Hi ${esc(firstName())}, welcome to Fixfy Growth, you just took the step that gets ${esc(bizName())} off the lead-rental treadmill for good.<br><br>
           <b>Your onboarding call is locked in:</b> ${when}.<br>
           Next: onboarding call (15 min) → we build (7 days) → you review &amp; go live.
           ${deposit?`<br><br>Balance of ${S.plan==='onetime'?'£400':'your subscription'} will be settled at ${S.plan==='onetime'?'your onboarding call':'go-live'}.`:''}
-          ${addonsChosen().length?`<br><br><b>Add-ons confirmed:</b> ${addonsChosen().map(k=>ADDONS[k].name).join(', ')} — £${addonTotal()} charged to your card on file.`:''}
+          ${addonsChosen().length?`<br><br><b>Add-ons confirmed:</b> ${addonsChosen().map(k=>ADDONS[k].name).join(', ')}, £${addonTotal()} charged to your card on file.`:''}
         </div>
       </div>
       <div style="display:flex;gap:12px;justify-content:center;margin-top:26px;flex-wrap:wrap">
@@ -359,9 +363,9 @@
     }).join('');
     const total = addonTotal();
     return `<div class="fn-q fn-stage" style="max-width:720px">
-      <div class="fn-q-kicker" style="text-align:center;color:var(--g-green-press)">✓ Payment confirmed — slot locked</div>
+      <div class="fn-q-kicker" style="text-align:center;color:var(--g-green-press)">✓ Payment confirmed, slot locked</div>
       <h2 style="text-align:center;font:var(--fx-w-semi) clamp(24px,3vw,34px)/1.1 var(--fx-sans);letter-spacing:-.02em">Want to go live even stronger, ${esc(firstName())}?</h2>
-      <p class="sub" style="text-align:center;max-width:52ch;margin-inline:auto">Your card is already on file — add any of these with one tap. No re-entering details. Skip if you'd rather not.</p>
+      <p class="sub" style="text-align:center;max-width:52ch;margin-inline:auto">Your card is already on file, add any of these with one tap. No re-entering details. Skip if you'd rather not.</p>
       <div class="fn-addons">${cards}</div>
       <div class="fn-addon-bar">
         <span>${total ? `<b>£${total}</b> in add-ons · charged to your card on file` : 'No add-ons selected'}</span>
@@ -370,7 +374,7 @@
           <button class="g-btn ${total?'g-btn-green':'g-btn-primary'} g-btn-lg" onclick="__fn.finish()">${total?`Add £${total} & continue`:'Continue'} <span class="arr">→</span></button>
         </div>
       </div>
-      <p class="g-mono g-mute" style="text-align:center;margin-top:14px;font-size:11px">Add-ons are noted on your booking — we'll confirm charges separately.</p>
+      <p class="g-mono g-mute" style="text-align:center;margin-top:14px;font-size:11px">Add-ons are noted on your booking, we'll confirm charges separately.</p>
     </div>`;
   }
 
