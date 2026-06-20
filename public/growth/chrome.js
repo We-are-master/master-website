@@ -1,13 +1,12 @@
-/* Fixfy Growth — shared chrome: nav, footer, sticky CTA, scroll reveal.
+/* Fixfy Growth, shared chrome: nav, footer, sticky CTA, scroll reveal.
    Each page calls Growth.chrome({active:'home'}). Pages live flat in this folder. */
 (function () {
   const NAV = [
-    ['how-it-works.html', 'How it works', 'how'],
-    ['features.html', "What's included", 'features'],
-    ['pricing.html', 'Pricing', 'pricing'],
-    ['results.html', 'Results', 'results'],
-    ['industries.html', 'Industries', 'industries'],
-    ['faq.html', 'FAQ', 'faq'],
+    ['index.html#how', 'How it works', 'how'],
+    ['index.html#features', "What's included", 'features'],
+    ['index.html#trades', 'Industries', 'industries'],
+    ['index.html#pricing', 'Pricing', 'pricing'],
+    ['index.html#faq', 'FAQ', 'faq'],
   ];
   const MARK = window.GrowthBrand ? window.GrowthBrand.html() : '<a href="index.html" class="g-brand"><span class="g-mark">F</span> Fixfy <span class="g-brand-tag">Growth</span></a>';
 
@@ -47,7 +46,7 @@
         <div class="g-footer-grid">
           <div>
             ${window.GrowthBrand ? window.GrowthBrand.html('style="color:#fff"') : `<a href="index.html" class="g-brand" style="color:#fff"><span class="g-mark">F</span> Fixfy <span class="g-brand-tag">Growth</span></a>`}
-            <p class="g-footer-p">A professional website + booking system built around your jobs — every booking straight into your CRM. Live in 7 days.</p>
+            <p class="g-footer-p">A professional website + booking system built around your jobs, every booking straight into your CRM. Live in 7 days.</p>
             <div class="g-trust" style="margin-top:18px"><span><span class="g-stars">★★★★★</span> Trusted by 5,000+ home service businesses</span></div>
           </div>
           ${col('Product', [['How it works', 'how-it-works.html'], ["What's included", 'features.html'], ['Pricing', 'pricing.html'], ['Results', 'results.html']])}
@@ -56,7 +55,7 @@
         </div>
         <div class="g-footer-bot">
           <span>© 2026 Fixfy Ltd · United Kingdom · Fixfy Growth is a product of Fixfy.</span>
-          <span class="g-mono">Prototype · placeholder stats — verify before launch</span>
+          <span class="g-mono">Prototype · placeholder stats, verify before launch</span>
         </div>
       </div>
     </footer>`;
@@ -79,6 +78,43 @@
       ents.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
     }, { threshold: 0.08, rootMargin: '0px 0px -6% 0px' });
     els.forEach(e => io.observe(e));
+  }
+
+  // Localise currency: GBP by default, swap to USD/CAD ($) for North American visitors.
+  function currency() {
+    try {
+      const roots = document.querySelectorAll('[data-cur]');
+      if (!roots.length) return;
+      // Resolve the visitor's country: £ (GBP) by default, $ only for US/CA.
+      let region = '';
+      const lang = (navigator.language || navigator.userLanguage || '');
+      try { region = (new Intl.Locale(lang)).region || ''; } catch (e) {}
+      if (!region) { const m = lang.match(/[-_]([A-Za-z]{2})(?:$|[-_])/); region = m ? m[1].toUpperCase() : ''; }
+      let tz = '';
+      try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) {}
+      const usCaTz = /^America\/(New_York|Detroit|Chicago|Denver|Phoenix|Los_Angeles|Anchorage|Adak|Boise|Juneau|Sitka|Nome|Menominee|Indiana|Kentucky|North_Dakota|Toronto|Montreal|Vancouver|Edmonton|Winnipeg|Halifax|St_Johns|Regina|Moncton|Glace_Bay|Goose_Bay|Iqaluit|Whitehorse|Yellowknife|Dawson|Cambridge_Bay|Rankin_Inlet|Resolute|Atikokan|Blanc-Sablon|Creston|Fort_Nelson|Swift_Current|Thunder_Bay|Dawson_Creek)/.test(tz) || tz === 'Pacific/Honolulu';
+      let isDollar;
+      if (region === 'GB') isDollar = false;          // UK → £
+      else if (region === 'US' || region === 'CA') isDollar = true;  // US/CA → $
+      else isDollar = usCaTz;                          // unknown locale → trust US/CA timezone, else £
+      if (!isDollar) return; // keep £
+      const map = {
+        '£2,299': '$2,999', '£2,000+': '$2,500+', '£2,000': '$2,500',
+        '£499': '$649', '£199/mo': '$249/mo', '£199': '$249', '£99': '$129', '£79': '$99'
+      };
+      const keys = Object.keys(map).sort((a, b) => b.length - a.length);
+      roots.forEach((root) => {
+        const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+        const nodes = [];
+        let n; while ((n = walker.nextNode())) nodes.push(n);
+        nodes.forEach((node) => {
+          let t = node.nodeValue;
+          if (t.indexOf('£') === -1) return;
+          keys.forEach((k) => { if (t.indexOf(k) > -1) t = t.split(k).join(map[k]); });
+          if (t !== node.nodeValue) node.nodeValue = t;
+        });
+      });
+    } catch (e) {}
   }
 
   function restoreTheme() {
@@ -118,6 +154,7 @@
         document.body.appendChild(s);
       }
       reveal();
+      currency();
     }
   };
 })();
