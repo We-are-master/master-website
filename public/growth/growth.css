@@ -277,7 +277,7 @@ html[data-theme="light"] .g-on-light{ display:block; }
 /* ---------- footer ---------- */
 .g-footer{ background:var(--fx-navy); color:var(--fx-on-navy-2); padding:64px var(--g-gut) 40px; }
 .g-footer-in{ max-width:var(--g-maxw); margin:0 auto; }
-.g-footer-grid{ display:grid; grid-template-columns:1.6fr 1fr 1fr 1fr 1fr; gap:40px; padding-bottom:48px; border-bottom:1px solid var(--fx-on-navy-line); }
+.g-footer-grid{ display:grid; grid-template-columns:1.6fr 1fr 1fr 1fr 1fr; gap:40px; padding-bottom:40px; }
 .g-footer h5{ color:#fff; font-size:13px; letter-spacing:.04em; text-transform:uppercase; margin:0 0 16px; font-weight:var(--fx-w-medium); }
 .g-footer ul{ list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:11px; }
 .g-footer a{ color:var(--fx-on-navy-2); font-size:15px; }
@@ -687,7 +687,7 @@ body[data-popular="onetime"] .price-card[data-plan="onetime"]::before{
 .demo-feat{ display:flex; gap:16px; align-items:flex-start; }
 .demo-feat .g-feat-ico{ margin-bottom:0; flex:none; }
 @media (max-width:900px){
-  .g-navy .g-grid[style*="1fr 1fr"]{ grid-template-columns:1fr !important; }
+  .g-navy .g-grid[style*="1fr 1fr"], #proof .g-grid[style*="1fr 1fr"]{ grid-template-columns:1fr !important; }
   .results-band{ grid-template-columns:1fr 1fr !important; }
 }
 @keyframes toastIn{ 0%{ opacity:0; transform:translateX(20px) scale(.9); } 6%{ opacity:1; transform:translateX(0) scale(1); } 26%{ opacity:1; transform:translateX(0) scale(1); } 36%{ opacity:0; transform:translateX(20px) scale(.95); } 100%{ opacity:0; } }
@@ -746,5 +746,5 @@ body[data-popular="onetime"] .price-card[data-plan="onetime"]::before{
 .vid-wrap .vid-cap, .vid-wrap .vid-ph{ z-index:3; }
 
 /* Desire stats band — uniform, large, responsive numbers (beat old .results-band span sizing + inline 34px) */
-.g-navy .results-band strong{ font-size:clamp(30px,5vw,42px)!important; display:flex!important; align-items:baseline; justify-content:center; gap:2px; }
-.g-navy .results-band strong .countup{ font-size:1em!important; line-height:1; }
+.results-band strong{ font-size:clamp(30px,5vw,42px)!important; display:flex!important; align-items:baseline; justify-content:center; gap:2px; }
+.results-band strong .countup{ font-size:1em!important; line-height:1; }
