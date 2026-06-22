@@ -100,10 +100,15 @@ body[data-fn="conversational"] .fn-with-rail{ display:block; }
 .fn-sum-item .ic{ width:38px; height:38px; border-radius:10px; background:var(--g-green-50); color:var(--g-green-press); display:grid; place-items:center; flex:none; }
 .fn-sum-item h4{ font-size:16px; }
 .fn-sum-item p{ color:var(--fx-slate); font-size:14px; margin-top:3px; }
-.fn-guarantee{ display:flex; gap:12px; align-items:flex-start; background:var(--g-green-50); border:1px solid var(--g-green); border-radius:14px; padding:14px 16px; margin-top:14px; }
-.fn-guarantee .ic{ font-size:22px; flex:none; line-height:1.25; }
-.fn-guarantee .t{ font-weight:600; color:var(--fx-ink); }
-.fn-guarantee .d{ color:var(--fx-slate); font-size:14px; margin-top:2px; line-height:1.45; }
+/* compact risk-free band, sits between the navy header and the value list */
+.fn-guarantee{ display:flex; gap:10px; align-items:center; background:var(--g-green-50); border-top:1px solid var(--g-green); padding:11px 18px; }
+.fn-guarantee .ic{ font-size:18px; flex:none; }
+.fn-guarantee .g{ color:var(--fx-slate); font-size:13px; line-height:1.35; }
+.fn-guarantee .g b{ color:var(--fx-ink); }
+/* compact price-difference hint */
+.fn-pricehint summary{ font-size:14px; padding:12px 4px; font-weight:500; }
+.fn-pricehint .ans{ font-size:13px; padding:0 4px 14px; line-height:1.5; }
+.fn-pricehint summary .pm{ width:20px; height:20px; }
 
 /* booking */
 .fn-cal{ display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-top:24px; }

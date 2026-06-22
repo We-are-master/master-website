@@ -225,12 +225,12 @@
       <p class="sub fn-sum-sub" style="text-align:center;max-width:42ch;margin:8px auto 0">Built around your jobs — yours to keep.</p>
       <div class="fn-sum-card">
         <div class="fn-sum-hd">
-          <div class="g-mono">${esc(String(trade).toUpperCase())} · ${esc(p.name.toUpperCase())} PLAN · LIVE IN 7 DAYS</div>
           <div class="fn-sum-hd-row">
             <div class="fn-sum-built">Built to ${esc(String(goal).toLowerCase())}</div>
             <div class="fn-sum-price"><s>${p.old}</s> <b>${p.amt}</b><span>${p.per || ' one-time'}</span></div>
           </div>
         </div>
+        <div class="fn-guarantee"><span class="ic">🛡️</span><div class="g"><b>100% risk-free.</b> No payment until you pick a time — refunded on the spot if you're not happy.</div></div>
         <div class="fn-sum-body">
           ${[
             ['🌐','Professional website','Up to 10 pages, built to convert.'],
@@ -243,12 +243,8 @@
       </div>
       <div style="margin-top:18px"><div class="g-mono" style="font-size:12px;color:var(--fx-mute);margin-bottom:8px">CHOOSE HOW YOU PAY</div>
         <div style="display:flex;gap:12px">${planPick}</div></div>
-      <div class="g-faq" style="margin-top:12px">
-        <details><summary>What's the difference between the prices? <span class="pm"></span></summary><div class="ans">Nothing about what you get changes — you receive the exact same website, booking system, local SEO, automations and support either way. The only difference is <b>how you pay</b>: <b>Monthly</b> spreads the cost (${PLANS.monthly.amt}/mo, cancel anytime) and <b>One-time</b> means you pay once and own it forever (${PLANS.onetime.amt}, nothing recurring).</div></details>
-      </div>
-      <div class="fn-guarantee">
-        <span class="ic">🛡️</span>
-        <div><div class="t">Try it 100% risk-free</div><div class="d">No payment until you've picked your onboarding time. Don't love it? We refund you on the spot, no questions asked.</div></div>
+      <div class="g-faq fn-pricehint" style="margin-top:10px">
+        <details><summary>What's the difference between the prices? <span class="pm"></span></summary><div class="ans">Nothing about what you get changes — exact same website, booking system, local SEO, automations and support either way. The only difference is <b>how you pay</b>: <b>Monthly</b> spreads the cost (${PLANS.monthly.amt}/mo, cancel anytime), <b>One-time</b> you pay once and own it forever (${PLANS.onetime.amt}, nothing recurring).</div></details>
       </div>
       <p style="text-align:center;margin-top:14px;font-size:15px;color:var(--fx-ink)">Agencies charge <s>£2,000+</s> upfront and bill you every month. Your price: <b>${p.amt}${p.per||' once'}</b> — and you own everything.</p>
       <p class="fn-sum-reassure g-mono">No payment until you pick a time · Fully refundable before work begins · You own everything</p>
