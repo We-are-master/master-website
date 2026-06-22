@@ -47,7 +47,7 @@ function CinHeroCopy() {
     <p class="cin-lede">Fully handled, end to end. Trades, scheduling, compliance, execution &amp; reporting — all in one place.</p>
     <div class="cin-ctas">
       <a href="/contact" class="cin-cta-primary">Get in touch <span class="arr">→</span></a>
-      <a href="/platform" class="cin-cta-ghost">See the platform</a>
+      <a href="/platform" class="cin-cta-ghost">See the portal</a>
     </div>
     <div class="cin-cert">
       <span class="lbl">Certified ›</span>

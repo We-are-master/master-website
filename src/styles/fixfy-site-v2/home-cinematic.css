@@ -358,6 +358,8 @@
   border-bottom:none;
 }
 .cin-home .cin-reveal{overflow:visible}
+/* drop the seam divider lines between the dark blocks */
+.cin-home .v2-section.darker{border-top:none;border-bottom:none}
 
 /* collapse double padding + divider seams between same-tone blocks */
 .cin-home .cin-reveal:has(.v2-section.dark) + .cin-reveal:has(.v2-section.dark) .v2-section.dark{
@@ -428,6 +430,17 @@ body[data-tone="navy"] .cin-vignette{
 }
 @media (max-width:640px){
   .cin-stage3d{height:380px}
+  /* hide the "Pre-fixed pricing · Certified partners" chip on phones */
+  .cin-eyebrow{display:none}
+  /* keep the Certified badges (Gas Safe · NICEIC · OFTEC · NAPIT) on a single line */
+  .cin-cert{flex-wrap:nowrap;gap:7px;margin-top:24px;justify-content:center}
+  .cin-cert .lbl{font-size:9px;letter-spacing:0.08em;white-space:nowrap}
+  .cin-cert .badge{font-size:9.5px;padding:4px 7px;letter-spacing:0.03em}
+  /* Flatten the 3D command deck on phones — the rotateX tilt + perspective made a tall
+     single-column stack bleed off-screen and look oversized. Render it as a plain card. */
+  .cin-deck-wrap{perspective:none;perspective-origin:50% 50%}
+  .cin-deck{transform:none;max-width:100%;border-radius:14px}
+  .cin-deck .pn-h{flex-wrap:wrap;gap:6px 10px;font-size:9.5px;padding:12px 16px}
   .cin-deck-body.cin-job{grid-template-columns:1fr;gap:12px;padding:18px 16px 14px}
   .cin-stage-v{font-size:14px}
   .cin-job-foot{padding:12px 16px 14px;gap:10px}

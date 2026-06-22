@@ -32,7 +32,7 @@ function FinalCTA(label, sub){
     <p class="v2-lede" style="margin:24px auto 0;max-width:60ch">${sub||'30-minute demo. We&rsquo;ll load three of your sites into a sandbox so you can see exactly what your team would use on day one.'}</p>
     <div style="margin-top:36px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
       <a href="/contact" class="v2-btn v2-btn-primary">Get in touch <span class="arr">→</span></a>
-      <a href="/platform" class="v2-btn v2-btn-outline">See the platform</a>
+      <a href="/platform" class="v2-btn v2-btn-outline">See the portal</a>
     </div>
   </div>
 </section>`;
@@ -49,7 +49,7 @@ function SolHero(eyebrow, h1, lede, mockHTML){
         <p class="lede">${lede}</p>
         <div style="margin-top:32px;display:flex;gap:12px;flex-wrap:wrap">
           <a href="/contact" class="v2-btn v2-btn-primary">Get in touch <span class="arr">→</span></a>
-          <a href="/platform" class="v2-btn v2-btn-outline">See the platform</a>
+          <a href="/platform" class="v2-btn v2-btn-outline">See the portal</a>
         </div>
       </div>
       <div class="v2-page-mock">${mockHTML}</div>

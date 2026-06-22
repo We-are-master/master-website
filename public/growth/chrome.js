@@ -12,6 +12,7 @@
     ['https://getfixfy.com', 'Fixfy Services'],
     ['https://getfixfy.com/growth', 'Fixfy Growth'],
     ['https://getfixfy.com/platform', 'Fixfy OS'],
+    ['https://partners.getfixfy.com', 'Fixfy Partners'],
   ];
   const productsDD = `<div class="g-nav-dd">
         <button type="button" class="g-nav-dd-btn">Products <svg class="g-dd-arrow" width="12" height="12" viewBox="0 0 16 16"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
@@ -35,7 +36,7 @@
             <svg class="sun" width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.7"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
           </button>
           <a href="#" class="login">Log in</a>
-          <a href="start.html" class="g-btn g-btn-primary" style="padding:11px 18px;font-size:15px">Build my site <span class="arr">→</span></a>
+          <a href="start.html" class="g-btn g-btn-primary" style="padding:11px 18px;font-size:15px">Get More Bookings <span class="arr">→</span></a>
         </div>
         <button class="g-burger" aria-label="Menu" onclick="document.getElementById('g-mobile').classList.toggle('open')">
           <svg width="18" height="18" viewBox="0 0 18 18"><path d="M2 5h14M2 9h14M2 13h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
@@ -44,7 +45,7 @@
       <div id="g-mobile" class="g-mobile-menu">
         ${productsMobile}
         ${NAV.map(([href, label]) => `<a href="${href}">${label}</a>`).join('')}
-        <a href="start.html" class="g-btn g-btn-primary g-btn-block" style="margin-top:8px">Build my site →</a>
+        <a href="start.html" class="g-btn g-btn-primary g-btn-block" style="margin-top:8px">Get More Bookings →</a>
       </div>
     </nav>`;
   }
@@ -62,7 +63,7 @@
           </div>
           ${col('Product', [['How it works', 'how-it-works.html'], ["What's included", 'features.html'], ['Pricing', 'pricing.html'], ['Results', 'results.html']])}
           ${col('Industries', [['Plumbers', 'industry-plumbers.html'], ['Electricians', 'industry-electricians.html'], ['HVAC', 'industry-hvac.html'], ['Roofers', 'industry-roofers.html']])}
-          ${col('Company', [['About Fixfy', 'about.html'], ['FAQ', 'faq.html'], ['Blog', 'blog.html'], ['Build my site', 'start.html']])}
+          ${col('Company', [['About Fixfy', 'about.html'], ['FAQ', 'faq.html'], ['Blog', 'blog.html'], ['Get More Bookings', 'start.html']])}
           ${col('Fixfy', [['Fixfy', 'https://getfixfy.com'], ['Fixfy Growth', 'https://getfixfy.com/growth'], ['Fixfy Partners', 'https://partners.getfixfy.com/']])}
         </div>
         <div class="g-footer-bot">
@@ -162,7 +163,7 @@
       if (opts.sticky !== false) {
         const s = document.createElement('div');
         s.className = 'g-sticky';
-        s.innerHTML = '<a href="start.html" class="g-btn g-btn-primary g-btn-block g-btn-lg">Build my site →</a>';
+        s.innerHTML = '<a href="start.html" class="g-btn g-btn-primary g-btn-block g-btn-lg">Get More Bookings →</a>';
         document.body.appendChild(s);
         let ticking = false;
         const sync = () => {

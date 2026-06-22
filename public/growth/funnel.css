@@ -323,3 +323,45 @@ body[data-fn="conversational"] .fn-with-rail{ display:block; }
   .fn-pricehint, .fn-summary .g-center.g-mute{ display:none; }
   .fn-summary{ padding-bottom:106px; }
 }
+
+/* DESKTOP: keep step 7 (summary) on one screen — no page scroll. Mirrors the mobile
+   compaction above but keeps the 2-col feature grid + descriptions. Scoped to .fn-summary
+   so steps 1–6, 8 and 9 are untouched. */
+@media (min-width:821px){
+  /* trim the shell's vertical padding for the summary step only (`:has` leaves others intact) */
+  .fn-shell:has(.fn-summary){ padding-block:20px; }
+  .fn-summary h2{ font-size:clamp(22px,2.6vw,28px); }
+  .fn-sum-sub{ margin-top:6px; }
+  .fn-sum-card{ margin-top:14px; }
+  .fn-sum-hd{ padding:16px 28px; }
+  .fn-guarantee{ padding:9px 18px; }
+  .fn-sum-body{ padding:16px 28px; gap:12px 28px; }
+  .fn-sum-item p{ margin-top:2px; }
+  .fn-plan-pick{ padding:12px 16px; }
+  .fn-pricehint{ margin-top:6px; }
+  .fn-sum-anchor{ margin-top:8px; }
+  .fn-sum-reassure{ margin-top:8px; }
+  .fn-summary .g-center.g-mute{ margin-top:6px; }
+  .fn-summary .fn-nav{ margin-top:16px; }
+}
+/* Laptops (≤980px tall): drop the secondary copy below the value card so the card +
+   plans + CTA stay on one screen. Same copy the mobile treatment hides. Tall monitors
+   (>980px) keep everything — the full stack fits there. */
+@media (min-width:821px) and (max-height:980px){
+  .fn-summary .fn-pricehint,
+  .fn-summary .fn-sum-anchor,
+  .fn-summary .fn-sum-reassure,
+  .fn-summary .g-center.g-mute{ display:none; }
+}
+/* SHORT laptops (≤830px tall, e.g. 1366×768): also compress the value card itself */
+@media (min-width:821px) and (max-height:830px){
+  .fn-shell:has(.fn-summary){ padding-block:12px; }
+  .fn-summary h2{ font-size:22px; }
+  .fn-sum-sub{ display:none; }
+  .fn-sum-card{ margin-top:10px; }
+  .fn-sum-hd{ padding:12px 28px; }
+  .fn-sum-body{ padding:12px 28px; gap:8px 28px; }
+  .fn-sum-item .ic{ width:32px; height:32px; }
+  .fn-plan-desc{ display:none; }
+  .fn-summary .fn-nav{ margin-top:10px; }
+}

@@ -57,15 +57,26 @@
 /* ---------- Trust logos (dark, partners-style grid) ---------- */
 .cin-trust{padding:72px 0;background:transparent}
 .cin-trust-lead{text-align:center;font-size:15px;line-height:1.55;color:rgba(255,255,255,0.62);max-width:64ch;margin:0 auto 40px;text-wrap:pretty}
-.cin-trust-logos{
-  display:grid;grid-template-columns:repeat(6,1fr);gap:1px;
-  background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.08);border-radius:12px;overflow:hidden;
+/* auto-scrolling client marquee — saves vertical space vs the old grid */
+.cin-marquee{
+  overflow:hidden;width:100%;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);
+  mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);
 }
+.cin-marquee-track{
+  display:flex;gap:12px;width:max-content;
+  animation:cinMarquee 48s linear infinite;
+}
+.cin-marquee:hover .cin-marquee-track{animation-play-state:paused}
+@keyframes cinMarquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.cin-marquee-track{animation:none}}
 .cin-logo-cell{
-  background:rgba(255,255,255,0.02);min-height:84px;
+  flex:0 0 auto;min-width:168px;min-height:78px;
+  background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:12px;
   display:flex;align-items:center;justify-content:center;padding:18px;
-  transition:background .18s var(--fx-ease);
+  transition:background .18s var(--fx-ease), border-color .18s var(--fx-ease);
 }
+.cin-logo-cell:hover{border-color:rgba(255,255,255,0.18)}
 .cin-logo-cell:hover{background:rgba(255,255,255,0.05)}
 .cin-logo-mark{
   font-size:16px;font-weight:600;letter-spacing:-0.01em;color:rgba(255,255,255,0.62);
@@ -76,8 +87,7 @@
 .cin-logo-mark .sm.coral{color:var(--fx-coral)}
 .cin-logo-cell.is-coral .cin-logo-mark{color:var(--fx-coral)}
 .cin-logo-cell.is-coral .cin-logo-mark .sm.coral{color:var(--fx-coral)}
-@media (max-width:900px){.cin-trust-logos{grid-template-columns:repeat(3,1fr)}}
-@media (max-width:520px){.cin-trust-logos{grid-template-columns:repeat(2,1fr)}.cin-trust{padding:56px 0}}
+@media (max-width:520px){.cin-trust{padding:56px 0}.cin-logo-cell{min-width:140px;min-height:66px;padding:14px}.cin-marquee-track{gap:10px}}
 
 /* ---------- Case studies ---------- */
 .cin-case-band .v2-h2{color:var(--fx-ink)}

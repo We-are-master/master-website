@@ -45,7 +45,7 @@ function PfHero(){
   <div class="v2-container">
     <div class="pf-hero-cine-grid">
       <div class="pf-hero-copy">
-        <div class="v2-eyebrow lg">The platform</div>
+        <div class="v2-eyebrow lg">The portal</div>
         <h1 class="pf-hero-h">Run maintenance like <span class="v2-coral">infrastructure</span>.<br/>Not like a backlog.</h1>
         <p class="pf-hero-lede">From the moment a request lands to the moment the certificate is filed — every step, on rails. One platform that absorbs the chaos so your team doesn&rsquo;t.</p>
         <div class="pf-hero-ctas">

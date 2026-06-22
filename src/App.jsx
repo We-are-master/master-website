@@ -5,6 +5,7 @@ import { Analytics } from '@vercel/analytics/react'
 
 import FixfyV2Nav from './components/fixfy-v2/FixfyV2Nav'
 import FixfyV2Footer from './components/fixfy-v2/FixfyV2Footer'
+import GetInTouchModal from './components/fixfy-v2/GetInTouchModal'
 import HeaderB2B from './components/HeaderB2B'
 import Footer from './components/Footer'
 import CookieConsent from './components/CookieConsent'
@@ -144,6 +145,8 @@ function AppContent() {
 
       {chrome === 'marketing' && <FixfyV2Footer />}
       {chrome === 'portal'    && <Footer />}
+
+      {chrome === 'marketing' && <GetInTouchModal />}
 
       <CookieConsent />
       <ToastContainer

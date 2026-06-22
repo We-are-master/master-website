@@ -53,7 +53,7 @@ export default function FixfyV2Nav() {
           <div className="v2-nav-links" id="nav-links">
             <div className="v2-nav-link-wrap">
               <Link className="v2-nav-link" data-dropdown to="/" onClick={closeMenu}>
-                Solutions
+                Business Solutions
               </Link>
               <div className="v2-dropdown">
                 <Link to="/solutions/real-estate" className="v2-dd-item" onClick={closeMenu}>
@@ -75,7 +75,7 @@ export default function FixfyV2Nav() {
               </div>
             </div>
             <NavLink className={navCls} to="/platform" onClick={closeMenu}>
-              Platform
+              Portal
             </NavLink>
             <NavLink className={navCls} to="/about" onClick={closeMenu}>
               About
