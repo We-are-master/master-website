@@ -13,8 +13,7 @@
       options:['Plumbing','Electrical','HVAC','Roofing','Landscaping','Cleaning','Remodeling','Handyman','Other'] },
     about:   { id:'about', kicker:'Question 2 of 5', q:'Tell us about your business', type:'form',
       fields:[ {k:'bizname',label:'Business name',ph:'e.g. Rivington Plumbing'},
-               {k:'area',label:'Service area (city / postcode)',ph:'e.g. Manchester, M1'},
-               {k:'years',label:'Years in business',ph:'e.g. 8'} ] },
+               {k:'area',label:'Service area (city / postcode)',ph:'e.g. Manchester, M1'} ] },
     source:  { id:'source', kicker:'Question 3 of 5', q:'How do you get most of your jobs today?', type:'single',
       options:['Referrals','Lead-gen platforms (Angi, Thumbtack…)','Word of mouth',"I don't have a steady source"] },
     website: { id:'website', kicker:'Question 4 of 5', q:'Do you have a website right now?', type:'single',
@@ -198,7 +197,7 @@
         <div class="fn-field"><label>Your name</label><input id="ld-name" value="${esc(S.lead.name)}" placeholder="Jordan Smith" oninput="__fn.setLead('name',this.value)"/></div>
         <div class="fn-row2">
           <div class="fn-field"><label>Email</label><input id="ld-email" type="email" value="${esc(S.lead.email)}" placeholder="you@business.co.uk" oninput="__fn.setLead('email',this.value)"/></div>
-          <div class="fn-field"><label>Phone</label><input id="ld-phone" type="tel" value="${esc(S.lead.phone)}" placeholder="07700 900000" oninput="__fn.setLead('phone',this.value)"/></div>
+          <div class="fn-field"><label>Phone <span style="color:var(--fx-mute);font-weight:400">(optional)</span></label><input id="ld-phone" type="tel" value="${esc(S.lead.phone)}" placeholder="07700 900000" oninput="__fn.setLead('phone',this.value)"/></div>
         </div>
       </div>
       <div class="fn-nav"><button class="fn-back" onclick="__fn.back()">← Back</button><span class="fn-spacer"></span>

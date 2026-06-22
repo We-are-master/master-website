@@ -211,9 +211,17 @@ body[data-fn="conversational"] .fn-with-rail{ display:block; }
 }
 @media (max-width:560px){
   /* Stack nav so the primary CTA is full-width and never truncates (mobile = 90% of traffic) */
-  .fn-nav{ flex-direction:column-reverse; align-items:stretch; gap:10px; }
+  .fn-nav{ flex-direction:column-reverse; align-items:stretch; gap:10px; margin-top:22px; }
   .fn-nav .fn-spacer{ display:none; }
   .fn-nav .g-btn{ width:100%; white-space:normal; text-align:center; line-height:1.2; }
   .fn-back{ align-self:center; }
-  .fn-shell{ padding:24px 18px 40px; }
+  /* App-like: center each step in the viewport; tall steps (summary) safely top-align */
+  .fn-shell{ padding:18px 18px 34px; min-height:calc(100dvh - 61px); display:flex; flex-direction:column; justify-content:safe center; }
+  .fn-q-kicker{ margin-bottom:9px; }
+  .fn-q h2{ font-size:25px; }
+  .fn-q .sub{ font-size:15px; margin-top:8px; }
+  .fn-opts{ margin-top:16px; gap:10px; }
+  .fn-opt{ padding:13px 16px; font-size:16px; }
+  .fn-fields{ margin-top:16px; gap:12px; }
+  .fn-sum-body{ padding:18px 20px 20px; gap:14px; }
 }
