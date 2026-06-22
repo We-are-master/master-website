@@ -224,4 +224,7 @@ body[data-fn="conversational"] .fn-with-rail{ display:block; }
   .fn-opt{ padding:13px 16px; font-size:16px; }
   .fn-fields{ margin-top:16px; gap:12px; }
   .fn-sum-body{ padding:18px 20px 20px; gap:14px; }
+  /* Summary: pin the primary CTA to the bottom of the screen so it's always tappable without scrolling */
+  .fn-nav--sticky{ position:sticky; bottom:0; z-index:5; margin-top:16px; padding:12px 0 10px; background:linear-gradient(to top, var(--g-bg) 78%, rgba(2,0,64,0)); }
+  .fn-nav--sticky .fn-back{ padding:4px 6px; }
 }

@@ -221,9 +221,8 @@
       </button>`;
     }).join('');
     return `<div class="fn-summary fn-stage">
-      <div class="fn-q-kicker" style="text-align:center">Your tailored plan</div>
-      <h2 style="text-align:center;font:var(--fx-w-semi) clamp(26px,3.4vw,38px)/1.1 var(--fx-sans);letter-spacing:-.02em">Perfect, ${esc(firstName())}. Here's the exact system we'll build for ${esc(bizName())}.</h2>
-      <p class="sub" style="text-align:center;max-width:52ch;margin:10px auto 0">Built to ${esc(String(goal).toLowerCase())}, live in 7 days, and yours to keep. No lead rental, no lock-in.</p>
+      <h2 style="text-align:center;font:var(--fx-w-semi) clamp(24px,3.2vw,34px)/1.05 var(--fx-sans);letter-spacing:-.02em">Your plan's ready, ${esc(firstName())}. 🎉</h2>
+      <p class="sub" style="text-align:center;max-width:42ch;margin:8px auto 0">Built around your jobs, live in 7 days, and yours to keep.</p>
       <div class="fn-sum-card">
         <div class="fn-sum-hd">
           <div class="g-mono">${esc(String(trade).toUpperCase())} · ${esc(p.name.toUpperCase())} PLAN · LIVE IN 7 DAYS</div>
@@ -234,11 +233,11 @@
         </div>
         <div class="fn-sum-body">
           ${[
-            ['🌐','Professional website','A fast, mobile-first site for '+esc(bizName())+', up to 10 pages, built to convert visitors into booked jobs.'],
-            ['📅','Job-based booking','Tuned to the way you quote your work, so customers book the right job and pay a deposit up front.'],
-            ['⚡','Bookings into your CRM','Every lead and booking in one place, with no more lost jobs.'],
-            ['🔍','Local Google SEO','Show up for "'+esc(String(trade).toLowerCase())+' near me" in '+esc(S.biz.area||'your area')+'.'],
-            ['🔁','Automations + reviews','Follow-ups, reminders and a 5-star review engine, running for you.']
+            ['🌐','Professional website','Up to 10 pages, built to convert.'],
+            ['📅','Job-based booking','Customers book the right job and pay a deposit.'],
+            ['⚡','Straight into your CRM','Every booking in one place, no lost jobs.'],
+            ['🔍','Local Google SEO','Rank for "'+esc(String(trade).toLowerCase())+' near me".'],
+            ['🔁','Automations + reviews','Follow-ups and a 5-star review engine.']
           ].map(([ic,h,p2])=>`<div class="fn-sum-item"><span class="ic">${ic}</span><div><h4>${h}</h4><p>${p2}</p></div></div>`).join('')}
         </div>
       </div>
@@ -246,9 +245,9 @@
         <div style="display:flex;gap:12px">${planPick}</div></div>
       <p style="text-align:center;margin-top:16px;font-size:15px;color:var(--fx-ink)">Agencies charge <s>£2,000+</s> upfront and bill you every month. Your price: <b>${p.amt}${p.per||' once'}</b> — and you own everything.</p>
       <p class="fn-sum-reassure g-mono">No payment until you pick a time · Fully refundable before work begins · You own everything</p>
-      <div class="fn-nav" style="justify-content:center"><button class="fn-back" onclick="__fn.back()">← Back</button>
+      <p class="g-center g-mute" style="margin-top:10px;font-size:13px"><span style="color:var(--g-coral)">★★★★★</span> Joining 5,000+ home-service businesses</p>
+      <div class="fn-nav fn-nav--sticky" style="justify-content:center"><button class="fn-back" onclick="__fn.back()">← Back</button>
         <button class="g-btn g-btn-primary g-btn-lg" onclick="__fn.next()">Book my onboarding <span class="arr">→</span></button></div>
-      <p class="g-center g-mute" style="margin-top:14px;font-size:13px"><span style="color:var(--g-coral)">★★★★★</span> Joining 5,000+ home-service businesses</p>
     </div>`;
   }
 
