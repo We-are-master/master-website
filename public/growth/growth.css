@@ -343,6 +343,9 @@ html[data-theme="light"] .g-on-light{ display:block; }
 }
 @media (max-width:560px){
   .g-footer-grid{ grid-template-columns:1fr; }
+  /* keep the hero trust line on a single line */
+  .hero-copy .g-eyebrow{ font-size:11px; letter-spacing:.02em; gap:6px; white-space:nowrap; }
+  .hero-copy .g-eyebrow .g-stars{ font-size:12px; letter-spacing:.5px; }
   body{ font-size:15px; }
   .g-display{ font-size:clamp(32px,9vw,44px); }
   .g-btn-lg{ padding:15px 22px; font-size:16px; }
