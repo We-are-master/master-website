@@ -39,7 +39,7 @@
 
   let S = {
     dir: document.body.dataset.fn || 'conversational',
-    i: 1,                // 0 intro (skipped); 1 lead, 2 trade, 3 about, 4 source, 5 website, 6 goal, 7 summary, 8 booking, 9 payment, 10 downsell
+    i: 0,                // 0 intro/welcome; 1 lead, 2 trade, 3 about, 4 source, 5 website, 6 goal, 7 summary, 8 booking, 9 payment, 10 downsell
     answers: {},
     plan: new URLSearchParams(location.search).get('plan') || 'monthly',
     lead: { name:'', email:'', phone:'' },
@@ -145,10 +145,9 @@
   function screenIntro() {
     return `<div class="fn-q fn-stage" style="text-align:center;max-width:620px">
       ${window.GrowthBrand ? window.GrowthBrand.hero() : '<div class="g-mark" style="margin:0 auto 22px;width:46px;height:46px;font-size:24px;border-radius:12px">F</div>'}
-      <h2 style="font-size:clamp(30px,4vw,44px)">Let's build your booking machine.</h2>
+      <h2 style="font-size:clamp(28px,4vw,42px)">Congrats on taking the step to a <span style="color:var(--g-coral)">predictable</span> business.</h2>
       <p class="sub" style="font-size:19px;max-width:46ch;margin-inline:auto">7 quick questions, about 2 minutes. Then pick a time and lock in your 7-day build.</p>
       <div style="margin-top:32px"><button class="g-btn g-btn-primary g-btn-lg" onclick="__fn.next()">Start <span class="arr">→</span></button></div>
-      <p class="g-mono g-mute" style="margin-top:20px;font-size:12px">No payment until you've chosen a time · Fully refundable before work begins</p>
     </div>`;
   }
 
@@ -209,13 +208,9 @@
     const p = PLANS[S.plan];
     const trade = S.answers.trade || 'home service';
     const goal = S.answers.goal || 'more bookings';
-    const GOAL_LINE = {
-      'Get more bookings': 'Built to get you more bookings',
-      'Stop paying for leads': 'Built to stop you paying for leads',
-      'Look more professional': 'Built to make you look more professional',
-      'Rank on Google': 'Built to get you found on Google'
-    };
-    const builtLine = GOAL_LINE[S.answers.goal] || 'Built to win you more jobs';
+    // niche-demand growth shown in the live AI badge (placeholder figures, verify before launch)
+    const NICHE_GROWTH = { Plumbing:14, Electrical:12, HVAC:18, Roofing:11, Landscaping:9, Cleaning:13, Remodeling:10, Handyman:12 };
+    const growthPct = NICHE_GROWTH[S.answers.trade] || 12;
     const planPick = Object.values(PLANS).map(pl=>{
       const sel = S.plan===pl.id;
       return `<button onclick="__fn.setPlan('${pl.id}')" style="flex:1;text-align:left;cursor:pointer;border-radius:14px;padding:14px 16px;border:2px solid ${sel?'var(--g-coral)':'var(--fx-line)'};background:${sel?'rgba(237,75,0,.06)':'var(--g-card)'};transition:border-color .15s,background .15s">
@@ -233,10 +228,10 @@
       <div class="fn-sum-card">
         <div class="fn-sum-hd">
           <div class="fn-sum-hd-row">
-            <div class="fn-sum-built">${builtLine}</div>
+            <div class="fn-sum-built">Custom-built for a <b>predictable</b> business</div>
             <div class="fn-sum-price"><s>${p.old}</s> <b>${p.amt}</b><span>${p.per || ' one-time'}</span></div>
           </div>
-          <div class="fn-sum-stat"><span class="fn-live"></span>Custom-built for a <b>predictable</b> business</div>
+          <div class="fn-sum-stat"><svg class="fn-ai" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2l1.7 5.1L19 9l-5.3 1.9L12 16l-1.7-5.1L5 9l5.3-1.9L12 2z" fill="currentColor"/><path d="M18.6 13.6l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7.7-2z" fill="currentColor" opacity=".7"/></svg><span><b>${esc(trade)}</b> demand up <b class="g">+${growthPct}%</b> this month</span></div>
         </div>
         <div class="fn-guarantee"><span class="ic">🛡️</span><div class="g"><b>100% risk-free.</b> Fully refunded on the spot if you're not happy.</div></div>
         <div class="fn-sum-body">
