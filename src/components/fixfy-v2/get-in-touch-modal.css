@@ -1,0 +1,144 @@
+/* Get in touch modal — main site (getfixfy.com). Dark v2 theme, responsive. */
+.gim-overlay{
+  position:fixed; inset:0; z-index:1000;
+  display:flex; align-items:center; justify-content:center;
+  padding:24px;
+  background:rgba(2,0,32,0.62);
+  backdrop-filter:blur(6px);
+  animation:gimFade .18s ease;
+}
+@keyframes gimFade{ from{ opacity:0 } to{ opacity:1 } }
+
+.gim-card{
+  position:relative;
+  width:100%; max-width:600px;
+  max-height:min(92vh, 860px);
+  display:flex; flex-direction:column;
+  background:#0B0B1A;
+  border:1px solid rgba(255,255,255,0.10);
+  border-radius:18px;
+  box-shadow:0 30px 80px rgba(0,0,0,0.55);
+  overflow:hidden;
+  animation:gimPop .2s cubic-bezier(.2,0,0,1);
+}
+@keyframes gimPop{ from{ opacity:0; transform:translateY(8px) scale(.99) } to{ opacity:1; transform:none } }
+
+.gim-close{
+  position:absolute; top:14px; right:14px; z-index:2;
+  width:34px; height:34px; border-radius:50%;
+  display:grid; place-items:center;
+  background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.10);
+  color:rgba(255,255,255,0.75); font-size:15px; cursor:pointer;
+  transition:background .14s, color .14s;
+}
+.gim-close:hover{ background:rgba(255,255,255,0.12); color:#fff }
+
+.gim-head{ padding:30px 30px 0 }
+.gim-eyebrow{
+  font-family:var(--fx-mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--fx-coral); font-weight:500;
+}
+.gim-title{
+  margin:10px 0 0; color:#fff; font-weight:500;
+  font-size:clamp(22px,2.6vw,28px); line-height:1.1; letter-spacing:-.02em;
+}
+.gim-sub{ margin:8px 0 0; color:rgba(255,255,255,0.6); font-size:14px; line-height:1.5; max-width:46ch }
+
+.gim-tabs{
+  display:grid; grid-template-columns:1fr 1fr; gap:8px;
+  padding:20px 30px 0;
+}
+.gim-tab{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  padding:11px 12px; border-radius:10px; cursor:pointer;
+  background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.10);
+  color:rgba(255,255,255,0.72); font-size:13.5px; font-weight:500;
+  transition:border-color .14s, background .14s, color .14s;
+}
+.gim-tab:hover{ border-color:rgba(255,255,255,0.22); color:#fff }
+.gim-tab.is-active{ border-color:var(--fx-coral); background:rgba(237,75,0,0.10); color:#fff }
+.gim-tab-ic{ font-size:14px }
+
+.gim-body{ padding:22px 30px 30px; overflow-y:auto; }
+
+/* form */
+.gim-form{ display:flex; flex-direction:column; gap:14px }
+.gim-row{ display:grid; grid-template-columns:1fr 1fr; gap:12px }
+.gim-form label{ display:flex; flex-direction:column; gap:6px }
+.gim-l{
+  font-family:var(--fx-mono); font-size:10.5px; letter-spacing:.14em; text-transform:uppercase;
+  color:rgba(255,255,255,0.5); font-weight:500;
+}
+.gim-form input, .gim-form select, .gim-form textarea{
+  background:rgba(0,0,0,0.32); border:1px solid rgba(255,255,255,0.12); border-radius:8px;
+  padding:11px 13px; color:#fff; font-family:inherit; font-size:14px; transition:border .14s, box-shadow .14s;
+}
+.gim-form input:focus, .gim-form select:focus, .gim-form textarea:focus{
+  outline:none; border-color:var(--fx-coral); box-shadow:0 0 0 2px rgba(237,75,0,0.2);
+}
+.gim-form textarea{ min-height:96px; resize:vertical }
+.gim-form select{ appearance:none; -webkit-appearance:none }
+.gim-hp{ position:absolute; left:-9999px; width:1px; height:1px; opacity:0 }
+
+.gim-submit{
+  margin-top:4px; padding:13px; width:100%;
+  background:var(--fx-coral); color:#fff; border:none; border-radius:9px;
+  font-weight:600; font-size:14.5px; cursor:pointer; transition:background .14s, opacity .14s;
+}
+.gim-submit:hover{ background:var(--fx-coral-hover) }
+.gim-submit:disabled{ opacity:.6; cursor:default }
+
+.gim-error{
+  background:rgba(239,68,68,0.10); border:1px solid rgba(239,68,68,0.4);
+  color:#fecaca; font-size:13px; border-radius:8px; padding:9px 12px;
+}
+.gim-note{ color:rgba(255,255,255,0.55); font-size:13px; line-height:1.5; margin:0 }
+.gim-loading{ color:rgba(255,255,255,0.6); font-size:14px; padding:24px 0; text-align:center }
+
+/* schedule picker */
+.gim-sched{ margin-bottom:4px }
+.gim-chips{ display:flex; gap:8px; margin-top:8px; overflow-x:auto; padding-bottom:4px; -webkit-overflow-scrolling:touch }
+.gim-chip{
+  flex:none; min-width:64px; display:flex; flex-direction:column; align-items:center; gap:1px;
+  padding:9px 10px; border-radius:10px; cursor:pointer;
+  background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.12); color:rgba(255,255,255,0.8);
+  transition:border-color .14s, background .14s;
+}
+.gim-chip:hover{ border-color:rgba(255,255,255,0.24) }
+.gim-chip.is-active{ border-color:var(--fx-coral); background:rgba(237,75,0,0.12); color:#fff }
+.gim-chip-dow{ font-size:11px; color:rgba(255,255,255,0.55) }
+.gim-chip.is-active .gim-chip-dow{ color:rgba(255,255,255,0.8) }
+.gim-chip-num{ font-size:18px; font-weight:600; line-height:1.1 }
+.gim-chip-mon{ font-size:10px; color:rgba(255,255,255,0.45) }
+
+.gim-times{ display:flex; flex-wrap:wrap; gap:8px; margin-top:8px }
+.gim-time{
+  padding:9px 14px; border-radius:8px; cursor:pointer; font-size:13.5px; font-weight:500;
+  background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.12); color:rgba(255,255,255,0.85);
+  transition:border-color .14s, background .14s;
+}
+.gim-time:hover{ border-color:rgba(255,255,255,0.24) }
+.gim-time.is-active{ border-color:var(--fx-coral); background:rgba(237,75,0,0.12); color:#fff }
+
+/* success */
+.gim-success{ text-align:center; padding:14px 6px 4px; display:flex; flex-direction:column; align-items:center; gap:10px }
+.gim-success-ic{
+  width:52px; height:52px; border-radius:50%; display:grid; place-items:center;
+  background:rgba(34,197,94,0.14); border:1px solid rgba(34,197,94,0.5); color:#4ade80; font-size:24px;
+}
+.gim-success-title{ margin:4px 0 0; color:#fff; font-size:20px; font-weight:600 }
+.gim-success-body{ margin:0; color:rgba(255,255,255,0.66); font-size:14px; line-height:1.55; max-width:42ch }
+.gim-success-link{ color:var(--fx-coral); font-size:14px; text-decoration:none; font-weight:500 }
+.gim-success-link:hover{ text-decoration:underline }
+.gim-success .gim-submit{ max-width:200px; margin-top:8px }
+
+/* mobile: full-screen sheet */
+@media (max-width:560px){
+  .gim-overlay{ padding:0; align-items:stretch }
+  .gim-card{ max-width:none; max-height:100dvh; height:100dvh; border-radius:0; border:none }
+  .gim-head{ padding:24px 20px 0 }
+  .gim-tabs{ padding:16px 20px 0 }
+  .gim-tab{ font-size:12.5px; padding:10px 8px }
+  .gim-body{ padding:18px 20px calc(20px + env(safe-area-inset-bottom)) }
+  .gim-row{ grid-template-columns:1fr }
+}

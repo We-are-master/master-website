@@ -297,3 +297,88 @@ export async function createOnboardingEvent(input: CreateEventInput): Promise<{ 
     htmlLink: (data.htmlLink as string) || '',
   }
 }
+
+const MEETING_MINUTES = 30
+
+export interface CreateMeetingInput {
+  name: string
+  email: string
+  phone?: string
+  company?: string
+  industry?: string
+  message?: string
+  slotStart: string
+  notifyEmail: string
+}
+
+/**
+ * Generic "intro call" event for the main-site Get in touch modal — no payment, no booking row.
+ * Reuses the same service account + calendar as the Growth onboarding flow.
+ */
+export async function createMeetingEvent(input: CreateMeetingInput): Promise<{ eventId: string; htmlLink: string }> {
+  const sa = parseServiceAccount()
+  const calendarId = getCalendarId()
+  if (!sa || !calendarId) {
+    throw new Error('Google Calendar not configured')
+  }
+
+  const token = await getAccessToken(sa)
+  const start = new Date(input.slotStart)
+  const end = new Date(start.getTime() + MEETING_MINUTES * 60_000)
+
+  const desc = [
+    `Contact: ${input.name}`,
+    `Email: ${input.email}`,
+    input.phone ? `Phone: ${input.phone}` : '',
+    input.company ? `Company: ${input.company}` : '',
+    input.industry ? `Industry: ${input.industry}` : '',
+    '',
+    input.message ? `Message:\n${input.message}` : '',
+    '',
+    'Source: getfixfy.com — Get in touch',
+  ].filter(Boolean).join('\n')
+
+  const res = await fetch(
+    `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?conferenceDataVersion=1&sendUpdates=all`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        summary: `Fixfy intro call — ${input.company || input.name}`,
+        description: desc,
+        start: { dateTime: start.toISOString(), timeZone: TIMEZONE },
+        end: { dateTime: end.toISOString(), timeZone: TIMEZONE },
+        attendees: [
+          { email: input.email, displayName: input.name },
+          { email: input.notifyEmail, displayName: 'Fixfy' },
+        ],
+        conferenceData: {
+          createRequest: {
+            requestId: crypto.randomUUID(),
+            conferenceSolutionKey: { type: 'hangoutsMeet' },
+          },
+        },
+        reminders: {
+          useDefault: false,
+          overrides: [
+            { method: 'email', minutes: 24 * 60 },
+            { method: 'email', minutes: 30 },
+          ],
+        },
+      }),
+    },
+  )
+
+  const data = await res.json()
+  if (!res.ok) {
+    throw new Error(data.error?.message || 'Failed to create calendar event')
+  }
+
+  return {
+    eventId: data.id as string,
+    htmlLink: (data.htmlLink as string) || '',
+  }
+}
