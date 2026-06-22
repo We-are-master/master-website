@@ -273,4 +273,33 @@ body[data-fn="conversational"] .fn-with-rail{ display:block; }
   .fn-sum-price span{ font-size:15px; }
   /* 3) remove the reassurance line on mobile */
   .fn-sum-reassure{ display:none; }
+  /* compact "fit one screen" summary: condense the value list to a 2-col icon+title grid,
+     drop secondary copy so price + plans + CTA stay above the fold */
+  .fn-summary h2{ font-size:21px; }
+  .fn-sum-sub{ display:none; }
+  .fn-sum-card{ margin-top:14px; }
+  .fn-sum-hd{ padding:13px 16px; }
+  .fn-guarantee{ padding:9px 16px; }
+  .fn-guarantee .g{ font-size:12px; }
+  .fn-sum-body{ grid-template-columns:1fr 1fr; gap:10px 12px; padding:13px 14px 14px; }
+  .fn-sum-item{ gap:9px; }
+  .fn-sum-item .ic{ width:28px; height:28px; border-radius:8px; }
+  .fn-sum-item h4{ font-size:12.5px; line-height:1.15; }
+  .fn-sum-item p{ display:none; }
+  .fn-sum-anchor{ display:none; }
+}
+/* extra squeeze on short viewports so everything fits without scrolling */
+@media (max-width:560px) and (max-height:760px){
+  .fn-shell{ padding:12px 16px 26px; }
+  .fn-summary h2{ font-size:19px; }
+  .fn-sum-card{ margin-top:10px; }
+  .fn-sum-body{ gap:8px 12px; padding:11px 14px 12px; }
+  .fn-sum-stat{ margin-top:10px; }
+  .fn-pricehint{ display:none; }
+  .fn-summary .g-center.g-mute{ display:none; }
+  .fn-sum-hd{ padding:9px 16px; }
+  .fn-sum-price b{ font-size:30px; }
+  .fn-plan-pick{ padding:11px 13px; }
+  .fn-plan-desc{ display:none; }
+  .fn-nav--sticky{ padding-top:8px; }
 }
