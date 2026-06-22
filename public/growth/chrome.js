@@ -12,6 +12,7 @@
     ['https://getfixfy.com', 'Fixfy Services'],
     ['https://getfixfy.com/growth', 'Fixfy Growth'],
     ['https://getfixfy.com/platform', 'Fixfy OS'],
+    ['https://partners.getfixfy.com', 'Fixfy Partners'],
   ];
   const productsDD = `<div class="g-nav-dd">
         <button type="button" class="g-nav-dd-btn">Products <svg class="g-dd-arrow" width="12" height="12" viewBox="0 0 16 16"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button>

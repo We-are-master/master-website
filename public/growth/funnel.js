@@ -38,8 +38,8 @@
   }
 
   const ADDONS = {
-    gbp:    { name:'Google Business Profile setup', price:199, ico:'📍', tag:'Most added',
-              desc:'Rank #1 locally and get up to <b>60% more visibility on Google</b>, free organic traffic, no ads.' },
+    crm:    { name:'Full UK CRM access', price:99, per:'/mo', ico:'📊', tag:'Most added',
+              desc:'The complete Fixfy CRM, pipeline, jobs, invoicing and customer history all in one place, built for UK trades.' },
     brand:  { name:'Professional brand manual', price:199, ico:'🎨', tag:'',
               desc:'Logo, colours, fonts and usage rules, a consistent, professional brand across everything you put out.' },
     social: { name:'Social media, 12-month plan', price:109, ico:'📱', tag:'Best value',
@@ -62,7 +62,7 @@
     availabilityLoading: false,
     bookingId: null,
     payMode: 'full',   // 'full' | 'deposit'
-    addons: { gbp:false, brand:false, social:false },
+    addons: { crm:false, brand:false, social:false },
     holdT: null, holdLeft: HOLD_SEC
   };
 
@@ -408,7 +408,7 @@
           <div class="fn-addon-top"><h3>${a.name}</h3>${a.tag?`<span class="fn-addon-tag">${a.tag}</span>`:''}</div>
           <p>${a.desc}</p>
           <div class="fn-addon-foot">
-            <span class="fn-addon-price">£${a.price} <small>one-off</small></span>
+            <span class="fn-addon-price">£${a.price} <small>${a.per || 'one-off'}</small></span>
             <button class="fn-addon-btn ${on?'on':''}" onclick="__fn.toggleAddon('${k}')">${on?'✓ Added':'+ Add'}</button>
           </div>
         </div>
@@ -550,7 +550,7 @@
     pay:()=>{ doPay(); },
     toggleAddon:(k)=>{ S.addons[k]=!S.addons[k]; render(); },
     finish:()=>{ goThankYou(); },
-    restart:()=>{ S={ dir:S.dir, i:0, answers:{}, plan:S.plan, lead:{name:'',email:'',phone:''}, biz:{bizname:'',area:'',country:''}, slot:null, day:null, time:null, slotIso:null, availabilityDays:[], availabilityLoading:false, bookingId:null, payMode:'full', addons:{gbp:false,brand:false,social:false}, holdT:null, holdLeft:HOLD_SEC }; render(); }
+    restart:()=>{ S={ dir:S.dir, i:0, answers:{}, plan:S.plan, lead:{name:'',email:'',phone:''}, biz:{bizname:'',area:'',country:''}, slot:null, day:null, time:null, slotIso:null, availabilityDays:[], availabilityLoading:false, bookingId:null, payMode:'full', addons:{crm:false,brand:false,social:false}, holdT:null, holdLeft:HOLD_SEC }; render(); }
   };
 
   window.__fnSaveThanks = saveThanksData;
