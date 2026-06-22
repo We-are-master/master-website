@@ -5,25 +5,37 @@
     onetime:  { id:'onetime',  name:'One-time', amt:'£499', per:'', old:'£2,299', desc:'No recurring. Ever. You own it.', full:'£499 one-time' }
   };
 
-  const QUIZ = [
-    { id:'trade', kicker:'Question 1 of 7', q:'What type of business do you run?', type:'single', cols:2,
+  // Flow order: lead(contact) → trade → about → source → website → goal → summary.
+  // Contact is captured first (chosen order). "Services" question removed; plan choice
+  // is folded into the summary screen.
+  const Q = {
+    trade:   { id:'trade', kicker:'Question 1 of 5', q:'What type of business do you run?', type:'single', cols:2,
       options:['Plumbing','Electrical','HVAC','Roofing','Landscaping','Cleaning','Remodeling','Handyman','Other'] },
-    { id:'source', kicker:'Question 2 of 7', q:'How do you get most of your jobs today?', type:'single',
-      options:['Referrals','Lead-gen platforms (Angi, Thumbtack…)','Word of mouth',"I don't have a steady source"] },
-    { id:'website', kicker:'Question 3 of 7', q:'Do you have a website right now?', type:'single',
-      options:['No',"Yes, but it's outdated","Yes, but it doesn't bring me jobs"] },
-    { id:'goal', kicker:'Question 4 of 7', q:"What's your #1 goal?", type:'single',
-      options:['Get more bookings','Stop paying for leads','Look more professional','Rank on Google'] },
-    { id:'services', kicker:'Question 5 of 7', q:'How many services or job types do you offer?', type:'single', sub:'This shapes your booking system.',
-      options:['1–3','4–6','7+'] },
-    { id:'about', kicker:'Question 6 of 7', q:'Tell us about your business', type:'form',
+    about:   { id:'about', kicker:'Question 2 of 5', q:'Tell us about your business', type:'form',
       fields:[ {k:'bizname',label:'Business name',ph:'e.g. Rivington Plumbing'},
-               {k:'area',label:'Service area (city / postcode)',ph:'e.g. Manchester, M1'},
-               {k:'years',label:'Years in business',ph:'e.g. 8'} ] },
-    { id:'plan', kicker:'Question 7 of 7', q:'Which plan fits you best?', type:'plan', sub:'You can change this later at checkout.' }
-  ];
+               {k:'country',label:'Country',type:'select',options:['United Kingdom','United States','Canada','Ireland','Australia','Other']} ] },
+    source:  { id:'source', kicker:'Question 3 of 5', q:'How do you get most of your jobs today?', type:'single',
+      options:['Referrals','Lead-gen platforms (Angi, Thumbtack…)','Word of mouth',"I don't have a steady source"] },
+    website: { id:'website', kicker:'Question 4 of 5', q:'Do you have a website right now?', type:'single',
+      options:['No',"Yes, but it's outdated","Yes, but it doesn't bring me jobs"] },
+    goal:    { id:'goal', kicker:'Question 5 of 5', q:"What's your #1 goal?", type:'single',
+      options:['Get more bookings','Stop paying for leads','Look more professional','Rank on Google'] }
+  };
 
-  const RAIL = ['Your trade','How you get jobs','Current website','Your goal','Services','Your business','Choose a plan','Your details','Your plan','Book onboarding','Payment'];
+  const RAIL = ['Your details','Your trade','Your business','How you get jobs','Current website','Your goal','Your plan','Book onboarding','Payment'];
+
+  // Country-specific lead-gen platforms for the "how do you get jobs" question
+  const LEADGEN = {
+    'United Kingdom': 'Checkatrade, Bark, MyBuilder…',
+    'United States': 'Angi, Thumbtack, HomeAdvisor…',
+    'Canada': 'HomeStars, Bark, Jiffy…',
+    'Ireland': 'Tradesmen.ie, Bark…',
+    'Australia': 'hipages, Airtasker…'
+  };
+  function sourceQuestion() {
+    const ex = LEADGEN[(S.biz.country || '').trim()] || 'Angi, Bark, Thumbtack…';
+    return Object.assign({}, Q.source, { options: ['Referrals', 'Lead-gen platforms (' + ex + ')', 'Word of mouth', "I don't have a steady source"] });
+  }
 
   const ADDONS = {
     gbp:    { name:'Google Business Profile setup', price:199, ico:'📍', tag:'Most added',
@@ -40,11 +52,11 @@
 
   let S = {
     dir: document.body.dataset.fn || 'conversational',
-    i: 1,                // start straight on Q1 (0 intro skipped); 1-7 quiz, 8 lead, 9 summary, 10 booking, 11 payment, 12 downsell, 13 confirm
+    i: 0,                // 0 intro/welcome; 1 lead, 2 trade, 3 about, 4 source, 5 website, 6 goal, 7 summary, 8 booking, 9 payment, 10 downsell
     answers: {},
     plan: new URLSearchParams(location.search).get('plan') || 'monthly',
     lead: { name:'', email:'', phone:'' },
-    biz: { bizname:'', area:'', years:'' },
+    biz: { bizname:'', area:'', country:'' },
     slot: null, day: null, time: null, slotIso: null,
     availabilityDays: [],
     availabilityLoading: false,
@@ -61,7 +73,7 @@
 
   // total quiz/flow steps for progress (intro excluded)
   function progress() {
-    const total = 11;            // q1-7, lead, summary, booking, payment
+    const total = 9;             // lead, 5 questions, summary, booking, payment
     const done = Math.min(Math.max(S.i, 0), total);
     return Math.round((done / (total + 1)) * 100);
   }
@@ -72,11 +84,11 @@
   // ---------- navigation ----------
   function go(n) {
     S.i = n;
-    if (S.i === 10) {
+    if (S.i === 8) {
       startHold();
       loadAvailability();
     }
-    if (S.i === 11) {
+    if (S.i === 9) {
       if (!S.holdT && S.time) startHold();
       setTimeout(mountStripe, 0);
     } else if (window.GrowthCheckout) {
@@ -118,7 +130,7 @@
     if (result.ok) {
       clearInterval(S.holdT);
       saveThanksData();
-      go(12);
+      go(10);
     }
   }
   function next() { go(S.i + 1); }
@@ -144,12 +156,21 @@
 
   // ---------- screens ----------
   function screenIntro() {
+    const hl = 'color:var(--g-coral);text-decoration:underline;text-underline-offset:3px';
+    const chk = '<svg class="fn-chk" width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 4.5" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
     return `<div class="fn-q fn-stage" style="text-align:center;max-width:620px">
       ${window.GrowthBrand ? window.GrowthBrand.hero() : '<div class="g-mark" style="margin:0 auto 22px;width:46px;height:46px;font-size:24px;border-radius:12px">F</div>'}
-      <h2 style="font-size:clamp(30px,4vw,44px)">Let's build your booking machine.</h2>
-      <p class="sub" style="font-size:19px;max-width:46ch;margin-inline:auto">7 quick questions, about 2 minutes. Then pick a time and lock in your 7-day build.</p>
-      <div style="margin-top:32px"><button class="g-btn g-btn-primary g-btn-lg" onclick="__fn.next()">Start <span class="arr">→</span></button></div>
-      <p class="g-mono g-mute" style="margin-top:20px;font-size:12px">No payment until you've chosen a time · Fully refundable before work begins</p>
+      <h2 style="font:var(--fx-w-semi) clamp(28px,4.6vw,44px)/1.08 var(--fx-sans);letter-spacing:-.02em">
+        <span style="display:block;font-size:.6em;margin-bottom:9px">You've built the <span style="${hl}">Trade</span>.</span>
+        Now let's build the<br><span style="${hl}">System behind it</span>.</h2>
+      <div class="fn-feats">
+        <span class="fn-feat">${chk} Website</span>
+        <span class="fn-feat">${chk} Booking System</span>
+        <span class="fn-feat">${chk} CRM</span>
+        <span class="fn-feat">${chk} Automated Follow-ups</span>
+      </div>
+      <p class="sub" style="font-size:17px;max-width:50ch;margin:16px auto 0">Everything you need to generate more enquiries and win more jobs, without relying on referrals or lead-gen companies.</p>
+      <div style="margin-top:28px"><button class="g-btn g-btn-primary g-btn-lg" onclick="__fn.next()">Get More Bookings <span class="arr">→</span></button></div>
     </div>`;
   }
 
@@ -163,8 +184,16 @@
           <span class="tick">${sel?'<svg width="13" height="13" viewBox="0 0 16 16"><path d="M3 8.5l3.2 3.2L13 4.5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}</span>
         </button>`; }).join('')}</div>`;
     } else if (q.type === 'form') {
-      body = `<div class="fn-fields">${q.fields.map(f=>`
-        <div class="fn-field"><label>${f.label}</label>
+      body = `<div class="fn-fields">${q.fields.map(f=> f.type==='select'
+        ? `<div class="fn-field"><label>${f.label}</label>
+          <div class="fn-select" data-key="${f.k}">
+            <button type="button" class="fn-select-btn ${S.biz[f.k]?'':'placeholder'}" onclick="__fn.toggleSelect('${f.k}')">
+              <span>${S.biz[f.k] ? esc(S.biz[f.k]) : 'Select…'}</span>
+              <svg class="fn-select-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="fn-select-menu">${f.options.map(o=>`<button type="button" class="fn-select-opt ${S.biz[f.k]===o?'sel':''}" onclick="__fn.pickSelect('${f.k}','${esc(o)}')">${esc(o)}</button>`).join('')}</div>
+          </div></div>`
+        : `<div class="fn-field"><label>${f.label}</label>
           <input id="fld-${f.k}" value="${esc(S.biz[f.k])}" placeholder="${f.ph}" oninput="__fn.setBiz('${f.k}',this.value)"/></div>`).join('')}</div>
         <div class="fn-nav"><button class="fn-back" onclick="__fn.back()">← Back</button><span class="fn-spacer"></span>
           <button class="g-btn g-btn-primary g-btn-lg" onclick="__fn.next()">Continue <span class="arr">→</span></button></div>`;
@@ -191,18 +220,18 @@
 
   function screenLead() {
     return `<div class="fn-q fn-stage">
-      <div class="fn-q-kicker">Almost there</div>
-      <h2>Where should we send your plan?</h2>
-      <p class="sub">So we can confirm your onboarding and lock your build slot.</p>
+      <div class="fn-q-kicker">First, let's get you set up</div>
+      <h2>Tell us a bit about you</h2>
+      <p class="sub">So we can build your tailored plan and send it over, takes 20 seconds.</p>
       <div class="fn-fields">
         <div class="fn-field"><label>Your name</label><input id="ld-name" value="${esc(S.lead.name)}" placeholder="Jordan Smith" oninput="__fn.setLead('name',this.value)"/></div>
         <div class="fn-row2">
           <div class="fn-field"><label>Email</label><input id="ld-email" type="email" value="${esc(S.lead.email)}" placeholder="you@business.co.uk" oninput="__fn.setLead('email',this.value)"/></div>
-          <div class="fn-field"><label>Phone</label><input id="ld-phone" type="tel" value="${esc(S.lead.phone)}" placeholder="07700 900000" oninput="__fn.setLead('phone',this.value)"/></div>
+          <div class="fn-field"><label>Phone <span style="color:var(--fx-mute);font-weight:400">(optional)</span></label><input id="ld-phone" type="tel" value="${esc(S.lead.phone)}" placeholder="07700 900000" oninput="__fn.setLead('phone',this.value)"/></div>
         </div>
       </div>
       <div class="fn-nav"><button class="fn-back" onclick="__fn.back()">← Back</button><span class="fn-spacer"></span>
-        <button class="g-btn g-btn-primary g-btn-lg" onclick="__fn.next()">See my plan <span class="arr">→</span></button></div>
+        <button class="g-btn g-btn-primary g-btn-lg" onclick="__fn.next()">Continue <span class="arr">→</span></button></div>
     </div>`;
   }
 
@@ -210,29 +239,52 @@
     const p = PLANS[S.plan];
     const trade = S.answers.trade || 'home service';
     const goal = S.answers.goal || 'more bookings';
+    // niche jobs/month shown in the live AI badge (placeholder figures, verify before launch)
+    const NICHE_JOBS = { Plumbing:64, Electrical:63, HVAC:66, Roofing:61, Landscaping:60, Cleaning:62, Remodeling:59, Handyman:65 };
+    const jobsNum = NICHE_JOBS[S.answers.trade] || 62;
+    const planPick = Object.values(PLANS).map(pl=>{
+      const sel = S.plan===pl.id;
+      return `<button onclick="__fn.setPlan('${pl.id}')" class="fn-plan-pick" style="flex:1;text-align:left;cursor:pointer;border-radius:14px;padding:14px 16px;border:2px solid ${sel?'var(--g-coral)':'var(--fx-line)'};background:${sel?'rgba(237,75,0,.06)':'var(--g-card)'};transition:border-color .15s,background .15s">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;row-gap:5px">
+          <strong style="font-size:15px;white-space:nowrap">${pl.name}</strong>
+          ${pl.id==='monthly'?'<span style="font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;flex:none;color:var(--g-green-press);background:var(--g-green-50);padding:3px 8px;border-radius:20px">Popular</span>':'<span style="font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;flex:none;color:var(--g-coral);background:rgba(237,75,0,.08);padding:3px 8px;border-radius:20px">Own it</span>'}
+        </div>
+        <div style="margin-top:6px"><s style="color:var(--fx-mute);font-size:13px">${pl.old}</s> <b style="font-size:21px">${pl.amt}</b><small style="color:var(--fx-mute)">${pl.per||' once'}</small></div>
+        <div class="fn-plan-desc" style="margin-top:4px;color:var(--fx-mute);font-size:12px">${pl.desc}</div>
+      </button>`;
+    }).join('');
     return `<div class="fn-summary fn-stage">
-      <div class="fn-q-kicker" style="text-align:center">Your tailored plan</div>
-      <h2 style="text-align:center;font:var(--fx-w-semi) clamp(26px,3.4vw,38px)/1.1 var(--fx-sans);letter-spacing:-.02em">Perfect, ${esc(firstName())}. Here's your Fixfy Growth plan for ${esc(bizName())}.</h2>
+      <h2 style="text-align:center;font:var(--fx-w-semi) clamp(24px,3.2vw,34px)/1.05 var(--fx-sans);letter-spacing:-.02em">Your plan's ready, ${esc(firstName())}. 🎉</h2>
+      <p class="sub fn-sum-sub" style="text-align:center;max-width:42ch;margin:8px auto 0">Built around your jobs — yours to keep.</p>
       <div class="fn-sum-card">
         <div class="fn-sum-hd">
-          <div class="g-mono">${esc(String(trade).toUpperCase())} · ${esc(p.name.toUpperCase())} PLAN · LIVE IN 7 DAYS</div>
           <div class="fn-sum-hd-row">
-            <div class="fn-sum-built">Built to ${esc(String(goal).toLowerCase())}</div>
+            <div class="fn-sum-built">Get more <b>bookings</b>. Do less <b>chasing</b>.</div>
             <div class="fn-sum-price"><s>${p.old}</s> <b>${p.amt}</b><span>${p.per || ' one-time'}</span></div>
           </div>
+          <div class="fn-sum-stat"><svg class="fn-ai" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2l1.7 5.1L19 9l-5.3 1.9L12 16l-1.7-5.1L5 9l5.3-1.9L12 2z" fill="currentColor"/><path d="M18.6 13.6l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7.7-2z" fill="currentColor" opacity=".7"/></svg><span><b>${esc(trade)}</b> is getting <b class="g">${jobsNum}+</b> more jobs a month</span></div>
         </div>
+        <div class="fn-guarantee"><span class="ic">🛡️</span><div class="g"><b>100% risk-free.</b> Fully refunded on the spot if you're not happy.</div></div>
         <div class="fn-sum-body">
           ${[
-            ['🌐','Professional website','A fast, mobile-first site for '+esc(bizName())+', up to 10 pages, built to convert.'],
-            ['📅','Job-based booking','Tuned to your '+esc(String(S.answers.services||'core'))+' service types so customers book the right job.'],
-            ['⚡','Bookings into your CRM','Every lead and booking in one place, with no more lost jobs.'],
-            ['🔍','Local Google SEO','Show up for "'+esc(String(trade).toLowerCase())+' near me" in '+esc(S.biz.area||'your area')+'.'],
-            ['🔁','Automations + reviews','Follow-ups, reminders and a 5-star review engine, running for you.']
+            ['🌐','Professional website','Up to 10 pages, built to convert.'],
+            ['📅','Job-based booking','Customers book the right job and pay a deposit.'],
+            ['⚡','CRM + WhatsApp','Every booking in one place, pinged to your WhatsApp.'],
+            ['🤖','AI lead scoring','Spots your best leads so you never waste a trip.'],
+            ['🔍','Local Google SEO','Rank for "'+esc(String(trade).toLowerCase())+' near me".'],
+            ['🔁','Automations + reviews','Follow-ups and a 5-star review engine.']
           ].map(([ic,h,p2])=>`<div class="fn-sum-item"><span class="ic">${ic}</span><div><h4>${h}</h4><p>${p2}</p></div></div>`).join('')}
         </div>
       </div>
-      <p class="fn-sum-reassure g-mono">No payment until you pick a time · Fully refundable before work begins</p>
-      <div class="fn-nav" style="justify-content:center"><button class="fn-back" onclick="__fn.back()">← Back</button>
+      <div style="margin-top:18px"><div class="g-mono" style="font-size:12px;color:var(--fx-mute);margin-bottom:8px">CHOOSE HOW YOU PAY</div>
+        <div style="display:flex;gap:12px">${planPick}</div></div>
+      <div class="g-faq fn-pricehint" style="margin-top:10px">
+        <details><summary>What's the difference between the prices? <span class="pm"></span></summary><div class="ans">Nothing about what you get changes — exact same website, booking system, local SEO, automations and support either way. The only difference is <b>how you pay</b>: <b>Monthly</b> spreads the cost (${PLANS.monthly.amt}/mo, cancel anytime), <b>One-time</b> you pay once and own it forever (${PLANS.onetime.amt}, nothing recurring).</div></details>
+      </div>
+      <p class="fn-sum-anchor" style="text-align:center;margin-top:14px;font-size:15px;color:var(--fx-ink)">Agencies charge <s>£2,000+</s> upfront and bill you every month. Your price: <b>${p.amt}${p.per||' once'}</b> — and you own everything.</p>
+      <p class="fn-sum-reassure g-mono">No payment until you pick a time · Fully refundable before work begins · You own everything</p>
+      <p class="g-center g-mute" style="margin-top:10px;font-size:13px"><span style="color:var(--g-coral)">★★★★★</span> Joining 5,000+ home-service businesses</p>
+      <div class="fn-nav fn-nav--sticky" style="justify-content:center"><button class="fn-back" onclick="__fn.back()">← Back</button>
         <button class="g-btn g-btn-primary g-btn-lg" onclick="__fn.next()">Book my onboarding <span class="arr">→</span></button></div>
     </div>`;
   }
@@ -264,7 +316,8 @@
     const balance = S.plan==='onetime' ? '£400' : 'first month';
     return `<div class="fn-stage">
       <div class="fn-q-kicker" style="text-align:center">Secure your build slot</div>
-      <h2 style="text-align:center;font:var(--fx-w-semi) clamp(24px,3vw,34px)/1.1 var(--fx-sans);letter-spacing:-.02em">Your slot is held. Pay to confirm it.</h2>
+      <h2 style="text-align:center;font:var(--fx-w-semi) clamp(24px,3vw,34px)/1.1 var(--fx-sans);letter-spacing:-.02em">You're 7 days from a site that books jobs for you.</h2>
+      <p class="sub" style="text-align:center;max-width:48ch;margin:8px auto 0">Confirm your onboarding slot now. Fully refundable before work begins, and you own everything we build.</p>
       <div class="fn-hold fn-hold--pay">
         <span class="fn-hold-ic">⏳</span>
         <span>Slot held for <b id="fn-hold-clock">${fmtClock(S.holdLeft)}</b></span>
@@ -435,7 +488,7 @@
   // ---------- rail (sidebar direction) ----------
   function railHtml() {
     // map flow index to rail position
-    const railIdx = S.i>=1 && S.i<=7 ? S.i-1 : S.i===8 ? 7 : S.i===9 ? 8 : S.i===10 ? 9 : S.i===11 ? 10 : -1;
+    const railIdx = (S.i>=1 && S.i<=9) ? S.i-1 : -1;
     const steps = RAIL.map((label,k)=>{
       const cls = k<railIdx?'done':k===railIdx?'cur':'';
       const mark = k<railIdx?'<svg width="12" height="12" viewBox="0 0 16 16"><path d="M3 8.5l3.2 3.2L13 4.5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>':(k+1);
@@ -461,15 +514,18 @@
   function render() {
     let stage;
     if (S.i===0) stage = screenIntro();
-    else if (S.i>=1 && S.i<=7) stage = quizScreen(QUIZ[S.i-1]);
-    else if (S.i===8) stage = screenLead();
-    else if (S.i===9) stage = screenSummary();
-    else if (S.i===10) stage = screenBooking();
-    else if (S.i===11) stage = screenPayment();
-    else if (S.i===12) stage = screenDownsell();
+    else if (S.i===1) stage = screenLead();
+    else if (S.i===2) stage = quizScreen(Q.trade);
+    else if (S.i===3) stage = quizScreen(Q.about);
+    else if (S.i===4) stage = quizScreen(sourceQuestion());
+    else if (S.i===5) stage = quizScreen(Q.website);
+    else if (S.i===6) stage = quizScreen(Q.goal);
+    else if (S.i===7) stage = screenSummary();
+    else if (S.i===8) stage = screenBooking();
+    else if (S.i===9) stage = screenPayment();
     else stage = screenDownsell();
 
-    const showRail = S.dir==='sidebar' && S.i>=1 && S.i<=11;
+    const showRail = S.dir==='sidebar' && S.i>=1 && S.i<=9;
     const inner = showRail ? `<div class="fn-with-rail">${railHtml()}<div>${stage}</div></div>` : stage;
     root().innerHTML = `<div class="fn-shell">${inner}</div>`;
 
@@ -477,7 +533,7 @@
     const bar = document.getElementById('fn-bar');
     if (bar) bar.style.width = (S.i===0?0:progress())+'%';
     const lbl = document.getElementById('fn-step-label');
-    if (lbl) lbl.textContent = S.i===0 ? 'Start' : S.i<=12 ? 'Step '+Math.min(S.i,11)+' / 11' : '';
+    if (lbl) lbl.textContent = S.i===0 ? 'Start' : S.i<=9 ? 'Step '+Math.min(S.i,9)+' / 9' : '';
   }
 
   // ---------- public ----------
@@ -485,6 +541,8 @@
     next, back, answer,
     setBiz:(k,v)=>{ S.biz[k]=v; },
     setLead:(k,v)=>{ S.lead[k]=v; },
+    toggleSelect:(k)=>{ const el=document.querySelector('.fn-select[data-key="'+k+'"]'); if(!el) return; const wasOpen=el.classList.contains('open'); document.querySelectorAll('.fn-select.open').forEach(e=>e.classList.remove('open')); if(!wasOpen) el.classList.add('open'); },
+    pickSelect:(k,v)=>{ S.biz[k]=v; render(); },
     setPlan:(id)=>{ S.plan=id; render(); },
     setPay:(m)=>{ S.payMode=m; if(window.GrowthCheckout) window.GrowthCheckout.reset(); render(); },
     pickDay:(i)=>{ S.day=i; S.time=null; S.slotIso=null; render(); },
@@ -492,10 +550,17 @@
     pay:()=>{ doPay(); },
     toggleAddon:(k)=>{ S.addons[k]=!S.addons[k]; render(); },
     finish:()=>{ goThankYou(); },
-    restart:()=>{ S={ dir:S.dir, i:0, answers:{}, plan:S.plan, lead:{name:'',email:'',phone:''}, biz:{bizname:'',area:'',years:''}, slot:null, day:null, time:null, slotIso:null, availabilityDays:[], availabilityLoading:false, bookingId:null, payMode:'full', addons:{gbp:false,brand:false,social:false}, holdT:null, holdLeft:HOLD_SEC }; render(); }
+    restart:()=>{ S={ dir:S.dir, i:0, answers:{}, plan:S.plan, lead:{name:'',email:'',phone:''}, biz:{bizname:'',area:'',country:''}, slot:null, day:null, time:null, slotIso:null, availabilityDays:[], availabilityLoading:false, bookingId:null, payMode:'full', addons:{gbp:false,brand:false,social:false}, holdT:null, holdLeft:HOLD_SEC }; render(); }
   };
 
   window.__fnSaveThanks = saveThanksData;
+
+  // close any open custom dropdown when clicking outside it
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.fn-select')) {
+      document.querySelectorAll('.fn-select.open').forEach((el) => el.classList.remove('open'));
+    }
+  });
 
   render();
 })();

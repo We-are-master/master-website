@@ -8,6 +8,16 @@
     ['index.html#pricing', 'Pricing', 'pricing'],
     ['index.html#faq', 'FAQ', 'faq'],
   ];
+  const PRODUCTS = [
+    ['https://getfixfy.com', 'Fixfy Services'],
+    ['https://getfixfy.com/growth', 'Fixfy Growth'],
+    ['https://getfixfy.com/platform', 'Fixfy OS'],
+  ];
+  const productsDD = `<div class="g-nav-dd">
+        <button type="button" class="g-nav-dd-btn">Products <svg class="g-dd-arrow" width="12" height="12" viewBox="0 0 16 16"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <div class="g-nav-dd-menu">${PRODUCTS.map(([h, l]) => `<a href="${h}">${l}</a>`).join('')}</div>
+      </div>`;
+  const productsMobile = `<div class="g-mobile-products"><span class="g-mobile-label">Products</span>${PRODUCTS.map(([h, l]) => `<a href="${h}">${l}</a>`).join('')}</div>`;
   const MARK = window.GrowthBrand ? window.GrowthBrand.html() : '<a href="index.html" class="g-brand"><span class="g-mark">F</span> Fixfy <span class="g-brand-tag">Growth</span></a>';
 
   function nav(active) {
@@ -18,7 +28,7 @@
     <nav class="g-nav">
       <div class="g-nav-inner">
         ${brand}
-        <div class="g-nav-links">${links}</div>
+        <div class="g-nav-links">${productsDD}${links}</div>
         <div class="g-nav-cta">
           <button class="g-theme-btn" aria-label="Toggle dark mode" onclick="Growth.toggleTheme()">
             <svg class="moon" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a6.6 6.6 0 0 0 9.8 9.8z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
@@ -32,6 +42,7 @@
         </button>
       </div>
       <div id="g-mobile" class="g-mobile-menu">
+        ${productsMobile}
         ${NAV.map(([href, label]) => `<a href="${href}">${label}</a>`).join('')}
         <a href="start.html" class="g-btn g-btn-primary g-btn-block" style="margin-top:8px">Build my site →</a>
       </div>
@@ -52,6 +63,7 @@
           ${col('Product', [['How it works', 'how-it-works.html'], ["What's included", 'features.html'], ['Pricing', 'pricing.html'], ['Results', 'results.html']])}
           ${col('Industries', [['Plumbers', 'industry-plumbers.html'], ['Electricians', 'industry-electricians.html'], ['HVAC', 'industry-hvac.html'], ['Roofers', 'industry-roofers.html']])}
           ${col('Company', [['About Fixfy', 'about.html'], ['FAQ', 'faq.html'], ['Blog', 'blog.html'], ['Build my site', 'start.html']])}
+          ${col('Fixfy', [['Fixfy', 'https://getfixfy.com'], ['Fixfy Growth', 'https://getfixfy.com/growth'], ['Fixfy Partners', 'https://partners.getfixfy.com/']])}
         </div>
         <div class="g-footer-bot">
           <span>© 2026 Fixfy Ltd · United Kingdom · Fixfy Growth is a product of Fixfy.</span>
@@ -146,12 +158,22 @@
       const f = document.getElementById('g-footer-slot');
       if (h) h.outerHTML = nav(opts.active || '');
       if (f) f.outerHTML = footer();
-      // sticky mobile CTA
+      // sticky mobile CTA — reveals only after the user scrolls past the hero
       if (opts.sticky !== false) {
         const s = document.createElement('div');
         s.className = 'g-sticky';
         s.innerHTML = '<a href="start.html" class="g-btn g-btn-primary g-btn-block g-btn-lg">Build my site →</a>';
         document.body.appendChild(s);
+        let ticking = false;
+        const sync = () => {
+          ticking = false;
+          const past = window.scrollY > Math.min(window.innerHeight * 0.7, 560);
+          s.classList.toggle('show', past);
+        };
+        window.addEventListener('scroll', () => {
+          if (!ticking) { ticking = true; requestAnimationFrame(sync); }
+        }, { passive: true });
+        sync();
       }
       reveal();
       currency();

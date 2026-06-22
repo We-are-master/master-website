@@ -1,5 +1,5 @@
 /* Fixfy Growth — funnel (quiz → booking → payment → confirmation) */
-.fn-body{ background:var(--g-bg); min-height:100vh; color:var(--fx-ink); }
+.fn-body{ background:var(--g-bg); min-height:100dvh; color:var(--fx-ink); }
 
 /* top bar */
 .fn-top{
@@ -12,18 +12,29 @@
 .fn-top .g-brand{ font-size:18px; }
 .fn-exit{ margin-left:auto; font-size:14px; color:var(--fx-mute); display:flex; align-items:center; gap:6px; }
 .fn-exit:hover{ color:var(--fx-ink); }
-.fn-progress{ height:4px; background:var(--fx-line); border-radius:99px; overflow:hidden; flex:1; max-width:none; }
-.fn-progress i{ display:block; height:100%; background:var(--g-green); border-radius:99px; transition:width .4s var(--fx-ease); }
+.fn-progress{ height:8px; background:rgba(255,255,255,.07); border-radius:99px; overflow:hidden; flex:1; max-width:none; box-shadow:inset 0 0 0 1px rgba(255,255,255,.05); }
+.fn-progress i{ display:block; height:100%; border-radius:99px; position:relative; overflow:hidden;
+  background:linear-gradient(90deg, var(--g-green-press), var(--g-green-bright));
+  box-shadow:0 0 10px rgba(22,192,152,.55), 0 0 3px rgba(22,192,152,.8);
+  transition:width .55s cubic-bezier(.34,1.4,.5,1); }
+.fn-progress i::after{ content:""; position:absolute; top:0; bottom:0; left:-40px; width:40px;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,.6), transparent);
+  animation:fnShine 1.8s linear infinite; }
+@keyframes fnShine{ 0%{ left:-40px; } 60%,100%{ left:100%; } }
+@media (prefers-reduced-motion:reduce){ .fn-progress i::after{ animation:none; display:none; } }
 .fn-step-label{ font-family:var(--fx-mono); font-size:12px; color:var(--fx-mute); white-space:nowrap; }
 
 /* shell */
 .fn-shell{ max-width:1100px; margin:0 auto; padding:clamp(28px,5vw,64px) var(--g-gut); }
 .fn-stage{ animation:fnIn .45s cubic-bezier(0.2,0,0,1); }
-@keyframes fnIn{ from{ opacity:0; transform:translateY(18px) scale(.98); } to{ opacity:1; transform:none; } }
+@keyframes fnIn{ from{ opacity:0; } to{ opacity:1; } }
 @media (prefers-reduced-motion: reduce){ .fn-stage{ animation:none; } }
 
 /* conversational: centered column */
 .fn-q{ max-width:680px; margin:0 auto; }
+.fn-feats{ display:flex; flex-wrap:wrap; justify-content:center; gap:9px 16px; max-width:50ch; margin:18px auto 0; }
+.fn-feat{ display:inline-flex; align-items:center; gap:6px; font-size:14px; font-weight:500; color:rgba(255,255,255,.85); white-space:nowrap; }
+.fn-feat .fn-chk{ color:var(--g-green-bright); flex:none; }
 .fn-q-kicker{ font-family:var(--fx-mono); font-size:13px; color:var(--g-green-press); margin-bottom:14px; }
 .fn-q h2{ font:var(--fx-w-semi) clamp(26px,3.4vw,38px)/1.1 var(--fx-sans); letter-spacing:-.02em; text-wrap:balance; }
 .fn-q .sub{ color:var(--fx-slate); margin-top:12px; font-size:17px; }
@@ -43,6 +54,19 @@
 .fn-field label{ display:block; font-size:14px; font-weight:500; color:var(--fx-slate); margin-bottom:7px; }
 .fn-field input{ width:100%; padding:14px 16px; border:1.5px solid var(--fx-line); border-radius:var(--fx-r-3); font:400 16px var(--fx-sans); background:var(--g-card); color:var(--fx-ink); }
 .fn-field input:focus{ outline:none; border-color:var(--g-green); box-shadow:0 0 0 3px var(--g-green-50); }
+/* custom dropdown (replaces the ugly native select) */
+.fn-select{ position:relative; }
+.fn-select-btn{ width:100%; padding:14px 16px; border:1.5px solid var(--fx-line); border-radius:var(--fx-r-3); font:400 16px var(--fx-sans); background:var(--g-card); color:var(--fx-ink); cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:10px; text-align:left; }
+.fn-select-btn.placeholder{ color:var(--fx-mute); }
+.fn-select-btn:focus{ outline:none; border-color:var(--g-green); box-shadow:0 0 0 3px var(--g-green-50); }
+.fn-select-arrow{ flex:none; color:var(--fx-mute); transition:transform .15s var(--fx-ease); }
+.fn-select.open .fn-select-arrow{ transform:rotate(180deg); }
+.fn-select.open .fn-select-btn{ border-color:var(--g-green); }
+.fn-select-menu{ position:absolute; top:calc(100% + 6px); left:0; right:0; background:var(--g-card); border:1.5px solid var(--fx-line); border-radius:var(--fx-r-3); box-shadow:var(--fx-elev-3); padding:6px; display:none; flex-direction:column; gap:2px; z-index:30; max-height:260px; overflow:auto; }
+.fn-select.open .fn-select-menu{ display:flex; }
+.fn-select-opt{ width:100%; text-align:left; padding:11px 12px; border:none; background:none; border-radius:var(--fx-r-2); font:400 15px var(--fx-sans); color:var(--fx-ink); cursor:pointer; }
+.fn-select-opt:hover{ background:var(--fx-paper-2); }
+.fn-select-opt.sel{ background:var(--g-green-50); color:var(--g-green-press); font-weight:500; }
 .fn-row2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
 
 /* nav buttons */
@@ -89,9 +113,16 @@ body[data-fn="conversational"] .fn-with-rail{ display:block; }
 .fn-sum-hd .g-mono{ color:var(--g-green-bright); }
 .fn-sum-hd-row{ display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-top:6px; }
 .fn-sum-built{ font-size:22px; font-weight:600; }
+.fn-sum-built b{ color:var(--g-coral); font-weight:600; }
 .fn-sum-price{ display:flex; align-items:baseline; gap:6px; white-space:nowrap; }
 .fn-sum-price s{ color:var(--fx-on-navy-3); font-size:14px; }
-.fn-sum-price b{ font-size:26px; font-weight:600; letter-spacing:-.02em; }
+.fn-sum-price b{ font-size:26px; font-weight:600; letter-spacing:-.02em; color:var(--g-green-bright); }
+.fn-sum-stat{ display:inline-flex; align-items:center; gap:7px; margin-top:14px; padding:6px 12px; border-radius:99px; background:rgba(22,192,152,.12); border:1px solid rgba(22,192,152,.30); color:rgba(255,255,255,.9); font-size:11.5px; font-weight:500; white-space:nowrap; max-width:100%; }
+.fn-sum-stat b{ color:#fff; font-weight:700; }
+.fn-sum-stat b.g{ color:var(--g-green-bright); }
+.fn-ai{ flex:none; color:var(--g-green-bright); animation:fnAi 1.8s ease-in-out infinite; }
+@keyframes fnAi{ 0%,100%{ opacity:.78; transform:scale(1); } 50%{ opacity:1; transform:scale(1.14); } }
+@media (prefers-reduced-motion:reduce){ .fn-ai{ animation:none; } }
 .fn-sum-price span{ color:var(--fx-on-navy-2); font-size:14px; }
 .fn-sum-body{ padding:22px 28px 24px; display:grid; grid-template-columns:1fr 1fr; gap:20px 28px; }
 .fn-sum-item{ display:flex; gap:14px; align-items:flex-start; }
@@ -100,6 +131,15 @@ body[data-fn="conversational"] .fn-with-rail{ display:block; }
 .fn-sum-item .ic{ width:38px; height:38px; border-radius:10px; background:var(--g-green-50); color:var(--g-green-press); display:grid; place-items:center; flex:none; }
 .fn-sum-item h4{ font-size:16px; }
 .fn-sum-item p{ color:var(--fx-slate); font-size:14px; margin-top:3px; }
+/* compact risk-free band, sits between the navy header and the value list */
+.fn-guarantee{ display:flex; gap:10px; align-items:center; background:var(--g-green-50); border-top:1px solid var(--g-green); padding:11px 18px; }
+.fn-guarantee .ic{ font-size:18px; flex:none; }
+.fn-guarantee .g{ color:var(--fx-slate); font-size:13px; line-height:1.35; }
+.fn-guarantee .g b{ color:var(--fx-ink); }
+/* compact price-difference hint */
+.fn-pricehint summary{ font-size:14px; padding:12px 4px; font-weight:500; }
+.fn-pricehint .ans{ font-size:13px; padding:0 4px 14px; line-height:1.5; }
+.fn-pricehint summary .pm{ width:20px; height:20px; }
 
 /* booking */
 .fn-cal{ display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-top:24px; }
@@ -208,4 +248,78 @@ body[data-fn="conversational"] .fn-with-rail{ display:block; }
   .fn-cal{ grid-template-columns:repeat(5,1fr); gap:6px; }
   .fn-cal .dnum{ font-size:18px; }
   .fn-recap{ position:static; }
+}
+@media (max-width:560px){
+  /* Stack nav so the primary CTA is full-width and never truncates (mobile = 90% of traffic) */
+  .fn-nav{ flex-direction:column-reverse; align-items:stretch; gap:10px; margin-top:22px; }
+  .fn-nav .fn-spacer{ display:none; }
+  .fn-nav .g-btn{ width:100%; white-space:normal; text-align:center; line-height:1.2; }
+  .fn-back{ align-self:center; }
+  /* App-like: center each step in the viewport; tall steps (summary) safely top-align */
+  .fn-shell{ box-sizing:border-box; padding:14px 18px 4px; }
+  .fn-q-kicker{ margin-bottom:9px; }
+  .fn-q h2{ font-size:25px; }
+  .fn-q .sub{ font-size:15px; margin-top:8px; }
+  .fn-opts{ margin-top:16px; gap:10px; }
+  .fn-opt{ padding:13px 16px; font-size:16px; }
+  .fn-fields{ margin-top:16px; gap:12px; }
+  .fn-sum-body{ padding:18px 20px 20px; gap:14px; }
+  /* Summary: pin the primary CTA to the bottom of the screen so it's always tappable without scrolling */
+  .fn-nav--sticky{ position:sticky; bottom:0; z-index:5; margin-top:16px; padding:12px 0 10px; background:linear-gradient(to top, var(--g-bg) 78%, rgba(2,0,64,0)); }
+  .fn-nav--sticky .fn-back{ padding:4px 6px; }
+  /* 4) CTA text centered */
+  .fn-nav .g-btn{ justify-content:center; }
+  /* 2) subhead on one line */
+  .fn-sum-sub{ font-size:14px; white-space:nowrap; max-width:none; }
+  /* 1) shorter navy header + clearer price */
+  .fn-sum-card{ margin-top:20px; }
+  .fn-sum-hd{ padding:15px 18px; }
+  .fn-sum-hd .g-mono{ font-size:11px; letter-spacing:.02em; }
+  .fn-sum-hd-row{ margin-top:8px; }
+  .fn-sum-built{ font-size:17px; }
+  .fn-sum-price{ width:100%; margin-top:8px; align-items:baseline; gap:8px; }
+  .fn-sum-price b{ font-size:32px; }
+  .fn-sum-price s{ font-size:15px; }
+  .fn-sum-price span{ font-size:15px; }
+  /* 3) remove the reassurance line on mobile */
+  .fn-sum-reassure{ display:none; }
+  /* compact "fit one screen" summary: condense the value list to a 2-col icon+title grid,
+     drop secondary copy so price + plans + CTA stay above the fold */
+  .fn-summary h2{ font-size:21px; }
+  .fn-sum-sub{ display:none; }
+  .fn-sum-card{ margin-top:14px; }
+  .fn-sum-hd{ padding:13px 16px; }
+  .fn-guarantee{ padding:9px 16px; }
+  .fn-guarantee .g{ font-size:12px; }
+  .fn-sum-body{ grid-template-columns:1fr 1fr; gap:10px 12px; padding:13px 14px 14px; }
+  .fn-sum-item{ gap:9px; }
+  .fn-sum-item .ic{ width:28px; height:28px; border-radius:8px; }
+  .fn-sum-item h4{ font-size:12.5px; line-height:1.15; }
+  .fn-sum-item p{ display:none; }
+  .fn-sum-anchor{ display:none; }
+}
+/* extra squeeze on short viewports so everything fits without scrolling */
+@media (max-width:560px) and (max-height:760px){
+  .fn-shell{ padding:12px 16px 26px; }
+  .fn-summary h2{ font-size:19px; }
+  .fn-sum-card{ margin-top:10px; }
+  .fn-sum-body{ gap:8px 12px; padding:11px 14px 12px; }
+  .fn-sum-stat{ margin-top:10px; }
+  .fn-pricehint{ display:none; }
+  .fn-summary .g-center.g-mute{ display:none; }
+  .fn-sum-hd{ padding:9px 16px; }
+  .fn-sum-price b{ font-size:30px; }
+  .fn-plan-pick{ padding:11px 13px; }
+  .fn-plan-desc{ display:none; }
+}
+@media (max-width:560px){
+  /* pin CTA + Back to a fixed footer so they never scroll away */
+  .fn-summary .fn-nav--sticky{ position:fixed; left:0; right:0; bottom:0; margin:0; z-index:50; gap:5px;
+    padding:9px 16px calc(15px + env(safe-area-inset-bottom)); background:var(--g-bg);
+    border-top:1px solid var(--fx-line); box-shadow:0 -8px 24px rgba(0,0,0,.4); }
+  .fn-summary .fn-nav--sticky .fn-back{ padding:3px 6px; }
+  .fn-summary .fn-nav--sticky .g-btn-lg{ padding:13px 22px; }
+  /* free up height so everything above the fixed footer fits with no page scroll */
+  .fn-pricehint, .fn-summary .g-center.g-mute{ display:none; }
+  .fn-summary{ padding-bottom:106px; }
 }
