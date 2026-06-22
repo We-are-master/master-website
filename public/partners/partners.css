@@ -114,6 +114,13 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .nav-links{display:flex;align-items:center;gap:4px;flex:1;justify-content:center}
 .nav-link{padding:8px 14px;border-radius:7px;font-size:13.5px;color:var(--p-t2);transition:all .14s var(--fx-ease)}
 .nav-link:hover{color:#fff;background:rgba(255,255,255,0.05)}
+.nav-dd{position:relative}
+.nav-dd-btn{background:none;border:none;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px}
+.nav-dd-arrow{font-size:11px;transition:transform .15s var(--fx-ease)}
+.nav-dd:hover .nav-dd-arrow{transform:rotate(180deg)}
+.nav-dd-menu{position:absolute;top:calc(100% + 8px);left:0;min-width:184px;background:#15171f;border:1px solid rgba(255,255,255,0.12);border-radius:11px;box-shadow:0 14px 34px rgba(0,0,0,0.45);padding:6px;display:none;flex-direction:column;gap:2px;z-index:60}
+.nav-dd:hover .nav-dd-menu,.nav-dd:focus-within .nav-dd-menu{display:flex}
+.nav-dd-menu .nav-link{white-space:nowrap}
 .nav-right{display:flex;align-items:center;gap:12px;flex-shrink:0}
 .nav-signin{font-weight:500;color:var(--p-t1)}
 .nav-signin:hover{color:#fff}
@@ -149,6 +156,9 @@ body.p-nav-open{overflow:hidden}
   .nav.is-open .nav-panel{display:flex}
   .nav-links{flex-direction:column;align-items:stretch;gap:2px;width:100%}
   .nav-link{width:100%;padding:12px 14px;font-size:15px}
+  .nav-dd{width:100%}
+  .nav-dd-btn{width:100%;justify-content:space-between}
+  .nav-dd-menu{position:static;display:flex;border:none;box-shadow:none;background:none;padding:2px 0 6px 12px;min-width:0}
   .nav-right{
     flex-direction:column;align-items:stretch;gap:10px;width:100%;
     padding-top:12px;margin-top:8px;border-top:1px solid var(--p-line);
