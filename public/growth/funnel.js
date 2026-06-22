@@ -208,9 +208,9 @@
     const p = PLANS[S.plan];
     const trade = S.answers.trade || 'home service';
     const goal = S.answers.goal || 'more bookings';
-    // niche-demand growth shown in the live AI badge (placeholder figures, verify before launch)
-    const NICHE_GROWTH = { Plumbing:14, Electrical:12, HVAC:18, Roofing:11, Landscaping:9, Cleaning:13, Remodeling:10, Handyman:12 };
-    const growthPct = NICHE_GROWTH[S.answers.trade] || 12;
+    // niche jobs/month shown in the live AI badge (placeholder figures, verify before launch)
+    const NICHE_JOBS = { Plumbing:64, Electrical:63, HVAC:66, Roofing:61, Landscaping:60, Cleaning:62, Remodeling:59, Handyman:65 };
+    const jobsNum = NICHE_JOBS[S.answers.trade] || 62;
     const planPick = Object.values(PLANS).map(pl=>{
       const sel = S.plan===pl.id;
       return `<button onclick="__fn.setPlan('${pl.id}')" style="flex:1;text-align:left;cursor:pointer;border-radius:14px;padding:14px 16px;border:2px solid ${sel?'var(--g-coral)':'var(--fx-line)'};background:${sel?'rgba(237,75,0,.06)':'var(--g-card)'};transition:border-color .15s,background .15s">
@@ -228,10 +228,10 @@
       <div class="fn-sum-card">
         <div class="fn-sum-hd">
           <div class="fn-sum-hd-row">
-            <div class="fn-sum-built">Custom-built for a <b>Predictable</b> business</div>
+            <div class="fn-sum-built">Get more <b>bookings</b>. Do less <b>chasing</b>.</div>
             <div class="fn-sum-price"><s>${p.old}</s> <b>${p.amt}</b><span>${p.per || ' one-time'}</span></div>
           </div>
-          <div class="fn-sum-stat"><svg class="fn-ai" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2l1.7 5.1L19 9l-5.3 1.9L12 16l-1.7-5.1L5 9l5.3-1.9L12 2z" fill="currentColor"/><path d="M18.6 13.6l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7.7-2z" fill="currentColor" opacity=".7"/></svg><span><b>${esc(trade)}</b> bookings <b class="g">+${growthPct}%</b> using our structure</span></div>
+          <div class="fn-sum-stat"><svg class="fn-ai" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2l1.7 5.1L19 9l-5.3 1.9L12 16l-1.7-5.1L5 9l5.3-1.9L12 2z" fill="currentColor"/><path d="M18.6 13.6l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7.7-2z" fill="currentColor" opacity=".7"/></svg><span><b>${esc(trade)}</b> is getting <b class="g">${jobsNum}+</b> more jobs a month</span></div>
         </div>
         <div class="fn-guarantee"><span class="ic">🛡️</span><div class="g"><b>100% risk-free.</b> Fully refunded on the spot if you're not happy.</div></div>
         <div class="fn-sum-body">

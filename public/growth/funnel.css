@@ -89,7 +89,7 @@ body[data-fn="conversational"] .fn-with-rail{ display:block; }
 .fn-sum-hd .g-mono{ color:var(--g-green-bright); }
 .fn-sum-hd-row{ display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-top:6px; }
 .fn-sum-built{ font-size:22px; font-weight:600; }
-.fn-sum-built b{ color:var(--g-coral); font-weight:600; text-decoration:underline; text-underline-offset:3px; }
+.fn-sum-built b{ color:var(--g-coral); font-weight:600; }
 .fn-sum-price{ display:flex; align-items:baseline; gap:6px; white-space:nowrap; }
 .fn-sum-price s{ color:var(--fx-on-navy-3); font-size:14px; }
 .fn-sum-price b{ font-size:26px; font-weight:600; letter-spacing:-.02em; color:var(--g-green-bright); }
