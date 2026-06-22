@@ -13,6 +13,7 @@
       options:['Plumbing','Electrical','HVAC','Roofing','Landscaping','Cleaning','Remodeling','Handyman','Other'] },
     about:   { id:'about', kicker:'Question 2 of 5', q:'Tell us about your business', type:'form',
       fields:[ {k:'bizname',label:'Business name',ph:'e.g. Rivington Plumbing'},
+               {k:'country',label:'Country',type:'select',options:['United Kingdom','United States','Canada','Ireland','Australia','Other']},
                {k:'area',label:'Service area (city / postcode)',ph:'e.g. Manchester, M1'} ] },
     source:  { id:'source', kicker:'Question 3 of 5', q:'How do you get most of your jobs today?', type:'single',
       options:['Referrals','Lead-gen platforms (Angi, Thumbtack…)','Word of mouth',"I don't have a steady source"] },
@@ -23,6 +24,19 @@
   };
 
   const RAIL = ['Your details','Your trade','Your business','How you get jobs','Current website','Your goal','Your plan','Book onboarding','Payment'];
+
+  // Country-specific lead-gen platforms for the "how do you get jobs" question
+  const LEADGEN = {
+    'United Kingdom': 'Checkatrade, Bark, MyBuilder…',
+    'United States': 'Angi, Thumbtack, HomeAdvisor…',
+    'Canada': 'HomeStars, Bark, Jiffy…',
+    'Ireland': 'Tradesmen.ie, Bark…',
+    'Australia': 'hipages, Airtasker…'
+  };
+  function sourceQuestion() {
+    const ex = LEADGEN[(S.biz.country || '').trim()] || 'Angi, Bark, Thumbtack…';
+    return Object.assign({}, Q.source, { options: ['Referrals', 'Lead-gen platforms (' + ex + ')', 'Word of mouth', "I don't have a steady source"] });
+  }
 
   const ADDONS = {
     gbp:    { name:'Google Business Profile setup', price:199, ico:'📍', tag:'Most added',
@@ -43,7 +57,7 @@
     answers: {},
     plan: new URLSearchParams(location.search).get('plan') || 'monthly',
     lead: { name:'', email:'', phone:'' },
-    biz: { bizname:'', area:'', years:'' },
+    biz: { bizname:'', area:'', country:'' },
     slot: null, day: null, time: null, slotIso: null,
     availabilityDays: [],
     availabilityLoading: false,
@@ -169,8 +183,13 @@
           <span class="tick">${sel?'<svg width="13" height="13" viewBox="0 0 16 16"><path d="M3 8.5l3.2 3.2L13 4.5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}</span>
         </button>`; }).join('')}</div>`;
     } else if (q.type === 'form') {
-      body = `<div class="fn-fields">${q.fields.map(f=>`
-        <div class="fn-field"><label>${f.label}</label>
+      body = `<div class="fn-fields">${q.fields.map(f=> f.type==='select'
+        ? `<div class="fn-field"><label>${f.label}</label>
+          <select id="fld-${f.k}" onchange="__fn.setBiz('${f.k}',this.value)">
+            <option value="" disabled ${S.biz[f.k]?'':'selected'}>Select…</option>
+            ${f.options.map(o=>`<option value="${esc(o)}" ${S.biz[f.k]===o?'selected':''}>${esc(o)}</option>`).join('')}
+          </select></div>`
+        : `<div class="fn-field"><label>${f.label}</label>
           <input id="fld-${f.k}" value="${esc(S.biz[f.k])}" placeholder="${f.ph}" oninput="__fn.setBiz('${f.k}',this.value)"/></div>`).join('')}</div>
         <div class="fn-nav"><button class="fn-back" onclick="__fn.back()">← Back</button><span class="fn-spacer"></span>
           <button class="g-btn g-btn-primary g-btn-lg" onclick="__fn.next()">Continue <span class="arr">→</span></button></div>`;
@@ -494,7 +513,7 @@
     else if (S.i===1) stage = screenLead();
     else if (S.i===2) stage = quizScreen(Q.trade);
     else if (S.i===3) stage = quizScreen(Q.about);
-    else if (S.i===4) stage = quizScreen(Q.source);
+    else if (S.i===4) stage = quizScreen(sourceQuestion());
     else if (S.i===5) stage = quizScreen(Q.website);
     else if (S.i===6) stage = quizScreen(Q.goal);
     else if (S.i===7) stage = screenSummary();
@@ -525,7 +544,7 @@
     pay:()=>{ doPay(); },
     toggleAddon:(k)=>{ S.addons[k]=!S.addons[k]; render(); },
     finish:()=>{ goThankYou(); },
-    restart:()=>{ S={ dir:S.dir, i:0, answers:{}, plan:S.plan, lead:{name:'',email:'',phone:''}, biz:{bizname:'',area:'',years:''}, slot:null, day:null, time:null, slotIso:null, availabilityDays:[], availabilityLoading:false, bookingId:null, payMode:'full', addons:{gbp:false,brand:false,social:false}, holdT:null, holdLeft:HOLD_SEC }; render(); }
+    restart:()=>{ S={ dir:S.dir, i:0, answers:{}, plan:S.plan, lead:{name:'',email:'',phone:''}, biz:{bizname:'',area:'',country:''}, slot:null, day:null, time:null, slotIso:null, availabilityDays:[], availabilityLoading:false, bookingId:null, payMode:'full', addons:{gbp:false,brand:false,social:false}, holdT:null, holdLeft:HOLD_SEC }; render(); }
   };
 
   window.__fnSaveThanks = saveThanksData;

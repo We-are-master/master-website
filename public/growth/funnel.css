@@ -46,6 +46,9 @@
 .fn-field label{ display:block; font-size:14px; font-weight:500; color:var(--fx-slate); margin-bottom:7px; }
 .fn-field input{ width:100%; padding:14px 16px; border:1.5px solid var(--fx-line); border-radius:var(--fx-r-3); font:400 16px var(--fx-sans); background:var(--g-card); color:var(--fx-ink); }
 .fn-field input:focus{ outline:none; border-color:var(--g-green); box-shadow:0 0 0 3px var(--g-green-50); }
+.fn-field select{ width:100%; padding:14px 16px; border:1.5px solid var(--fx-line); border-radius:var(--fx-r-3); font:400 16px var(--fx-sans); background:var(--g-card); color:var(--fx-ink); cursor:pointer; -webkit-appearance:none; appearance:none; background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'><path d='M4 6l4 4 4-4' stroke='%23889' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>"); background-repeat:no-repeat; background-position:right 14px center; }
+.fn-field select:focus{ outline:none; border-color:var(--g-green); box-shadow:0 0 0 3px var(--g-green-50); }
+.fn-field select:invalid{ color:var(--fx-mute); }
 .fn-row2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
 
 /* nav buttons */
