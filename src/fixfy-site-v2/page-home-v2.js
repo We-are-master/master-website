@@ -345,13 +345,16 @@ export function HomeClients(){
     { t: 'Homyze' },
     { t: '+ more<br/><span class="sm coral">joining weekly</span>', coral: true },
   ]
+  const cell = (l) => `<div class="cin-logo-cell${l.coral ? ' is-coral' : ''}"><span class="cin-logo-mark">${l.t}</span></div>`
+  // duplicate the set so the marquee loops seamlessly (translateX -50%)
+  const cells = [...logos, ...logos].map(cell).join('')
   return `
 <section class="v2-section dark cin-trust">
   <div class="v2-container">
     <p class="cin-trust-lead">Trusted by property managers, facilities companies, service platforms and commercial clients across London.</p>
-    <div class="cin-trust-logos">
-      ${logos.map((l) => `<div class="cin-logo-cell${l.coral ? ' is-coral' : ''}"><span class="cin-logo-mark">${l.t}</span></div>`).join('')}
-    </div>
+  </div>
+  <div class="cin-marquee" aria-label="Trusted by leading clients across London">
+    <div class="cin-marquee-track">${cells}</div>
   </div>
 </section>`;
 }
