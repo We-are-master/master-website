@@ -145,9 +145,8 @@
   function screenIntro() {
     return `<div class="fn-q fn-stage" style="text-align:center;max-width:620px">
       ${window.GrowthBrand ? window.GrowthBrand.hero() : '<div class="g-mark" style="margin:0 auto 22px;width:46px;height:46px;font-size:24px;border-radius:12px">F</div>'}
-      <h2 style="font-size:clamp(28px,4vw,42px)">Congrats on taking the step to a <span style="color:var(--g-coral);text-decoration:underline;text-underline-offset:3px">Predictable</span> business.</h2>
-      <p class="sub" style="font-size:19px;max-width:46ch;margin-inline:auto">7 quick questions, about 2 minutes. Then pick a time and lock in your 7-day build.</p>
-      <div style="margin-top:32px"><button class="g-btn g-btn-primary g-btn-lg" onclick="__fn.next()">Start <span class="arr">→</span></button></div>
+      <h2 style="font-size:clamp(28px,4vw,42px)">You've built the Trade.<br>Now let's build the <span style="color:var(--g-coral)">System</span> behind it.</h2>
+      <div style="margin-top:32px"><button class="g-btn g-btn-primary g-btn-lg" onclick="__fn.next()">Get More Bookings <span class="arr">→</span></button></div>
     </div>`;
   }
 
