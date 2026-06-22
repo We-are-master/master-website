@@ -252,9 +252,10 @@ html[data-theme="light"] .g-theme-btn .moon{ display:none; } html[data-theme="li
 html[data-theme="light"] .g-on-dark{ display:none; }
 html[data-theme="light"] .g-on-light{ display:block; }
 @media (max-width:400px){
-  .g-brand-logo--word{ display:none !important; }
-  html:not([data-theme="light"]) .g-brand-logo--icon.g-on-dark{ display:block; }
-  html[data-theme="light"] .g-brand-logo--icon.g-on-light{ display:block; }
+  /* keep the funnel top compact with the icon mark; the marketing header keeps the full wordmark */
+  .fn-top .g-brand-logo--word{ display:none !important; }
+  html:not([data-theme="light"]) .fn-top .g-brand-logo--icon.g-on-dark{ display:block; }
+  html[data-theme="light"] .fn-top .g-brand-logo--icon.g-on-light{ display:block; }
 }
 .g-brand-hero-wrap{ margin:0 auto 24px; width:fit-content; }
 .g-brand-hero{
@@ -333,6 +334,9 @@ html[data-theme="light"] .g-on-light{ display:block; }
   .g-nav-cta .login{ display:none; }
   .g-nav-cta .g-btn-primary{ display:none; }
   .g-burger{ display:grid; place-items:center; }
+  /* group theme toggle + hamburger together on the right */
+  .g-nav-inner{ gap:8px; }
+  .g-brand{ margin-right:auto; }
   .g-sticky{ display:block; }
   .hero-cta{ flex-direction:column; }
   .hero-cta .g-btn{ width:100%; justify-content:center; }

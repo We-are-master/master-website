@@ -12,8 +12,16 @@
 .fn-top .g-brand{ font-size:18px; }
 .fn-exit{ margin-left:auto; font-size:14px; color:var(--fx-mute); display:flex; align-items:center; gap:6px; }
 .fn-exit:hover{ color:var(--fx-ink); }
-.fn-progress{ height:4px; background:var(--fx-line); border-radius:99px; overflow:hidden; flex:1; max-width:none; }
-.fn-progress i{ display:block; height:100%; background:var(--g-green); border-radius:99px; transition:width .4s var(--fx-ease); }
+.fn-progress{ height:8px; background:rgba(255,255,255,.07); border-radius:99px; overflow:hidden; flex:1; max-width:none; box-shadow:inset 0 0 0 1px rgba(255,255,255,.05); }
+.fn-progress i{ display:block; height:100%; border-radius:99px; position:relative; overflow:hidden;
+  background:linear-gradient(90deg, var(--g-green-press), var(--g-green-bright));
+  box-shadow:0 0 10px rgba(22,192,152,.55), 0 0 3px rgba(22,192,152,.8);
+  transition:width .55s cubic-bezier(.34,1.4,.5,1); }
+.fn-progress i::after{ content:""; position:absolute; top:0; bottom:0; left:-40px; width:40px;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,.6), transparent);
+  animation:fnShine 1.8s linear infinite; }
+@keyframes fnShine{ 0%{ left:-40px; } 60%,100%{ left:100%; } }
+@media (prefers-reduced-motion:reduce){ .fn-progress i::after{ animation:none; display:none; } }
 .fn-step-label{ font-family:var(--fx-mono); font-size:12px; color:var(--fx-mute); white-space:nowrap; }
 
 /* shell */
