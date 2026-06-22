@@ -186,10 +186,13 @@
     } else if (q.type === 'form') {
       body = `<div class="fn-fields">${q.fields.map(f=> f.type==='select'
         ? `<div class="fn-field"><label>${f.label}</label>
-          <select id="fld-${f.k}" onchange="__fn.setBiz('${f.k}',this.value)">
-            <option value="" disabled ${S.biz[f.k]?'':'selected'}>Select…</option>
-            ${f.options.map(o=>`<option value="${esc(o)}" ${S.biz[f.k]===o?'selected':''}>${esc(o)}</option>`).join('')}
-          </select></div>`
+          <div class="fn-select" data-key="${f.k}">
+            <button type="button" class="fn-select-btn ${S.biz[f.k]?'':'placeholder'}" onclick="__fn.toggleSelect('${f.k}')">
+              <span>${S.biz[f.k] ? esc(S.biz[f.k]) : 'Select…'}</span>
+              <svg class="fn-select-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="fn-select-menu">${f.options.map(o=>`<button type="button" class="fn-select-opt ${S.biz[f.k]===o?'sel':''}" onclick="__fn.pickSelect('${f.k}','${esc(o)}')">${esc(o)}</button>`).join('')}</div>
+          </div></div>`
         : `<div class="fn-field"><label>${f.label}</label>
           <input id="fld-${f.k}" value="${esc(S.biz[f.k])}" placeholder="${f.ph}" oninput="__fn.setBiz('${f.k}',this.value)"/></div>`).join('')}</div>
         <div class="fn-nav"><button class="fn-back" onclick="__fn.back()">← Back</button><span class="fn-spacer"></span>
@@ -538,6 +541,8 @@
     next, back, answer,
     setBiz:(k,v)=>{ S.biz[k]=v; },
     setLead:(k,v)=>{ S.lead[k]=v; },
+    toggleSelect:(k)=>{ const el=document.querySelector('.fn-select[data-key="'+k+'"]'); if(!el) return; const wasOpen=el.classList.contains('open'); document.querySelectorAll('.fn-select.open').forEach(e=>e.classList.remove('open')); if(!wasOpen) el.classList.add('open'); },
+    pickSelect:(k,v)=>{ S.biz[k]=v; render(); },
     setPlan:(id)=>{ S.plan=id; render(); },
     setPay:(m)=>{ S.payMode=m; if(window.GrowthCheckout) window.GrowthCheckout.reset(); render(); },
     pickDay:(i)=>{ S.day=i; S.time=null; S.slotIso=null; render(); },
@@ -549,6 +554,13 @@
   };
 
   window.__fnSaveThanks = saveThanksData;
+
+  // close any open custom dropdown when clicking outside it
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.fn-select')) {
+      document.querySelectorAll('.fn-select.open').forEach((el) => el.classList.remove('open'));
+    }
+  });
 
   render();
 })();

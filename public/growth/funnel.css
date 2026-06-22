@@ -54,9 +54,19 @@
 .fn-field label{ display:block; font-size:14px; font-weight:500; color:var(--fx-slate); margin-bottom:7px; }
 .fn-field input{ width:100%; padding:14px 16px; border:1.5px solid var(--fx-line); border-radius:var(--fx-r-3); font:400 16px var(--fx-sans); background:var(--g-card); color:var(--fx-ink); }
 .fn-field input:focus{ outline:none; border-color:var(--g-green); box-shadow:0 0 0 3px var(--g-green-50); }
-.fn-field select{ width:100%; padding:14px 16px; border:1.5px solid var(--fx-line); border-radius:var(--fx-r-3); font:400 16px var(--fx-sans); background:var(--g-card); color:var(--fx-ink); cursor:pointer; -webkit-appearance:none; appearance:none; background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'><path d='M4 6l4 4 4-4' stroke='%23889' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>"); background-repeat:no-repeat; background-position:right 14px center; }
-.fn-field select:focus{ outline:none; border-color:var(--g-green); box-shadow:0 0 0 3px var(--g-green-50); }
-.fn-field select:invalid{ color:var(--fx-mute); }
+/* custom dropdown (replaces the ugly native select) */
+.fn-select{ position:relative; }
+.fn-select-btn{ width:100%; padding:14px 16px; border:1.5px solid var(--fx-line); border-radius:var(--fx-r-3); font:400 16px var(--fx-sans); background:var(--g-card); color:var(--fx-ink); cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:10px; text-align:left; }
+.fn-select-btn.placeholder{ color:var(--fx-mute); }
+.fn-select-btn:focus{ outline:none; border-color:var(--g-green); box-shadow:0 0 0 3px var(--g-green-50); }
+.fn-select-arrow{ flex:none; color:var(--fx-mute); transition:transform .15s var(--fx-ease); }
+.fn-select.open .fn-select-arrow{ transform:rotate(180deg); }
+.fn-select.open .fn-select-btn{ border-color:var(--g-green); }
+.fn-select-menu{ position:absolute; top:calc(100% + 6px); left:0; right:0; background:var(--g-card); border:1.5px solid var(--fx-line); border-radius:var(--fx-r-3); box-shadow:var(--fx-elev-3); padding:6px; display:none; flex-direction:column; gap:2px; z-index:30; max-height:260px; overflow:auto; }
+.fn-select.open .fn-select-menu{ display:flex; }
+.fn-select-opt{ width:100%; text-align:left; padding:11px 12px; border:none; background:none; border-radius:var(--fx-r-2); font:400 15px var(--fx-sans); color:var(--fx-ink); cursor:pointer; }
+.fn-select-opt:hover{ background:var(--fx-paper-2); }
+.fn-select-opt.sel{ background:var(--g-green-50); color:var(--g-green-press); font-weight:500; }
 .fn-row2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
 
 /* nav buttons */
