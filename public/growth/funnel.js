@@ -248,7 +248,7 @@
       <p style="text-align:center;margin-top:16px;font-size:15px;color:var(--fx-ink)">Agencies charge <s>£2,000+</s> upfront and bill you every month. Your price: <b>${p.amt}${p.per||' once'}</b> — and you own everything.</p>
       <p class="fn-sum-reassure g-mono">No payment until you pick a time · Fully refundable before work begins · You own everything</p>
       <div class="fn-nav" style="justify-content:center"><button class="fn-back" onclick="__fn.back()">← Back</button>
-        <button class="g-btn g-btn-primary g-btn-lg" onclick="__fn.next()">Book my onboarding &amp; start the build <span class="arr">→</span></button></div>
+        <button class="g-btn g-btn-primary g-btn-lg" onclick="__fn.next()">Book my onboarding <span class="arr">→</span></button></div>
       <p class="g-center g-mute" style="margin-top:14px;font-size:13px"><span style="color:var(--g-coral)">★★★★★</span> Joining 5,000+ home-service businesses</p>
     </div>`;
   }

@@ -209,3 +209,11 @@ body[data-fn="conversational"] .fn-with-rail{ display:block; }
   .fn-cal .dnum{ font-size:18px; }
   .fn-recap{ position:static; }
 }
+@media (max-width:560px){
+  /* Stack nav so the primary CTA is full-width and never truncates (mobile = 90% of traffic) */
+  .fn-nav{ flex-direction:column-reverse; align-items:stretch; gap:10px; }
+  .fn-nav .fn-spacer{ display:none; }
+  .fn-nav .g-btn{ width:100%; white-space:normal; text-align:center; line-height:1.2; }
+  .fn-back{ align-self:center; }
+  .fn-shell{ padding:24px 18px 40px; }
+}
