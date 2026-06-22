@@ -209,6 +209,13 @@
     const p = PLANS[S.plan];
     const trade = S.answers.trade || 'home service';
     const goal = S.answers.goal || 'more bookings';
+    const GOAL_LINE = {
+      'Get more bookings': 'Made to fill your calendar 📅',
+      'Stop paying for leads': 'Made to end lead rental for good',
+      'Look more professional': 'Made to look seriously professional',
+      'Rank on Google': 'Made to get you found on Google'
+    };
+    const builtLine = GOAL_LINE[S.answers.goal] || 'Made to win you more jobs';
     const planPick = Object.values(PLANS).map(pl=>{
       const sel = S.plan===pl.id;
       return `<button onclick="__fn.setPlan('${pl.id}')" style="flex:1;text-align:left;cursor:pointer;border-radius:14px;padding:14px 16px;border:2px solid ${sel?'var(--g-coral)':'var(--fx-line)'};background:${sel?'rgba(237,75,0,.06)':'var(--g-card)'};transition:border-color .15s,background .15s">
@@ -226,11 +233,12 @@
       <div class="fn-sum-card">
         <div class="fn-sum-hd">
           <div class="fn-sum-hd-row">
-            <div class="fn-sum-built">Built to ${esc(String(goal).toLowerCase())}</div>
+            <div class="fn-sum-built">${builtLine}</div>
             <div class="fn-sum-price"><s>${p.old}</s> <b>${p.amt}</b><span>${p.per || ' one-time'}</span></div>
           </div>
+          <div class="fn-sum-stat">📈 <b>+66% more bookings</b> for ${esc(trade)} businesses last month</div>
         </div>
-        <div class="fn-guarantee"><span class="ic">🛡️</span><div class="g"><b>100% risk-free.</b> No payment until you pick a time — refunded on the spot if you're not happy.</div></div>
+        <div class="fn-guarantee"><span class="ic">🛡️</span><div class="g"><b>100% risk-free.</b> Fully refunded on the spot if you're not happy.</div></div>
         <div class="fn-sum-body">
           ${[
             ['🌐','Professional website','Up to 10 pages, built to convert.'],

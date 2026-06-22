@@ -91,7 +91,9 @@ body[data-fn="conversational"] .fn-with-rail{ display:block; }
 .fn-sum-built{ font-size:22px; font-weight:600; }
 .fn-sum-price{ display:flex; align-items:baseline; gap:6px; white-space:nowrap; }
 .fn-sum-price s{ color:var(--fx-on-navy-3); font-size:14px; }
-.fn-sum-price b{ font-size:26px; font-weight:600; letter-spacing:-.02em; }
+.fn-sum-price b{ font-size:26px; font-weight:600; letter-spacing:-.02em; color:var(--g-green-bright); }
+.fn-sum-stat{ display:inline-flex; align-items:center; gap:7px; margin-top:14px; padding:6px 12px; border-radius:99px; background:rgba(22,192,152,.13); border:1px solid rgba(22,192,152,.32); color:var(--g-green-bright); font-size:12.5px; font-weight:500; }
+.fn-sum-stat b{ color:#fff; font-weight:700; }
 .fn-sum-price span{ color:var(--fx-on-navy-2); font-size:14px; }
 .fn-sum-body{ padding:22px 28px 24px; display:grid; grid-template-columns:1fr 1fr; gap:20px 28px; }
 .fn-sum-item{ display:flex; gap:14px; align-items:flex-start; }
