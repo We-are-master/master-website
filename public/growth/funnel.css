@@ -314,12 +314,12 @@ body[data-fn="conversational"] .fn-with-rail{ display:block; }
 }
 @media (max-width:560px){
   /* pin CTA + Back to a fixed footer so they never scroll away */
-  .fn-summary .fn-nav--sticky{ position:fixed; left:0; right:0; bottom:0; margin:0; z-index:50; gap:3px;
-    padding:7px 16px calc(8px + env(safe-area-inset-bottom)); background:var(--g-bg);
+  .fn-summary .fn-nav--sticky{ position:fixed; left:0; right:0; bottom:0; margin:0; z-index:50; gap:5px;
+    padding:9px 16px calc(15px + env(safe-area-inset-bottom)); background:var(--g-bg);
     border-top:1px solid var(--fx-line); box-shadow:0 -8px 24px rgba(0,0,0,.4); }
-  .fn-summary .fn-nav--sticky .fn-back{ padding:2px 6px; }
+  .fn-summary .fn-nav--sticky .fn-back{ padding:3px 6px; }
   .fn-summary .fn-nav--sticky .g-btn-lg{ padding:13px 22px; }
   /* free up height so everything above the fixed footer fits with no page scroll */
   .fn-pricehint, .fn-summary .g-center.g-mute{ display:none; }
-  .fn-summary{ padding-bottom:96px; }
+  .fn-summary{ padding-bottom:106px; }
 }
