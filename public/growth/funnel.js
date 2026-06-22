@@ -210,12 +210,12 @@
     const trade = S.answers.trade || 'home service';
     const goal = S.answers.goal || 'more bookings';
     const GOAL_LINE = {
-      'Get more bookings': 'Made to fill your calendar 📅',
-      'Stop paying for leads': 'Made to end lead rental for good',
-      'Look more professional': 'Made to look seriously professional',
-      'Rank on Google': 'Made to get you found on Google'
+      'Get more bookings': 'Built to get you more bookings',
+      'Stop paying for leads': 'Built to stop you paying for leads',
+      'Look more professional': 'Built to make you look more professional',
+      'Rank on Google': 'Built to get you found on Google'
     };
-    const builtLine = GOAL_LINE[S.answers.goal] || 'Made to win you more jobs';
+    const builtLine = GOAL_LINE[S.answers.goal] || 'Built to win you more jobs';
     const planPick = Object.values(PLANS).map(pl=>{
       const sel = S.plan===pl.id;
       return `<button onclick="__fn.setPlan('${pl.id}')" style="flex:1;text-align:left;cursor:pointer;border-radius:14px;padding:14px 16px;border:2px solid ${sel?'var(--g-coral)':'var(--fx-line)'};background:${sel?'rgba(237,75,0,.06)':'var(--g-card)'};transition:border-color .15s,background .15s">
@@ -236,14 +236,15 @@
             <div class="fn-sum-built">${builtLine}</div>
             <div class="fn-sum-price"><s>${p.old}</s> <b>${p.amt}</b><span>${p.per || ' one-time'}</span></div>
           </div>
-          <div class="fn-sum-stat">📈 <b>+66% more bookings</b> for ${esc(trade)} businesses last month</div>
+          <div class="fn-sum-stat">📈 <b>+66%</b> bookings for ${esc(trade)} last month</div>
         </div>
         <div class="fn-guarantee"><span class="ic">🛡️</span><div class="g"><b>100% risk-free.</b> Fully refunded on the spot if you're not happy.</div></div>
         <div class="fn-sum-body">
           ${[
             ['🌐','Professional website','Up to 10 pages, built to convert.'],
             ['📅','Job-based booking','Customers book the right job and pay a deposit.'],
-            ['⚡','Straight into your CRM','Every booking in one place, no lost jobs.'],
+            ['⚡','CRM + WhatsApp','Every booking in one place, pinged to your WhatsApp.'],
+            ['🤖','AI lead scoring','Spots your best leads so you never waste a trip.'],
             ['🔍','Local Google SEO','Rank for "'+esc(String(trade).toLowerCase())+' near me".'],
             ['🔁','Automations + reviews','Follow-ups and a 5-star review engine.']
           ].map(([ic,h,p2])=>`<div class="fn-sum-item"><span class="ic">${ic}</span><div><h4>${h}</h4><p>${p2}</p></div></div>`).join('')}
