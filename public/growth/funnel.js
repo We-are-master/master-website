@@ -236,7 +236,7 @@
             <div class="fn-sum-built">${builtLine}</div>
             <div class="fn-sum-price"><s>${p.old}</s> <b>${p.amt}</b><span>${p.per || ' one-time'}</span></div>
           </div>
-          <div class="fn-sum-stat">📈 <b>+66%</b> bookings for ${esc(trade)} last month</div>
+          <div class="fn-sum-stat"><span class="fn-live"></span>Custom-built for a <b>predictable</b> business</div>
         </div>
         <div class="fn-guarantee"><span class="ic">🛡️</span><div class="g"><b>100% risk-free.</b> Fully refunded on the spot if you're not happy.</div></div>
         <div class="fn-sum-body">

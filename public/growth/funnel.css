@@ -92,8 +92,11 @@ body[data-fn="conversational"] .fn-with-rail{ display:block; }
 .fn-sum-price{ display:flex; align-items:baseline; gap:6px; white-space:nowrap; }
 .fn-sum-price s{ color:var(--fx-on-navy-3); font-size:14px; }
 .fn-sum-price b{ font-size:26px; font-weight:600; letter-spacing:-.02em; color:var(--g-green-bright); }
-.fn-sum-stat{ display:inline-flex; align-items:center; gap:7px; margin-top:14px; padding:6px 13px; border-radius:99px; background:rgba(22,192,152,.13); border:1px solid rgba(22,192,152,.32); color:var(--g-green-bright); font-size:12px; font-weight:500; white-space:nowrap; max-width:100%; }
-.fn-sum-stat b{ color:#fff; font-weight:700; }
+.fn-sum-stat{ display:inline-flex; align-items:center; gap:9px; margin-top:14px; padding:7px 14px; border-radius:99px; background:rgba(237,75,0,.12); border:1px solid rgba(237,75,0,.30); color:rgba(255,255,255,.92); font-size:12px; font-weight:500; white-space:nowrap; max-width:100%; }
+.fn-sum-stat b{ color:var(--g-coral); font-weight:700; }
+.fn-live{ width:9px; height:9px; border-radius:50%; background:var(--g-coral); flex:none; animation:fnLive 1.6s ease-out infinite; }
+@keyframes fnLive{ 0%{ box-shadow:0 0 0 0 rgba(237,75,0,.55); } 70%{ box-shadow:0 0 0 8px rgba(237,75,0,0); } 100%{ box-shadow:0 0 0 0 rgba(237,75,0,0); } }
+@media (prefers-reduced-motion:reduce){ .fn-live{ animation:none; } }
 .fn-sum-price span{ color:var(--fx-on-navy-2); font-size:14px; }
 .fn-sum-body{ padding:22px 28px 24px; display:grid; grid-template-columns:1fr 1fr; gap:20px 28px; }
 .fn-sum-item{ display:flex; gap:14px; align-items:flex-start; }
