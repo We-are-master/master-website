@@ -227,4 +227,20 @@ body[data-fn="conversational"] .fn-with-rail{ display:block; }
   /* Summary: pin the primary CTA to the bottom of the screen so it's always tappable without scrolling */
   .fn-nav--sticky{ position:sticky; bottom:0; z-index:5; margin-top:16px; padding:12px 0 10px; background:linear-gradient(to top, var(--g-bg) 78%, rgba(2,0,64,0)); }
   .fn-nav--sticky .fn-back{ padding:4px 6px; }
+  /* 4) CTA text centered */
+  .fn-nav .g-btn{ justify-content:center; }
+  /* 2) subhead on one line */
+  .fn-sum-sub{ font-size:14px; white-space:nowrap; max-width:none; }
+  /* 1) shorter navy header + clearer price */
+  .fn-sum-card{ margin-top:20px; }
+  .fn-sum-hd{ padding:15px 18px; }
+  .fn-sum-hd .g-mono{ font-size:11px; letter-spacing:.02em; }
+  .fn-sum-hd-row{ margin-top:8px; }
+  .fn-sum-built{ font-size:17px; }
+  .fn-sum-price{ width:100%; margin-top:8px; align-items:baseline; gap:8px; }
+  .fn-sum-price b{ font-size:32px; }
+  .fn-sum-price s{ font-size:15px; }
+  .fn-sum-price span{ font-size:15px; }
+  /* 3) remove the reassurance line on mobile */
+  .fn-sum-reassure{ display:none; }
 }

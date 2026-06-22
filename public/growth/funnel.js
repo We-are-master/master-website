@@ -222,7 +222,7 @@
     }).join('');
     return `<div class="fn-summary fn-stage">
       <h2 style="text-align:center;font:var(--fx-w-semi) clamp(24px,3.2vw,34px)/1.05 var(--fx-sans);letter-spacing:-.02em">Your plan's ready, ${esc(firstName())}. 🎉</h2>
-      <p class="sub" style="text-align:center;max-width:42ch;margin:8px auto 0">Built around your jobs, live in 7 days, and yours to keep.</p>
+      <p class="sub fn-sum-sub" style="text-align:center;max-width:42ch;margin:8px auto 0">Built around your jobs — yours to keep.</p>
       <div class="fn-sum-card">
         <div class="fn-sum-hd">
           <div class="g-mono">${esc(String(trade).toUpperCase())} · ${esc(p.name.toUpperCase())} PLAN · LIVE IN 7 DAYS</div>
