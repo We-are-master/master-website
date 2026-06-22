@@ -212,9 +212,9 @@
     const planPick = Object.values(PLANS).map(pl=>{
       const sel = S.plan===pl.id;
       return `<button onclick="__fn.setPlan('${pl.id}')" style="flex:1;text-align:left;cursor:pointer;border-radius:14px;padding:14px 16px;border:2px solid ${sel?'var(--g-coral)':'var(--fx-line)'};background:${sel?'rgba(237,75,0,.06)':'var(--g-card)'};transition:border-color .15s,background .15s">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
-          <strong style="font-size:15px">${pl.name}</strong>
-          ${pl.id==='monthly'?'<span style="font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--g-green-press);background:var(--g-green-50);padding:3px 8px;border-radius:20px">Popular</span>':'<span style="font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--g-coral);background:rgba(237,75,0,.08);padding:3px 8px;border-radius:20px">Own it</span>'}
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;row-gap:5px">
+          <strong style="font-size:15px;white-space:nowrap">${pl.name}</strong>
+          ${pl.id==='monthly'?'<span style="font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;flex:none;color:var(--g-green-press);background:var(--g-green-50);padding:3px 8px;border-radius:20px">Popular</span>':'<span style="font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;flex:none;color:var(--g-coral);background:rgba(237,75,0,.08);padding:3px 8px;border-radius:20px">Own it</span>'}
         </div>
         <div style="margin-top:6px"><s style="color:var(--fx-mute);font-size:13px">${pl.old}</s> <b style="font-size:21px">${pl.amt}</b><small style="color:var(--fx-mute)">${pl.per||' once'}</small></div>
         <div style="margin-top:4px;color:var(--fx-mute);font-size:12px">${pl.desc}</div>
@@ -243,7 +243,14 @@
       </div>
       <div style="margin-top:18px"><div class="g-mono" style="font-size:12px;color:var(--fx-mute);margin-bottom:8px">CHOOSE HOW YOU PAY</div>
         <div style="display:flex;gap:12px">${planPick}</div></div>
-      <p style="text-align:center;margin-top:16px;font-size:15px;color:var(--fx-ink)">Agencies charge <s>£2,000+</s> upfront and bill you every month. Your price: <b>${p.amt}${p.per||' once'}</b> — and you own everything.</p>
+      <div class="g-faq" style="margin-top:12px">
+        <details><summary>What's the difference between the prices? <span class="pm"></span></summary><div class="ans">Nothing about what you get changes — you receive the exact same website, booking system, local SEO, automations and support either way. The only difference is <b>how you pay</b>: <b>Monthly</b> spreads the cost (${PLANS.monthly.amt}/mo, cancel anytime) and <b>One-time</b> means you pay once and own it forever (${PLANS.onetime.amt}, nothing recurring).</div></details>
+      </div>
+      <div class="fn-guarantee">
+        <span class="ic">🛡️</span>
+        <div><div class="t">Try it 100% risk-free</div><div class="d">No payment until you've picked your onboarding time. Don't love it? We refund you on the spot, no questions asked.</div></div>
+      </div>
+      <p style="text-align:center;margin-top:14px;font-size:15px;color:var(--fx-ink)">Agencies charge <s>£2,000+</s> upfront and bill you every month. Your price: <b>${p.amt}${p.per||' once'}</b> — and you own everything.</p>
       <p class="fn-sum-reassure g-mono">No payment until you pick a time · Fully refundable before work begins · You own everything</p>
       <p class="g-center g-mute" style="margin-top:10px;font-size:13px"><span style="color:var(--g-coral)">★★★★★</span> Joining 5,000+ home-service businesses</p>
       <div class="fn-nav fn-nav--sticky" style="justify-content:center"><button class="fn-back" onclick="__fn.back()">← Back</button>

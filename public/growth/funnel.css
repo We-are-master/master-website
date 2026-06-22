@@ -100,6 +100,10 @@ body[data-fn="conversational"] .fn-with-rail{ display:block; }
 .fn-sum-item .ic{ width:38px; height:38px; border-radius:10px; background:var(--g-green-50); color:var(--g-green-press); display:grid; place-items:center; flex:none; }
 .fn-sum-item h4{ font-size:16px; }
 .fn-sum-item p{ color:var(--fx-slate); font-size:14px; margin-top:3px; }
+.fn-guarantee{ display:flex; gap:12px; align-items:flex-start; background:var(--g-green-50); border:1px solid var(--g-green); border-radius:14px; padding:14px 16px; margin-top:14px; }
+.fn-guarantee .ic{ font-size:22px; flex:none; line-height:1.25; }
+.fn-guarantee .t{ font-weight:600; color:var(--fx-ink); }
+.fn-guarantee .d{ color:var(--fx-slate); font-size:14px; margin-top:2px; line-height:1.45; }
 
 /* booking */
 .fn-cal{ display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-top:24px; }
