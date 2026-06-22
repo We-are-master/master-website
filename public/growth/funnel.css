@@ -24,6 +24,9 @@
 
 /* conversational: centered column */
 .fn-q{ max-width:680px; margin:0 auto; }
+.fn-feats{ display:flex; flex-wrap:wrap; justify-content:center; gap:9px 16px; max-width:50ch; margin:18px auto 0; }
+.fn-feat{ display:inline-flex; align-items:center; gap:6px; font-size:14px; font-weight:500; color:rgba(255,255,255,.85); white-space:nowrap; }
+.fn-feat .fn-chk{ color:var(--g-green-bright); flex:none; }
 .fn-q-kicker{ font-family:var(--fx-mono); font-size:13px; color:var(--g-green-press); margin-bottom:14px; }
 .fn-q h2{ font:var(--fx-w-semi) clamp(26px,3.4vw,38px)/1.1 var(--fx-sans); letter-spacing:-.02em; text-wrap:balance; }
 .fn-q .sub{ color:var(--fx-slate); margin-top:12px; font-size:17px; }
