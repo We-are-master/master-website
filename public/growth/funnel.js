@@ -160,7 +160,7 @@
     const chk = '<svg class="fn-chk" width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 4.5" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
     return `<div class="fn-q fn-stage" style="text-align:center;max-width:620px">
       ${window.GrowthBrand ? window.GrowthBrand.hero() : '<div class="g-mark" style="margin:0 auto 22px;width:46px;height:46px;font-size:24px;border-radius:12px">F</div>'}
-      <h2 style="font-size:clamp(28px,4vw,42px)">You've built the <span style="${hl}">Trade</span>.<br>Now let's build the <span style="${hl}">System behind it</span>.</h2>
+      <h2 style="font-size:clamp(28px,4vw,42px)">You've built the <span style="${hl}">Trade</span>.<br>Now let's build the<br><span style="${hl}">System behind it</span>.</h2>
       <div class="fn-feats">
         <span class="fn-feat">${chk} Website</span>
         <span class="fn-feat">${chk} Booking System</span>
