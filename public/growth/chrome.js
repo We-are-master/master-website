@@ -147,12 +147,22 @@
       const f = document.getElementById('g-footer-slot');
       if (h) h.outerHTML = nav(opts.active || '');
       if (f) f.outerHTML = footer();
-      // sticky mobile CTA
+      // sticky mobile CTA — reveals only after the user scrolls past the hero
       if (opts.sticky !== false) {
         const s = document.createElement('div');
         s.className = 'g-sticky';
         s.innerHTML = '<a href="start.html" class="g-btn g-btn-primary g-btn-block g-btn-lg">Build my site →</a>';
         document.body.appendChild(s);
+        let ticking = false;
+        const sync = () => {
+          ticking = false;
+          const past = window.scrollY > Math.min(window.innerHeight * 0.7, 560);
+          s.classList.toggle('show', past);
+        };
+        window.addEventListener('scroll', () => {
+          if (!ticking) { ticking = true; requestAnimationFrame(sync); }
+        }, { passive: true });
+        sync();
       }
       reveal();
       currency();

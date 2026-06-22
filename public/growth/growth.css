@@ -286,7 +286,8 @@ html[data-theme="light"] .g-on-light{ display:block; }
 .g-footer-bot{ display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; padding-top:28px; font-size:13px; color:var(--fx-on-navy-3); }
 
 /* ---------- sticky mobile CTA ---------- */
-.g-sticky{ position:fixed; left:12px; right:12px; bottom:12px; z-index:60; display:none; }
+.g-sticky{ position:fixed; left:12px; right:12px; bottom:12px; z-index:60; display:none; transform:translateY(150%); opacity:0; pointer-events:none; transition:transform .32s var(--fx-ease), opacity .32s var(--fx-ease); }
+.g-sticky.show{ transform:none; opacity:1; pointer-events:auto; }
 .g-sticky a{ box-shadow:var(--fx-elev-3); }
 
 /* ---------- section header ---------- */
@@ -315,6 +316,7 @@ html[data-theme="light"] .g-on-light{ display:block; }
   .g-footer-grid{ grid-template-columns:1fr 1fr; gap:28px; }
   .g-nav-links{ display:none; }
   .g-nav-cta .login{ display:none; }
+  .g-nav-cta .g-btn-primary{ display:none; }
   .g-burger{ display:grid; place-items:center; }
   .g-sticky{ display:block; }
   .hero-cta{ flex-direction:column; }
