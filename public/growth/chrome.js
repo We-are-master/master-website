@@ -8,17 +8,32 @@
     ['index.html#pricing', 'Pricing', 'pricing'],
     ['index.html#faq', 'FAQ', 'faq'],
   ];
-  const PRODUCTS = [
-    ['https://getfixfy.com', 'Fixfy Services'],
-    ['https://getfixfy.com/growth', 'Fixfy Growth'],
-    ['https://getfixfy.com/platform', 'Fixfy OS'],
-    ['https://partners.getfixfy.com', 'Fixfy Partners'],
+  const BUSINESS_SOLUTIONS = [
+    ['https://getfixfy.com/solutions/real-estate', 'Real Estate', 'Portfolios · compliance · multi-asset'],
+    ['https://getfixfy.com/solutions/franchises', 'Franchises', 'Multi-site standards · revenue uptime'],
+    ['https://getfixfy.com/solutions/enterprise-operations', 'Enterprise Operations', 'High-volume · complex compliance'],
+    ['https://getfixfy.com/solutions/service-platforms', 'Service Platforms', 'API + white-label our trade engine'],
   ];
-  const productsDD = `<div class="g-nav-dd">
-        <button type="button" class="g-nav-dd-btn">Products <svg class="g-dd-arrow" width="12" height="12" viewBox="0 0 16 16"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-        <div class="g-nav-dd-menu">${PRODUCTS.map(([h, l]) => `<a href="${h}">${l}</a>`).join('')}</div>
+  const TRADES_SOLUTIONS = [
+    ['https://getfixfy.com/network', 'Fixfy Network', 'Access quote requests, recurring work and pre-booked jobs from London (UK) businesses.'],
+    ['https://getfixfy.com/growth', 'Fixfy Growth', 'Professional website, booking system and lead capture for trades.'],
+    ['https://getfixfy.com/fixfypro', 'Fixfy Pro', 'Manage jobs, quotes, customers, invoices and payments.'],
+  ];
+  function richDropdown(label, items) {
+    return `<div class="g-nav-dd">
+        <button type="button" class="g-nav-dd-btn">${label} <svg class="g-dd-arrow" width="12" height="12" viewBox="0 0 16 16"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <div class="g-nav-dd-menu g-nav-dd-menu--rich">${items.map(([h, l, d]) =>
+          `<a href="${h}" class="g-dd-item"><span class="g-dd-lbl">${l}</span><span class="g-dd-desc">${d}</span></a>`).join('')}</div>
       </div>`;
-  const productsMobile = `<div class="g-mobile-products"><span class="g-mobile-label">Products</span>${PRODUCTS.map(([h, l]) => `<a href="${h}">${l}</a>`).join('')}</div>`;
+  }
+  function richDropdownMobile(label, items) {
+    return `<div class="g-mobile-products"><span class="g-mobile-label">${label}</span>${items.map(([h, l, d]) =>
+      `<a href="${h}" class="g-mobile-dd-item"><span class="g-dd-lbl">${l}</span><span class="g-dd-desc">${d}</span></a>`).join('')}</div>`;
+  }
+  const businessDD = richDropdown('Business Solutions', BUSINESS_SOLUTIONS);
+  const tradesDD = richDropdown('Trades Solutions', TRADES_SOLUTIONS);
+  const businessMobile = richDropdownMobile('Business Solutions', BUSINESS_SOLUTIONS);
+  const tradesMobile = richDropdownMobile('Trades Solutions', TRADES_SOLUTIONS);
   const MARK = window.GrowthBrand ? window.GrowthBrand.html() : '<a href="index.html" class="g-brand"><span class="g-mark">F</span> Fixfy <span class="g-brand-tag">Growth</span></a>';
 
   function nav(active) {
@@ -29,7 +44,7 @@
     <nav class="g-nav">
       <div class="g-nav-inner">
         ${brand}
-        <div class="g-nav-links">${productsDD}${links}</div>
+        <div class="g-nav-links">${businessDD}${tradesDD}${links}</div>
         <div class="g-nav-cta">
           <button class="g-theme-btn" aria-label="Toggle dark mode" onclick="Growth.toggleTheme()">
             <svg class="moon" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a6.6 6.6 0 0 0 9.8 9.8z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
@@ -43,7 +58,8 @@
         </button>
       </div>
       <div id="g-mobile" class="g-mobile-menu">
-        ${productsMobile}
+        ${businessMobile}
+        ${tradesMobile}
         ${NAV.map(([href, label]) => `<a href="${href}">${label}</a>`).join('')}
         <a href="start.html" class="g-btn g-btn-primary g-btn-block" style="margin-top:8px">Get More Bookings →</a>
       </div>
@@ -51,24 +67,25 @@
   }
 
   function footer() {
-    const col = (h, items) => `<div><h5>${h}</h5><ul>${items.map(([t, href]) => `<li><a href="${href || '#'}">${t}</a></li>`).join('')}</ul></div>`;
+    if (window.FixfyFooter) {
+      return window.FixfyFooter.html({ ctaHref: '/network/start' });
+    }
     return `
-    <footer class="g-footer">
-      <div class="g-footer-in">
-        <div class="g-footer-grid">
-          <div>
-            ${window.GrowthBrand ? window.GrowthBrand.html('style="color:#fff"') : `<a href="index.html" class="g-brand" style="color:#fff"><span class="g-mark">F</span> Fixfy <span class="g-brand-tag">Growth</span></a>`}
-            <p class="g-footer-p">A professional website + booking system built around your jobs, every booking straight into your CRM. Live in 7 days.</p>
-            <div class="g-trust" style="margin-top:18px"><span><span class="g-stars">★★★★★</span> Trusted by 5,000+ home service businesses</span></div>
+    <footer class="fx-foot">
+      <div class="fx-foot-in">
+        <div class="fx-foot-top">
+          <div class="fx-foot-brand">
+            <img src="/network/fixfy-white.png" alt="fixfy" width="120" height="24"/>
+            <p>The operating system behind modern maintenance in the UK. Recurring work, commercial clients and real operational infrastructure — built for trades.</p>
           </div>
-          ${col('Product', [['How it works', 'how-it-works.html'], ["What's included", 'features.html'], ['Pricing', 'pricing.html'], ['Results', 'results.html']])}
-          ${col('Industries', [['Plumbers', 'industry-plumbers.html'], ['Electricians', 'industry-electricians.html'], ['HVAC', 'industry-hvac.html'], ['Roofers', 'industry-roofers.html']])}
-          ${col('Company', [['About Fixfy', 'about.html'], ['FAQ', 'faq.html'], ['Blog', 'blog.html'], ['Get More Bookings', 'start.html']])}
-          ${col('Fixfy', [['Fixfy', 'https://getfixfy.com'], ['Fixfy Growth', 'https://getfixfy.com/growth'], ['Fixfy Partners', 'https://partners.getfixfy.com/']])}
+          <div class="fx-foot-cta">
+            <span class="fx-foot-price">From <b>£99</b>/mo · <b>£499</b>/yr</span>
+            <a class="fx-foot-btn" href="/network/start">Join now <span class="arr">→</span></a>
+          </div>
         </div>
-        <div class="g-footer-bot">
-          <span>© 2026 Fixfy Ltd · United Kingdom · Fixfy Growth is a product of Fixfy.</span>
-          <span class="g-mono">Prototype · placeholder stats, verify before launch</span>
+        <div class="fx-foot-bot">
+          <span>© 2026 Fixfy Ltd · United Kingdom · All rights reserved.</span>
+          <span class="fx-foot-mono">Fixfy Partners · partner.getfixfy.com</span>
         </div>
       </div>
     </footer>`;

@@ -65,11 +65,11 @@
     <xhtml:link rel="alternate" hreflang="en-GB" href="https://getfixfy.com/contact"/>
   </url>
   <url>
-    <loc>https://getfixfy.com/partners</loc>
+    <loc>https://getfixfy.com/network</loc>
     <lastmod>2026-06-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
-    <xhtml:link rel="alternate" hreflang="en-GB" href="https://getfixfy.com/partners"/>
+    <xhtml:link rel="alternate" hreflang="en-GB" href="https://getfixfy.com/network"/>
   </url>
   <url>
     <loc>https://getfixfy.com/growth</loc>

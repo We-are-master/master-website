@@ -1,0 +1,128 @@
+/* Fixfy — unified footer (main site, Network, Growth) */
+.fx-foot,
+.foot{
+  position:relative;
+  z-index:2;
+  background:rgba(0,0,0,0.5);
+  border-top:1px solid rgba(255,255,255,0.08);
+  padding:56px 0 32px;
+  color:rgba(255,255,255,0.62);
+  font-size:13px;
+}
+.fx-foot-in,
+.foot .wrap{
+  max-width:1240px;
+  margin:0 auto;
+  padding:0 clamp(16px,5vw,32px);
+}
+.fx-foot-top,
+.foot-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:40px;
+  flex-wrap:wrap;
+  padding-bottom:36px;
+  border-bottom:1px solid rgba(255,255,255,0.08);
+}
+.fx-foot-brand,
+.foot-brand{
+  max-width:34ch;
+}
+.fx-foot-brand img,
+.foot-brand img{
+  height:24px;
+  width:auto;
+  margin-bottom:16px;
+}
+.fx-foot-brand p,
+.foot-brand p{
+  color:rgba(255,255,255,0.62);
+  line-height:1.55;
+  margin:0;
+}
+.fx-foot-cta,
+.foot-cta{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  align-items:flex-start;
+}
+.fx-foot-price,
+.foot-cta .nav-price,
+.nav-price{
+  font-family:'Geist Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:12px;
+  color:rgba(255,255,255,0.62);
+  letter-spacing:0.02em;
+}
+.fx-foot-price b,
+.foot-cta .nav-price b,
+.nav-price b{
+  color:#fff;
+  font-weight:500;
+}
+.fx-foot-btn,
+.foot-cta .btn.btn-primary{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  padding:14px 24px;
+  font-size:15px;
+  font-weight:500;
+  border-radius:9px;
+  border:none;
+  cursor:pointer;
+  text-decoration:none;
+  color:#fff;
+  background:#ED4B00;
+  box-shadow:0 8px 24px rgba(237,75,0,0.28);
+  transition:background .16s ease,box-shadow .16s ease,transform .16s ease;
+}
+.fx-foot-btn:hover,
+.foot-cta .btn.btn-primary:hover{
+  background:#F26527;
+  box-shadow:0 12px 32px rgba(237,75,0,0.38);
+}
+.fx-foot-btn .arr,
+.foot-cta .btn .arr{
+  transition:transform .16s ease;
+}
+.fx-foot-btn:hover .arr,
+.foot-cta .btn:hover .arr{
+  transform:translateX(3px);
+}
+.fx-foot-bot,
+.foot-bot{
+  padding-top:24px;
+  display:flex;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:12px;
+  font-size:12px;
+  color:rgba(255,255,255,0.4);
+}
+.fx-foot-mono,
+.foot-bot .mono{
+  font-family:'Geist Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  letter-spacing:0.04em;
+}
+.fx-foot-mono a{
+  color:inherit;
+  text-decoration:none;
+}
+.fx-foot-mono a:hover{
+  color:rgba(255,255,255,0.72);
+}
+
+@media (max-width:720px){
+  .fx-foot,
+  .foot{padding:40px 0 28px}
+  .fx-foot-top,
+  .foot-top{flex-direction:column;gap:24px}
+  .fx-foot-cta,
+  .foot-cta{align-items:stretch;width:100%}
+  .fx-foot-btn,
+  .foot-cta .btn.btn-primary{width:100%}
+}

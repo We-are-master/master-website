@@ -1,12 +1,13 @@
 /**
- * Serve static microsites at /partners and /growth in dev/preview,
+ * Serve static microsites at /network and /growth in dev/preview,
  * and inject runtime config for Growth funnel (Stripe + Supabase).
  */
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 const STATIC_ROUTES = [
-  { path: '/partners', index: '/partners/index.html' },
+  { path: '/network', index: '/network/index.html' },
+  { path: '/partners', index: '/network/index.html' },
   { path: '/growth', index: '/growth/index.html' },
 ]
 
@@ -23,11 +24,12 @@ function staticRewriteMiddleware(req, _res, next) {
 }
 
 function growthConfigBody(env) {
-  return `window.GROWTH_CONFIG = ${JSON.stringify({
+  const payload = {
     supabaseUrl: (env.VITE_SUPABASE_URL || '').replace(/\/$/, ''),
     supabaseAnonKey: env.VITE_SUPABASE_ANON_KEY || '',
     stripePublishableKey: env.VITE_STRIPE_PUBLISHABLE_KEY || '',
-  })};\n`
+  }
+  return `window.GROWTH_CONFIG = ${JSON.stringify(payload)};\nwindow.NETWORK_CONFIG = ${JSON.stringify(payload)};\n`
 }
 
 function writeGrowthConfig(env, outPath) {
@@ -48,7 +50,8 @@ export default function staticSitesPlugin() {
     configureServer(server) {
       server.middlewares.use(staticRewriteMiddleware)
       server.middlewares.use((req, res, next) => {
-        if (req.url?.split('?')[0] === '/growth/growth-config.js') {
+        const pathOnly = req.url?.split('?')[0]
+        if (pathOnly === '/growth/growth-config.js' || pathOnly === '/network/network-config.js') {
           res.setHeader('Content-Type', 'application/javascript')
           res.end(growthConfigBody(server.config.env))
           return
@@ -61,9 +64,11 @@ export default function staticSitesPlugin() {
     },
     closeBundle() {
       writeGrowthConfig(env, resolve(root, 'dist/growth/growth-config.js'))
+      writeGrowthConfig(env, resolve(root, 'dist/network/network-config.js'))
     },
     buildStart() {
       writeGrowthConfig(env, resolve(root, 'public/growth/growth-config.js'))
+      writeGrowthConfig(env, resolve(root, 'public/network/network-config.js'))
     },
   }
 }
