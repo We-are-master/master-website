@@ -1104,7 +1104,7 @@ body[data-tone="navy"] .v2-metric{background:rgba(255,255,255,0.025);border:1px 
 body[data-tone="navy"] .v2-module{background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.04)}
 body[data-tone="navy"] .v2-modules{background:rgba(255,255,255,0.06)}
 body[data-tone="navy"] .v2-faq details{background:rgba(255,255,255,0.025)}
-body[data-tone="navy"] .v2-footer{background:rgba(0,0,0,0.5)}
+body[data-tone="navy"] .fx-foot{background:rgba(0,0,0,0.5)}
 body[data-tone="navy"] .v2-nav{background:rgba(8,12,28,0.85);backdrop-filter:saturate(140%) blur(14px)}
 
 body[data-tone="black"]{background:#0A0A0F}

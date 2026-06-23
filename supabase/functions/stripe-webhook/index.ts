@@ -168,6 +168,38 @@ async function handleGrowthPayment(
   return true
 }
 
+async function handleNetworkSignup(
+  supabase: ReturnType<typeof createClient>,
+  opts: { setupIntentId?: string; paymentIntentId?: string; subscriptionId?: string },
+): Promise<boolean> {
+  let query = supabase.from('network_signups').select('*')
+
+  if (opts.paymentIntentId) {
+    query = query.eq('stripe_payment_intent_id', opts.paymentIntentId)
+  } else if (opts.setupIntentId) {
+    query = query.eq('stripe_setup_intent_id', opts.setupIntentId)
+  } else if (opts.subscriptionId) {
+    query = query.eq('stripe_subscription_id', opts.subscriptionId)
+  } else {
+    return false
+  }
+
+  const { data: signup, error } = await query.maybeSingle()
+  if (error || !signup) return false
+  if (signup.status === 'active' || signup.status === 'trialing') return true
+
+  await supabase
+    .from('network_signups')
+    .update({
+      status: 'active',
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', signup.id)
+
+  console.log(`[network] signup active: ${signup.id}`)
+  return true
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: getCorsHeaders(req.headers.get('origin')) })
@@ -289,6 +321,16 @@ serve(async (req) => {
 
     // Handle different event types
     switch (event.type) {
+      case 'setup_intent.succeeded': {
+        const setupIntent = event.data.object as Stripe.SetupIntent
+        console.log(`SetupIntent succeeded: ${setupIntent.id}`)
+        const networkHandled = await handleNetworkSignup(supabase, {
+          setupIntentId: setupIntent.id,
+        })
+        if (networkHandled) break
+        break
+      }
+
       case 'payment_intent.succeeded': {
         const paymentIntent = event.data.object as Stripe.PaymentIntent
         console.log(`PaymentIntent succeeded: ${paymentIntent.id}`)
@@ -300,6 +342,11 @@ serve(async (req) => {
           paymentIntent.id,
         )
         if (growthHandled) break
+
+        const networkHandled = await handleNetworkSignup(supabase, {
+          paymentIntentId: paymentIntent.id,
+        })
+        if (networkHandled) break
 
         // Extract metadata from payment intent
         const metadata = paymentIntent.metadata || {}
@@ -811,8 +858,19 @@ serve(async (req) => {
         const subscription = event.data.object as Stripe.Subscription
         console.log(`Subscription ${event.type}: ${subscription.id}`)
 
-        // Only handle website subscriptions (check metadata)
         const metadata = subscription.metadata || {}
+
+        if (metadata.source === 'network') {
+          const status = subscription.status === 'active' ? 'active' : 'trialing'
+          await supabase
+            .from('network_signups')
+            .update({ status, updated_at: new Date().toISOString() })
+            .eq('stripe_subscription_id', subscription.id)
+          console.log(`[network] subscription ${event.type}: ${subscription.id} → ${status}`)
+          break
+        }
+
+        // Only handle website subscriptions (check metadata)
         if (metadata.source !== 'website') {
           console.log(`Skipping subscription ${subscription.id} - not from website`)
           break

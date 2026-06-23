@@ -1,10 +1,21 @@
 {
   "cleanUrls": true,
   "trailingSlash": false,
-  "rewrites": [
+  "redirects": [
     {
       "source": "/partners",
-      "destination": "/partners/index.html"
+      "destination": "/network",
+      "permanent": true
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/network",
+      "destination": "/network/index.html"
+    },
+    {
+      "source": "/network/start",
+      "destination": "/network/start.html"
     },
     {
       "source": "/growth",

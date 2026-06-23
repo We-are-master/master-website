@@ -5,6 +5,7 @@ import {
   PARTNERS_LANDING_URL,
   CUSTOMER_LOGIN_URL,
   PARTNERS_LOGIN_URL,
+  TRADES_SOLUTIONS,
 } from '../../lib/partnerUrls'
 import { initBgToggle } from '../../fixfy-site-v2/v2Effects.js'
 
@@ -72,6 +73,32 @@ export default function FixfyV2Nav() {
                   <span className="lbl">Service Platforms</span>
                   <span className="desc">API + white-label our trade engine</span>
                 </Link>
+              </div>
+            </div>
+            <div className="v2-nav-link-wrap">
+              <span className="v2-nav-link" data-dropdown role="button" tabIndex={0}>
+                Trades Solutions
+              </span>
+              <div className="v2-dropdown">
+                {TRADES_SOLUTIONS.map((item) => {
+                  const isExternal = item.href.startsWith('http')
+                  const className = 'v2-dd-item'
+                  const inner = (
+                    <>
+                      <span className="lbl">{item.label}</span>
+                      <span className="desc">{item.desc}</span>
+                    </>
+                  )
+                  return isExternal ? (
+                    <a key={item.label} href={item.href} className={className} onClick={closeMenu}>
+                      {inner}
+                    </a>
+                  ) : (
+                    <Link key={item.label} to={item.href} className={className} onClick={closeMenu}>
+                      {inner}
+                    </Link>
+                  )
+                })}
               </div>
             </div>
             <NavLink className={navCls} to="/platform" onClick={closeMenu}>

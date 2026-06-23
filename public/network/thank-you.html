@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8"/>
+<title>Welcome to Fixfy Network</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<base href="/network/"/>
+<link rel="stylesheet" href="/growth/growth.css?v=14"/>
+<link rel="stylesheet" href="/network/funnel.css?v=5"/>
+<link rel="icon" type="image/png" href="/favicon.png"/>
+</head>
+<body class="fn-body nw-fn-body">
+
+<div class="fn-top">
+  <div class="fn-top-in">
+    <a href="index.html" class="g-brand">
+      <img src="/network/fixfy-white.png" alt="Fixfy" style="height:34px"/>
+    </a>
+  </div>
+</div>
+
+<main class="fn-shell" style="text-align:center;padding-top:32px">
+  <h1 style="font-size:clamp(32px,8vw,44px);letter-spacing:-0.03em;margin:0 0 20px;font-weight:600">You're in. Welcome to Fixfy Network.</h1>
+  <p class="g-lead" id="nw-ty-lead" style="margin:0 auto 28px;max-width:40ch;font-size:clamp(17px,4.5vw,19px);line-height:1.5;color:rgba(255,255,255,0.72)"></p>
+  <p class="g-mono g-mute" id="nw-redirect-msg" style="font-size:14px">Redirecting to Fixfy Pro in <b id="nw-count">3</b>s</p>
+  <p style="margin-top:32px"><a class="g-btn g-btn-primary g-btn-lg" id="nw-continue" href="#">Continue to partner.getfixfy.com →</a></p>
+</main>
+
+<script>
+(function () {
+  var raw = sessionStorage.getItem('nw_thanks');
+  var data = raw ? JSON.parse(raw) : {};
+  var lead = data.lead || {};
+  var biz = data.biz || {};
+  var waived = !!data.paymentWaived;
+  var params = new URLSearchParams();
+  if (lead.name) params.set('name', lead.name);
+  if (lead.email) params.set('email', lead.email);
+  if (lead.phone) params.set('phone', lead.phone);
+  if (biz.bizname) params.set('business', biz.bizname);
+  if (data.trade) params.set('trade', data.trade);
+  var url = data.onboardingUrl || ('https://partners.getfixfy.com/?' + params.toString());
+  var leadEl = document.getElementById('nw-ty-lead');
+  if (leadEl) {
+    leadEl.textContent = waived
+      ? 'Access confirmed. Complete your profile on Fixfy Pro — once your documents are approved, your partner account goes live.'
+      : 'Payment confirmed. Complete your profile on Fixfy Pro — once your documents are approved, your partner account goes live.';
+  }
+  var link = document.getElementById('nw-continue');
+  if (link) link.href = url;
+  var n = 3;
+  var countEl = document.getElementById('nw-count');
+  var t = setInterval(function () {
+    n -= 1;
+    if (countEl) countEl.textContent = String(Math.max(n, 0));
+    if (n <= 0) {
+      clearInterval(t);
+      window.location.href = url;
+    }
+  }, 1000);
+})();
+</script>
+</body>
+</html>
