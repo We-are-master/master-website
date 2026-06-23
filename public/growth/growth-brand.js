@@ -1,4 +1,4 @@
-/* Fixfy Growth — shared brand lockup (Fixfy logo + Growth tag). */
+/* Fixfy Growth — shared brand lockup (Fixfy logo). */
 (function () {
   const WORD_DARK = '/brand/fixfy-primary-white.png';
   const WORD_LIGHT = '/brand/fixfy-primary-navy.png';
@@ -13,7 +13,7 @@
 
   window.GrowthBrand = {
     html(attrs = '') {
-      return `<a href="index.html" class="g-brand"${attrs ? ' ' + attrs : ''}>${logos}<span class="g-brand-tag">Growth</span></a>`;
+      return `<a href="index.html" class="g-brand"${attrs ? ' ' + attrs : ''}>${logos}</a>`;
     },
     hero() {
       return `<div class="g-brand-hero-wrap">

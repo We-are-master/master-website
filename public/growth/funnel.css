@@ -75,6 +75,56 @@
 .fn-back:hover{ color:var(--fx-ink); }
 .fn-spacer{ flex:1; }
 
+/* funnel primary CTA — richer depth, clearer tap target */
+.fn-body .fn-nav .g-btn-primary{
+  background:linear-gradient(180deg,#ff6a24 0%,var(--g-coral) 46%,#d94400 100%);
+  border:none;
+  font-weight:600;
+  letter-spacing:-.015em;
+  min-height:52px;
+  border-radius:14px;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.22),
+    0 1px 2px rgba(0,0,0,.14),
+    0 10px 32px rgba(237,75,0,.34);
+}
+.fn-body .fn-nav .g-btn-primary:hover{
+  background:linear-gradient(180deg,#ff742e 0%,var(--g-coral-hover) 48%,#e04e00 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.28),
+    0 2px 6px rgba(0,0,0,.12),
+    0 14px 40px rgba(237,75,0,.42);
+  transform:translateY(-2px);
+}
+.fn-body .fn-nav .g-btn-primary:active{
+  transform:translateY(0);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.16),
+    0 4px 18px rgba(237,75,0,.28);
+}
+.fn-body .fn-nav .g-btn-primary:disabled{
+  opacity:.42;
+  transform:none;
+  filter:saturate(.65);
+  cursor:not-allowed;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.1), 0 2px 8px rgba(0,0,0,.12);
+}
+.fn-body .fn-nav .g-btn-primary .arr{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:22px; height:22px;
+  margin-left:2px;
+  border-radius:50%;
+  background:rgba(255,255,255,.16);
+  font-size:14px;
+  transition:transform .18s var(--fx-ease), background .18s;
+}
+.fn-body .fn-nav .g-btn-primary:hover .arr{
+  transform:translateX(2px);
+  background:rgba(255,255,255,.24);
+}
+
 /* plan cards (step 7) */
 .fn-plans{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:30px; }
 .fn-plan{ position:relative; cursor:pointer; background:var(--g-card); border:1.5px solid var(--fx-line); border-radius:var(--fx-r-4); padding:24px; text-align:left; transition:border-color .12s, transform .12s; }
@@ -197,6 +247,7 @@ body[data-fn="conversational"] .fn-with-rail{ display:block; }
 .fn-addon-body p{ color:var(--fx-slate); font-size:14px; margin-top:6px; line-height:1.5; }
 .fn-addon-foot{ display:flex; align-items:center; justify-content:space-between; margin-top:14px; }
 .fn-addon-price{ font-size:20px; font-weight:600; letter-spacing:-.01em; white-space:nowrap; }
+.fn-addon-price s{ color:var(--fx-mute); font-size:14px; font-weight:400; margin-right:4px; }
 .fn-addon-price small{ font-size:13px; color:var(--fx-mute); font-weight:400; }
 .fn-addon-btn{ border:1.5px solid var(--fx-line-strong); background:var(--fx-white); color:var(--fx-ink); border-radius:var(--fx-r-3); padding:10px 20px; font:500 15px var(--fx-sans); cursor:pointer; transition:all .12s; }
 .fn-addon-btn:hover{ border-color:var(--g-green); }
@@ -249,14 +300,68 @@ body[data-fn="conversational"] .fn-with-rail{ display:block; }
   .fn-cal .dnum{ font-size:18px; }
   .fn-recap{ position:static; }
 }
+/* desktop — paired action bar */
+@media (min-width:561px){
+  .fn-body .fn-nav:has(.g-btn-primary){
+    margin-top:36px;
+    padding-top:20px;
+    border-top:1px solid rgba(255,255,255,.06);
+  }
+  .fn-body .fn-nav .fn-back{
+    min-height:52px;
+    padding:0 18px;
+    border-radius:14px;
+    border:1px solid rgba(255,255,255,.1);
+    background:rgba(255,255,255,.04);
+    color:rgba(255,255,255,.8);
+    font-weight:500;
+    transition:border-color .18s, background .18s, color .18s;
+  }
+  .fn-body .fn-nav .fn-back:hover{
+    border-color:rgba(255,255,255,.2);
+    background:rgba(255,255,255,.08);
+    color:#fff;
+  }
+  .fn-body .fn-nav .g-btn-primary.g-btn-lg{
+    min-width:220px;
+    padding:16px 28px;
+    font-size:17px;
+  }
+}
 @media (max-width:560px){
-  /* Stack nav so the primary CTA is full-width and never truncates (mobile = 90% of traffic) */
-  .fn-nav{ flex-direction:column-reverse; align-items:stretch; gap:10px; margin-top:22px; }
+  /* fixed action bar — Back + CTA always visible */
+  .fn-shell{ box-sizing:border-box; padding:14px 18px calc(96px + env(safe-area-inset-bottom)); }
+  .fn-nav:has(.g-btn-primary){
+    position:fixed; left:0; right:0; bottom:0; margin:0; z-index:50;
+    flex-direction:row; align-items:stretch; gap:10px;
+    padding:10px 16px calc(12px + env(safe-area-inset-bottom));
+    background:rgba(6,6,26,.94);
+    backdrop-filter:blur(18px) saturate(1.25);
+    border-top:1px solid rgba(255,255,255,.08);
+    box-shadow:0 -12px 40px rgba(0,0,0,.48);
+  }
   .fn-nav .fn-spacer{ display:none; }
-  .fn-nav .g-btn{ width:100%; white-space:normal; text-align:center; line-height:1.2; }
-  .fn-back{ align-self:center; }
-  /* App-like: center each step in the viewport; tall steps (summary) safely top-align */
-  .fn-shell{ box-sizing:border-box; padding:14px 18px 4px; }
+  .fn-nav .fn-back{
+    flex:0 0 auto;
+    align-self:stretch;
+    display:inline-flex; align-items:center; justify-content:center;
+    min-width:92px; min-height:52px;
+    padding:0 16px;
+    border-radius:14px;
+    border:1px solid rgba(255,255,255,.12);
+    background:rgba(255,255,255,.05);
+    color:rgba(255,255,255,.78);
+    font-size:15px; font-weight:500;
+    transition:border-color .18s, background .18s, color .18s;
+  }
+  .fn-nav .fn-back:hover{ border-color:rgba(255,255,255,.22); background:rgba(255,255,255,.09); color:#fff; }
+  .fn-nav .g-btn{
+    flex:1 1 0; width:auto; min-width:0;
+    white-space:nowrap; text-align:center; line-height:1.2;
+    justify-content:center;
+    padding:14px 20px; font-size:16px;
+  }
+  .fn-nav:not(:has(.fn-back)) .g-btn{ flex:1 1 auto; }
   .fn-q-kicker{ margin-bottom:9px; }
   .fn-q h2{ font-size:25px; }
   .fn-q .sub{ font-size:15px; margin-top:8px; }
@@ -265,8 +370,15 @@ body[data-fn="conversational"] .fn-with-rail{ display:block; }
   .fn-fields{ margin-top:16px; gap:12px; }
   .fn-sum-body{ padding:18px 20px 20px; gap:14px; }
   /* Summary: pin the primary CTA to the bottom of the screen so it's always tappable without scrolling */
-  .fn-nav--sticky{ position:sticky; bottom:0; z-index:5; margin-top:16px; padding:12px 0 10px; background:linear-gradient(to top, var(--g-bg) 78%, rgba(2,0,64,0)); }
-  .fn-nav--sticky .fn-back{ padding:4px 6px; }
+  .fn-nav--sticky{
+    position:fixed; left:0; right:0; bottom:0; z-index:50; margin:0;
+    padding:10px 16px calc(12px + env(safe-area-inset-bottom));
+    background:rgba(6,6,26,.94);
+    backdrop-filter:blur(18px) saturate(1.25);
+    border-top:1px solid rgba(255,255,255,.08);
+    box-shadow:0 -12px 40px rgba(0,0,0,.48);
+  }
+  .fn-nav--sticky .fn-back{ padding:0 16px; }
   /* 4) CTA text centered */
   .fn-nav .g-btn{ justify-content:center; }
   /* 2) subhead on one line */
@@ -313,15 +425,19 @@ body[data-fn="conversational"] .fn-with-rail{ display:block; }
   .fn-plan-desc{ display:none; }
 }
 @media (max-width:560px){
-  /* pin CTA + Back to a fixed footer so they never scroll away */
-  .fn-summary .fn-nav--sticky{ position:fixed; left:0; right:0; bottom:0; margin:0; z-index:50; gap:5px;
-    padding:9px 16px calc(15px + env(safe-area-inset-bottom)); background:var(--g-bg);
-    border-top:1px solid var(--fx-line); box-shadow:0 -8px 24px rgba(0,0,0,.4); }
-  .fn-summary .fn-nav--sticky .fn-back{ padding:3px 6px; }
-  .fn-summary .fn-nav--sticky .g-btn-lg{ padding:13px 22px; }
-  /* free up height so everything above the fixed footer fits with no page scroll */
+  /* summary step reuses the global fixed nav — drop duplicate rules */
+  .fn-summary .fn-nav--sticky{
+    position:fixed; left:0; right:0; bottom:0; margin:0; z-index:50; gap:10px;
+    padding:10px 16px calc(12px + env(safe-area-inset-bottom));
+    background:rgba(6,6,26,.94);
+    backdrop-filter:blur(18px) saturate(1.25);
+    border-top:1px solid rgba(255,255,255,.08);
+    box-shadow:0 -12px 40px rgba(0,0,0,.48);
+  }
+  .fn-summary .fn-nav--sticky .fn-back{ padding:0 16px; }
+  .fn-summary .fn-nav--sticky .g-btn-lg{ padding:14px 20px; font-size:16px; }
   .fn-pricehint, .fn-summary .g-center.g-mute{ display:none; }
-  .fn-summary{ padding-bottom:106px; }
+  .fn-summary{ padding-bottom:0; }
 }
 
 /* DESKTOP: keep step 7 (summary) on one screen — no page scroll. Mirrors the mobile
@@ -365,3 +481,29 @@ body[data-fn="conversational"] .fn-with-rail{ display:block; }
   .fn-plan-desc{ display:none; }
   .fn-summary .fn-nav{ margin-top:10px; }
 }
+
+/* post-payment build brief (thank-you) */
+.fn-brief-wrap{ max-width:720px; margin:28px auto 36px; text-align:left; }
+.fn-brief-card{
+  background:var(--g-card); border:1px solid var(--fx-line); border-radius:var(--fx-r-4);
+  padding:clamp(20px,4vw,28px);
+}
+.fn-brief-hd{ margin-bottom:20px; text-align:center; }
+.fn-brief-q{ margin-top:18px; }
+.fn-brief-lbl{ display:block; font-size:14px; font-weight:500; color:var(--fx-slate); margin-bottom:10px; }
+.fn-brief-q .fn-opts{ margin-top:0; }
+.fn-brief-q .fn-opt{ font-size:15px; padding:14px 16px; }
+.fn-brief-actions{ margin-top:22px; display:flex; flex-direction:column; gap:10px; align-items:center; }
+.fn-brief-actions .fn-back{ background:none; border:none; cursor:pointer; color:var(--fx-mute); font-size:14px; padding:8px; }
+.fn-brief-actions .fn-back:hover{ color:var(--fx-ink); }
+.fn-brief-done{
+  display:flex; align-items:center; gap:14px; padding:18px 20px;
+  background:var(--g-green-50); border:1px solid rgba(14,164,122,.35); border-radius:var(--fx-r-3);
+}
+.fn-brief-check{
+  width:36px; height:36px; border-radius:50%; background:var(--g-green); color:#fff;
+  display:grid; place-items:center; font-weight:700; flex-shrink:0;
+}
+
+/* shortened plan step */
+.fn-plan-lite .fn-sum-stat{ display:none; }

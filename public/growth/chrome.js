@@ -34,7 +34,7 @@
   const tradesDD = richDropdown('Trades Solutions', TRADES_SOLUTIONS);
   const businessMobile = richDropdownMobile('Business Solutions', BUSINESS_SOLUTIONS);
   const tradesMobile = richDropdownMobile('Trades Solutions', TRADES_SOLUTIONS);
-  const MARK = window.GrowthBrand ? window.GrowthBrand.html() : '<a href="index.html" class="g-brand"><span class="g-mark">F</span> Fixfy <span class="g-brand-tag">Growth</span></a>';
+  const MARK = window.GrowthBrand ? window.GrowthBrand.html() : '<a href="index.html" class="g-brand"><span class="g-mark">F</span> Fixfy</a>';
 
   function nav(active) {
     const links = NAV.map(([href, label, key]) =>

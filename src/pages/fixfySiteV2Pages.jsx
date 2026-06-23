@@ -9,6 +9,7 @@ import {
 } from '../fixfy-site-v2/page-solutions-v2.js'
 import { PagePlatform } from '../fixfy-site-v2/page-platform-v2.js'
 import { PageAbout, PageContact } from '../fixfy-site-v2/page-about-contact.js'
+import { initSolutionsPage } from '../fixfy-site-v2/solutions-shell.js'
 import {
   htmlPageStub,
   initHeroScenes,
@@ -55,35 +56,34 @@ export function PlatformV2() {
   return <main dangerouslySetInnerHTML={{ __html: PagePlatform() }} />
 }
 
-export function SolutionRealEstateV2() {
+function useSolutionsPage() {
   useLayoutEffect(() => {
     document.body.setAttribute('data-tone', 'navy')
-    return () => document.body.removeAttribute('data-tone')
+    const cleanup = initSolutionsPage()
+    return () => {
+      document.body.removeAttribute('data-tone')
+      cleanup?.()
+    }
   }, [])
+}
+
+export function SolutionRealEstateV2() {
+  useSolutionsPage()
   return <main dangerouslySetInnerHTML={{ __html: PageRealEstate() }} />
 }
 
 export function SolutionFranchisesV2() {
-  useLayoutEffect(() => {
-    document.body.setAttribute('data-tone', 'navy')
-    return () => document.body.removeAttribute('data-tone')
-  }, [])
+  useSolutionsPage()
   return <main dangerouslySetInnerHTML={{ __html: PageFranchises() }} />
 }
 
 export function SolutionEnterpriseV2() {
-  useLayoutEffect(() => {
-    document.body.setAttribute('data-tone', 'navy')
-    return () => document.body.removeAttribute('data-tone')
-  }, [])
+  useSolutionsPage()
   return <main dangerouslySetInnerHTML={{ __html: PageEnterprise() }} />
 }
 
 export function SolutionServicePlatformsV2() {
-  useLayoutEffect(() => {
-    document.body.setAttribute('data-tone', 'navy')
-    return () => document.body.removeAttribute('data-tone')
-  }, [])
+  useSolutionsPage()
   return <main dangerouslySetInnerHTML={{ __html: PageServicePlatforms() }} />
 }
 

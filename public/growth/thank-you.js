@@ -3,8 +3,38 @@
 
   const STORAGE_KEY = 'fx_growth_thanks';
 
+  const Q = {
+    website: {
+      id: 'website',
+      label: 'Do you have a website right now?',
+      options: ['No', "Yes, but it's outdated", "Yes, but it doesn't bring me jobs"],
+    },
+    goal: {
+      id: 'goal',
+      label: "What's your #1 goal?",
+      options: ['Get more bookings', 'Stop paying for leads', 'Look more professional', 'Rank on Google'],
+    },
+  };
+
+  const LEADGEN = {
+    'United Kingdom': 'Checkatrade, Bark, MyBuilder…',
+    'United States': 'Angi, Thumbtack, HomeAdvisor…',
+    'Canada': 'HomeStars, Bark, Jiffy…',
+    'Ireland': 'Tradesmen.ie, Bark…',
+    'Australia': 'hipages, Airtasker…',
+  };
+
+  function sourceOptions(country) {
+    const ex = LEADGEN[country] || 'Angi, Bark, Thumbtack…';
+    return ['Referrals', 'Lead-gen platforms (' + ex + ')', 'Word of mouth', "I don't have a steady source"];
+  }
+
   function esc(s) {
     return String(s || '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  }
+
+  function cfg() {
+    return window.GROWTH_CONFIG || {};
   }
 
   function readData() {
@@ -13,6 +43,140 @@
       return raw ? JSON.parse(raw) : null;
     } catch {
       return null;
+    }
+  }
+
+  function saveData(patch) {
+    const data = readData();
+    if (!data) return;
+    try {
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(Object.assign({}, data, patch)));
+    } catch {
+      /* ignore */
+    }
+  }
+
+  function optGrid(qid, options, selected) {
+    return `<div class="fn-brief-q">
+      <label class="fn-brief-lbl">${esc(Q[qid] ? Q[qid].label : '')}</label>
+      <div class="fn-opts cols2">${options.map((o) => {
+        const sel = selected === o;
+        return `<button type="button" class="fn-opt${sel ? ' sel' : ''}" data-q="${qid}">${esc(o)}</button>`;
+      }).join('')}</div>
+    </div>`;
+  }
+
+  function renderBrief(data) {
+    const wrap = document.getElementById('ty-brief-wrap');
+    if (!wrap) return;
+
+    if (data.quizComplete) {
+      wrap.innerHTML = `<div class="fn-brief-done">
+        <span class="fn-brief-check">✓</span>
+        <div><strong>Build brief saved</strong><p class="g-mute" style="margin:6px 0 0;font-size:14px">We'll use this to prep your onboarding call.</p></div>
+      </div>`;
+      return;
+    }
+
+    const answers = data.briefAnswers || {};
+    const srcOpts = sourceOptions(data.country || 'United Kingdom');
+    const tradeKnown = !!(data.trade || answers.trade);
+
+    wrap.innerHTML = `<div class="fn-brief-card" id="ty-brief-form">
+      <div class="fn-brief-hd">
+        <p class="fn-q-kicker" style="margin:0 0 8px">Final questions · 2 minutes</p>
+        <h3 class="g-h3" style="margin:0">Help us prep your build</h3>
+        <p class="g-mute" style="margin:8px 0 0;font-size:14px">Three quick answers so we can tailor your site before the onboarding call.</p>
+      </div>
+      ${tradeKnown ? `<p class="g-mono" style="font-size:12px;color:var(--g-green-press);margin:0 0 16px">Trade on file: <strong>${esc(data.trade || answers.trade)}</strong></p>` : ''}
+      <div class="fn-brief-q">
+        <label class="fn-brief-lbl">How do you get most of your jobs today?</label>
+        <div class="fn-opts">${srcOpts.map((o) => {
+          const sel = answers.source === o;
+          return `<button type="button" class="fn-opt${sel ? ' sel' : ''}" data-q="source">${esc(o)}</button>`;
+        }).join('')}</div>
+      </div>
+      ${optGrid('website', Q.website.options, answers.website)}
+      ${optGrid('goal', Q.goal.options, answers.goal)}
+      <p id="ty-brief-error" class="g-mono" style="color:#c0392b;text-align:center;margin:12px 0 0;font-size:12px;min-height:16px"></p>
+      <div class="fn-brief-actions">
+        <button type="button" class="g-btn g-btn-primary g-btn-lg g-btn-block" id="ty-brief-submit">Save build brief <span class="arr">→</span></button>
+        <button type="button" class="fn-back" id="ty-brief-skip">Skip for now</button>
+      </div>
+    </div>`;
+
+    const answersState = Object.assign({}, answers);
+
+    wrap.querySelectorAll('.fn-opt').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const qid = btn.getAttribute('data-q');
+        const val = btn.textContent.trim();
+        if (!qid) return;
+        answersState[qid] = val;
+        saveData({ briefAnswers: answersState });
+        wrap.querySelectorAll('.fn-opt[data-q="' + qid + '"]').forEach((b) => b.classList.remove('sel'));
+        btn.classList.add('sel');
+      });
+    });
+
+    const skipBtn = document.getElementById('ty-brief-skip');
+    if (skipBtn) {
+      skipBtn.addEventListener('click', () => {
+        wrap.style.display = 'none';
+      });
+    }
+
+    const submitBtn = document.getElementById('ty-brief-submit');
+    if (submitBtn) {
+      submitBtn.addEventListener('click', () => void submitBrief(data, answersState, submitBtn));
+    }
+  }
+
+  async function submitBrief(data, answers, btn) {
+    const errEl = document.getElementById('ty-brief-error');
+    const merged = Object.assign({}, answers, { trade: answers.trade || data.trade });
+    if (!merged.trade || !merged.source || !merged.website || !merged.goal) {
+      if (errEl) errEl.textContent = 'Please answer all three questions, or tap Skip for now.';
+      return;
+    }
+    if (!data.bookingId || !data.email) {
+      if (errEl) errEl.textContent = 'Booking reference missing — check your confirmation email.';
+      return;
+    }
+
+    const c = cfg();
+    if (!c.supabaseUrl || !c.supabaseAnonKey) {
+      if (errEl) errEl.textContent = 'Could not save right now — we\'ll cover this on your call.';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.style.opacity = '0.6';
+    if (errEl) errEl.textContent = '';
+
+    try {
+      const res = await fetch(c.supabaseUrl + '/functions/v1/update-growth-quiz', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          apikey: c.supabaseAnonKey,
+          Authorization: 'Bearer ' + c.supabaseAnonKey,
+        },
+        body: JSON.stringify({
+          bookingId: data.bookingId,
+          email: data.email,
+          answers: merged,
+        }),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(body.error || 'Save failed');
+
+      saveData({ quizComplete: true, briefAnswers: merged });
+      renderBrief(Object.assign({}, data, { quizComplete: true, briefAnswers: merged }));
+    } catch (e) {
+      if (errEl) errEl.textContent = e.message || 'Could not save — try again or skip.';
+      btn.disabled = false;
+      btn.style.opacity = '';
     }
   }
 
@@ -38,6 +202,8 @@
     if (sub) {
       sub.textContent = `${biz} is officially off the lead-rental treadmill. Your 7-day build starts now, here's exactly what happens next.`;
     }
+
+    renderBrief(data);
 
     const slotEl = document.getElementById('ty-slot');
     if (slotEl) slotEl.textContent = `${slot} · 15 minutes, by video.`;

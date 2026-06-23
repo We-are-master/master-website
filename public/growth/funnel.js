@@ -5,24 +5,27 @@
     onetime:  { id:'onetime',  name:'One-time', amt:'£499', per:'', old:'£2,299', desc:'No recurring. Ever. You own it.', full:'£499 one-time' }
   };
 
-  // Flow order: lead(contact) → trade → about → source → website → goal → summary.
-  // Contact is captured first (chosen order). "Services" question removed; plan choice
-  // is folded into the summary screen.
+  // Post-payment brief: source, website, goal (trade collected in step 1).
+  // Pre-payment: intro → trade → booking → business details → win jobs → payment → downsell.
+  const TRADE_Q = {
+    id: 'trade',
+    kicker: 'Step 1 of 5',
+    q: 'What work do you do?',
+    type: 'single',
+    cols: 2,
+    options: ['Plumbing', 'Electrical', 'HVAC', 'Roofing', 'Landscaping', 'Cleaning', 'Remodeling', 'Handyman', 'Other'],
+  };
+
   const Q = {
-    trade:   { id:'trade', kicker:'Question 1 of 5', q:'What type of business do you run?', type:'single', cols:2,
-      options:['Plumbing','Electrical','HVAC','Roofing','Landscaping','Cleaning','Remodeling','Handyman','Other'] },
-    about:   { id:'about', kicker:'Question 2 of 5', q:'Tell us about your business', type:'form',
-      fields:[ {k:'bizname',label:'Business name',ph:'e.g. Rivington Plumbing'},
-               {k:'country',label:'Country',type:'select',options:['United Kingdom','United States','Canada','Ireland','Australia','Other']} ] },
-    source:  { id:'source', kicker:'Question 3 of 5', q:'How do you get most of your jobs today?', type:'single',
+    source:  { id:'source', kicker:'Question 1 of 3', q:'How do you get most of your jobs today?', type:'single',
       options:['Referrals','Lead-gen platforms (Angi, Thumbtack…)','Word of mouth',"I don't have a steady source"] },
-    website: { id:'website', kicker:'Question 4 of 5', q:'Do you have a website right now?', type:'single',
+    website: { id:'website', kicker:'Question 2 of 3', q:'Do you have a website right now?', type:'single',
       options:['No',"Yes, but it's outdated","Yes, but it doesn't bring me jobs"] },
-    goal:    { id:'goal', kicker:'Question 5 of 5', q:"What's your #1 goal?", type:'single',
+    goal:    { id:'goal', kicker:'Question 3 of 3', q:"What's your #1 goal?", type:'single',
       options:['Get more bookings','Stop paying for leads','Look more professional','Rank on Google'] }
   };
 
-  const RAIL = ['Your details','Your trade','Your business','How you get jobs','Current website','Your goal','Your plan','Book onboarding','Payment'];
+  const RAIL = ['Your trade', 'Book onboarding', 'Your details', 'Your plan', 'Payment'];
 
   // Country-specific lead-gen platforms for the "how do you get jobs" question
   const LEADGEN = {
@@ -38,12 +41,24 @@
   }
 
   const ADDONS = {
-    crm:    { name:'Full UK CRM access', price:99, per:'/mo', ico:'📊', tag:'Most added',
-              desc:'The complete Fixfy CRM, pipeline, jobs, invoicing and customer history all in one place, built for UK trades.' },
-    brand:  { name:'Professional brand manual', price:199, ico:'🎨', tag:'',
-              desc:'Logo, colours, fonts and usage rules, a consistent, professional brand across everything you put out.' },
-    social: { name:'Social media, 12-month plan', price:109, ico:'📱', tag:'Best value',
-              desc:'A full year of done-for-you social content to keep <b>your business top of mind</b> in your area.' }
+    crm: {
+      name: 'Fixfy Pro CRM',
+      price: 99,
+      was: 198,
+      per: '/mo',
+      ico: '📊',
+      tag: '50% off',
+      desc: 'Manage your <b>entire job</b> in one place — pipeline, quotes, jobs, invoicing and customer history. Built for UK trades.',
+    },
+    social: {
+      name: 'Brand manual + 24 social posts',
+      price: 127,
+      was: 254,
+      per: 'one-off',
+      ico: '📱',
+      tag: '50% off',
+      desc: 'Professional brand manual plus <b>24 ready-to-post creatives</b> for Instagram &amp; LinkedIn.',
+    },
   };
   const addonTotal = () => Object.keys(ADDONS).reduce((t,k)=> t + (S.addons[k] ? ADDONS[k].price : 0), 0);
   const addonsChosen = () => Object.keys(ADDONS).filter(k => S.addons[k]);
@@ -52,17 +67,17 @@
 
   let S = {
     dir: document.body.dataset.fn || 'conversational',
-    i: 0,                // 0 intro/welcome; 1 lead, 2 trade, 3 about, 4 source, 5 website, 6 goal, 7 summary, 8 booking, 9 payment, 10 downsell
+    i: 0,                // 0 intro; 1 trade; 2 booking; 3 details; 4 win jobs; 5 payment; 6 downsell
     answers: {},
     plan: new URLSearchParams(location.search).get('plan') || 'monthly',
     lead: { name:'', email:'', phone:'' },
-    biz: { bizname:'', area:'', country:'' },
+    biz: { bizname:'', area:'', country:'United Kingdom' },
     slot: null, day: null, time: null, slotIso: null,
     availabilityDays: [],
     availabilityLoading: false,
     bookingId: null,
     payMode: 'full',   // 'full' | 'deposit'
-    addons: { crm:false, brand:false, social:false },
+    addons: { crm: false, social: false },
     holdT: null, holdLeft: HOLD_SEC
   };
 
@@ -73,9 +88,32 @@
 
   // total quiz/flow steps for progress (intro excluded)
   function progress() {
-    const total = 9;             // lead, 5 questions, summary, booking, payment
+    const total = 5;
     const done = Math.min(Math.max(S.i, 0), total);
     return Math.round((done / (total + 1)) * 100);
+  }
+
+  function validateLeadBiz() {
+    const err = document.getElementById('fn-lead-error');
+    if (!S.lead.name.trim()) {
+      if (err) err.textContent = 'Enter your name.';
+      return false;
+    }
+    if (!S.lead.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(S.lead.email)) {
+      if (err) err.textContent = 'Enter a valid email.';
+      return false;
+    }
+    if (!S.biz.bizname.trim()) {
+      if (err) err.textContent = 'Enter your business name.';
+      return false;
+    }
+    if (!S.biz.country) S.biz.country = 'United Kingdom';
+    if (err) err.textContent = '';
+    return true;
+  }
+
+  function quizComplete() {
+    return !!(S.answers.source && S.answers.website && S.answers.goal);
   }
 
   function setDir(dir) { S.dir = dir; document.body.dataset.fn = dir; render(); }
@@ -84,11 +122,11 @@
   // ---------- navigation ----------
   function go(n) {
     S.i = n;
-    if (S.i === 8) {
-      startHold();
+    if (S.i === 2) {
       loadAvailability();
+      if (S.time) startHold();
     }
-    if (S.i === 9) {
+    if (S.i === 5) {
       if (!S.holdT && S.time) startHold();
       setTimeout(mountStripe, 0);
     } else if (window.GrowthCheckout) {
@@ -130,10 +168,13 @@
     if (result.ok) {
       clearInterval(S.holdT);
       saveThanksData();
-      go(10);
+      go(6);
     }
   }
-  function next() { go(S.i + 1); }
+  function next() {
+    if (S.i === 3 && !validateLeadBiz()) return;
+    go(S.i + 1);
+  }
   function back() { if (S.i > 0) go(S.i - 1); }
 
   function answer(qid, val) {
@@ -169,7 +210,7 @@
         <span class="fn-feat">${chk} CRM</span>
         <span class="fn-feat">${chk} Automated Follow-ups</span>
       </div>
-      <p class="sub" style="font-size:17px;max-width:50ch;margin:16px auto 0">Everything you need to generate more enquiries and win more jobs, without relying on referrals or lead-gen companies.</p>
+      <p class="sub" style="font-size:17px;max-width:50ch;margin:16px auto 0">Pick your trade, book onboarding, and pay in about 2 minutes — then we'll build your site in 7 days.</p>
       <div style="margin-top:28px"><button class="g-btn g-btn-primary g-btn-lg" onclick="__fn.next()">Get More Bookings <span class="arr">→</span></button></div>
     </div>`;
   }
@@ -218,33 +259,32 @@
     </div>`;
   }
 
-  function screenLead() {
+  function screenLeadBiz() {
     return `<div class="fn-q fn-stage">
-      <div class="fn-q-kicker">First, let's get you set up</div>
-      <h2>Tell us a bit about you</h2>
-      <p class="sub">So we can build your tailored plan and send it over, takes 20 seconds.</p>
+      <div class="fn-q-kicker">Step 3 of 5 · Your business details</div>
+      <h2>Your business details</h2>
+      <p class="sub">Takes 30 seconds — then we'll show your tailored plan.</p>
       <div class="fn-fields">
         <div class="fn-field"><label>Your name</label><input id="ld-name" value="${esc(S.lead.name)}" placeholder="Jordan Smith" oninput="__fn.setLead('name',this.value)"/></div>
+        <div class="fn-field"><label>Business name</label><input id="ld-biz" value="${esc(S.biz.bizname)}" placeholder="Rivington Plumbing Ltd" oninput="__fn.setBiz('bizname',this.value)"/></div>
         <div class="fn-row2">
           <div class="fn-field"><label>Email</label><input id="ld-email" type="email" value="${esc(S.lead.email)}" placeholder="you@business.co.uk" oninput="__fn.setLead('email',this.value)"/></div>
           <div class="fn-field"><label>Phone <span style="color:var(--fx-mute);font-weight:400">(optional)</span></label><input id="ld-phone" type="tel" value="${esc(S.lead.phone)}" placeholder="07700 900000" oninput="__fn.setLead('phone',this.value)"/></div>
         </div>
       </div>
+      <p id="fn-lead-error" class="g-mono" style="color:#c0392b;text-align:center;margin-top:10px;font-size:13px;min-height:18px"></p>
       <div class="fn-nav"><button class="fn-back" onclick="__fn.back()">← Back</button><span class="fn-spacer"></span>
         <button class="g-btn g-btn-primary g-btn-lg" onclick="__fn.next()">Continue <span class="arr">→</span></button></div>
     </div>`;
   }
 
-  function screenSummary() {
+  function screenWinJobs() {
     const p = PLANS[S.plan];
-    const trade = S.answers.trade || 'home service';
-    const goal = S.answers.goal || 'more bookings';
-    // niche jobs/month shown in the live AI badge (placeholder figures, verify before launch)
-    const NICHE_JOBS = { Plumbing:64, Electrical:63, HVAC:66, Roofing:61, Landscaping:60, Cleaning:62, Remodeling:59, Handyman:65 };
-    const jobsNum = NICHE_JOBS[S.answers.trade] || 62;
+    const trade = S.answers.trade || '';
+    const tradeHead = !trade || trade === 'Other' ? 'more' : esc(trade.toLowerCase());
     const planPick = Object.values(PLANS).map(pl=>{
       const sel = S.plan===pl.id;
-      return `<button onclick="__fn.setPlan('${pl.id}')" class="fn-plan-pick" style="flex:1;text-align:left;cursor:pointer;border-radius:14px;padding:14px 16px;border:2px solid ${sel?'var(--g-coral)':'var(--fx-line)'};background:${sel?'rgba(237,75,0,.06)':'var(--g-card)'};transition:border-color .15s,background .15s">
+      return `<button type="button" onclick="__fn.setPlan('${pl.id}')" class="fn-plan-pick" style="flex:1;text-align:left;cursor:pointer;border-radius:14px;padding:14px 16px;border:2px solid ${sel?'var(--g-coral)':'var(--fx-line)'};background:${sel?'rgba(237,75,0,.06)':'var(--g-card)'};transition:border-color .15s,background .15s">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;row-gap:5px">
           <strong style="font-size:15px;white-space:nowrap">${pl.name}</strong>
           ${pl.id==='monthly'?'<span style="font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;flex:none;color:var(--g-green-press);background:var(--g-green-50);padding:3px 8px;border-radius:20px">Popular</span>':'<span style="font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;flex:none;color:var(--g-coral);background:rgba(237,75,0,.08);padding:3px 8px;border-radius:20px">Own it</span>'}
@@ -253,25 +293,24 @@
         <div class="fn-plan-desc" style="margin-top:4px;color:var(--fx-mute);font-size:12px">${pl.desc}</div>
       </button>`;
     }).join('');
-    return `<div class="fn-summary fn-stage">
-      <h2 style="text-align:center;font:var(--fx-w-semi) clamp(24px,3.2vw,34px)/1.05 var(--fx-sans);letter-spacing:-.02em">Your plan's ready, ${esc(firstName())}. 🎉</h2>
-      <p class="sub fn-sum-sub" style="text-align:center;max-width:42ch;margin:8px auto 0">Built around your jobs — yours to keep.</p>
+    return `<div class="fn-summary fn-stage fn-plan-lite">
+      <div class="fn-q-kicker" style="text-align:center">Step 4 of 5 · Your plan</div>
+      <h2 style="text-align:center;font:var(--fx-w-semi) clamp(24px,3.2vw,34px)/1.05 var(--fx-sans);letter-spacing:-.02em">Start winning ${tradeHead} jobs.</h2>
+      <p class="sub fn-sum-sub" style="text-align:center;max-width:44ch;margin:8px auto 0">Everything ${esc(bizName())} needs — website, booking, CRM, local SEO and automations — built for ${trade ? esc(trade.toLowerCase()) : 'your trade'} in 7 days.</p>
       <div class="fn-sum-card">
         <div class="fn-sum-hd">
           <div class="fn-sum-hd-row">
             <div class="fn-sum-built">Get more <b>bookings</b>. Do less <b>chasing</b>.</div>
             <div class="fn-sum-price"><s>${p.old}</s> <b>${p.amt}</b><span>${p.per || ' one-time'}</span></div>
           </div>
-          <div class="fn-sum-stat"><svg class="fn-ai" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2l1.7 5.1L19 9l-5.3 1.9L12 16l-1.7-5.1L5 9l5.3-1.9L12 2z" fill="currentColor"/><path d="M18.6 13.6l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7.7-2z" fill="currentColor" opacity=".7"/></svg><span><b>${esc(trade)}</b> is getting <b class="g">${jobsNum}+</b> more jobs a month</span></div>
         </div>
         <div class="fn-guarantee"><span class="ic">🛡️</span><div class="g"><b>100% risk-free.</b> Fully refunded on the spot if you're not happy.</div></div>
         <div class="fn-sum-body">
           ${[
-            ['🌐','Professional website','Up to 10 pages, built to convert.'],
+            ['🌐','Professional website','Up to 10 pages, built to convert '+esc(bizName())+'.'],
             ['📅','Job-based booking','Customers book the right job and pay a deposit.'],
             ['⚡','CRM + WhatsApp','Every booking in one place, pinged to your WhatsApp.'],
-            ['🤖','AI lead scoring','Spots your best leads so you never waste a trip.'],
-            ['🔍','Local Google SEO','Rank for "'+esc(String(trade).toLowerCase())+' near me".'],
+            ['🔍','Local Google SEO','Rank for "'+esc(trade ? trade.toLowerCase() : 'your trade')+' near me" in your area.'],
             ['🔁','Automations + reviews','Follow-ups and a 5-star review engine.']
           ].map(([ic,h,p2])=>`<div class="fn-sum-item"><span class="ic">${ic}</span><div><h4>${h}</h4><p>${p2}</p></div></div>`).join('')}
         </div>
@@ -281,11 +320,9 @@
       <div class="g-faq fn-pricehint" style="margin-top:10px">
         <details><summary>What's the difference between the prices? <span class="pm"></span></summary><div class="ans">Nothing about what you get changes — exact same website, booking system, local SEO, automations and support either way. The only difference is <b>how you pay</b>: <b>Monthly</b> spreads the cost (${PLANS.monthly.amt}/mo, cancel anytime), <b>One-time</b> you pay once and own it forever (${PLANS.onetime.amt}, nothing recurring).</div></details>
       </div>
-      <p class="fn-sum-anchor" style="text-align:center;margin-top:14px;font-size:15px;color:var(--fx-ink)">Agencies charge <s>£2,000+</s> upfront and bill you every month. Your price: <b>${p.amt}${p.per||' once'}</b> — and you own everything.</p>
-      <p class="fn-sum-reassure g-mono">No payment until you pick a time · Fully refundable before work begins · You own everything</p>
-      <p class="g-center g-mute" style="margin-top:10px;font-size:13px"><span style="color:var(--g-coral)">★★★★★</span> Joining 5,000+ home-service businesses</p>
+      <p class="fn-sum-reassure g-mono">No payment until the next step · Fully refundable before work begins · You own everything</p>
       <div class="fn-nav fn-nav--sticky" style="justify-content:center"><button class="fn-back" onclick="__fn.back()">← Back</button>
-        <button class="g-btn g-btn-primary g-btn-lg" onclick="__fn.next()">Book my onboarding <span class="arr">→</span></button></div>
+        <button class="g-btn g-btn-primary g-btn-lg" onclick="__fn.next()">You're one step away <span class="arr">→</span></button></div>
     </div>`;
   }
 
@@ -294,7 +331,7 @@
     const day = S.day !== null ? days[S.day] : null;
     const times = day ? day.times : [];
     return `<div class="fn-q fn-stage" style="max-width:720px">
-      <div class="fn-q-kicker">Book your onboarding</div>
+      <div class="fn-q-kicker">Step 2 of 5 · Book your onboarding</div>
       <h2>Pick your onboarding time.</h2>
       <p class="sub">This 15-minute call is where we learn your business and kick off your 7-day build.</p>
       ${S.availabilityLoading ? '<p class="g-mono g-mute" style="text-align:center">Loading available times…</p>' : ''}
@@ -306,7 +343,7 @@
         <button class="${S.time===t.time?'sel':''}" onclick="__fn.pickTime('${t.time}','${t.iso}')">${t.time}</button>`).join('')}</div>`:''}
       ${S.day!==null&&S.time?`<div class="fn-hold">⏳ Your time is held for <b id="fn-hold-clock">${fmtClock(S.holdLeft)}</b></div>`:''}
       <div class="fn-nav"><button class="fn-back" onclick="__fn.back()">← Back</button><span class="fn-spacer"></span>
-        <button class="g-btn g-btn-primary g-btn-lg" ${(S.day!==null&&S.time)?'':'disabled style="opacity:.4;pointer-events:none"'} onclick="__fn.next()">Continue to payment <span class="arr">→</span></button></div>
+        <button class="g-btn g-btn-primary g-btn-lg" ${(S.day!==null&&S.time)?'':'disabled style="opacity:.4;pointer-events:none"'} onclick="__fn.next()">Continue to your details <span class="arr">→</span></button></div>
     </div>`;
   }
 
@@ -315,8 +352,8 @@
     const payAmt = S.payMode==='deposit' ? '£99' : (S.plan==='onetime' ? '£499' : '£79');
     const balance = S.plan==='onetime' ? '£400' : 'first month';
     return `<div class="fn-stage">
-      <div class="fn-q-kicker" style="text-align:center">Secure your build slot</div>
-      <h2 style="text-align:center;font:var(--fx-w-semi) clamp(24px,3vw,34px)/1.1 var(--fx-sans);letter-spacing:-.02em">You're 7 days from a site that books jobs for you.</h2>
+      <div class="fn-q-kicker" style="text-align:center">Step 5 of 5 · Payment</div>
+      <h2 style="text-align:center;font:var(--fx-w-semi) clamp(24px,3vw,34px)/1.1 var(--fx-sans);letter-spacing:-.02em">You're one step away.</h2>
       <p class="sub" style="text-align:center;max-width:48ch;margin:8px auto 0">Confirm your onboarding slot now. Fully refundable before work begins, and you own everything we build.</p>
       <div class="fn-hold fn-hold--pay">
         <span class="fn-hold-ic">⏳</span>
@@ -359,7 +396,7 @@
           </div>
         </div>
       </div>
-      <div class="fn-nav" style="max-width:none"><button class="fn-back" onclick="__fn.back()">← Back to booking</button></div>
+      <div class="fn-nav" style="max-width:none"><button class="fn-back" onclick="__fn.back()">← Back to your plan</button></div>
     </div>`;
   }
 
@@ -408,7 +445,7 @@
           <div class="fn-addon-top"><h3>${a.name}</h3>${a.tag?`<span class="fn-addon-tag">${a.tag}</span>`:''}</div>
           <p>${a.desc}</p>
           <div class="fn-addon-foot">
-            <span class="fn-addon-price">£${a.price} <small>${a.per || 'one-off'}</small></span>
+            <span class="fn-addon-price">${a.was ? `<s>£${a.was}</s> ` : ''}£${a.price} <small>${a.per || 'one-off'}</small></span>
             <button class="fn-addon-btn ${on?'on':''}" onclick="__fn.toggleAddon('${k}')">${on?'✓ Added':'+ Add'}</button>
           </div>
         </div>
@@ -417,8 +454,8 @@
     const total = addonTotal();
     return `<div class="fn-q fn-stage" style="max-width:720px">
       <div class="fn-q-kicker" style="text-align:center;color:var(--g-green-press)">✓ Payment confirmed, slot locked</div>
-      <h2 style="text-align:center;font:var(--fx-w-semi) clamp(24px,3vw,34px)/1.1 var(--fx-sans);letter-spacing:-.02em">Want to go live even stronger, ${esc(firstName())}?</h2>
-      <p class="sub" style="text-align:center;max-width:52ch;margin-inline:auto">Your card is already on file, add any of these with one tap. No re-entering details. Skip if you'd rather not.</p>
+      <h2 style="text-align:center;font:var(--fx-w-semi) clamp(24px,3vw,34px)/1.1 var(--fx-sans);letter-spacing:-.02em">Exclusive add-ons — 50% off today only</h2>
+      <p class="sub" style="text-align:center;max-width:52ch;margin-inline:auto">Your card is on file — add with one tap. Use our CRM to manage the entire job, or get a brand manual plus 24 posts for Instagram &amp; LinkedIn.</p>
       <div class="fn-addons">${cards}</div>
       <div class="fn-addon-bar">
         <span>${total ? `<b>£${total}</b> in add-ons · charged to your card on file` : 'No add-ons selected'}</span>
@@ -474,6 +511,9 @@
         payMode: S.payMode,
         plan: S.plan,
         bookingId: S.bookingId,
+        quizComplete: quizComplete(),
+        trade: S.answers.trade || '',
+        country: S.biz.country || 'United Kingdom',
       }));
     } catch (e) {
       console.warn('[funnel] could not save thanks data', e);
@@ -487,8 +527,7 @@
 
   // ---------- rail (sidebar direction) ----------
   function railHtml() {
-    // map flow index to rail position
-    const railIdx = (S.i>=1 && S.i<=9) ? S.i-1 : -1;
+    const railIdx = (S.i>=1 && S.i<=5) ? S.i-1 : -1;
     const steps = RAIL.map((label,k)=>{
       const cls = k<railIdx?'done':k===railIdx?'cur':'';
       const mark = k<railIdx?'<svg width="12" height="12" viewBox="0 0 16 16"><path d="M3 8.5l3.2 3.2L13 4.5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>':(k+1);
@@ -498,13 +537,12 @@
     const rows = [];
     if (S.answers.trade) rows.push(['Trade', S.answers.trade]);
     if (S.biz.bizname) rows.push(['Business', S.biz.bizname]);
-    if (S.answers.goal) rows.push(['Goal', S.answers.goal]);
     rows.push(['Plan', p.name+' · '+p.amt+p.per]);
     if (S.day!==null && S.time) rows.push(['Onboarding', slotLabel()]);
     const sum = rows.length ? rows.map(([k,v])=>`<div class="row"><span class="g-mute">${k}</span><b>${esc(String(v))}</b></div>`).join('')
                             : '<div class="empty">Your answers will appear here as you go.</div>';
     return `<aside class="fn-rail">
-      ${window.GrowthBrand ? window.GrowthBrand.html('style="margin-bottom:24px"') : '<a href="index.html" class="g-brand" style="margin-bottom:24px"><span class="g-mark">F</span> Fixfy <span class="g-brand-tag">Growth</span></a>'}
+      ${window.GrowthBrand ? window.GrowthBrand.html('style="margin-bottom:24px"') : '<a href="index.html" class="g-brand" style="margin-bottom:24px"><span class="g-mark">F</span> Fixfy</a>'}
       <ul class="fn-rail-steps">${steps}</ul>
       <div class="fn-rail-summary"><h4>Your plan</h4>${sum}</div>
     </aside>`;
@@ -514,26 +552,25 @@
   function render() {
     let stage;
     if (S.i===0) stage = screenIntro();
-    else if (S.i===1) stage = screenLead();
-    else if (S.i===2) stage = quizScreen(Q.trade);
-    else if (S.i===3) stage = quizScreen(Q.about);
-    else if (S.i===4) stage = quizScreen(sourceQuestion());
-    else if (S.i===5) stage = quizScreen(Q.website);
-    else if (S.i===6) stage = quizScreen(Q.goal);
-    else if (S.i===7) stage = screenSummary();
-    else if (S.i===8) stage = screenBooking();
-    else if (S.i===9) stage = screenPayment();
+    else if (S.i===1) stage = quizScreen(TRADE_Q);
+    else if (S.i===2) stage = screenBooking();
+    else if (S.i===3) stage = screenLeadBiz();
+    else if (S.i===4) stage = screenWinJobs();
+    else if (S.i===5) stage = screenPayment();
     else stage = screenDownsell();
 
-    const showRail = S.dir==='sidebar' && S.i>=1 && S.i<=9;
+    const showRail = S.dir==='sidebar' && S.i>=1 && S.i<=5;
     const inner = showRail ? `<div class="fn-with-rail">${railHtml()}<div>${stage}</div></div>` : stage;
     root().innerHTML = `<div class="fn-shell">${inner}</div>`;
 
-    // progress bar
     const bar = document.getElementById('fn-bar');
     if (bar) bar.style.width = (S.i===0?0:progress())+'%';
     const lbl = document.getElementById('fn-step-label');
-    if (lbl) lbl.textContent = S.i===0 ? 'Start' : S.i<=9 ? 'Step '+Math.min(S.i,9)+' / 9' : '';
+    if (lbl) {
+      if (S.i === 0) lbl.textContent = 'Start';
+      else if (S.i >= 6) lbl.textContent = 'Confirmed ✓';
+      else lbl.textContent = 'Step ' + S.i + ' / 5';
+    }
   }
 
   // ---------- public ----------
@@ -550,7 +587,7 @@
     pay:()=>{ doPay(); },
     toggleAddon:(k)=>{ S.addons[k]=!S.addons[k]; render(); },
     finish:()=>{ goThankYou(); },
-    restart:()=>{ S={ dir:S.dir, i:0, answers:{}, plan:S.plan, lead:{name:'',email:'',phone:''}, biz:{bizname:'',area:'',country:''}, slot:null, day:null, time:null, slotIso:null, availabilityDays:[], availabilityLoading:false, bookingId:null, payMode:'full', addons:{crm:false,brand:false,social:false}, holdT:null, holdLeft:HOLD_SEC }; render(); }
+    restart:()=>{ S={ dir:S.dir, i:0, answers:{}, plan:S.plan, lead:{name:'',email:'',phone:''}, biz:{bizname:'',area:'',country:'United Kingdom'}, slot:null, day:null, time:null, slotIso:null, availabilityDays:[], availabilityLoading:false, bookingId:null, payMode:'full', addons:{crm:false,social:false}, holdT:null, holdLeft:HOLD_SEC }; render(); }
   };
 
   window.__fnSaveThanks = saveThanksData;
@@ -563,4 +600,5 @@
   });
 
   render();
+  window.__fnGrowthQ = { Q, LEADGEN };
 })();
