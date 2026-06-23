@@ -242,7 +242,7 @@ h1,h2,h3,h4,p{ margin:0; }
 .g-theme-btn .moon{ display:block; } .g-theme-btn .sun{ display:none; }
 html[data-theme="light"] .g-theme-btn .moon{ display:none; } html[data-theme="light"] .g-theme-btn .sun{ display:block; }
 .g-nav-inner{ max-width:var(--g-maxw); margin:0 auto; padding:0 var(--g-gut); height:68px; display:flex; align-items:center; justify-content:space-between; gap:16px; }
-.g-brand{ display:flex; align-items:center; gap:12px; font-weight:var(--fx-w-semi); font-size:19px; letter-spacing:-.01em; }
+.g-brand{ display:flex; align-items:center; gap:12px; font-weight:var(--fx-w-semi); font-size:19px; letter-spacing:-.01em; flex-shrink:0; }
 .g-brand-logo{
   height:clamp(28px,3.8vw,40px); width:auto; object-fit:contain; flex-shrink:0; display:block;
 }

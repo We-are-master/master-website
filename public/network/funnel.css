@@ -580,6 +580,61 @@
 }
 .nw-fn-body .fn-nav .g-btn-block{flex:1}
 
+/* desktop — paired action bar */
+@media (min-width:641px){
+  .nw-fn-body .nw-step-foot{
+    padding-top:24px;
+    background:linear-gradient(180deg,transparent 0%,rgba(2,0,64,0.88) 28%,rgba(2,0,64,0.96) 100%);
+  }
+  .nw-fn-body .fn-nav{
+    align-items:stretch;
+    gap:12px;
+    max-width:520px;
+    margin:0 auto;
+    width:100%;
+  }
+  .nw-fn-body .fn-back{
+    flex:0 0 auto;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    min-width:112px;
+    min-height:54px;
+    padding:0 20px;
+    border-radius:14px;
+    border:1px solid rgba(255,255,255,0.14);
+    background:rgba(255,255,255,0.05);
+    color:rgba(255,255,255,0.82);
+    font-size:15px;
+    font-weight:500;
+    transition:border-color .2s,background .2s,color .2s,transform .15s;
+  }
+  .nw-fn-body .fn-back:hover{
+    border-color:rgba(255,255,255,0.26);
+    background:rgba(255,255,255,0.09);
+    color:#fff;
+  }
+  .nw-fn-body .fn-back:active{transform:translateY(1px)}
+  .nw-fn-body .fn-nav .g-btn-block{
+    flex:1 1 0;
+    width:auto;
+    min-width:0;
+    min-height:54px;
+    padding:0 26px;
+    font-size:16px;
+    border-radius:14px;
+    justify-content:center;
+  }
+  .nw-fn-body .fn-nav .fn-spacer{display:none}
+  .nw-fn-body .fn-nav:not(:has(.fn-back)) .g-btn-block{
+    flex:0 1 auto;
+    min-width:min(100%,320px);
+    max-width:400px;
+    margin:0 auto;
+  }
+}
+
 /* desktop */
 @media (min-width:641px){
   .nw-trade-grid{grid-template-columns:repeat(3,1fr);gap:14px}

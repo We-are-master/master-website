@@ -3,13 +3,16 @@
    Enterprise Operations, Service Platforms)
    ============================================================ */
 
+import { solGlows, solPageWrap } from './solutions-shell.js'
+
 /* Shared sub-blocks */
 function VictorQuote(){
   return `
-<section class="v2-victor">
+<section class="v2-section dark sol-sec sol-sec-pad">
+  ${solGlows()}
   <div class="v2-container">
-    <div class="v2-victor-inner">
-      <div class="v2-eyebrow" style="color:#fff;margin-bottom:24px">Founder · on uptime</div>
+    <div class="v2-victor-inner sol-reveal">
+      <div class="v2-eyebrow" style="color:var(--fx-coral);margin-bottom:24px">Founder · on uptime</div>
       <blockquote>McDonald&rsquo;s doesn&rsquo;t stop selling fries because a fryer broke and the outlet doesn&rsquo;t work. We need to be better and faster than whoever fixes that.</blockquote>
       <div class="by">
         <div class="ava">VB</div>
@@ -25,12 +28,12 @@ function VictorQuote(){
 
 function FinalCTA(label, sub){
   return `
-<section class="v2-section dark" style="text-align:center">
-  <div class="v2-narrow">
+<section class="sol-cta-band">
+  <div class="v2-narrow sol-reveal">
     <div class="v2-eyebrow" style="display:inline-flex">Ready when you are</div>
-    <h2 class="v2-h2" style="margin-top:18px">${label||'See Fixfy with your portfolio.'}</h2>
-    <p class="v2-lede" style="margin:24px auto 0;max-width:60ch">${sub||'30-minute demo. We&rsquo;ll load three of your sites into a sandbox so you can see exactly what your team would use on day one.'}</p>
-    <div style="margin-top:36px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+    <h2 class="v2-h2">${label||'See Fixfy with your portfolio.'}</h2>
+    <p class="v2-lede" style="margin:0 auto;max-width:60ch">${sub||'30-minute demo. We&rsquo;ll load three of your sites into a sandbox so you can see exactly what your team would use on day one.'}</p>
+    <div class="sol-cta-actions">
       <a href="/contact" class="v2-btn v2-btn-primary">Get in touch <span class="arr">→</span></a>
       <a href="/platform" class="v2-btn v2-btn-outline">See the portal</a>
     </div>
@@ -38,21 +41,30 @@ function FinalCTA(label, sub){
 </section>`;
 }
 
-function SolHero(eyebrow, h1, lede, mockHTML){
+function SolHero(eyebrow, h1, lede, mockHTML, spotTitle, spotText){
   return `
-<section class="v2-section dark v2-page-hero">
+<section class="v2-section dark sol-sec sol-hero v2-page-hero">
+  ${solGlows()}
   <div class="v2-container">
     <div class="v2-page-hero-grid">
-      <div>
-        <div class="v2-eyebrow lg">For ${eyebrow}</div>
+      <div class="sol-hero-copy sol-reveal" style="--sol-i:0">
+        <div class="sol-eyebrow"><span class="pip"></span> For ${eyebrow}</div>
         <h1>${h1}</h1>
         <p class="lede">${lede}</p>
-        <div style="margin-top:32px;display:flex;gap:12px;flex-wrap:wrap">
+        <div class="sol-hero-actions">
           <a href="/contact" class="v2-btn v2-btn-primary">Get in touch <span class="arr">→</span></a>
           <a href="/platform" class="v2-btn v2-btn-outline">See the portal</a>
         </div>
+        ${spotTitle ? `
+        <div class="sol-spot-band sol-reveal" style="--sol-i:2">
+          <div class="sol-spot-inner">
+            <div class="sol-spot-tag">Why Fixfy</div>
+            <h3>${spotTitle}</h3>
+            ${spotText ? `<p>${spotText}</p>` : ''}
+          </div>
+        </div>` : ''}
       </div>
-      <div class="v2-page-mock">${mockHTML}</div>
+      <div class="v2-page-mock sol-mock-float sol-reveal" style="--sol-i:1">${mockHTML}</div>
     </div>
   </div>
 </section>`;
@@ -60,12 +72,15 @@ function SolHero(eyebrow, h1, lede, mockHTML){
 
 function ChallengeBlock(title, items){
   return `
-<section class="v2-section dark">
+<section class="v2-section dark sol-sec sol-sec-pad">
+  ${solGlows()}
   <div class="v2-container">
-    <div class="v2-eyebrow">The challenge</div>
-    <h2 class="v2-h2" style="margin-top:18px;max-width:22ch">${title}</h2>
+    <div class="sol-sec-head sol-reveal">
+      <div class="v2-eyebrow">The challenge</div>
+      <h2 class="v2-h2">${title}</h2>
+    </div>
     <div class="v2-challenges">
-      ${items.map(x=>`<div class="v2-challenge"><div class="x">×</div><p>${x}</p></div>`).join('')}
+      ${items.map((x,i)=>`<div class="v2-challenge sol-reveal" style="--sol-i:${i}"><div class="x">×</div><p>${x}</p></div>`).join('')}
     </div>
   </div>
 </section>`;
@@ -73,13 +88,16 @@ function ChallengeBlock(title, items){
 
 function FeatureBlock(title, lede, items){
   return `
-<section class="v2-section dark">
+<section class="v2-section dark sol-sec sol-sec-pad">
+  ${solGlows()}
   <div class="v2-container">
-    <div class="v2-eyebrow">Key features</div>
-    <h2 class="v2-h2" style="margin-top:18px;max-width:24ch">${title}</h2>
-    ${lede ? `<p class="v2-lede" style="margin-top:18px">${lede}</p>` : ''}
+    <div class="sol-sec-head sol-reveal">
+      <div class="v2-eyebrow">Key features</div>
+      <h2 class="v2-h2">${title}</h2>
+      ${lede ? `<p class="v2-lede" style="margin-top:16px;max-width:58ch">${lede}</p>` : ''}
+    </div>
     <div class="v2-features">
-      ${items.map((f,i)=>`<div class="v2-feature">
+      ${items.map((f,i)=>`<div class="v2-feature sol-reveal${i===0?' sol-feature--spot':''}" style="--sol-i:${i}">
         <div class="ico">${String(i+1).padStart(2,'0')}</div>
         <h4>${f.t}</h4>
         <p>${f.d}</p>
@@ -91,12 +109,15 @@ function FeatureBlock(title, lede, items){
 
 function UseCaseBlock(cases){
   return `
-<section class="v2-section dark">
+<section class="v2-section dark sol-sec sol-sec-pad">
+  ${solGlows()}
   <div class="v2-container">
-    <div class="v2-eyebrow">Use cases</div>
-    <h2 class="v2-h2" style="margin-top:18px;max-width:22ch">How it works in practice.</h2>
+    <div class="sol-sec-head sol-reveal">
+      <div class="v2-eyebrow">Use cases</div>
+      <h2 class="v2-h2">How it works in practice.</h2>
+    </div>
     <div class="v2-usecases">
-      ${cases.map(c=>`<div class="v2-usecase">
+      ${cases.map((c,i)=>`<div class="v2-usecase sol-reveal" style="--sol-i:${i}">
         <h4>${c.title}</h4>
         <p class="scenario">${c.scenario}</p>
         <ol>${c.steps.map(s=>`<li>${s}</li>`).join('')}</ol>
@@ -109,15 +130,20 @@ function UseCaseBlock(cases){
 
 function ROIBlock(stats){
   return `
-<section class="v2-section dark">
+<section class="v2-section dark sol-sec sol-sec-pad">
+  ${solGlows()}
   <div class="v2-container">
-    <div class="v2-eyebrow">ROI · benefits</div>
-    <h2 class="v2-h2" style="margin-top:18px;max-width:22ch">Operational impact, day one.</h2>
-    <div class="v2-roi">
-      ${stats.map(s=>`<div class="v2-roi-stat">
-        <div class="num">${s.n}${s.u?`<span class="u">${s.u}</span>`:''}</div>
-        <div class="lbl">${s.l}</div>
-      </div>`).join('')}
+    <div class="sol-sec-head sol-reveal">
+      <div class="v2-eyebrow">ROI · benefits</div>
+      <h2 class="v2-h2">Operational impact, day one.</h2>
+    </div>
+    <div class="sol-roi-wrap sol-reveal" style="--sol-i:1">
+      <div class="v2-roi">
+        ${stats.map(s=>`<div class="v2-roi-stat">
+          <div class="num">${s.n}${s.u?`<span class="u">${s.u}</span>`:''}</div>
+          <div class="lbl">${s.l}</div>
+        </div>`).join('')}
+      </div>
     </div>
   </div>
 </section>`;
@@ -170,12 +196,14 @@ export function PageRealEstate(){
   </div>
 </div>`;
 
-  return `
+  return solPageWrap(`
 ${SolHero(
   'real estate',
   'Manage portfolios, compliance and maintenance across every asset.',
   'One dashboard for every property. From single buildings to thousand-unit portfolios, maintain complete control without the complexity.',
-  heroMock
+  heroMock,
+  'One dashboard. Every property.',
+  'Compliance, reactive work and spend — live across your whole portfolio, not buried in spreadsheets.'
 )}
 
 ${ChallengeBlock('Real-estate operations are stitched together with spreadsheets and chasing.', [
@@ -232,7 +260,7 @@ ${ROIBlock([
 ])}
 
 ${FinalCTA('Run your portfolio with one team behind it.', 'See it on three of your sites. We’ll load them into a sandbox and walk through everything in 30 minutes.')}
-`;
+`);
 }
 
 /* ============================================================
@@ -289,12 +317,14 @@ export function PageFranchises(){
   </div>
 </div>`;
 
-  return `
+  return solPageWrap(`
 ${SolHero(
   'franchises',
   'Standardise maintenance across every location.',
   'One system for every location. Maintain brand standards, ensure operational continuity, and give franchisees the tools they need.',
-  heroMock
+  heroMock,
+  'Revenue-critical equipment, protected.',
+  'Fryers, refrigeration, HVAC — P1 routing and brand-grade SLAs so a breakdown never becomes a lost trading day.'
 )}
 
 ${VictorQuote()}
@@ -353,7 +383,7 @@ ${ROIBlock([
 ])}
 
 ${FinalCTA('Same standard. Every location.', 'See the system on five of your locations. We’ll mock up the supply network and SLAs in 30 minutes.')}
-`;
+`);
 }
 
 /* ============================================================
@@ -381,12 +411,14 @@ export function PageEnterprise(){
   </div>
 </div>`;
 
-  return `
+  return solPageWrap(`
 ${SolHero(
   'enterprise operations',
   'From a single office to a network of twenty — one view, one team, one standard.',
   'Whether you operate one HQ or twenty offices across the UK, Fixfy gives you compliance, control and reporting in a single view. No more switching between FMs, vendors or spreadsheets — every site, on the same operating standard.',
-  heroMock
+  heroMock,
+  'One office or twenty. Same rails.',
+  'Add a site in minutes — same SLAs, same compliance engine, same vetted vendor network behind every location.'
 )}
 
 ${ChallengeBlock('Scaling offices means scaling chaos — unless every site runs on the same rails.', [
@@ -443,7 +475,7 @@ ${ROIBlock([
 ])}
 
 ${FinalCTA('Run enterprise FM like an operating system.', 'We’ll mirror your top three regions in a sandbox and walk through executive reporting, vendor mix and ERP exports.')}
-`;
+`);
 }
 
 /* ============================================================
@@ -486,12 +518,14 @@ export function PageServicePlatforms(){
   </div>
 </div>`;
 
-  return `
+  return solPageWrap(`
 ${SolHero(
   'service platforms',
   'Plug into our infrastructure to manage jobs, suppliers and reporting at scale.',
   'API-first maintenance for digital platforms. White-label capabilities, full integration, your brand.',
-  heroMock
+  heroMock,
+  'Your brand. Our infrastructure.',
+  'REST API, webhooks and white-label portal — national vetted supply and compliance handled in the background.'
 )}
 
 ${ChallengeBlock('Building maintenance in-house is expensive and slow.', [
@@ -548,5 +582,5 @@ ${ROIBlock([
 ])}
 
 ${FinalCTA('Launch maintenance in weeks, not quarters.', 'Show us your platform. We’ll map an integration plan and a sandbox in one call.')}
-`;
+`);
 }
