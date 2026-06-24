@@ -15,21 +15,32 @@
     return window.GROWTH_CONFIG || {};
   }
 
+  function apiBase() {
+    const c = cfg();
+    if (c.apiBase) return c.apiBase.replace(/\/$/, '');
+    if (c.supabaseUrl) return `${c.supabaseUrl.replace(/\/$/, '')}/functions/v1`;
+    return '';
+  }
+
   function headers() {
     const c = cfg();
-    return {
-      'Content-Type': 'application/json',
-      apikey: c.supabaseAnonKey || '',
-      Authorization: `Bearer ${c.supabaseAnonKey || ''}`,
-    };
+    const h = { 'Content-Type': 'application/json' };
+    // Local /api/growth routes do not need Supabase JWT (Railway edge returns 401).
+    if (!c.apiBase || c.apiBase.includes('/functions/v1')) {
+      h.apikey = c.supabaseAnonKey || '';
+      h.Authorization = `Bearer ${c.supabaseAnonKey || ''}`;
+    }
+    return h;
   }
 
   async function invoke(name, body) {
     const c = cfg();
-    if (!c.supabaseUrl || !c.supabaseAnonKey) {
-      throw new Error('Booking service not configured');
-    }
-    const res = await fetch(`${c.supabaseUrl}/functions/v1/${name}`, {
+    const base = apiBase();
+    if (!base) throw new Error('Booking service not configured');
+    const path = c.apiBase
+      ? `${base}/${name === 'create-growth-checkout' ? 'create-checkout' : name.replace('growth-', '')}`
+      : `${base}/${name}`;
+    const res = await fetch(path, {
       method: 'POST',
       headers: headers(),
       body: JSON.stringify(body),
@@ -43,12 +54,10 @@
 
   async function loadAvailability() {
     const c = cfg();
-    if (!c.supabaseUrl || !c.supabaseAnonKey) {
-      return { days: [], fallback: true };
-    }
-    const res = await fetch(`${c.supabaseUrl}/functions/v1/growth-availability`, {
-      headers: headers(),
-    });
+    const base = apiBase();
+    if (!base) return { days: [], fallback: true };
+    const path = c.apiBase ? `${base}/availability` : `${base}/growth-availability`;
+    const res = await fetch(path, { headers: headers() });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
       throw new Error(data.error || 'Failed to load availability');
@@ -76,12 +85,13 @@
   async function prepareCheckout(state) {
     if (clientSecret) return clientSecret;
     const checkout = await invoke('create-growth-checkout', {
-      plan: state.plan,
-      payMode: state.payMode,
       slot: state.slotIso,
       lead: state.lead,
       biz: state.biz,
-      answers: state.answers,
+      answers: Object.assign({}, state.answers, {
+        attendant_name: state.attendant || '',
+      }),
+      attendantName: state.attendant || '',
       addons: [],
     });
     clientSecret = checkout.clientSecret;

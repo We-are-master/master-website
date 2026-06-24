@@ -24,10 +24,13 @@ function staticRewriteMiddleware(req, _res, next) {
 }
 
 function growthConfigBody(env) {
+  const supabaseUrl = (env.VITE_SUPABASE_URL || '').replace(/\/$/, '')
+  const apiBase = (env.VITE_GROWTH_API_URL || '/api/growth').replace(/\/$/, '')
   const payload = {
-    supabaseUrl: (env.VITE_SUPABASE_URL || '').replace(/\/$/, ''),
+    supabaseUrl,
     supabaseAnonKey: env.VITE_SUPABASE_ANON_KEY || '',
     stripePublishableKey: env.VITE_STRIPE_PUBLISHABLE_KEY || '',
+    apiBase,
   }
   return `window.GROWTH_CONFIG = ${JSON.stringify(payload)};\nwindow.NETWORK_CONFIG = ${JSON.stringify(payload)};\n`
 }

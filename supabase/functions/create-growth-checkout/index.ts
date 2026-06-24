@@ -13,16 +13,19 @@ import { isSlotAvailable } from '../_shared/google-calendar.ts'
 
 const SLOT_MINUTES = 15
 
-const PRICES = {
-  monthly_full: 7900,
-  onetime_full: 49900,
-  deposit: 9900,
-} as const
-
-function amountFor(plan: string, payMode: string): number {
-  if (payMode === 'deposit') return PRICES.deposit
-  if (plan === 'onetime') return PRICES.onetime_full
-  return PRICES.monthly_full
+async function resolveGrowthAmount(stripe: Stripe, priceId: string) {
+  if (!priceId) {
+    return { error: 'Growth plan not configured (set STRIPE_GROWTH_PRICE_ID)' }
+  }
+  const price = await stripe.prices.retrieve(priceId)
+  const amountPence = price.unit_amount
+  if (!amountPence || price.currency !== 'gbp') {
+    return { error: 'Invalid Growth price — must be GBP one-off' }
+  }
+  if (price.recurring) {
+    return { error: 'Growth price must be one-off, not recurring' }
+  }
+  return { amountPence }
 }
 
 serve(async (req) => {
@@ -50,20 +53,16 @@ serve(async (req) => {
 
   try {
     const body = validation.body as Record<string, unknown>
-    const plan = String(body.plan || 'monthly')
-    const payMode = String(body.payMode || 'full')
     const slot = String(body.slot || '')
     const lead = (body.lead || {}) as Record<string, unknown>
     const biz = (body.biz || {}) as Record<string, unknown>
     const answers = (body.answers || {}) as Record<string, unknown>
     const addons = Array.isArray(body.addons) ? body.addons.map(String) : []
+    const attendantName = sanitizeString(
+      String(body.attendantName || answers.attendant_name || ''),
+      40,
+    )
 
-    if (!['monthly', 'onetime'].includes(plan)) {
-      return new Response(JSON.stringify({ error: 'Invalid plan' }), { status: 400, headers })
-    }
-    if (!['full', 'deposit'].includes(payMode)) {
-      return new Response(JSON.stringify({ error: 'Invalid pay mode' }), { status: 400, headers })
-    }
     if (!slot || Number.isNaN(Date.parse(slot))) {
       return new Response(JSON.stringify({ error: 'Invalid onboarding slot' }), { status: 400, headers })
     }
@@ -101,9 +100,13 @@ serve(async (req) => {
     const stripe = new Stripe(stripeKey, { apiVersion: '2023-10-16' })
     const supabase = createClient(supabaseUrl!, supabaseServiceKey!)
 
-    const amountPence = amountFor(plan, payMode)
     const slotStart = new Date(slot)
     const slotEnd = new Date(slotStart.getTime() + SLOT_MINUTES * 60_000)
+
+    const quizAnswers: Record<string, unknown> = {
+      ...answers,
+      ...(attendantName ? { attendant_name: attendantName } : {}),
+    }
 
     const customer = await stripe.customers.create({
       email: emailVal.sanitized,
@@ -112,66 +115,43 @@ serve(async (req) => {
       metadata: { source: 'growth' },
     })
 
-    let clientSecret = ''
-    let paymentIntentId = ''
-    let subscriptionId: string | null = null
+    const growthPriceId = Deno.env.get('STRIPE_GROWTH_PRICE_ID') || ''
 
-    if (plan === 'monthly' && payMode === 'full') {
-      const priceId = Deno.env.get('STRIPE_GROWTH_MONTHLY_PRICE_ID')
-      if (!priceId) {
-        return new Response(JSON.stringify({ error: 'Monthly plan not configured' }), { status: 500, headers })
-      }
-
-      const subscription = await stripe.subscriptions.create({
-        customer: customer.id,
-        items: [{ price: priceId }],
-        payment_behavior: 'default_incomplete',
-        payment_settings: { save_default_payment_method: 'on_subscription' },
-        expand: ['latest_invoice.payment_intent'],
-        metadata: {
-          source: 'growth',
-          plan,
-          pay_mode: payMode,
-          slot,
-        },
-      })
-
-      subscriptionId = subscription.id
-      const invoice = subscription.latest_invoice as Stripe.Invoice
-      const pi = invoice.payment_intent as Stripe.PaymentIntent
-      clientSecret = pi.client_secret || ''
-      paymentIntentId = pi.id
-    } else {
-      const pi = await stripe.paymentIntents.create({
-        amount: amountPence,
-        currency: 'gbp',
-        customer: customer.id,
-        setup_future_usage: 'off_session',
-        automatic_payment_methods: { enabled: true },
-        receipt_email: emailVal.sanitized,
-        metadata: {
-          source: 'growth',
-          customer_email: emailVal.sanitized,
-          customer_name: name,
-          plan,
-          pay_mode: payMode,
-          slot,
-          business_name: sanitizeString(String(biz.bizname || ''), 160),
-        },
-      })
-      clientSecret = pi.client_secret || ''
-      paymentIntentId = pi.id
+    const amountResult = await resolveGrowthAmount(stripe, growthPriceId)
+    if (amountResult.error) {
+      return new Response(JSON.stringify({ error: amountResult.error }), { status: 500, headers })
     }
+    const amountPence = amountResult.amountPence!
+
+    const pi = await stripe.paymentIntents.create({
+      amount: amountPence,
+      currency: 'gbp',
+      customer: customer.id,
+      setup_future_usage: 'off_session',
+      automatic_payment_methods: { enabled: true },
+      receipt_email: emailVal.sanitized,
+      metadata: {
+        source: 'growth',
+        customer_email: emailVal.sanitized,
+        customer_name: name,
+        plan: 'growth',
+        pay_mode: 'full',
+        slot,
+        stripe_price_id: growthPriceId,
+        business_name: sanitizeString(String(biz.bizname || ''), 160),
+        ...(attendantName ? { attendant_name: attendantName } : {}),
+      },
+    })
 
     const { data: booking, error: insertErr } = await supabase
       .from('growth_bookings')
       .insert({
         status: 'pending',
-        plan,
-        pay_mode: payMode,
+        plan: 'growth',
+        pay_mode: 'full',
         amount_pence: amountPence,
-        stripe_payment_intent_id: paymentIntentId,
-        stripe_subscription_id: subscriptionId,
+        stripe_payment_intent_id: pi.id,
+        stripe_subscription_id: null,
         stripe_customer_id: customer.id,
         slot_start: slotStart.toISOString(),
         slot_end: slotEnd.toISOString(),
@@ -181,7 +161,7 @@ serve(async (req) => {
         biz_name: sanitizeString(String(biz.bizname || ''), 160) || null,
         biz_area: sanitizeString(String(biz.area || ''), 160) || null,
         biz_years: sanitizeString(String(biz.years || ''), 40) || null,
-        quiz_answers: answers,
+        quiz_answers: quizAnswers,
         addons,
       })
       .select('id')
@@ -194,10 +174,10 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({
-        clientSecret,
+        clientSecret: pi.client_secret || '',
         bookingId: booking.id,
-        paymentIntentId,
-        subscriptionId,
+        paymentIntentId: pi.id,
+        subscriptionId: null,
       }),
       { status: 200, headers },
     )

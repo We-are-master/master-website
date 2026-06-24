@@ -66,6 +66,11 @@
     </div>`;
   }
 
+  function formatTrades(trade) {
+    if (Array.isArray(trade)) return trade.filter(Boolean).join(' & ');
+    return String(trade || '');
+  }
+
   function renderBrief(data) {
     const wrap = document.getElementById('ty-brief-wrap');
     if (!wrap) return;
@@ -80,7 +85,8 @@
 
     const answers = data.briefAnswers || {};
     const srcOpts = sourceOptions(data.country || 'United Kingdom');
-    const tradeKnown = !!(data.trade || answers.trade);
+    const tradeLabel = formatTrades(data.trades || data.trade);
+    const tradeKnown = !!tradeLabel;
 
     wrap.innerHTML = `<div class="fn-brief-card" id="ty-brief-form">
       <div class="fn-brief-hd">
@@ -88,7 +94,7 @@
         <h3 class="g-h3" style="margin:0">Help us prep your build</h3>
         <p class="g-mute" style="margin:8px 0 0;font-size:14px">Three quick answers so we can tailor your site before the onboarding call.</p>
       </div>
-      ${tradeKnown ? `<p class="g-mono" style="font-size:12px;color:var(--g-green-press);margin:0 0 16px">Trade on file: <strong>${esc(data.trade || answers.trade)}</strong></p>` : ''}
+      ${tradeKnown ? `<p class="g-mono" style="font-size:12px;color:var(--g-green-press);margin:0 0 16px">Trade on file: <strong>${esc(tradeLabel)}</strong></p>` : ''}
       <div class="fn-brief-q">
         <label class="fn-brief-lbl">How do you get most of your jobs today?</label>
         <div class="fn-opts">${srcOpts.map((o) => {
@@ -134,8 +140,10 @@
 
   async function submitBrief(data, answers, btn) {
     const errEl = document.getElementById('ty-brief-error');
-    const merged = Object.assign({}, answers, { trade: answers.trade || data.trade });
-    if (!merged.trade || !merged.source || !merged.website || !merged.goal) {
+    const merged = Object.assign({}, answers, { trade: answers.trade || data.trades || data.trade });
+    const tradeVal = merged.trade;
+    const hasTrade = Array.isArray(tradeVal) ? tradeVal.length > 0 : !!tradeVal;
+    if (!hasTrade || !merged.source || !merged.website || !merged.goal) {
       if (errEl) errEl.textContent = 'Please answer all three questions, or tap Skip for now.';
       return;
     }
@@ -219,20 +227,24 @@
         <div class="row tot"><span>Add-ons total</span><b>£${total}</b></div>`;
     }
 
+    const tradeLabel = formatTrades(data.trades || data.trade);
+
     const emailSummary = document.getElementById('ty-email-summary');
     if (emailSummary && email) {
       emailSummary.innerHTML = `📧 We've emailed your confirmation to <strong>${esc(email)}</strong>, tap to preview`;
     }
 
+    const attendant = data.attendant ? ` Your specialist <strong>${esc(data.attendant)}</strong> will be on the call.` : '';
+    const tradeLine = tradeLabel ? `<br><b>Trade:</b> ${esc(tradeLabel)}.` : '';
     const emailBody = document.getElementById('ty-email-body');
     if (emailBody) {
       const addonLine = addons.length
         ? `<br><br><b>Add-ons noted:</b> ${addons.map((a) => esc(a.name)).join(', ')}.`
         : '';
       emailBody.innerHTML = `
-        <b>Subject:</b> You're in, ${esc(first)} 🎉 Your Fixfy Growth build starts now<br><br>
-        Hi ${esc(first)}, welcome to Fixfy Growth, you just took the step that gets ${esc(biz)} off the lead-rental treadmill for good.<br><br>
-        <b>Your onboarding call is locked in:</b> ${esc(slot)}.<br>
+        <b>Subject:</b> You're in, ${esc(first)} — your Fixfy Growth order is confirmed<br><br>
+        Hi ${esc(first)}, your Fixfy Growth order for ${esc(biz)} is confirmed — <b>£379 one-off</b>.${tradeLine}<br><br>
+        <b>Your onboarding call is locked in:</b> ${esc(slot)}.${attendant}<br>
         Next: onboarding call (15 min) → we build (7 days) → you review &amp; go live.${addonLine}`;
     }
 

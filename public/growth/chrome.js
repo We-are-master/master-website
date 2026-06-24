@@ -4,8 +4,6 @@
   const NAV = [
     ['index.html#how', 'How it works', 'how'],
     ['index.html#features', "What's included", 'features'],
-    ['index.html#trades', 'Industries', 'industries'],
-    ['index.html#pricing', 'Pricing', 'pricing'],
     ['index.html#faq', 'FAQ', 'faq'],
   ];
   const BUSINESS_SOLUTIONS = [
@@ -51,7 +49,10 @@
             <svg class="sun" width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.7"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
           </button>
           <a href="#" class="login">Log in</a>
-          <a href="start.html" class="g-btn g-btn-primary" style="padding:11px 18px;font-size:15px">Get More Bookings <span class="arr">→</span></a>
+          <a href="start.html" class="g-btn g-btn-primary g-nav-cta-btn">
+            <span class="g-nav-cta-long">Get More Bookings <span class="arr">→</span></span>
+            <span class="g-nav-cta-short">Get started <span class="arr">→</span></span>
+          </a>
         </div>
         <button class="g-burger" aria-label="Menu" onclick="document.getElementById('g-mobile').classList.toggle('open')">
           <svg width="18" height="18" viewBox="0 0 18 18"><path d="M2 5h14M2 9h14M2 13h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
@@ -61,6 +62,7 @@
         ${businessMobile}
         ${tradesMobile}
         ${NAV.map(([href, label]) => `<a href="${href}">${label}</a>`).join('')}
+        <a href="#" class="g-mobile-login">Log in</a>
         <a href="start.html" class="g-btn g-btn-primary g-btn-block" style="margin-top:8px">Get More Bookings →</a>
       </div>
     </nav>`;

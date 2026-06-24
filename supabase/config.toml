@@ -1,0 +1,44 @@
+# Supabase local / CLI config — link with: supabase link --project-ref <ref>
+# Docs: GROWTH-SETUP.md
+
+project_id = "fixfy-website"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 15
+
+[studio]
+enabled = true
+port = 54323
+
+[functions]
+verify_jwt = false
+
+[functions.growth-availability]
+verify_jwt = false
+
+[functions.book-meeting]
+verify_jwt = false
+
+[functions.create-growth-checkout]
+verify_jwt = false
+
+[functions.create-network-checkout]
+verify_jwt = false
+
+[functions.redeem-network-access]
+verify_jwt = false
+
+[functions.update-growth-quiz]
+verify_jwt = false
+
+[functions.stripe-webhook]
+verify_jwt = false

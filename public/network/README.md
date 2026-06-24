@@ -7,7 +7,7 @@
 
 ## Frontend env (Vite / Vercel)
 
-Same as Growth:
+Same as Growth. **Full guide:** [`GROWTH-SETUP.md`](../../GROWTH-SETUP.md) (repo root).
 
 - `VITE_SUPABASE_URL`
 - `VITE_SUPABASE_ANON_KEY`
@@ -47,7 +47,10 @@ Run migrations:
 
 ```bash
 npm run deploy:network
+# or all integrations: npm run deploy:integrations
 ```
+
+See [`GROWTH-SETUP.md`](../../GROWTH-SETUP.md) for Stripe webhook and secrets.
 
 ## Stripe webhook events
 
