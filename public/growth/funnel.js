@@ -1,17 +1,22 @@
 /* Fixfy Growth, funnel engine. Renders into #fn-root. */
 (function () {
-  const PLANS = {
-    monthly:  { id:'monthly',  name:'Monthly',  amt:'£79', per:'/mo', old:'£199/mo', desc:'Cancel anytime. No contracts.', full:'£79 (first month now)' },
-    onetime:  { id:'onetime',  name:'One-time', amt:'£499', per:'', old:'£2,299', desc:'No recurring. Ever. You own it.', full:'£499 one-time' }
+  const PRODUCT = {
+    name: 'Fixfy Growth',
+    amt: '£379',
+    old: '£2,299',
+    desc: 'One payment. No subscription. You own it.',
   };
 
-  // Post-payment brief: source, website, goal (trade collected in step 1).
-  // Pre-payment: intro → trade → booking → business details → win jobs → payment → downsell.
+  const ATTENDANTS = ['Cris', 'Maya', 'Sophie', 'Elena', 'Rita', 'Nina', 'Laura', 'Ana', 'Kate', 'Jo'];
+
+  // Post-payment brief: source, website, goal (trades collected in step 1).
+  // Pre-payment: intro → trade → booking → business details → plan+pay → downsell.
   const TRADE_Q = {
     id: 'trade',
-    kicker: 'Step 1 of 5',
+    kicker: 'Step 1 of 4',
     q: 'What work do you do?',
-    type: 'single',
+    sub: 'Select all that apply.',
+    type: 'multi',
     cols: 2,
     options: ['Plumbing', 'Electrical', 'HVAC', 'Roofing', 'Landscaping', 'Cleaning', 'Remodeling', 'Handyman', 'Other'],
   };
@@ -25,9 +30,8 @@
       options:['Get more bookings','Stop paying for leads','Look more professional','Rank on Google'] }
   };
 
-  const RAIL = ['Your trade', 'Book onboarding', 'Your details', 'Your plan', 'Payment'];
+  const RAIL = ['Your trade', 'Book onboarding', 'Your details', 'Pay & confirm'];
 
-  // Country-specific lead-gen platforms for the "how do you get jobs" question
   const LEADGEN = {
     'United Kingdom': 'Checkatrade, Bark, MyBuilder…',
     'United States': 'Angi, Thumbtack, HomeAdvisor…',
@@ -35,10 +39,6 @@
     'Ireland': 'Tradesmen.ie, Bark…',
     'Australia': 'hipages, Airtasker…'
   };
-  function sourceQuestion() {
-    const ex = LEADGEN[(S.biz.country || '').trim()] || 'Angi, Bark, Thumbtack…';
-    return Object.assign({}, Q.source, { options: ['Referrals', 'Lead-gen platforms (' + ex + ')', 'Word of mouth', "I don't have a steady source"] });
-  }
 
   const ADDONS = {
     crm: {
@@ -63,20 +63,19 @@
   const addonTotal = () => Object.keys(ADDONS).reduce((t,k)=> t + (S.addons[k] ? ADDONS[k].price : 0), 0);
   const addonsChosen = () => Object.keys(ADDONS).filter(k => S.addons[k]);
 
-  const HOLD_SEC = 600; // 10-minute slot hold
+  const HOLD_SEC = 600;
 
   let S = {
     dir: document.body.dataset.fn || 'conversational',
-    i: 0,                // 0 intro; 1 trade; 2 booking; 3 details; 4 win jobs; 5 payment; 6 downsell
-    answers: {},
-    plan: new URLSearchParams(location.search).get('plan') || 'monthly',
+    i: 0,
+    answers: { trade: [] },
     lead: { name:'', email:'', phone:'' },
     biz: { bizname:'', area:'', country:'United Kingdom' },
     slot: null, day: null, time: null, slotIso: null,
     availabilityDays: [],
     availabilityLoading: false,
     bookingId: null,
-    payMode: 'full',   // 'full' | 'deposit'
+    attendant: '',
     addons: { crm: false, social: false },
     holdT: null, holdLeft: HOLD_SEC
   };
@@ -86,9 +85,43 @@
   const firstName = () => (S.lead.name||'').trim().split(/\s+/)[0] || 'there';
   const bizName = () => S.biz.bizname.trim() || 'your business';
 
-  // total quiz/flow steps for progress (intro excluded)
+  function getTrades() {
+    const t = S.answers.trade;
+    if (Array.isArray(t)) return t.filter(Boolean);
+    if (typeof t === 'string' && t) return [t];
+    return [];
+  }
+
+  function formatTrades(trades, mode) {
+    const list = Array.isArray(trades) ? trades.filter(Boolean) : getTrades();
+    if (!list.length || (list.length === 1 && list[0] === 'Other')) {
+      return mode === 'head' ? 'more' : 'your trade';
+    }
+    const use = list.filter(t => t !== 'Other').length ? list.filter(t => t !== 'Other') : list;
+    if (mode === 'head') {
+      if (use.length === 1) return esc(use[0].toLowerCase());
+      if (use.length === 2) return esc(use[0].toLowerCase() + ' & ' + use[1].toLowerCase());
+      return esc(use.slice(0, -1).map(t => t.toLowerCase()).join(', ') + ' & ' + use[use.length - 1].toLowerCase());
+    }
+    return esc(use.join(' & '));
+  }
+
+  function pickAttendant(email, slotIso) {
+    const seed = (email || '') + (slotIso || '');
+    let h = 0;
+    for (let i = 0; i < seed.length; i++) h = ((h << 5) - h + seed.charCodeAt(i)) | 0;
+    return ATTENDANTS[Math.abs(h) % ATTENDANTS.length];
+  }
+
+  function ensureAttendant() {
+    if (!S.attendant) {
+      S.attendant = pickAttendant(S.lead.email, S.slotIso);
+    }
+    return S.attendant;
+  }
+
   function progress() {
-    const total = 5;
+    const total = 4;
     const done = Math.min(Math.max(S.i, 0), total);
     return Math.round((done / (total + 1)) * 100);
   }
@@ -119,14 +152,14 @@
   function setDir(dir) { S.dir = dir; document.body.dataset.fn = dir; render(); }
   window.__fnSetDir = setDir;
 
-  // ---------- navigation ----------
   function go(n) {
     S.i = n;
     if (S.i === 2) {
       loadAvailability();
       if (S.time) startHold();
     }
-    if (S.i === 5) {
+    if (S.i === 4) {
+      ensureAttendant();
       if (!S.holdT && S.time) startHold();
       setTimeout(mountStripe, 0);
     } else if (window.GrowthCheckout) {
@@ -168,10 +201,12 @@
     if (result.ok) {
       clearInterval(S.holdT);
       saveThanksData();
-      go(6);
+      go(5);
     }
   }
+
   function next() {
+    if (S.i === 1 && !getTrades().length) return;
     if (S.i === 3 && !validateLeadBiz()) return;
     go(S.i + 1);
   }
@@ -179,12 +214,18 @@
 
   function answer(qid, val) {
     S.answers[qid] = val;
-    // auto-advance on single-select
     setTimeout(next, 180);
     render();
   }
 
-  // ---------- hold timer ----------
+  function toggleTrade(val) {
+    if (!Array.isArray(S.answers.trade)) S.answers.trade = [];
+    const idx = S.answers.trade.indexOf(val);
+    if (idx >= 0) S.answers.trade.splice(idx, 1);
+    else S.answers.trade.push(val);
+    render();
+  }
+
   function startHold() {
     clearInterval(S.holdT); S.holdLeft = HOLD_SEC;
     S.holdT = setInterval(() => {
@@ -195,7 +236,6 @@
   }
   function fmtClock(s){ const m=Math.floor(s/60), x=s%60; return m+':'+String(x).padStart(2,'0'); }
 
-  // ---------- screens ----------
   function screenIntro() {
     const hl = 'color:var(--g-coral);text-decoration:underline;text-underline-offset:3px';
     const chk = '<svg class="fn-chk" width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 4.5" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -224,6 +264,16 @@
           <span>${o}</span>
           <span class="tick">${sel?'<svg width="13" height="13" viewBox="0 0 16 16"><path d="M3 8.5l3.2 3.2L13 4.5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}</span>
         </button>`; }).join('')}</div>`;
+    } else if (q.type === 'multi') {
+      const selected = getTrades();
+      body = `<div class="fn-opts ${q.cols===2?'cols2':''}">${q.options.map(o=>{
+        const sel = selected.includes(o);
+        return `<button type="button" class="fn-opt ${sel?'sel':''}" onclick="__fn.toggleTrade(${JSON.stringify(o).replace(/"/g,'&quot;')})">
+          <span>${o}</span>
+          <span class="tick">${sel?'<svg width="13" height="13" viewBox="0 0 16 16"><path d="M3 8.5l3.2 3.2L13 4.5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}</span>
+        </button>`; }).join('')}</div>
+        <div class="fn-nav"><button class="fn-back" onclick="__fn.back()">← Back</button><span class="fn-spacer"></span>
+          <button class="g-btn g-btn-primary g-btn-lg" ${selected.length?'':'disabled style="opacity:.4;pointer-events:none"'} onclick="__fn.next()">Continue <span class="arr">→</span></button></div>`;
     } else if (q.type === 'form') {
       body = `<div class="fn-fields">${q.fields.map(f=> f.type==='select'
         ? `<div class="fn-field"><label>${f.label}</label>
@@ -238,18 +288,6 @@
           <input id="fld-${f.k}" value="${esc(S.biz[f.k])}" placeholder="${f.ph}" oninput="__fn.setBiz('${f.k}',this.value)"/></div>`).join('')}</div>
         <div class="fn-nav"><button class="fn-back" onclick="__fn.back()">← Back</button><span class="fn-spacer"></span>
           <button class="g-btn g-btn-primary g-btn-lg" onclick="__fn.next()">Continue <span class="arr">→</span></button></div>`;
-    } else if (q.type === 'plan') {
-      body = `<div class="fn-plans">${Object.values(PLANS).map(p=>{
-        const sel = S.plan===p.id;
-        return `<button class="fn-plan ${sel?'sel':''}" onclick="__fn.setPlan('${p.id}')">
-          ${p.id==='monthly'?'<span class="badge">Most popular</span>':''}
-          <h3>${p.name}</h3>
-          <div class="amt">${p.amt}<small>${p.per}</small></div>
-          <div class="old">${p.old}</div>
-          <div class="desc">${p.desc}</div>
-        </button>`; }).join('')}</div>
-        <div class="fn-nav"><button class="fn-back" onclick="__fn.back()">← Back</button><span class="fn-spacer"></span>
-          <button class="g-btn g-btn-primary g-btn-lg" onclick="__fn.next()">Continue <span class="arr">→</span></button></div>`;
     }
     const navForSingle = q.type==='single' ? `<div class="fn-nav"><button class="fn-back" onclick="__fn.back()">← Back</button></div>` : '';
     return `<div class="fn-q fn-stage">
@@ -261,9 +299,9 @@
 
   function screenLeadBiz() {
     return `<div class="fn-q fn-stage">
-      <div class="fn-q-kicker">Step 3 of 5 · Your business details</div>
+      <div class="fn-q-kicker">Step 3 of 4 · Your business details</div>
       <h2>Your business details</h2>
-      <p class="sub">Takes 30 seconds — then we'll show your tailored plan.</p>
+      <p class="sub">Takes 30 seconds — then you can confirm and pay.</p>
       <div class="fn-fields">
         <div class="fn-field"><label>Your name</label><input id="ld-name" value="${esc(S.lead.name)}" placeholder="Jordan Smith" oninput="__fn.setLead('name',this.value)"/></div>
         <div class="fn-field"><label>Business name</label><input id="ld-biz" value="${esc(S.biz.bizname)}" placeholder="Rivington Plumbing Ltd" oninput="__fn.setBiz('bizname',this.value)"/></div>
@@ -279,50 +317,68 @@
   }
 
   function screenWinJobs() {
-    const p = PLANS[S.plan];
-    const trade = S.answers.trade || '';
-    const tradeHead = !trade || trade === 'Other' ? 'more' : esc(trade.toLowerCase());
-    const planPick = Object.values(PLANS).map(pl=>{
-      const sel = S.plan===pl.id;
-      return `<button type="button" onclick="__fn.setPlan('${pl.id}')" class="fn-plan-pick" style="flex:1;text-align:left;cursor:pointer;border-radius:14px;padding:14px 16px;border:2px solid ${sel?'var(--g-coral)':'var(--fx-line)'};background:${sel?'rgba(237,75,0,.06)':'var(--g-card)'};transition:border-color .15s,background .15s">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;row-gap:5px">
-          <strong style="font-size:15px;white-space:nowrap">${pl.name}</strong>
-          ${pl.id==='monthly'?'<span style="font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;flex:none;color:var(--g-green-press);background:var(--g-green-50);padding:3px 8px;border-radius:20px">Popular</span>':'<span style="font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;flex:none;color:var(--g-coral);background:rgba(237,75,0,.08);padding:3px 8px;border-radius:20px">Own it</span>'}
-        </div>
-        <div style="margin-top:6px"><s style="color:var(--fx-mute);font-size:13px">${pl.old}</s> <b style="font-size:21px">${pl.amt}</b><small style="color:var(--fx-mute)">${pl.per||' once'}</small></div>
-        <div class="fn-plan-desc" style="margin-top:4px;color:var(--fx-mute);font-size:12px">${pl.desc}</div>
-      </button>`;
-    }).join('');
-    return `<div class="fn-summary fn-stage fn-plan-lite">
-      <div class="fn-q-kicker" style="text-align:center">Step 4 of 5 · Your plan</div>
+    const tradeHead = formatTrades(null, 'head');
+    const tradeLabel = formatTrades(null, 'label');
+    const attendant = ensureAttendant();
+    const features = [
+      ['🌐', 'Professional website', 'Up to 10 pages, built to convert ' + esc(bizName()) + '.'],
+      ['📅', 'Job-based booking', 'Customers book the right job online — fewer no-shows.'],
+      ['⚡', 'CRM + WhatsApp', 'Every booking in one place, pinged to your WhatsApp.'],
+      ['🔍', 'Local Google SEO', 'Rank for "' + tradeLabel.toLowerCase() + ' near me" in your area.'],
+    ];
+    return `<div class="fn-stage fn-plan-pay">
+      <div class="fn-q-kicker" style="text-align:center">Step 4 of 4 · Confirm &amp; pay</div>
       <h2 style="text-align:center;font:var(--fx-w-semi) clamp(24px,3.2vw,34px)/1.05 var(--fx-sans);letter-spacing:-.02em">Start winning ${tradeHead} jobs.</h2>
-      <p class="sub fn-sum-sub" style="text-align:center;max-width:44ch;margin:8px auto 0">Everything ${esc(bizName())} needs — website, booking, CRM, local SEO and automations — built for ${trade ? esc(trade.toLowerCase()) : 'your trade'} in 7 days.</p>
-      <div class="fn-sum-card">
-        <div class="fn-sum-hd">
-          <div class="fn-sum-hd-row">
-            <div class="fn-sum-built">Get more <b>bookings</b>. Do less <b>chasing</b>.</div>
-            <div class="fn-sum-price"><s>${p.old}</s> <b>${p.amt}</b><span>${p.per || ' one-time'}</span></div>
+      <p class="sub" style="text-align:center;max-width:46ch;margin:8px auto 0">Everything ${esc(bizName())} needs — website, booking, CRM, local SEO and automations — built in 7 days.</p>
+      <div class="fn-hold fn-hold--pay" style="margin-top:16px">
+        <span class="fn-hold-ic">⏳</span>
+        <span>Slot held for <b id="fn-hold-clock">${fmtClock(S.holdLeft)}</b></span>
+      </div>
+      <div class="fn-pay-grid" style="margin-top:20px">
+        <div class="fn-paybox">
+          <div class="fn-sum-card" style="margin-bottom:18px">
+            <div class="fn-sum-hd-row" style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
+              <div>
+                <div class="fn-sum-built" style="font-size:15px">Get more <b>bookings</b>. Do less <b>chasing</b>.</div>
+                <div class="fn-guarantee" style="margin-top:10px;padding:0;background:none;border:none"><span class="ic">🛡️</span><div class="g" style="font-size:13px"><b>100% risk-free.</b> Fully refunded before work begins.</div></div>
+              </div>
+              <div class="fn-sum-price" style="text-align:right"><s>${PRODUCT.old}</s> <b>${PRODUCT.amt}</b><span> one-off</span></div>
+            </div>
+            <div class="fn-sum-body" style="margin-top:14px;display:grid;gap:10px">
+              ${features.map(([ic,h,p2])=>`<div class="fn-sum-item" style="padding:10px 0"><span class="ic">${ic}</span><div><h4 style="font-size:14px;margin:0">${h}</h4><p style="font-size:13px;margin:4px 0 0">${p2}</p></div></div>`).join('')}
+            </div>
+          </div>
+          <div class="fn-attendant">
+            <span class="fn-attendant-av" aria-hidden="true">${attendant.charAt(0)}</span>
+            <div>
+              <div style="font-weight:600;font-size:14px">Your onboarding specialist: ${esc(attendant)}</div>
+              <div class="g-mute" style="font-size:13px;margin-top:4px;line-height:1.45">On your 15-minute call, ${esc(attendant)} will walk you through your 7-day build and answer any questions.</div>
+            </div>
+          </div>
+          <p class="g-mute" style="margin:18px 0 10px;font-size:15px;line-height:1.5">Pay <b>${PRODUCT.amt}</b> today — one payment, no subscription. You own everything we build.</p>
+          <h3 class="g-h3" style="margin:0 0 10px">Payment</h3>
+          <div id="fn-stripe-element" class="fn-card-fields"></div>
+          <p id="fn-pay-error" class="g-mono" style="color:#c0392b;text-align:center;margin-top:10px;font-size:12px"></p>
+          <button id="fn-pay-btn" class="g-btn g-btn-green g-btn-block g-btn-lg" style="margin-top:18px" onclick="__fn.pay()">
+            <span class="fn-lock">🔒</span> Pay ${PRODUCT.amt} &amp; confirm slot</button>
+          <p class="g-mono g-mute" style="text-align:center;margin-top:12px;font-size:11px">Secure payment via Stripe · Google Calendar invite sent on confirmation</p>
+        </div>
+        <div class="fn-recap">
+          <h4 class="g-h3" style="margin-bottom:14px">Your order</h4>
+          <div class="row"><span>Plan</span><b>${PRODUCT.name}, ${PRODUCT.amt}</b></div>
+          <div class="row"><span>Trade</span><b>${tradeLabel}</b></div>
+          <div class="row"><span>Business</span><b>${esc(bizName())}</b></div>
+          <div class="row"><span>Onboarding</span><b>${slotLabel()}</b></div>
+          <div class="row"><span>Specialist</span><b>${esc(attendant)}</b></div>
+          <div class="row total"><span>Due today</span><span>${PRODUCT.amt}</span></div>
+          <div class="fn-trust-badges">
+            <span><span class="fn-lock">🔒</span> Secure payment via Stripe</span>
+            <span>✓ Refundable before work begins</span>
+            <span>✓ Slot confirmed only after payment succeeds</span>
           </div>
         </div>
-        <div class="fn-guarantee"><span class="ic">🛡️</span><div class="g"><b>100% risk-free.</b> Fully refunded on the spot if you're not happy.</div></div>
-        <div class="fn-sum-body">
-          ${[
-            ['🌐','Professional website','Up to 10 pages, built to convert '+esc(bizName())+'.'],
-            ['📅','Job-based booking','Customers book the right job and pay a deposit.'],
-            ['⚡','CRM + WhatsApp','Every booking in one place, pinged to your WhatsApp.'],
-            ['🔍','Local Google SEO','Rank for "'+esc(trade ? trade.toLowerCase() : 'your trade')+' near me" in your area.'],
-            ['🔁','Automations + reviews','Follow-ups and a 5-star review engine.']
-          ].map(([ic,h,p2])=>`<div class="fn-sum-item"><span class="ic">${ic}</span><div><h4>${h}</h4><p>${p2}</p></div></div>`).join('')}
-        </div>
       </div>
-      <div style="margin-top:18px"><div class="g-mono" style="font-size:12px;color:var(--fx-mute);margin-bottom:8px">CHOOSE HOW YOU PAY</div>
-        <div style="display:flex;gap:12px">${planPick}</div></div>
-      <div class="g-faq fn-pricehint" style="margin-top:10px">
-        <details><summary>What's the difference between the prices? <span class="pm"></span></summary><div class="ans">Nothing about what you get changes — exact same website, booking system, local SEO, automations and support either way. The only difference is <b>how you pay</b>: <b>Monthly</b> spreads the cost (${PLANS.monthly.amt}/mo, cancel anytime), <b>One-time</b> you pay once and own it forever (${PLANS.onetime.amt}, nothing recurring).</div></details>
-      </div>
-      <p class="fn-sum-reassure g-mono">No payment until the next step · Fully refundable before work begins · You own everything</p>
-      <div class="fn-nav fn-nav--sticky" style="justify-content:center"><button class="fn-back" onclick="__fn.back()">← Back</button>
-        <button class="g-btn g-btn-primary g-btn-lg" onclick="__fn.next()">You're one step away <span class="arr">→</span></button></div>
+      <div class="fn-nav" style="max-width:none;margin-top:18px"><button class="fn-back" onclick="__fn.back()">← Back</button></div>
     </div>`;
   }
 
@@ -331,7 +387,7 @@
     const day = S.day !== null ? days[S.day] : null;
     const times = day ? day.times : [];
     return `<div class="fn-q fn-stage" style="max-width:720px">
-      <div class="fn-q-kicker">Step 2 of 5 · Book your onboarding</div>
+      <div class="fn-q-kicker">Step 2 of 4 · Book your onboarding</div>
       <h2>Pick your onboarding time.</h2>
       <p class="sub">This 15-minute call is where we learn your business and kick off your 7-day build.</p>
       ${S.availabilityLoading ? '<p class="g-mono g-mute" style="text-align:center">Loading available times…</p>' : ''}
@@ -344,95 +400,6 @@
       ${S.day!==null&&S.time?`<div class="fn-hold">⏳ Your time is held for <b id="fn-hold-clock">${fmtClock(S.holdLeft)}</b></div>`:''}
       <div class="fn-nav"><button class="fn-back" onclick="__fn.back()">← Back</button><span class="fn-spacer"></span>
         <button class="g-btn g-btn-primary g-btn-lg" ${(S.day!==null&&S.time)?'':'disabled style="opacity:.4;pointer-events:none"'} onclick="__fn.next()">Continue to your details <span class="arr">→</span></button></div>
-    </div>`;
-  }
-
-  function screenPayment() {
-    const p = PLANS[S.plan];
-    const payAmt = S.payMode==='deposit' ? '£99' : (S.plan==='onetime' ? '£499' : '£79');
-    const balance = S.plan==='onetime' ? '£400' : 'first month';
-    return `<div class="fn-stage">
-      <div class="fn-q-kicker" style="text-align:center">Step 5 of 5 · Payment</div>
-      <h2 style="text-align:center;font:var(--fx-w-semi) clamp(24px,3vw,34px)/1.1 var(--fx-sans);letter-spacing:-.02em">You're one step away.</h2>
-      <p class="sub" style="text-align:center;max-width:48ch;margin:8px auto 0">Confirm your onboarding slot now. Fully refundable before work begins, and you own everything we build.</p>
-      <div class="fn-hold fn-hold--pay">
-        <span class="fn-hold-ic">⏳</span>
-        <span>Slot held for <b id="fn-hold-clock">${fmtClock(S.holdLeft)}</b></span>
-      </div>
-      <div class="fn-pay-grid">
-        <div class="fn-paybox">
-          <h3 class="g-h3" style="margin-bottom:4px">How would you like to pay?</h3>
-          <div class="fn-payopts">
-            <div class="fn-payopt ${S.payMode==='full'?'sel':''}" onclick="__fn.setPay('full')">
-              <span class="radio"></span>
-              <div><div class="lbl">Pay in full now</div><div class="hint">${S.plan==='onetime'?'Own it outright, nothing recurring.':'First month now, then £79/mo. Cancel anytime.'}</div></div>
-              <span class="price">${S.plan==='onetime'?'£499':'£79'}</span>
-            </div>
-            <div class="fn-payopt ${S.payMode==='deposit'?'sel':''}" onclick="__fn.setPay('deposit')">
-              <span class="radio"></span>
-              <div><div class="lbl">Reserve with a £99 deposit</div><div class="hint">Lock your slot now; ${S.plan==='onetime'?'balance settled at onboarding':'subscription starts at go-live'}.</div></div>
-              <span class="price">£99</span>
-            </div>
-          </div>
-          <h3 class="g-h3" style="margin:22px 0 10px">Payment</h3>
-          <div id="fn-stripe-element" class="fn-card-fields"></div>
-          <p id="fn-pay-error" class="g-mono" style="color:#c0392b;text-align:center;margin-top:10px;font-size:12px"></p>
-          <button id="fn-pay-btn" class="g-btn g-btn-green g-btn-block g-btn-lg" style="margin-top:18px" onclick="__fn.pay()">
-            <span class="fn-lock">🔒</span> Pay ${payAmt} &amp; confirm slot</button>
-          <p class="g-mono g-mute" style="text-align:center;margin-top:12px;font-size:11px">Secure payment via Stripe · Google Calendar invite sent on confirmation</p>
-        </div>
-        <div class="fn-recap">
-          <h4 class="g-h3" style="margin-bottom:14px">Your order</h4>
-          <div class="row"><span>Plan</span><b>${p.name}, ${p.amt}${p.per}</b></div>
-          <div class="row"><span>Business</span><b>${esc(bizName())}</b></div>
-          <div class="row"><span>Onboarding</span><b>${slotLabel()}</b></div>
-          <div class="row"><span>${S.payMode==='deposit'?'Deposit now':'Pay now'}</span><b>${payAmt}</b></div>
-          ${S.payMode==='deposit'?`<div class="row"><span>Balance</span><b>${balance}${S.plan==='onetime'?' at onboarding':''}</b></div>`:''}
-          <div class="row total"><span>Due today</span><span>${payAmt}</span></div>
-          <div class="fn-trust-badges">
-            <span><span class="fn-lock">🔒</span> Secure payment via Stripe</span>
-            <span>✓ Refundable on onboarding before work begins</span>
-            <span>✓ Slot confirmed only after payment succeeds</span>
-          </div>
-        </div>
-      </div>
-      <div class="fn-nav" style="max-width:none"><button class="fn-back" onclick="__fn.back()">← Back to your plan</button></div>
-    </div>`;
-  }
-
-  function screenConfirm() {
-    const p = PLANS[S.plan];
-    const when = slotLabel() || 'your selected time';
-    const deposit = S.payMode==='deposit';
-    return `<div class="fn-confirm fn-stage">
-      <div class="fn-confirm-ico"><svg width="40" height="40" viewBox="0 0 24 24"><path d="M5 12.5l4.2 4.2L19 7" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-      <h2 style="font:var(--fx-w-semi) clamp(28px,3.6vw,40px)/1.1 var(--fx-sans);letter-spacing:-.02em">You're in, ${esc(firstName())}! 🎉</h2>
-      <p class="sub" style="font-size:18px">Your onboarding is locked and your 7-day build for ${esc(bizName())} starts now. Check your inbox.</p>
-      <div class="fn-locked">
-        <span class="cal-ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M3 9h18M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>
-        <div><div style="font-weight:600">Onboarding call, locked in</div><div class="g-mute" style="font-size:15px">${when} · 15 min · video link in your email</div></div>
-      </div>
-      ${addonsChosen().length ? `<div class="fn-addon-recap"><div class="har">Added to your build, charged to your card on file</div>${addonsChosen().map(k=>`<div class="row"><span>${ADDONS[k].ico} ${ADDONS[k].name}</span><b>£${ADDONS[k].price}</b></div>`).join('')}<div class="row tot"><span>Add-ons total</span><b>£${addonTotal()}</b></div></div>`:''}
-      <div class="fn-prep">
-        <h3 class="g-h3">To make your call fast, have these ready:</h3>
-        <ul><li>Your logo (if you have one)</li><li>5–10 photos of your work</li><li>Your list of services and typical pricing</li><li>Your business hours and service area</li></ul>
-      </div>
-      <div class="fn-email">
-        <div class="fn-email-hd">📧 Welcome email, sent to ${esc(S.lead.email||'your inbox')}</div>
-        <div class="fn-email-bd">
-          <b>Subject:</b> You're in, ${esc(firstName())} 🎉 Your Fixfy Growth build starts now<br><br>
-          Hi ${esc(firstName())}, welcome to Fixfy Growth, you just took the step that gets ${esc(bizName())} off the lead-rental treadmill for good.<br><br>
-          <b>Your onboarding call is locked in:</b> ${when}.<br>
-          Next: onboarding call (15 min) → we build (7 days) → you review &amp; go live.
-          ${deposit?`<br><br>Balance of ${S.plan==='onetime'?'£400':'your subscription'} will be settled at ${S.plan==='onetime'?'your onboarding call':'go-live'}.`:''}
-          ${addonsChosen().length?`<br><br><b>Add-ons confirmed:</b> ${addonsChosen().map(k=>ADDONS[k].name).join(', ')}, £${addonTotal()} charged to your card on file.`:''}
-        </div>
-      </div>
-      <div style="display:flex;gap:12px;justify-content:center;margin-top:26px;flex-wrap:wrap">
-        <a href="index.html" class="g-btn g-btn-ghost">Back to home</a>
-        <button class="g-btn g-btn-primary" onclick="__fn.restart()">Run the flow again</button>
-      </div>
-      <p class="g-mono g-mute" style="margin-top:18px;font-size:11px">On payment success this also fires: Google Calendar event on your calendar · CRM record (stage: Onboarding Booked) · 24h + 1h reminders.</p>
     </div>`;
   }
 
@@ -468,7 +435,6 @@
     </div>`;
   }
 
-  // booking day helpers
   function bookingDaysFallback() {
     const out = [], d = new Date(); d.setDate(d.getDate()+2);
     const DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'], MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -500,6 +466,7 @@
       price: ADDONS[k].price,
       ico: ADDONS[k].ico,
     }));
+    const trades = getTrades();
     try {
       sessionStorage.setItem('fx_growth_thanks', JSON.stringify({
         firstName: firstName(),
@@ -508,11 +475,12 @@
         slotLabel: slotLabel(),
         slotIso: S.slotIso,
         addons: chosen,
-        payMode: S.payMode,
-        plan: S.plan,
+        plan: 'growth',
         bookingId: S.bookingId,
         quizComplete: quizComplete(),
-        trade: S.answers.trade || '',
+        trade: trades,
+        trades,
+        attendant: ensureAttendant(),
         country: S.biz.country || 'United Kingdom',
       }));
     } catch (e) {
@@ -525,19 +493,18 @@
     window.location.href = '/growth/thank-you.html';
   }
 
-  // ---------- rail (sidebar direction) ----------
   function railHtml() {
-    const railIdx = (S.i>=1 && S.i<=5) ? S.i-1 : -1;
+    const railIdx = (S.i>=1 && S.i<=4) ? S.i-1 : -1;
     const steps = RAIL.map((label,k)=>{
       const cls = k<railIdx?'done':k===railIdx?'cur':'';
       const mark = k<railIdx?'<svg width="12" height="12" viewBox="0 0 16 16"><path d="M3 8.5l3.2 3.2L13 4.5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>':(k+1);
       return `<li class="${cls}"><span class="n">${mark}</span>${label}</li>`;
     }).join('');
-    const p = PLANS[S.plan];
     const rows = [];
-    if (S.answers.trade) rows.push(['Trade', S.answers.trade]);
+    const trades = getTrades();
+    if (trades.length) rows.push(['Trade', formatTrades(trades, 'label')]);
     if (S.biz.bizname) rows.push(['Business', S.biz.bizname]);
-    rows.push(['Plan', p.name+' · '+p.amt+p.per]);
+    rows.push(['Plan', PRODUCT.name + ' · ' + PRODUCT.amt]);
     if (S.day!==null && S.time) rows.push(['Onboarding', slotLabel()]);
     const sum = rows.length ? rows.map(([k,v])=>`<div class="row"><span class="g-mute">${k}</span><b>${esc(String(v))}</b></div>`).join('')
                             : '<div class="empty">Your answers will appear here as you go.</div>';
@@ -548,7 +515,6 @@
     </aside>`;
   }
 
-  // ---------- render ----------
   function render() {
     let stage;
     if (S.i===0) stage = screenIntro();
@@ -556,10 +522,9 @@
     else if (S.i===2) stage = screenBooking();
     else if (S.i===3) stage = screenLeadBiz();
     else if (S.i===4) stage = screenWinJobs();
-    else if (S.i===5) stage = screenPayment();
     else stage = screenDownsell();
 
-    const showRail = S.dir==='sidebar' && S.i>=1 && S.i<=5;
+    const showRail = S.dir==='sidebar' && S.i>=1 && S.i<=4;
     const inner = showRail ? `<div class="fn-with-rail">${railHtml()}<div>${stage}</div></div>` : stage;
     root().innerHTML = `<div class="fn-shell">${inner}</div>`;
 
@@ -568,31 +533,29 @@
     const lbl = document.getElementById('fn-step-label');
     if (lbl) {
       if (S.i === 0) lbl.textContent = 'Start';
-      else if (S.i >= 6) lbl.textContent = 'Confirmed ✓';
-      else lbl.textContent = 'Step ' + S.i + ' / 5';
+      else if (S.i >= 5) lbl.textContent = 'Confirmed ✓';
+      else lbl.textContent = 'Step ' + S.i + ' / 4';
     }
+    if (S.i === 4) setTimeout(mountStripe, 0);
   }
 
-  // ---------- public ----------
   window.__fn = {
     next, back, answer,
     setBiz:(k,v)=>{ S.biz[k]=v; },
-    setLead:(k,v)=>{ S.lead[k]=v; },
+    setLead:(k,v)=>{ S.lead[k]=v; if (k === 'email') S.attendant = ''; },
     toggleSelect:(k)=>{ const el=document.querySelector('.fn-select[data-key="'+k+'"]'); if(!el) return; const wasOpen=el.classList.contains('open'); document.querySelectorAll('.fn-select.open').forEach(e=>e.classList.remove('open')); if(!wasOpen) el.classList.add('open'); },
     pickSelect:(k,v)=>{ S.biz[k]=v; render(); },
-    setPlan:(id)=>{ S.plan=id; render(); },
-    setPay:(m)=>{ S.payMode=m; if(window.GrowthCheckout) window.GrowthCheckout.reset(); render(); },
+    toggleTrade,
     pickDay:(i)=>{ S.day=i; S.time=null; S.slotIso=null; render(); },
     pickTime:(t,iso)=>{ S.time=t; S.slotIso=iso||null; startHold(); render(); },
     pay:()=>{ doPay(); },
     toggleAddon:(k)=>{ S.addons[k]=!S.addons[k]; render(); },
     finish:()=>{ goThankYou(); },
-    restart:()=>{ S={ dir:S.dir, i:0, answers:{}, plan:S.plan, lead:{name:'',email:'',phone:''}, biz:{bizname:'',area:'',country:'United Kingdom'}, slot:null, day:null, time:null, slotIso:null, availabilityDays:[], availabilityLoading:false, bookingId:null, payMode:'full', addons:{crm:false,social:false}, holdT:null, holdLeft:HOLD_SEC }; render(); }
+    restart:()=>{ S={ dir:S.dir, i:0, answers:{ trade:[] }, lead:{name:'',email:'',phone:''}, biz:{bizname:'',area:'',country:'United Kingdom'}, slot:null, day:null, time:null, slotIso:null, availabilityDays:[], availabilityLoading:false, bookingId:null, attendant:'', addons:{crm:false,social:false}, holdT:null, holdLeft:HOLD_SEC }; render(); }
   };
 
   window.__fnSaveThanks = saveThanksData;
 
-  // close any open custom dropdown when clicking outside it
   document.addEventListener('click', (e) => {
     if (!e.target.closest('.fn-select')) {
       document.querySelectorAll('.fn-select.open').forEach((el) => el.classList.remove('open'));

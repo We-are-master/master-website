@@ -232,6 +232,11 @@ export interface CreateEventInput {
   notifyEmail: string
 }
 
+function formatQuizValue(v: unknown): string {
+  if (Array.isArray(v)) return v.join(', ')
+  return String(v ?? '')
+}
+
 export async function createOnboardingEvent(input: CreateEventInput): Promise<{ eventId: string; htmlLink: string }> {
   const sa = parseServiceAccount()
   const calendarId = getCalendarId()
@@ -250,7 +255,7 @@ export async function createOnboardingEvent(input: CreateEventInput): Promise<{ 
     `Plan: ${input.plan} (${input.payMode})`,
     '',
     'Quiz:',
-    ...Object.entries(input.quizAnswers).map(([k, v]) => `- ${k}: ${v}`),
+    ...Object.entries(input.quizAnswers).map(([k, v]) => `- ${k}: ${formatQuizValue(v)}`),
   ].filter(Boolean).join('\n')
 
   const res = await fetch(

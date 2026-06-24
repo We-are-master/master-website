@@ -7,7 +7,7 @@
 
 ## Frontend env (Vite / Vercel)
 
-Set in `.env` or Vercel project settings:
+Set in `.env` or Vercel project settings. **Full guide:** [`GROWTH-SETUP.md`](../../GROWTH-SETUP.md) (repo root).
 
 - `VITE_SUPABASE_URL`
 - `VITE_SUPABASE_ANON_KEY`
@@ -21,7 +21,7 @@ Set in `.env` or Vercel project settings:
 |--------|---------|
 | `STRIPE_SECRET_KEY` | Stripe API |
 | `STRIPE_WEBHOOK_SECRET` | Webhook signature |
-| `STRIPE_GROWTH_MONTHLY_PRICE_ID` | Stripe Price ID for £79/mo plan |
+| `STRIPE_GROWTH_PRICE_ID` | Stripe Price ID for £379 one-off (required; amount from Stripe) |
 | `GOOGLE_SERVICE_ACCOUNT_JSON` | Full JSON key for Calendar API service account |
 | `GROWTH_CALENDAR_ID` | Your Google Calendar ID (share calendar with SA email) |
 | `GROWTH_NOTIFY_EMAIL` | Internal notifications (default: `victor@getfixfy.com`) |
@@ -42,7 +42,10 @@ Run migration: `supabase/migrations/20260619120000_growth_bookings.sql`
 
 ```bash
 npm run deploy:growth
+# or all integrations: npm run deploy:integrations
 ```
+
+See [`GROWTH-SETUP.md`](../../GROWTH-SETUP.md) for Stripe, Calendar, and secrets.
 
 ## Stripe webhook
 

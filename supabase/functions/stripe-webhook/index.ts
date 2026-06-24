@@ -116,6 +116,13 @@ async function handleGrowthPayment(
     minute: '2-digit',
   })
 
+  const quiz = (booking.quiz_answers || {}) as Record<string, unknown>
+  const tradesRaw = quiz.trade
+  const tradesLabel = Array.isArray(tradesRaw)
+    ? tradesRaw.join(' & ')
+    : String(tradesRaw || '')
+  const attendantName = String(quiz.attendant_name || '')
+
   const emailPayload = {
     name: booking.lead_name,
     businessName: booking.biz_name || booking.lead_name,
@@ -125,6 +132,8 @@ async function handleGrowthPayment(
     calendarLink: calendarLink || '',
     amountPence: booking.amount_pence,
     quizAnswers: booking.quiz_answers,
+    trades: tradesLabel,
+    attendantName,
     leadEmail: booking.lead_email,
     leadPhone: booking.lead_phone,
     paymentIntentId,

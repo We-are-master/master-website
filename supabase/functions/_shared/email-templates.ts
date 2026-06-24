@@ -910,9 +910,12 @@ This is an automated message. Please do not reply directly to this email.`
       const businessName = String(data.businessName || 'your business')
       const slotLabel = String(data.slotLabel || 'your scheduled time')
       const calendarLink = String(data.calendarLink || '')
-      const plan = String(data.plan || 'monthly')
+      const attendantName = String(data.attendantName || '')
+      const trades = String(data.trades || '')
+      const amountPence = Number(data.amountPence) || 37900
+      const amountLabel = `£${(amountPence / 100).toFixed(0)} one-off`
       return {
-        subject: `You're in, ${firstName} — your Fixfy Growth onboarding is locked in`,
+        subject: `You're in, ${firstName} — your Fixfy Growth order is confirmed`,
         html: `
 <!DOCTYPE html>
 <html>
@@ -922,19 +925,29 @@ This is an automated message. Please do not reply directly to this email.`
     <div class="header"><img src="${MASTER_LOGO_URL}" alt="Fixfy" style="display:block;max-height:44px;width:auto;margin:0 auto;" /></div>
     <div class="content">
       <p>Hi ${firstName},</p>
-      <p>Welcome to <strong>Fixfy Growth</strong> — your onboarding for <strong>${businessName}</strong> is confirmed.</p>
-      <p><strong>Onboarding call:</strong> ${slotLabel} (London time) · 15 minutes</p>
+      <p>Thank you — your <strong>Fixfy Growth</strong> order for <strong>${businessName}</strong> is confirmed.</p>
+      <p style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:16px 18px;line-height:1.7">
+        <strong>Order summary</strong><br>
+        Plan: Fixfy Growth — ${amountLabel}<br>
+        ${trades ? `Trade: ${trades}<br>` : ''}
+        Onboarding: ${slotLabel} (London time) · 15 minutes
+      </p>
+      ${attendantName ? `<p>Your onboarding specialist is <strong>${attendantName}</strong> — she'll walk you through your 7-day build on the call.</p>` : '<p>Your onboarding specialist will walk you through your 7-day build on the call.</p>'}
       ${calendarLink ? `<p style="text-align:center;"><a href="${calendarLink}" class="button">Add to calendar</a></p>` : '<p>You will receive a Google Calendar invite shortly with the video link.</p>'}
-      <p><strong>Plan:</strong> ${plan === 'onetime' ? 'One-time £499' : 'Monthly £79/mo'}</p>
-      <p>Before the call, have ready: your logo, 5–10 photos of your work, your services list, and your service area.</p>
-      <p>Next: onboarding call → we build (7 days) → you review &amp; go live.</p>
+      <p><strong>What happens next</strong></p>
+      <ol style="line-height:1.8;padding-left:20px">
+        <li><strong>Onboarding call</strong> (15 min) — we learn your business and lock the build brief.</li>
+        <li><strong>We build</strong> (7 days) — website, booking, CRM, SEO and automations.</li>
+        <li><strong>You review &amp; go live</strong> — your site goes live, you own everything.</li>
+      </ol>
+      <p><strong>Before the call, have ready:</strong> your logo, 5–10 photos of your work, your services list, and your service area.</p>
       <div class="signature"><p>Fixfy Growth Team <span class="heart">🧡</span></p></div>
     </div>
     <div class="footer"><p>Fixfy Growth · hello@getfixfy.com</p></div>
   </div>
 </body>
 </html>`,
-        text: `Hi ${firstName},\n\nWelcome to Fixfy Growth — your onboarding for ${businessName} is confirmed.\n\nOnboarding call: ${slotLabel} (London time)\n\nPlan: ${plan}\n\nYou will receive a calendar invite with the video link.\n\nFixfy Growth Team`,
+        text: `Hi ${firstName},\n\nYour Fixfy Growth order for ${businessName} is confirmed.\n\nPlan: ${amountLabel}\n${trades ? `Trade: ${trades}\n` : ''}Onboarding: ${slotLabel} (London time)\n${attendantName ? `Specialist: ${attendantName}\n` : ''}\nNext: onboarding call → we build (7 days) → you review & go live.\n\nFixfy Growth Team`,
       }
     }
 
@@ -942,9 +955,14 @@ This is an automated message. Please do not reply directly to this email.`
       const businessName = String(data.businessName || '')
       const slotLabel = String(data.slotLabel || '')
       const calendarLink = String(data.calendarLink || '')
+      const attendantName = String(data.attendantName || '')
+      const trades = String(data.trades || '')
       const quiz = data.quizAnswers as Record<string, unknown> | undefined
       const quizLines = quiz
-        ? Object.entries(quiz).map(([k, v]) => `<li><strong>${k}:</strong> ${String(v)}</li>`).join('')
+        ? Object.entries(quiz).map(([k, v]) => {
+            const val = Array.isArray(v) ? v.join(', ') : String(v)
+            return `<li><strong>${k}:</strong> ${val}</li>`
+          }).join('')
         : ''
       return {
         subject: `New Fixfy Growth booking — ${businessName || data.name}`,
@@ -962,9 +980,10 @@ This is an automated message. Please do not reply directly to this email.`
         <li><strong>Email:</strong> ${String(data.leadEmail || '')}</li>
         <li><strong>Phone:</strong> ${String(data.leadPhone || '—')}</li>
         <li><strong>Business:</strong> ${businessName}</li>
-        <li><strong>Plan:</strong> ${String(data.plan || '')} (${String(data.payMode || '')})</li>
+        <li><strong>Trade:</strong> ${trades || '—'}</li>
+        <li><strong>Specialist:</strong> ${attendantName || '—'}</li>
+        <li><strong>Plan:</strong> Fixfy Growth (£${((Number(data.amountPence) || 37900) / 100).toFixed(0)} one-off)</li>
         <li><strong>Slot:</strong> ${slotLabel}</li>
-        <li><strong>Amount:</strong> £${((Number(data.amountPence) || 0) / 100).toFixed(2)}</li>
         <li><strong>Stripe PI:</strong> ${String(data.paymentIntentId || '')}</li>
       </ul>
       ${quizLines ? `<p><strong>Quiz</strong></p><ul>${quizLines}</ul>` : ''}
@@ -974,7 +993,7 @@ This is an automated message. Please do not reply directly to this email.`
   </div>
 </body>
 </html>`,
-        text: `New Fixfy Growth booking\n${String(data.name)}\n${String(data.leadEmail)}\n${businessName}\n${slotLabel}`,
+        text: `New Fixfy Growth booking\n${String(data.name)}\n${String(data.leadEmail)}\n${businessName}\n${trades}\n${slotLabel}`,
       }
     }
 

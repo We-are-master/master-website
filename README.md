@@ -138,10 +138,22 @@ All content is easily customizable in the respective component files. Key areas:
 
 ## Environment Variables
 
-The following environment variables are required:
+**Growth + Network + Stripe + Calendar:** see **[GROWTH-SETUP.md](GROWTH-SETUP.md)** for the full integration checklist.
+
+Quick local setup:
+
+```bash
+cp .env.example .env   # set VITE_SUPABASE_ANON_KEY
+npm run setup:verify
+```
+
+Required for frontend (`.env` + Vercel):
 
 - `VITE_SUPABASE_URL`: Your Supabase project URL (e.g., `https://supabase.wearemaster.com`)
 - `VITE_SUPABASE_ANON_KEY`: Your Supabase anonymous/public key
+- `VITE_STRIPE_PUBLISHABLE_KEY`: Stripe publishable key (`pk_test_` or `pk_live_`)
+
+Production Vercel template: [`vercel.env.production.example`](vercel.env.production.example)
 
 ### Setting Environment Variables in Production (Vercel)
 

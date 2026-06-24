@@ -14,8 +14,18 @@
     "deploy:functions": "supabase functions deploy",
     "deploy:function": "supabase functions deploy",
     "deploy:contact": "supabase functions deploy submit-contact-enquiry send-email",
-    "deploy:growth": "supabase functions deploy growth-availability create-growth-checkout growth-calendar-event stripe-webhook send-email",
-    "deploy:network": "supabase functions deploy create-network-checkout redeem-network-access stripe-webhook send-email"
+    "deploy:growth": "supabase functions deploy growth-availability create-growth-checkout growth-calendar-event book-meeting update-growth-quiz stripe-webhook send-email",
+    "deploy:network": "supabase functions deploy create-network-checkout redeem-network-access stripe-webhook send-email",
+    "deploy:integrations": "supabase functions deploy growth-availability create-growth-checkout growth-calendar-event book-meeting update-growth-quiz create-network-checkout redeem-network-access stripe-webhook send-email",
+    "setup:verify": "node scripts/verify-integration-setup.mjs",
+    "setup:stripe": "node scripts/setup-stripe-products.mjs",
+    "setup:webhook": "node scripts/setup-stripe-webhook.mjs",
+    "setup:supabase-stripe-secrets": "node scripts/setup-supabase-stripe-secrets.mjs",
+    "setup:calendar": "node scripts/setup-google-calendar.mjs",
+    "setup:migrations": "node scripts/print-growth-network-migrations.mjs",
+    "setup:migrations:apply": "supabase db push",
+    "setup:secrets:print": "node scripts/print-supabase-secrets-checklist.mjs",
+    "setup:secrets:apply": "node scripts/apply-supabase-secrets.mjs"
   },
   "dependencies": {
     "@react-google-maps/api": "^2.19.3",
@@ -25,6 +35,7 @@
     "@vercel/analytics": "^1.6.1",
     "framer-motion": "^11.11.17",
     "gray-matter": "^4.0.3",
+    "jose": "^6.2.3",
     "lucide-react": "^0.294.0",
     "marked": "^18.0.2",
     "openai": "^4.20.0",
@@ -32,6 +43,7 @@
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.20.1",
     "react-toastify": "^11.0.5",
+    "stripe": "^22.2.3",
     "use-places-autocomplete": "^4.0.0"
   },
   "devDependencies": {
