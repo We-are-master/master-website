@@ -31,6 +31,8 @@ function growthConfigBody(env) {
     supabaseAnonKey: env.VITE_SUPABASE_ANON_KEY || '',
     stripePublishableKey: env.VITE_STRIPE_PUBLISHABLE_KEY || '',
     apiBase,
+    partnerPortalGetStartedUrl:
+      (env.VITE_PARTNER_PORTAL_GET_STARTED_URL || 'https://partners.getfixfy.com/get-started').replace(/\/$/, ''),
   }
   return `window.GROWTH_CONFIG = ${JSON.stringify(payload)};\nwindow.NETWORK_CONFIG = ${JSON.stringify(payload)};\n`
 }

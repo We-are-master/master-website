@@ -60,15 +60,17 @@ Ensure `stripe-webhook` receives:
 - `customer.subscription.created`
 - `customer.subscription.updated`
 
-## Post-payment redirect
+## Post-checkout / token redirect
 
-After successful checkout, users are sent to:
+After token access (`?access=`) or legacy paid checkout (`?pay=1`), users are sent to:
 
 ```
-https://partners.getfixfy.com/?name=...&email=...&phone=...&business=...&trade=...
+https://partners.getfixfy.com/get-started?name=...&email=...&phone=...&business=...&trades=...
 ```
 
-The partner portal should read these query params to pre-fill signup and skip the create-quote screen.
+The default public funnel (`/network/start` without `?pay=1`) skips payment and redirects there directly after step 3.
+
+For local dev, set `VITE_PARTNER_PORTAL_GET_STARTED_URL=http://localhost:3001/get-started` in `.env`.
 
 ## Local test
 

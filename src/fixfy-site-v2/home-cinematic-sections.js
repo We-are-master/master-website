@@ -233,7 +233,7 @@ export function CinFAQ() {
     },
     {
       q: 'How do I become a trade partner?',
-      a: 'Visit our <a href="https://getfixfy.com/network" style="color:var(--fx-coral);text-decoration:underline">partner programme</a> to apply, then sign up at <a href="https://partners.getfixfy.com" style="color:var(--fx-coral);text-decoration:underline">partners.getfixfy.com</a>. Vetted trades across London get access to commercial jobs, recurring maintenance work and pre-booked requests through the Fixfy operating system.',
+      a: 'Visit our <a href="https://getfixfy.com/network/start" style="color:var(--fx-coral);text-decoration:underline">partner programme</a> to apply — you\'ll get 7 days free in the Fixfy Trade Portal with no card required. Vetted trades across London get access to commercial jobs, recurring maintenance work and pre-booked requests through the Fixfy operating system.',
     },
   ]
   return `
