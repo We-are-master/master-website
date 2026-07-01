@@ -39,7 +39,20 @@
   if (lead.phone) params.set('phone', lead.phone);
   if (biz.bizname) params.set('business', biz.bizname);
   if (data.trade) params.set('trade', data.trade);
-  var url = data.onboardingUrl || ('https://partners.getfixfy.com/?' + params.toString());
+  // encaminha o PLANO (e trades/signup) escolhidos no onboarding pro partners —
+  // sem isso a create-account do partners barra em "Choose a plan first".
+  if (data.plan) params.set('plan', data.plan);
+  if (data.trades && data.trades.length) params.set('trades', [].concat(data.trades).join(','));
+  if (data.signupId) params.set('signup', data.signupId);
+  // usa a URL do backend quando existir, mas garante que os params (esp. plan) estejam nela
+  var url;
+  try {
+    var base = new URL(data.onboardingUrl || 'https://partners.getfixfy.com/');
+    params.forEach(function (v, k) { if (!base.searchParams.has(k)) base.searchParams.set(k, v); });
+    url = base.toString();
+  } catch (e) {
+    url = 'https://partners.getfixfy.com/?' + params.toString();
+  }
   var leadEl = document.getElementById('nw-ty-lead');
   if (leadEl) {
     leadEl.textContent = waived

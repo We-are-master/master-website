@@ -18,7 +18,7 @@ const PageFixfyPro = () => `
         </div>
 
         <div class="v2-hero-cta">
-          <a href="https://partners.getfixfy.com" class="v2-btn v2-btn-primary">Start FixfyPro <span class="arr">→</span></a>
+          <a href="/network/start" class="v2-btn v2-btn-primary">Start FixfyPro <span class="arr">→</span></a>
           <a href="/fixfypro/demo" class="v2-btn v2-btn-coral-outline">Book a 10-min demo</a>
         </div>
       </div>
@@ -254,7 +254,7 @@ const PageFixfyPro = () => `
 
     <div style="margin-top:48px;display:flex;gap:12px;flex-wrap:wrap">
       <a href="/contact" class="v2-btn v2-btn-outline" style="background:#fff;color:var(--fx-coral);border-color:#fff">For Business <span class="arr">→</span></a>
-      <a href="https://partners.getfixfy.com" class="v2-btn v2-btn-outline">Start FixfyPro · £49/mo</a>
+      <a href="/network/start" class="v2-btn v2-btn-outline">Start FixfyPro · £49/mo</a>
     </div>
   </div>
 </section>
@@ -279,7 +279,7 @@ const PageFixfyPro = () => `
         <li>Compliance docs &amp; certificate library</li>
         <li>Bookkeeping export · Xero / QuickBooks / FreeAgent</li>
       </ul>
-      <a href="https://partners.getfixfy.com" class="v2-btn v2-btn-primary" style="width:100%;justify-content:center">Start FixfyPro <span class="arr">→</span></a>
+      <a href="/network/start" class="v2-btn v2-btn-primary" style="width:100%;justify-content:center">Start FixfyPro <span class="arr">→</span></a>
       <p class="small-print">Payment processing fees apply at standard rates. Annual billing saves 15%.</p>
     </div>
   </div>
