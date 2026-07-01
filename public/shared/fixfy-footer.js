@@ -4,7 +4,7 @@
 
   function html(opts) {
     opts = opts || {};
-    var ctaHref = opts.ctaHref || '/network/start';
+    var ctaHref = opts.ctaHref || 'https://partners.getfixfy.com/get-started';
     var ctaLabel = opts.ctaLabel || 'Join now';
     return (
       '<footer class="fx-foot">' +

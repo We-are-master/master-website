@@ -18,7 +18,7 @@ export default function FixfyV2Footer() {
             <span className="fx-foot-price">
               From <b>£99</b>/mo · <b>£499</b>/yr
             </span>
-            <a className="fx-foot-btn" href="/network/start">
+            <a className="fx-foot-btn" href="https://partners.getfixfy.com/get-started">
               Join now <span className="arr">→</span>
             </a>
           </div>

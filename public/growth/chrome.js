@@ -70,7 +70,7 @@
 
   function footer() {
     if (window.FixfyFooter) {
-      return window.FixfyFooter.html({ ctaHref: '/network/start' });
+      return window.FixfyFooter.html({ ctaHref: 'https://partners.getfixfy.com/get-started' });
     }
     return `
     <footer class="fx-foot">
@@ -82,7 +82,7 @@
           </div>
           <div class="fx-foot-cta">
             <span class="fx-foot-price">From <b>£99</b>/mo · <b>£499</b>/yr</span>
-            <a class="fx-foot-btn" href="/network/start">Join now <span class="arr">→</span></a>
+            <a class="fx-foot-btn" href="https://partners.getfixfy.com/get-started">Join now <span class="arr">→</span></a>
           </div>
         </div>
         <div class="fx-foot-bot">

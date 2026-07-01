@@ -6,16 +6,35 @@
       "source": "/partners",
       "destination": "/network",
       "permanent": true
+    },
+    {
+      "source": "/network/start",
+      "has": [{ "type": "query", "key": "pay", "value": "1" }],
+      "destination": "/network/start-legacy.html",
+      "permanent": false
+    },
+    {
+      "source": "/network/start",
+      "has": [{ "type": "query", "key": "access" }],
+      "destination": "/network/start-legacy.html",
+      "permanent": false
+    },
+    {
+      "source": "/network/start",
+      "has": [{ "type": "query", "key": "invite" }],
+      "destination": "/network/start-legacy.html",
+      "permanent": false
+    },
+    {
+      "source": "/network/start",
+      "destination": "https://partners.getfixfy.com/get-started",
+      "permanent": false
     }
   ],
   "rewrites": [
     {
       "source": "/network",
       "destination": "/network/index.html"
-    },
-    {
-      "source": "/network/start",
-      "destination": "/network/start.html"
     },
     {
       "source": "/growth",
