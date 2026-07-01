@@ -4,6 +4,23 @@
 (function () {
   'use strict';
 
+  /* ---- Partner signup CTAs (single URL for /network landing) ---- */
+  var PARTNER_GET_STARTED =
+    (window.NETWORK_CONFIG && window.NETWORK_CONFIG.partnerPortalGetStartedUrl) ||
+    'https://partners.getfixfy.com/get-started';
+
+  function initPartnerCtas() {
+    document.querySelectorAll('[data-partner-signup]').forEach(function (a) {
+      a.setAttribute('href', PARTNER_GET_STARTED);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initPartnerCtas);
+  } else {
+    initPartnerCtas();
+  }
+
   /* ---- Lucide icons ---- */
   function initIcons() {
     if (window.lucide && typeof window.lucide.createIcons === 'function') {
