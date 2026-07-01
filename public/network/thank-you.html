@@ -47,11 +47,11 @@
   // usa a URL do backend quando existir, mas garante que os params (esp. plan) estejam nela
   var url;
   try {
-    var base = new URL(data.onboardingUrl || 'https://partners.getfixfy.com/');
+    var base = new URL(data.onboardingUrl || 'https://partners.getfixfy.com/get-started');
     params.forEach(function (v, k) { if (!base.searchParams.has(k)) base.searchParams.set(k, v); });
     url = base.toString();
   } catch (e) {
-    url = 'https://partners.getfixfy.com/?' + params.toString();
+    url = 'https://partners.getfixfy.com/get-started?' + params.toString();
   }
   var leadEl = document.getElementById('nw-ty-lead');
   if (leadEl) {

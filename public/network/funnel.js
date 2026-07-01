@@ -28,10 +28,13 @@
     { name: 'Dan W.', trade: 'Plumber', text: 'Worth every penny on annual. Leads are real and from proper commercial clients.', stars: 5 },
   ];
 
-  // Fixfy Network is a no-payment, 7-days-free flow: the trade onboards here, then lands in the
-  // Trade Portal (/get-started) where the free trial + document upload happens. `?pay=1` restores
-  // the legacy paid checkout; `?access=`/`?invite=` keeps the legacy tokened access flow.
-  var PORTAL_GET_STARTED_URL = 'https://partners.getfixfy.com/get-started';
+  // Fixfy Network is a no-payment, 7-days-free flow: the trade onboards on the Trade Portal
+  // (/get-started) where the free trial + document upload happens. `?pay=1` restores the legacy
+  // paid checkout; `?access=`/`?invite=` keeps the legacy tokened access flow.
+  function portalGetStartedUrl() {
+    var c = cfg();
+    return (c && c.partnerPortalGetStartedUrl) || 'https://partners.getfixfy.com/get-started';
+  }
   var qs = new URLSearchParams(location.search);
   var accessToken = (qs.get('access') || qs.get('invite') || '').trim();
   var skipPayment = qs.get('pay') !== '1';
@@ -468,7 +471,7 @@
     if (S.lead.phone) p.set('phone', S.lead.phone);
     if (S.biz.bizname) p.set('business', S.biz.bizname);
     if (S.trades.length) p.set('trades', S.trades.join(','));
-    window.location.href = PORTAL_GET_STARTED_URL + '?' + p.toString();
+    window.location.href = portalGetStartedUrl() + '?' + p.toString();
   }
 
   function render() {

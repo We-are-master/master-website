@@ -18,7 +18,7 @@ function onboardingUrl(name: string, email: string, phone: string, business: str
   if (business) params.set('business', business)
   if (trade) params.set('trade', trade)
   if (trades) params.set('trades', trades)
-  return `https://partners.getfixfy.com/?${params.toString()}`
+  return `https://partners.getfixfy.com/get-started?${params.toString()}`
 }
 
 serve(async (req) => {
