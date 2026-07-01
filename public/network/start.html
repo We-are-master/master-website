@@ -3,40 +3,23 @@
 <head>
 <meta charset="utf-8"/>
 <title>Join Fixfy Network</title>
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
-<base href="/network/"/>
-<link rel="stylesheet" href="/growth/growth.css?v=14"/>
-<link rel="stylesheet" href="/growth/funnel.css?v=31"/>
-<link rel="stylesheet" href="/network/funnel.css?v=9"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
 <link rel="icon" type="image/png" href="/favicon.png"/>
+<script src="network-config.js?v=2"></script>
+<script>
+(function () {
+  var qs = new URLSearchParams(location.search);
+  if (qs.get('pay') === '1' || qs.get('access') || qs.get('invite')) {
+    location.replace('start-legacy.html' + location.search);
+    return;
+  }
+  var cfg = window.NETWORK_CONFIG || window.GROWTH_CONFIG || {};
+  var base = (cfg.partnerPortalGetStartedUrl || 'https://partners.getfixfy.com/get-started').replace(/\/$/, '');
+  location.replace(base + location.search);
+})();
+</script>
 </head>
-<body class="fn-body nw-fn-body" data-fn="conversational">
-
-<div class="nw-ambient" aria-hidden="true">
-  <div class="nw-atmos">
-    <div class="blob b1"></div>
-    <div class="blob b2"></div>
-    <div class="blob b3"></div>
-  </div>
-  <div class="nw-cin-grid"></div>
-  <div class="nw-cin-vignette"></div>
-</div>
-
-<div class="fn-top">
-  <div class="fn-top-in">
-    <a href="index.html" class="g-brand">
-      <img src="/network/fixfy-white.png" alt="Fixfy" style="height:32px"/>
-    </a>
-    <div class="fn-progress"><i id="nw-bar" style="width:0%"></i></div>
-    <span class="fn-step-label" id="nw-step-label">Start</span>
-    <a href="index.html" class="fn-exit">Exit ✕</a>
-  </div>
-</div>
-
-<main id="nw-root" class="fn-shell"></main>
-
-<script src="network-config.js?v=1"></script>
-<script src="network-checkout.js?v=3"></script>
-<script src="funnel.js?v=12"></script>
+<body style="margin:0;min-height:100vh;display:grid;place-items:center;font-family:system-ui,sans-serif;background:#020040;color:#fff">
+<p>Opening Fixfy Trade Portal…</p>
 </body>
 </html>

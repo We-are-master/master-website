@@ -93,8 +93,7 @@ function AppContent() {
         <Route path="/terms" element={<TermsStubV2 />} />
         <Route path="/security" element={<SecurityStubV2 />} />
         <Route path="/dpa" element={<DpaStubV2 />} />
-        {/* passa pelo onboarding /network/start (que coleta o plano) antes do partners */}
-        <Route path="/fixfypro/start" element={<ExternalRedirect to="/network/start" />} />
+        <Route path="/fixfypro/start" element={<ExternalRedirect to="https://partners.getfixfy.com/get-started" />} />
         <Route path="/fixfypro/demo" element={<Navigate to="/contact" replace />} />
         <Route path="/network" element={<ExternalRedirect to="/network/index.html" />} />
         <Route path="/partners" element={<Navigate to="/network" replace />} />

@@ -1,5 +1,5 @@
 export const PARTNERS_LANDING_URL = 'https://getfixfy.com/network'
-export const PARTNERS_SIGNUP_URL = 'https://getfixfy.com/network/start'
+export const PARTNERS_SIGNUP_URL = 'https://partners.getfixfy.com/get-started'
 export const PARTNERS_PORTAL_GET_STARTED_URL = 'https://partners.getfixfy.com/get-started'
 export const CUSTOMER_LOGIN_URL = 'https://portal.getfixfy.com'
 export const PARTNERS_LOGIN_URL = 'https://partners.getfixfy.com/login'

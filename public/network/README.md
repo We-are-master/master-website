@@ -3,7 +3,8 @@
 ## URLs
 
 - Landing: `/network` (redirect from `/partners`)
-- Funnel: `/network/start.html` or `/network/start`
+- **Partner signup:** `/network/start` → redirects to **`https://partners.getfixfy.com/get-started`** (7-day free trial, no card)
+- Legacy paid/token funnel: `/network/start?pay=1` or `?access=TOKEN` → `start-legacy.html`
 
 ## Frontend env (Vite / Vercel)
 
@@ -68,7 +69,9 @@ After token access (`?access=`) or legacy paid checkout (`?pay=1`), users are se
 https://partners.getfixfy.com/get-started?name=...&email=...&phone=...&business=...&trades=...
 ```
 
-The default public funnel (`/network/start` without `?pay=1`) skips payment and redirects there directly after step 3.
+The default path **`/network/start`** (no query) redirects straight to the Trade Portal onboarding — no quiz on getfixfy.com.
+
+Legacy **`?pay=1`** or **`?access=`** still use `start-legacy.html` on this domain.
 
 For local dev, set `VITE_PARTNER_PORTAL_GET_STARTED_URL=http://localhost:3001/get-started` in `.env`.
 
