@@ -28,9 +28,13 @@
     { name: 'Dan W.', trade: 'Plumber', text: 'Worth every penny on annual. Leads are real and from proper commercial clients.', stars: 5 },
   ];
 
+  // Fixfy Network is a no-payment, 7-days-free flow: the trade onboards here, then lands in the
+  // Trade Portal (/get-started) where the free trial + document upload happens. `?pay=1` restores
+  // the legacy paid checkout; `?access=`/`?invite=` keeps the legacy tokened access flow.
+  var PORTAL_GET_STARTED_URL = 'https://partners.getfixfy.com/get-started';
   var qs = new URLSearchParams(location.search);
   var accessToken = (qs.get('access') || qs.get('invite') || '').trim();
-  var skipPayment = !!accessToken;
+  var skipPayment = qs.get('pay') !== '1';
   var planParam = qs.get('plan');
   var initialPlan = planParam === 'monthly' ? 'monthly' : 'annual';
 
@@ -451,6 +455,22 @@
     });
   }
 
+  // Public 7-days-free path: no payment, hand straight off to the Trade Portal onboarding
+  // (/get-started) with the collected details prefilled. The portal creates the account,
+  // starts the free trial and collects the mandatory documents.
+  function goToPortal() {
+    var btn = document.getElementById('nw-details-btn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Setting up…'; }
+    syncTrades();
+    var p = new URLSearchParams();
+    if (S.lead.name) p.set('name', S.lead.name);
+    if (S.lead.email) p.set('email', S.lead.email);
+    if (S.lead.phone) p.set('phone', S.lead.phone);
+    if (S.biz.bizname) p.set('business', S.biz.bizname);
+    if (S.trades.length) p.set('trades', S.trades.join(','));
+    window.location.href = PORTAL_GET_STARTED_URL + '?' + p.toString();
+  }
+
   function render() {
     var el = root();
     if (!el) return;
@@ -497,7 +517,8 @@
       if (S.i === 2) {
         if (!validateDetails()) return;
         if (S.skipPayment) {
-          completeAccessSignup();
+          if (S.accessToken) completeAccessSignup();
+          else goToPortal();
           return;
         }
       }
