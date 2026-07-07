@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import FixfyLogo from '../FixfyLogo'
 import {
-  PARTNERS_LANDING_URL,
+  PARTNERS_SIGNUP_URL,
   CUSTOMER_LOGIN_URL,
   PARTNERS_LOGIN_URL,
 } from '../../lib/partnerUrls'
@@ -85,7 +85,7 @@ export default function FixfyV2Nav() {
             </NavLink>
           </div>
           <div className="v2-nav-cta">
-            <a href={PARTNERS_LANDING_URL} className="v2-nav-link ghost" onClick={closeMenu}>
+            <a href={PARTNERS_SIGNUP_URL} className="v2-nav-link ghost" onClick={closeMenu}>
               Become a partner
             </a>
             <div className="v2-nav-link-wrap v2-nav-link-wrap--login">
