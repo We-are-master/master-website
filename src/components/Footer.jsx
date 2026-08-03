@@ -124,9 +124,8 @@ const Footer = () => {
                   <MapPin className="w-5 h-5" style={{color: '#ED4B00', marginRight: '0.75rem', marginTop: '0.25rem', flexShrink: 0}} />
                   <div>
                     <p style={{color: '#e5e7eb', margin: 0}}>
-                      124 City Rd, London<br />
-                      EC1V 2NX<br />
-                      United Kingdom
+                      124 City Road, London<br />
+                      England, EC1V 2NX
                     </p>
                   </div>
                 </div>
@@ -163,8 +162,10 @@ const Footer = () => {
             </div>
             
             <div style={{fontSize: '0.875rem', color: '#9ca3af', textAlign: 'center'}}>
-              <strong style={{color: 'white'}}>FIXFY SERVICES TRADES LTD</strong><br />
-              Company number: <strong style={{color: 'white'}}>15406523</strong>
+              <strong style={{color: 'white'}}>Getfixfy Ltd</strong><br />
+              124 City Road, London, England, EC1V 2NX<br />
+              Company number: <strong style={{color: 'white'}}>15406523</strong><br />
+              VAT Registration Number: <strong style={{color: 'white'}}>478 1027 82</strong>
             </div>
           </div>
         </div>
@@ -173,7 +174,7 @@ const Footer = () => {
         <div style={{padding: '1.5rem 0', borderTop: '1px solid #374151'}}>
           <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between', gap: '1rem'}}>
             <div style={{color: '#9ca3af', fontSize: '0.875rem', textAlign: 'center'}}>
-              © Fixfy Ltd 2026 · Bristol · All rights reserved.
+              © Getfixfy Ltd 2026 · 124 City Road, London, England, EC1V 2NX · Company number 15406523 · VAT Registration Number: 478 1027 82
             </div>
             <div style={{display: 'flex', gap: '1.5rem', fontSize: '0.875rem'}}>
               <a href="#" style={{color: '#020040', textDecoration: 'none', transition: 'color 0.3s ease'}}>

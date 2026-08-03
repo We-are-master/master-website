@@ -20,7 +20,7 @@
             '</div>' +
           '</div>' +
           '<div class="fx-foot-bot">' +
-            '<span>© 2026 Fixfy Ltd · United Kingdom · All rights reserved.</span>' +
+            '<span>© 2026 Getfixfy Ltd · 124 City Road, London, England, EC1V 2NX · Company number 15406523 · VAT Registration Number: 478 1027 82</span>' +
             '<span class="fx-foot-mono">Fixfy Partners · partner.getfixfy.com</span>' +
           '</div>' +
         '</div>' +
