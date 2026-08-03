@@ -55,7 +55,7 @@ export default function Footer() {
         </div>
 
         <div className="fx-footer-bottom">
-          <span>&copy; Fixfy Ltd 2026 &middot; Bristol &middot; Registered in England &amp; Wales &middot; No. 14829301 &middot; getfixfy.com</span>
+          <span>&copy; Getfixfy Ltd 2026 &middot; 124 City Road, London, England, EC1V 2NX &middot; Company number 15406523 &middot; getfixfy.com</span>
           <div className="fx-links">
             <a href="https://status.getfixfy.com" target="_blank" rel="noreferrer">Status &middot; Operational</a>
             <span>United Kingdom (EN)</span>
