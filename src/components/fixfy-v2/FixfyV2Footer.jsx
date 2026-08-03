@@ -25,7 +25,7 @@ export default function FixfyV2Footer() {
         </div>
         <div className="fx-foot-bot">
           <span>
-            © 2026 Getfixfy Ltd · 124 City Road, London, England, EC1V 2NX · Company number 15406523
+            © 2026 Getfixfy Ltd · 124 City Road, London, England, EC1V 2NX · Company number 15406523 · VAT Registration Number: 478 1027 82
           </span>
           <span className="fx-foot-mono">Fixfy Partners · partner.getfixfy.com</span>
         </div>
