@@ -1,6 +1,6 @@
 /**
  * PLACEHOLDERS. Aparecem em `npm run dev` e, no site publicado, só com
- * `?preview=reviews` (com o aviso "Sample reviews"). Visitante comum nunca vê.
+ * `?preview=reviews`. Visitante comum nunca vê.
  * Servem para ver a seção cheia enquanto as reviews reais não chegam. Não
  * copiar para REVIEWS: review inventada é proibida no Reino Unido (DMCC Act).
  *

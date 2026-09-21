@@ -587,12 +587,6 @@ function useReviewList() {
   return REVIEWS.length ? REVIEWS : samples
 }
 
-/** Marca visível sempre que os exemplos aparecem: ninguém confunde com cliente real. */
-function SampleTag({ tone = 'light' }) {
-  if (REVIEWS.length) return null
-  return <p className={`mo-sample-tag mo-sample-tag--${tone}`}>Sample reviews for layout preview. Not real customers.</p>
-}
-
 /** Destaca `hl` (um trecho do próprio texto), como a frase verde do site Growth. */
 function withHighlight(text, hl) {
   const i = hl ? text.indexOf(hl) : -1
@@ -618,8 +612,6 @@ export function ReviewTicker() {
   const items = (short.length >= 4 ? short : list).slice(0, 12)
   if (items.length < 4) return null
   return (
-    <>
-    <SampleTag tone="navy" />
     <div className="mo-ticker" aria-hidden="true">
       <div className="mo-ticker__track" style={{ '--mo-ticker-dur': `${items.length * 8}s` }}>
         {[...items, ...items].map((r, i) => (
@@ -643,7 +635,6 @@ export function ReviewTicker() {
         ))}
       </div>
     </div>
-    </>
   )
 }
 
@@ -663,7 +654,6 @@ export function Reviews() {
               Real rooms, real reviews<span className="mo-dot">.</span>
             </h2>
             <p className="mo-lede">Every review comes from a booked job, with the photos from its report when the customer shares them.</p>
-            <SampleTag />
           </div>
           {sources.length > 0 && (
             <div className="mo-sources">
