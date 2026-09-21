@@ -266,10 +266,14 @@ export default function BookPage() {
             name: `${payload.contact.firstName} ${payload.contact.lastName}`,
             email: payload.contact.email,
             phone: payload.contact.phone,
+            // O Payment Element não pede endereço (fields: 'never' em todos), então a
+            // Stripe exige TODOS os campos aqui, mesmo vazios: sem `state` e sem
+            // `line2` a confirmação é recusada e nenhum pagamento passa.
             address: {
               line1: payload.address.line1,
-              line2: payload.address.line2 || undefined,
+              line2: payload.address.line2 || '',
               city: 'London',
+              state: '',
               postal_code: payload.postcode,
               country: 'GB',
             },
