@@ -1,8 +1,8 @@
 /**
- * PLACEHOLDERS. Só entram em `npm run dev` (import.meta.env.DEV), nunca no
- * build de produção. Servem para ver a seção cheia enquanto as reviews reais
- * não chegam. Não copiar para REVIEWS: review inventada é proibida no Reino
- * Unido (DMCC Act).
+ * PLACEHOLDERS. Aparecem em `npm run dev` e, no site publicado, só com
+ * `?preview=reviews` (com o aviso "Sample reviews"). Visitante comum nunca vê.
+ * Servem para ver a seção cheia enquanto as reviews reais não chegam. Não
+ * copiar para REVIEWS: review inventada é proibida no Reino Unido (DMCC Act).
  *
  * Rostos: gerados no Higgsfield (nano_banana_pro), pessoas que não existem.
  * Fotos dos jobs: `placeholder-jobs/<clean|paint|fix>/`, fotos do "depois"

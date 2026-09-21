@@ -3125,3 +3125,26 @@ body[data-site='b2c'] .zls-sptwndw {
 .mo-ticker__track {
   max-width: none;
 }
+
+/* Aviso das reviews de exemplo (dev e ?preview=reviews). */
+.mo-sample-tag {
+  margin: 14px auto 0;
+  width: fit-content;
+  max-width: 100%;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 600;
+  border: 1px dashed currentColor;
+}
+
+.mo-sample-tag--navy {
+  color: #ffcf9e;
+  margin-top: 36px;
+}
+
+.mo-sample-tag--light {
+  color: var(--mo-orange-text);
+  margin-left: 0;
+}
+

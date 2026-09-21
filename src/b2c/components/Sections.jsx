@@ -559,15 +559,38 @@ function ReviewRow({ items, reverse, seconds }) {
   )
 }
 
-/** As reviews reais; em dev, sem nenhuma real, os placeholders (nunca entram no build). */
+/**
+ * Pré-visualização das reviews de exemplo no site publicado, só para quem abre
+ * com `?preview=reviews` (vale para a sessão; `?preview=off` desliga). Visitante
+ * comum nunca vê: review inventada em público é proibida no UK (DMCC Act).
+ */
+function samplePreviewOn() {
+  if (typeof window === 'undefined') return false
+  try {
+    const flag = new URL(window.location.href).searchParams.get('preview')
+    if (flag === 'reviews') window.sessionStorage.setItem('fx_preview_reviews', '1')
+    if (flag === 'off') window.sessionStorage.removeItem('fx_preview_reviews')
+    return window.sessionStorage.getItem('fx_preview_reviews') === '1'
+  } catch {
+    return false
+  }
+}
+
+/** As reviews reais; sem nenhuma real, os exemplos só em dev ou na pré-visualização. */
 function useReviewList() {
   const [samples, setSamples] = useState([])
   useEffect(() => {
-    if (import.meta.env.DEV && REVIEWS.length === 0) {
+    if (REVIEWS.length === 0 && (import.meta.env.DEV || samplePreviewOn())) {
       import('../content/reviews.sample.js').then((m) => setSamples(m.SAMPLE_REVIEWS))
     }
   }, [])
   return REVIEWS.length ? REVIEWS : samples
+}
+
+/** Marca visível sempre que os exemplos aparecem: ninguém confunde com cliente real. */
+function SampleTag({ tone = 'light' }) {
+  if (REVIEWS.length) return null
+  return <p className={`mo-sample-tag mo-sample-tag--${tone}`}>Sample reviews for layout preview. Not real customers.</p>
 }
 
 /** Destaca `hl` (um trecho do próprio texto), como a frase verde do site Growth. */
@@ -595,6 +618,8 @@ export function ReviewTicker() {
   const items = (short.length >= 4 ? short : list).slice(0, 12)
   if (items.length < 4) return null
   return (
+    <>
+    <SampleTag tone="navy" />
     <div className="mo-ticker" aria-hidden="true">
       <div className="mo-ticker__track" style={{ '--mo-ticker-dur': `${items.length * 8}s` }}>
         {[...items, ...items].map((r, i) => (
@@ -618,6 +643,7 @@ export function ReviewTicker() {
         ))}
       </div>
     </div>
+    </>
   )
 }
 
@@ -637,6 +663,7 @@ export function Reviews() {
               Real rooms, real reviews<span className="mo-dot">.</span>
             </h2>
             <p className="mo-lede">Every review comes from a booked job, with the photos from its report when the customer shares them.</p>
+            <SampleTag />
           </div>
           {sources.length > 0 && (
             <div className="mo-sources">
