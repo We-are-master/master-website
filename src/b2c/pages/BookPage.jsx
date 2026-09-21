@@ -1069,8 +1069,9 @@ export default function BookPage() {
                     <label className="bk-check">
                       <input type="checkbox" checked={terms} onChange={(e) => setTerms(e.target.checked)} />
                       <span>
-                        I agree to the <Link to="/terms" target="_blank">booking terms</Link>. Free changes and cancellation up to{' '}
-                        {PROMISES.freeCancellationHours} hours before the slot.
+                        I agree to the <Link to="/terms" target="_blank">booking terms</Link> and ask you to do the work on the day I
+                        picked, even within my 14-day cancellation period. Free changes and cancellation up to{' '}
+                        {PROMISES.freeCancellationHours} hours before the slot, and I can no longer cancel once the work is done.
                       </span>
                     </label>
                     <ErrorText>{errors.terms}</ErrorText>

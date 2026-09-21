@@ -57,6 +57,16 @@ const STATIC_PAGES = {
     description: 'The cookies on getfixfy.com, what each one does and how to change your choice.',
     ogType: 'website',
   },
+  '/terms': {
+    title: 'Booking terms | Fixfy',
+    description: 'The terms for cleaning, painting, repairs and certificates booked and paid for on getfixfy.com.',
+    ogType: 'website',
+  },
+  '/privacy': {
+    title: 'Privacy policy | Fixfy',
+    description: 'What Fixfy collects when you book or contact us, why, who we share it with and your rights.',
+    ogType: 'website',
+  },
   // Preço = end of tenancy × 90%, arredondado para baixo (src/b2c/content/pricing.js).
   '/deep-cleaning': {
     title: 'Deep cleaning in London, fixed prices from £134 | Fixfy',

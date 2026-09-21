@@ -2921,6 +2921,147 @@ body[data-site='b2c'] .zls-sptwndw {
   text-underline-offset: 3px;
 }
 
+/* ---------- Termos e privacidade (LegalShell) ---------- */
+
+.mo-doc-head {
+  max-width: 760px;
+}
+
+.mo-doc-version {
+  margin: 18px 0 0;
+  font-size: 14px;
+  color: var(--mo-mute);
+}
+
+.mo-doc-layout {
+  display: grid;
+  gap: 32px;
+  margin-top: 40px;
+}
+
+@media (min-width: 1000px) {
+  .mo-doc-layout {
+    grid-template-columns: 240px minmax(0, 1fr);
+    gap: 64px;
+    align-items: start;
+  }
+
+  .mo-doc-toc {
+    position: sticky;
+    top: calc(env(safe-area-inset-top, 0px) + 104px);
+  }
+}
+
+.mo-doc-toc {
+  font-size: 14px;
+  border: 1px solid var(--mo-line);
+  border-radius: 14px;
+  padding: 16px 18px;
+  background: var(--mo-paper);
+}
+
+.mo-doc-toc__title {
+  font-family: var(--mo-label);
+  font-weight: 600;
+  color: var(--mo-ink);
+  margin: 0 0 10px;
+}
+
+.mo-doc-toc ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.mo-doc-toc a {
+  color: var(--mo-ink-2);
+  text-decoration: none;
+}
+
+.mo-doc-toc a:hover,
+.mo-doc-toc a:focus-visible {
+  color: var(--mo-ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.mo-doc {
+  min-width: 0;
+  max-width: 72ch;
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--mo-ink-2);
+}
+
+.mo-doc section + section {
+  margin-top: 40px;
+}
+
+.mo-doc h2 {
+  font-family: var(--mo-display);
+  font-stretch: 108%;
+  font-weight: 760;
+  font-size: clamp(21px, 2.2vw, 26px);
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: var(--mo-ink);
+  margin: 0 0 14px;
+  text-wrap: balance;
+  scroll-margin-top: 104px;
+}
+
+.mo-doc p {
+  margin: 0 0 12px;
+}
+
+.mo-doc ul {
+  margin: 0 0 12px;
+  padding-left: 20px;
+  display: grid;
+  gap: 8px;
+}
+
+.mo-doc b {
+  color: var(--mo-ink);
+}
+
+.mo-doc a {
+  color: var(--mo-ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.mo-doc .mo-legal__table {
+  margin: 4px 0 16px;
+}
+
+.mo-doc .mo-legal__table table {
+  min-width: 520px;
+}
+
+.mo-doc .mo-legal__table td:first-child {
+  width: 58%;
+}
+
+.mo-doc-box {
+  margin-top: 16px;
+  border: 1px solid var(--mo-line);
+  border-radius: 14px;
+  background: var(--mo-paper);
+  padding: 18px 20px;
+  font-size: 15px;
+}
+
+.mo-doc-box p {
+  margin: 0 0 8px;
+}
+
+.mo-doc-box p:last-child {
+  margin: 0;
+}
+
 /* ---------- CTA fixo no celular ---------- */
 
 .mo-sticky {

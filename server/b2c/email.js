@@ -2,6 +2,7 @@
  * E-mails da reserva pelo Resend (API direta, sem SDK). Dois envios: a
  * confirmação ao cliente e o aviso ao escritório. Texto em inglês.
  */
+import { TERMS } from '../../src/b2c/content/site.js'
 
 function esc(s = '') {
   return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c])
@@ -48,7 +49,8 @@ export async function sendCustomerConfirmation(env, b) {
     <p style="font-size:16px;line-height:1.5;margin:0 0 16px">Hi ${esc(b.firstName)}, your booking <b>${esc(b.ref)}</b> is in for <b>${esc(b.dateLabel)}</b>, arriving <b>${esc(b.windowLabel)}</b>, at ${esc(b.addressLine)}.</p>
     ${linesTable(b.lines, b.total)}
     <p style="font-size:15px;line-height:1.5;margin:16px 0 0">Paid by card through Stripe; your receipt arrives separately. The photo report of every room comes the same day the work is done.</p>
-    <p style="font-size:15px;line-height:1.5;margin:12px 0 0">We will call or message you the day before to confirm the team and how we get in. Free changes and cancellation up to 48 hours before your slot, refunded in full. Reply to this email if anything changes.</p>`
+    <p style="font-size:15px;line-height:1.5;margin:12px 0 0">We will call or message you the day before to confirm the team and how we get in. Free changes and cancellation up to 48 hours before your slot, refunded in full. Reply to this email if anything changes.</p>
+    <p style="font-size:13px;line-height:1.5;color:#6b6b85;margin:16px 0 0">Your booking is under our <a href="${esc(env.siteUrl)}/terms" style="color:#0a0a1f">booking terms</a> (version of ${esc(TERMS.version)}), which also explain your legal right to cancel within 14 days and how to use it. You asked us to do the work on the day you picked, so once it is done it can no longer be cancelled.</p>`
   return send(env, {
     to: b.email,
     subject: `Booked: ${b.summary} on ${b.dateLabel} (${b.ref})`,
