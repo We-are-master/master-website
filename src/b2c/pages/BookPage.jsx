@@ -34,6 +34,10 @@ import '../book.css'
 
 const EmbeddedPayment = lazy(() => import('../components/EmbeddedPayment.jsx'))
 
+// No domínio publicado, reserva só existe em modo live: o ensaio (modo test)
+// daria "reservado" a um cliente de verdade sem nada chegar ao escritório.
+const LIVE_HOST = typeof window !== 'undefined' && /(^|\.)getfixfy\.com$/.test(window.location.hostname)
+
 
 const STEPS = [
   { id: 'move', label: 'Your job' },
@@ -273,7 +277,7 @@ export default function BookPage() {
         })
         if (result.error) throw new Error(result.error)
         const res = await submitBooking({ paymentIntentId: result.paymentIntentId })
-        track('booking_confirmed', { value: res.total, ref: res.ref })
+        if (res.mode === 'live') track('booking_confirmed', { value: res.total, ref: res.ref })
         clearBooking()
         navigate('/book/confirmed', { replace: true, state: res })
         return
@@ -287,12 +291,11 @@ export default function BookPage() {
         window.location.assign(checkout.url)
         return
       }
-      if (config.mode === 'live') {
+      if (config.mode === 'live' || LIVE_HOST) {
         throw new Error(`Online payment is not available right now. Please try again in a few minutes or email ${COMPANY.email}.`)
       }
-      // Modo test sem Stripe: ensaio do fluxo, nada cobrado nem gravado.
+      // Modo test sem Stripe: ensaio do fluxo, nada cobrado nem gravado (e nada vai para o Pixel).
       const res = await submitBooking(payload)
-      track('booking_confirmed', { value: res.total, ref: res.ref })
       clearBooking()
       navigate('/book/confirmed', { replace: true, state: res })
     } catch (err) {
@@ -1038,7 +1041,7 @@ export default function BookPage() {
                           before, refunded in full.
                         </p>
                       </div>
-                    ) : config.mode !== 'live' ? (
+                    ) : config.mode !== 'live' && !LIVE_HOST ? (
                       <div className="bk-pay bk-pay--link">
                         <p className="bk-pay__lead">
                           <b>Test mode.</b> Nothing is charged: the booking goes through so the flow can be checked.

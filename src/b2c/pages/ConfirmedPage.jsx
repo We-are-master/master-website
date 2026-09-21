@@ -34,7 +34,7 @@ function usePaidSession(reference) {
       .then((data) => {
         if (cancelled) return
         clearBooking()
-        track('booking_confirmed', { value: data.total, ref: data.ref })
+        if (data.mode === 'live') track('booking_confirmed', { value: data.total, ref: data.ref })
         setResult({ status: 'done', data })
       })
       .catch((err) => {
