@@ -40,6 +40,18 @@ const STATIC_PAGES = {
     keywords: 'end of tenancy cleaning London, move out cleaning, deposit cleaning, check-out cleaning SE London, E London',
     ogType: 'website',
   },
+  '/book': {
+    title: 'Book cleaning, painting, repairs or certificates at a fixed price | Fixfy',
+    description: 'Fixed prices for cleaning, painting, repairs and landlord certificates in London. Book and pay online in two minutes.',
+    ogType: 'website',
+    noindex: true,
+  },
+  '/book/confirmed': {
+    title: 'Booking confirmed | Fixfy',
+    description: 'Your Fixfy booking is confirmed. A photo of every room when we finish.',
+    ogType: 'website',
+    noindex: true,
+  },
   // Preço = end of tenancy × 90%, arredondado para baixo (src/b2c/content/pricing.js).
   '/deep-cleaning': {
     title: 'Deep cleaning in London, fixed prices from £134 | Fixfy',
@@ -168,8 +180,11 @@ function buildHead(route, meta, posts) {
   tags.push(`<meta name="description" content="${esc(meta.description)}"/>`)
   if (meta.keywords) tags.push(`<meta name="keywords" content="${esc(meta.keywords)}"/>`)
   tags.push(`<meta name="author" content="${SITE.legalName}"/>`)
-  tags.push(`<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"/>`)
-  tags.push(`<meta name="googlebot" content="index, follow"/>`)
+  // Páginas do funil (reserva e confirmação) existem como arquivo para abrir
+  // direto, mas ficam fora do Google.
+  const robots = meta.noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'
+  tags.push(`<meta name="robots" content="${robots}"/>`)
+  tags.push(`<meta name="googlebot" content="${meta.noindex ? 'noindex, nofollow' : 'index, follow'}"/>`)
 
   // Geo / UK
   tags.push(`<meta name="geo.region" content="GB"/>`)
