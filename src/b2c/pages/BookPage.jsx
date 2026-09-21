@@ -770,7 +770,9 @@ export default function BookPage() {
                                 ? serviceName('clean', sel)
                                 : id === 'paint'
                                   ? 'Touch up the walls before check-out'
-                                  : 'Holes, handles, rails and sealant'}
+                                  : id === 'fix'
+                                    ? 'Holes, handles, rails and sealant'
+                                    : 'Gas safety, electrical report and PAT'}
                             </span>
                             <span className="bk-upsell__cta">
                               from {formatGBP(FROM_PRICE[id])} <Plus size={16} strokeWidth={2.6} />
