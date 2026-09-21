@@ -41,7 +41,7 @@
       "destination": "/growth/index.html"
     },
     {
-      "source": "/((?!.*\\.).*)",
+      "source": "/(.*)",
       "destination": "/index.html"
     }
   ],
