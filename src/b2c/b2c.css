@@ -16,8 +16,8 @@ body[data-site='b2c'] {
 body[data-site='b2c'],
 body[data-site='b2c'] #root,
 body[data-site='b2c'] .App {
-  overflow-x: hidden;
-  overflow-x: clip;
+  overflow-x: hidden !important;
+  overflow-x: clip !important;
 }
 
 /* O chat da Zoho é do site B2B; no B2C o contato é outro (ver COMPANY). */
@@ -1902,6 +1902,18 @@ body[data-site='b2c'] .zls-sptwndw {
   color: var(--mo-mute);
 }
 
+/* Duas colunas com o card mais alto que o texto: o texto desce junto com a
+   rolagem até o card acabar. 96px = header fixo mais um respiro. */
+@media (min-width: 980px) {
+  .mo-standard > :first-child,
+  .mo-areas > :first-child,
+  .mo-faq-wrap > :first-child {
+    position: sticky;
+    top: 96px;
+    align-self: start;
+  }
+}
+
 /* ---------- Popular jobs ---------- */
 
 .mo-popwrap {
@@ -2339,28 +2351,6 @@ body[data-site='b2c'] .zls-sptwndw {
     gap: 64px;
     align-items: start;
   }
-}
-
-.mo-stat-row {
-  display: flex;
-  gap: 28px;
-  margin-top: 28px;
-  flex-wrap: wrap;
-}
-
-.mo-stat b {
-  display: block;
-  font-family: var(--mo-display);
-  font-stretch: 108%;
-  font-weight: 800;
-  font-size: 44px;
-  letter-spacing: -0.04em;
-  line-height: 1;
-}
-
-.mo-stat span {
-  font-size: 14px;
-  color: var(--mo-mute);
 }
 
 .mo-checklist {
