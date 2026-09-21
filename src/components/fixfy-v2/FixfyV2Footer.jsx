@@ -6,7 +6,7 @@ export default function FixfyV2Footer() {
       <div className="fx-foot-in">
         <div className="fx-foot-top">
           <div className="fx-foot-brand">
-            <Link to="/" aria-label="Fixfy — Home">
+            <Link to="/business" aria-label="Fixfy — Home">
               <img src="/network/fixfy-white.png" alt="fixfy" width="120" height="24" />
             </Link>
             <p>

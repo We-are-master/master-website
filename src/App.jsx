@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { Suspense, lazy, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
 import { Analytics } from '@vercel/analytics/react'
@@ -11,6 +11,12 @@ import Footer from './components/Footer'
 import CookieConsent from './components/CookieConsent'
 import ExternalRedirect from './components/fixfy/ExternalRedirect'
 import { SecurityHeaders } from './middleware/SecurityHeaders'
+
+// B2C — end of tenancy (página principal). Reserva e páginas de serviço sob demanda.
+import B2CHome from './b2c/pages/HomePage.jsx'
+const B2CService = lazy(() => import('./b2c/pages/ServicePage.jsx'))
+const B2CBook = lazy(() => import('./b2c/pages/BookPage.jsx'))
+const B2CConfirmed = lazy(() => import('./b2c/pages/ConfirmedPage.jsx'))
 
 // Marketing — Fixfy Design System website v2 (static HTML modules + CSS)
 import {
@@ -56,9 +62,11 @@ function ScrollToTop() {
  *   bare      — no chrome (partner application screens, etc.)
  */
 const PORTAL_ROUTES = ['/dashboard', '/new-request', '/my-requests', '/settings']
+const B2C_ROUTES    = ['/', '/end-of-tenancy-cleaning', '/deep-cleaning', '/painting', '/repairs', '/landlord-certificates', '/book', '/book/confirmed']
 const BARE_ROUTES   = ['/partner-apply', '/partner-apply/success', '/login', '/forgot-password']
 
 function chromeFor(pathname) {
+  if (B2C_ROUTES.includes(pathname)) return 'b2c'
   if (pathname.startsWith('/request/')) return 'portal'
   if (PORTAL_ROUTES.includes(pathname)) return 'portal'
   if (BARE_ROUTES.some((p) => pathname === p || pathname.startsWith(`${p}/`))) return 'bare'
@@ -77,9 +85,20 @@ function AppContent() {
       {chrome === 'marketing' && <FixfyV2Nav />}
       {chrome === 'portal'    && <HeaderB2B />}
 
+      <Suspense fallback={<div style={{ minHeight: '100vh', background: '#fff' }} />}>
       <Routes>
-        {/* Marketing — website v2 */}
-        <Route path="/" element={<HomeV2 />} />
+        {/* B2C — end of tenancy (main area) */}
+        <Route path="/" element={<B2CHome />} />
+        <Route path="/end-of-tenancy-cleaning" element={<B2CService service="clean" />} />
+        <Route path="/deep-cleaning" element={<B2CService service="clean" kind="deep" />} />
+        <Route path="/painting" element={<B2CService service="paint" />} />
+        <Route path="/repairs" element={<B2CService service="fix" />} />
+        <Route path="/landlord-certificates" element={<B2CService service="cert" />} />
+        <Route path="/book" element={<B2CBook />} />
+        <Route path="/book/confirmed" element={<B2CConfirmed />} />
+
+        {/* Marketing — website v2 (B2B home moved from / to /business) */}
+        <Route path="/business" element={<HomeV2 />} />
         <Route path="/fixfypro" element={<FixfyProV2 />} />
         <Route path="/platform" element={<PlatformV2 />} />
         <Route path="/solutions/real-estate" element={<SolutionRealEstateV2 />} />
@@ -127,11 +146,11 @@ function AppContent() {
         {/* Legacy B2C routes — redirect to home (B2C flow is archived) */}
         <Route path="/b2b"              element={<Navigate to="/" replace />} />
         <Route path="/b2c"              element={<Navigate to="/" replace />} />
-        <Route path="/booking"          element={<Navigate to="/" replace />} />
-        <Route path="/cleaning-booking" element={<Navigate to="/" replace />} />
+        <Route path="/booking"          element={<Navigate to="/book" replace />} />
+        <Route path="/cleaning-booking" element={<Navigate to="/end-of-tenancy-cleaning" replace />} />
         <Route path="/carpentry-booking" element={<Navigate to="/" replace />} />
-        <Route path="/painting-booking"  element={<Navigate to="/" replace />} />
-        <Route path="/handyman-booking"  element={<Navigate to="/" replace />} />
+        <Route path="/painting-booking"  element={<Navigate to="/painting" replace />} />
+        <Route path="/handyman-booking"  element={<Navigate to="/repairs" replace />} />
         <Route path="/checkout"          element={<Navigate to="/" replace />} />
         <Route path="/checkout-success"  element={<Navigate to="/" replace />} />
         <Route path="/customer-login"    element={<ExternalRedirect to={PORTAL_URL} />} />
@@ -143,6 +162,7 @@ function AppContent() {
         {/* 404 fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      </Suspense>
 
       {chrome === 'marketing' && <FixfyV2Footer />}
       {chrome === 'portal'    && <Footer />}

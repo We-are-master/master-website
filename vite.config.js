@@ -3,10 +3,11 @@ import react from '@vitejs/plugin-react'
 import blogMarkdown from './scripts/vite-plugin-blog.mjs'
 import staticSites from './scripts/vite-plugin-static-sites.mjs'
 import growthApi from './scripts/vite-plugin-growth-api.mjs'
+import b2cApi from './scripts/vite-plugin-b2c-api.mjs'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [staticSites(), growthApi(), blogMarkdown(), react()],
+  plugins: [staticSites(), growthApi(), b2cApi(), blogMarkdown(), react()],
   server: {
     port: 3000,
     open: true
