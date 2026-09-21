@@ -21,7 +21,7 @@ import {
 } from 'lucide-react'
 import { CERT, CLEAN, FIX, FROM_PRICE, PAINT, PROPERTY_SIZES, certPrice, cleanPrice, formatGBP, priceSelection } from '../content/pricing.js'
 import { AREA_GROUPS, OUTER_BOROUGHS, PROMISES, formatPostcode, isCovered, looksLikePostcode, postcodeArea } from '../content/site.js'
-import { CHECKLIST, CHECKLIST_COUNT, FAQS, REVIEWS, REVIEW_SOURCES } from '../content/copy.js'
+import { CHECKLIST, FAQS, REVIEWS, REVIEW_SOURCES } from '../content/copy.js'
 import { bookingHref } from '../lib/store.js'
 import ReportCard from './ReportCard.jsx'
 
@@ -341,18 +341,6 @@ export function CheckoutStandard({ kind = 'eot' }) {
               the skirting boards. So that is what our checklist covers, room by room, on every clean.
             </p>
           )}
-          <div className="mo-stat-row">
-            <div className="mo-stat">
-              <b className="mo-num">{CHECKLIST_COUNT}</b>
-              <span>checks on every clean</span>
-            </div>
-            {!deep && (
-              <div className="mo-stat">
-                <b className="mo-num">{RECLEAN} days</b>
-                <span>to ask for a free re-clean</span>
-              </div>
-            )}
-          </div>
         </div>
         <div className="mo-checklist mo-reveal">
           <div className="mo-checklist__tabs" role="tablist" aria-label="Rooms">

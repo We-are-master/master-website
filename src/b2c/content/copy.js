@@ -69,8 +69,6 @@ export const CHECKLIST = [
   },
 ]
 
-export const CHECKLIST_COUNT = CHECKLIST.reduce((n, r) => n + r.items.length, 0)
-
 /**
  * O que o cliente deixa pronto antes da visita, por serviço. Aparece na página
  * de confirmação e no e-mail de confirmação (server/b2c/email.js).
