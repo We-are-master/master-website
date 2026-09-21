@@ -2,7 +2,7 @@
  * Conteúdo editorial do B2C: o padrão de limpeza por cômodo, as perguntas
  * frequentes e as reviews. Inglês britânico, sem travessão.
  */
-import { PROMISES } from './site.js'
+import { PROMISES, TERMS } from './site.js'
 import { cleanKind } from './pricing.js'
 
 const RECLEAN = PROMISES.recleanDays.value
@@ -110,7 +110,7 @@ export const FAQS = [
   },
   {
     q: 'Can I change or cancel?',
-    a: `Yes. Changes and cancellations are free up to ${CANCEL} hours before your slot, with a full refund. Closer than that, a late cancellation fee applies.`,
+    a: `Yes. Changes and cancellations are free up to ${CANCEL} hours before your slot, with a full refund. Closer than that, we keep ${TERMS.lateCancellationPercent}% of the price, unless you booked in the last 14 days and the work has not started: then the refund is still in full. The booking terms have the detail.`,
   },
   {
     q: 'Who issues the gas and electrical certificate?',

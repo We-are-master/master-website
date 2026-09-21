@@ -18,6 +18,8 @@ const B2CService = lazy(() => import('./b2c/pages/ServicePage.jsx'))
 const B2CBook = lazy(() => import('./b2c/pages/BookPage.jsx'))
 const B2CConfirmed = lazy(() => import('./b2c/pages/ConfirmedPage.jsx'))
 const B2CCookies = lazy(() => import('./b2c/pages/CookiesPage.jsx'))
+const B2CTerms = lazy(() => import('./b2c/pages/TermsPage.jsx'))
+const B2CPrivacy = lazy(() => import('./b2c/pages/PrivacyPage.jsx'))
 
 // Marketing — Fixfy Design System website v2 (static HTML modules + CSS)
 import {
@@ -31,8 +33,6 @@ import {
   AboutV2,
   ContactV2,
   CareersStubV2,
-  PrivacyStubV2,
-  TermsStubV2,
   SecurityStubV2,
   DpaStubV2,
 } from './pages/fixfySiteV2Pages.jsx'
@@ -63,7 +63,7 @@ function ScrollToTop() {
  *   bare      — no chrome (partner application screens, etc.)
  */
 const PORTAL_ROUTES = ['/dashboard', '/new-request', '/my-requests', '/settings']
-const B2C_ROUTES    = ['/', '/end-of-tenancy-cleaning', '/deep-cleaning', '/painting', '/repairs', '/landlord-certificates', '/book', '/book/confirmed', '/cookies']
+const B2C_ROUTES    = ['/', '/end-of-tenancy-cleaning', '/deep-cleaning', '/painting', '/repairs', '/landlord-certificates', '/book', '/book/confirmed', '/cookies', '/terms', '/privacy']
 const BARE_ROUTES   = ['/partner-apply', '/partner-apply/success', '/login', '/forgot-password']
 
 function chromeFor(pathname) {
@@ -110,8 +110,14 @@ function AppContent() {
         <Route path="/about" element={<AboutV2 />} />
         <Route path="/contact" element={<ContactV2 />} />
         <Route path="/careers" element={<CareersStubV2 />} />
-        <Route path="/privacy" element={<PrivacyStubV2 />} />
-        <Route path="/terms" element={<TermsStubV2 />} />
+        <Route path="/privacy" element={<B2CPrivacy />} />
+        <Route path="/terms" element={<B2CTerms />} />
+        {/* Endereços antigos das páginas legais (rodapé antigo e banner de cookies) */}
+        <Route path="/privacy-policy" element={<Navigate to="/privacy" replace />} />
+        <Route path="/legal/privacy" element={<Navigate to="/privacy" replace />} />
+        <Route path="/legal/terms" element={<Navigate to="/terms" replace />} />
+        <Route path="/terms-and-conditions" element={<Navigate to="/terms" replace />} />
+        <Route path="/cookie-policy" element={<Navigate to="/cookies" replace />} />
         <Route path="/security" element={<SecurityStubV2 />} />
         <Route path="/dpa" element={<DpaStubV2 />} />
         <Route path="/fixfypro/start" element={<ExternalRedirect to="https://partners.getfixfy.com/get-started" />} />

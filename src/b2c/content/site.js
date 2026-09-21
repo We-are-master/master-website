@@ -30,6 +30,20 @@ export const PROMISES = {
   pricesIncludeVat: true,
 }
 
+/**
+ * Regras dos termos da reserva (/terms), 21/09/2026. Escritas por mim a pedido
+ * do dono, esperando a leitura dele: taxa de cancelamento tardio, tolerância
+ * de acesso e margem de peça são propostas. Mudou aqui, muda na página e no FAQ.
+ */
+export const TERMS = {
+  version: '21 September 2026',
+  lateCancellationPercent: 50,
+  noAccessMinutes: 30,
+  partsMarkupPercent: 30,
+  replyWorkingDays: 2,
+  resolveDays: 14,
+}
+
 /** Áreas de postcode atendidas: Londres inteira, centro e periferia. */
 export const COVERED_AREAS = [
   'E', 'EC', 'N', 'NW', 'SE', 'SW', 'W', 'WC',
