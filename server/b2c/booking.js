@@ -23,6 +23,7 @@ import {
 } from './stripe.js'
 import { sendCustomerConfirmation, sendOfficeNotification } from './email.js'
 import { createOsJob, resolveFixfyAccountId } from './os.js'
+import { adMetadata, sendPurchase } from './meta.js'
 import {
   CERT,
   CLEAN,
@@ -149,7 +150,7 @@ const hasDeepClean = (sel) => sel.services.includes('clean') && cleanKind(sel.cl
  * (data incluída, para ninguém pagar um dia que já não existe), e a sessão
  * do Checkout nasce com o valor do servidor. Nada é gravado ainda.
  */
-export async function handleCheckout(body, { origin } = {}) {
+export async function handleCheckout(body, { origin, ip, userAgent } = {}) {
   const env = b2cServerEnv()
   const spam = looksLikeSpam(body)
   if (spam) return { status: 400, data: { error: spam } }
@@ -171,12 +172,14 @@ export async function handleCheckout(body, { origin } = {}) {
     baseUrl: returnBaseUrl(env, origin),
     summary: summaryOf(b),
     contextLine: `Booking ${ref}: ${formatLongDate(b.date)}, arriving ${win.phrase}, at ${addressLineOf(b)}. Free changes up to ${PROMISES.freeCancellationHours} hours before, refunded in full.`,
+
+    extraMetadata: adMetadata(body.ad, { ip, userAgent }),
   })
   return { status: 200, data: { url: session.url, ref, total: priced.total } }
 }
 
 /** Checkout transparente: mesma validação do hospedado, cobrança como PaymentIntent. */
-export async function handlePayment(body) {
+export async function handlePayment(body, { ip, userAgent } = {}) {
   const env = b2cServerEnv()
   const spam = looksLikeSpam(body)
   if (spam) return { status: 400, data: { error: spam } }
@@ -189,7 +192,14 @@ export async function handlePayment(body) {
     return { status: 409, data: { error: 'Card payment on this page is not enabled in this environment.' } }
   }
   const ref = newRef()
-  const intent = await createPaymentIntent(env, { ref, amount: priced.total, email: b.contact.email, booking: b, summary: summaryOf(b) })
+  const intent = await createPaymentIntent(env, {
+    ref,
+    amount: priced.total,
+    email: b.contact.email,
+    booking: b,
+    summary: summaryOf(b),
+    extraMetadata: adMetadata(body.ad, { ip, userAgent }),
+  })
   return { status: 200, data: { clientSecret: intent.clientSecret, ref, total: priced.total } }
 }
 
@@ -408,6 +418,8 @@ async function finalizePaid(env, { pi, metadata, amount }) {
   } catch (err) {
     console.error('[b2c/booking] could not mark payment as booked', ref, err)
   }
+  // Depois do booked=1: a compra vai à Meta uma vez só, mesmo com página de volta + webhook.
+  await sendPurchase(env, { metadata, ref, value: priced.total, contact: b.contact, postcode: b.postcode })
   return { status: 200, data: { ...data, jobs: jobs.map((j) => j.reference) } }
 }
 

@@ -43,7 +43,7 @@ export function unpackBooking(metadata = {}) {
 
 const pence = (gbp) => Math.round(gbp * 100)
 
-export async function createCheckoutSession(env, { ref, lines, email, booking, baseUrl, summary, contextLine }) {
+export async function createCheckoutSession(env, { ref, lines, email, booking, baseUrl, summary, contextLine, extraMetadata = {} }) {
   const session = await stripe(env).checkout.sessions.create({
     mode: 'payment',
     locale: 'en-GB',
@@ -65,7 +65,7 @@ export async function createCheckoutSession(env, { ref, lines, email, booking, b
       metadata: { ref, source: 'b2c-site' },
     },
     custom_text: { submit: { message: contextLine.slice(0, 1000) } },
-    metadata: { ref, source: 'b2c-site', ...packBooking(booking) },
+    metadata: { ref, source: 'b2c-site', ...packBooking(booking), ...extraMetadata },
     success_url: `${baseUrl}/book/confirmed?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${baseUrl}/book?step=4&cancelled=1`,
     expires_at: Math.floor(Date.now() / 1000) + 60 * 60,
@@ -77,7 +77,7 @@ export async function createCheckoutSession(env, { ref, lines, email, booking, b
  * Checkout transparente: a cobrança nasce aqui com o valor do servidor e a
  * reserva inteira na metadata; o navegador só confirma com o cartão.
  */
-export async function createPaymentIntent(env, { ref, amount, email, booking, summary }) {
+export async function createPaymentIntent(env, { ref, amount, email, booking, summary, extraMetadata = {} }) {
   const intent = await stripe(env).paymentIntents.create({
     amount: pence(amount),
     currency: 'gbp',
@@ -85,7 +85,7 @@ export async function createPaymentIntent(env, { ref, amount, email, booking, su
     receipt_email: email,
     description: `Fixfy ${summary} · ${ref}`,
     statement_descriptor_suffix: 'FIXFY',
-    metadata: { ref, source: 'b2c-site', ...packBooking(booking) },
+    metadata: { ref, source: 'b2c-site', ...packBooking(booking), ...extraMetadata },
   })
   return { clientSecret: intent.client_secret, id: intent.id }
 }

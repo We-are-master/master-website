@@ -17,6 +17,7 @@ import B2CHome from './b2c/pages/HomePage.jsx'
 const B2CService = lazy(() => import('./b2c/pages/ServicePage.jsx'))
 const B2CBook = lazy(() => import('./b2c/pages/BookPage.jsx'))
 const B2CConfirmed = lazy(() => import('./b2c/pages/ConfirmedPage.jsx'))
+const B2CCookies = lazy(() => import('./b2c/pages/CookiesPage.jsx'))
 
 // Marketing — Fixfy Design System website v2 (static HTML modules + CSS)
 import {
@@ -62,7 +63,7 @@ function ScrollToTop() {
  *   bare      — no chrome (partner application screens, etc.)
  */
 const PORTAL_ROUTES = ['/dashboard', '/new-request', '/my-requests', '/settings']
-const B2C_ROUTES    = ['/', '/end-of-tenancy-cleaning', '/deep-cleaning', '/painting', '/repairs', '/landlord-certificates', '/book', '/book/confirmed']
+const B2C_ROUTES    = ['/', '/end-of-tenancy-cleaning', '/deep-cleaning', '/painting', '/repairs', '/landlord-certificates', '/book', '/book/confirmed', '/cookies']
 const BARE_ROUTES   = ['/partner-apply', '/partner-apply/success', '/login', '/forgot-password']
 
 function chromeFor(pathname) {
@@ -96,6 +97,7 @@ function AppContent() {
         <Route path="/landlord-certificates" element={<B2CService service="cert" />} />
         <Route path="/book" element={<B2CBook />} />
         <Route path="/book/confirmed" element={<B2CConfirmed />} />
+        <Route path="/cookies" element={<B2CCookies />} />
 
         {/* Marketing — website v2 (B2B home moved from / to /business) */}
         <Route path="/business" element={<HomeV2 />} />

@@ -44,6 +44,10 @@ export function b2cServerEnv() {
     resendFrom: (process.env.RESEND_FROM_EMAIL || 'Fixfy <hello@getfixfy.com>').trim(),
     notifyEmail: (process.env.B2C_NOTIFY_EMAIL || 'victor@getfixfy.com').trim(),
     siteUrl: (process.env.B2C_SITE_URL || 'https://getfixfy.com').replace(/\/$/, ''),
+    // Conversions API da Meta: a compra também sai do servidor (só com o sim de marketing).
+    metaPixelId: (process.env.META_PIXEL_ID || '1555218078932742').trim(),
+    metaCapiToken: (process.env.META_CAPI_TOKEN || '').trim(),
+    metaTestEventCode: (process.env.META_TEST_EVENT_CODE || '').trim(),
   }
 }
 

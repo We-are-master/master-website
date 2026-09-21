@@ -10,70 +10,84 @@
     <meta name="theme-color" content="#ED4B00" />
     <link rel="canonical" href="https://getfixfy.com" />
     <title>Fixed-price cleaning, painting and repairs in London | Fixfy</title>
-    <!-- Google Tag Manager -->
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','GTM-5RR9M23N');</script>
-    <!-- End Google Tag Manager -->
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-YPVCS2DXF9"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-YPVCS2DXF9');
-    </script>
-    <!-- End Google Analytics -->
     <!-- Geist & Geist Mono (Fixfy brand fonts) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..800&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Inter:wght@500;600&display=swap" rel="stylesheet" />
     <!-- Google Maps API will be loaded dynamically -->
     
-    <!-- Meta Pixel Code - Deferred. Só no domínio de produção: localhost e prévias da Vercel não sujam o Pixel. -->
-    <script defer>
-    if (/(^|\.)getfixfy\.com$/.test(location.hostname)) {
-    !function(f,b,e,v,n,t,s)
-    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-    n.queue=[];t=b.createElement(e);t.async=!0;
-    t.src=v;s=b.getElementsByTagName(e)[0];
-    s.parentNode.insertBefore(t,s)}(window, document,'script',
-    'https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init', '1555218078932742');
-    fbq('track', 'PageView');
-    }
+    <!-- Consentimento de cookies (PECR): Pixel, Google Analytics, Clarity,
+         PageSense, GTM e o chat da Zoho só carregam depois do sim da categoria.
+         O banner (src/components/CookieConsent.jsx) chama window.fixfyConsent.apply;
+         quem já escolheu antes carrega aqui mesmo, antes do React. Fora do
+         getfixfy.com nada carrega: localhost e prévias da Vercel não sujam os números. -->
+    <script>
+    (function (w, d) {
+      var LIVE = /(^|\.)getfixfy\.com$/.test(w.location.hostname);
+      var loaded = {};
+      function script(src, id) {
+        var s = d.createElement('script');
+        s.async = true;
+        s.src = src;
+        if (id) s.id = id;
+        d.head.appendChild(s);
+      }
+      var loaders = {
+        analytics: function () {
+          w.dataLayer = w.dataLayer || [];
+          w.gtag = w.gtag || function () { w.dataLayer.push(arguments); };
+          w.gtag('js', new Date());
+          w.gtag('config', 'G-YPVCS2DXF9');
+          script('https://www.googletagmanager.com/gtag/js?id=G-YPVCS2DXF9');
+          w.clarity = w.clarity || function () { (w.clarity.q = w.clarity.q || []).push(arguments); };
+          script('https://www.clarity.ms/tag/np97wn3zh3');
+          script('https://cdn-eu.pagesense.io/js/20106057743/76827fe18c2846bea774d285f2ddb2f0.js');
+        },
+        marketing: function () {
+          if (w.fbq) return;
+          var n = w.fbq = function () { n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments); };
+          if (!w._fbq) w._fbq = n;
+          n.push = n;
+          n.loaded = true;
+          n.version = '2.0';
+          n.queue = [];
+          script('https://connect.facebook.net/en_US/fbevents.js');
+          w.fbq('init', '1555218078932742');
+          w.fbq('track', 'PageView');
+        },
+        functional: function () {
+          w.$zoho = w.$zoho || {};
+          w.$zoho.salesiq = w.$zoho.salesiq || { ready: function () {} };
+          script('https://salesiq.zoho.eu/widget?wc=siq3e404450ccb37370f74ba15ecf5f6530793df23072c7a0654214923253a62e753b59e057da4886fa69acdcce754303f3', 'zsiqscript');
+        },
+        // O container do GTM tem tags de análise e de anúncio: só com os dois sins.
+        tags: function () {
+          w.dataLayer = w.dataLayer || [];
+          w.dataLayer.push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
+          script('https://www.googletagmanager.com/gtm.js?id=GTM-5RR9M23N');
+        }
+      };
+      function run(name) {
+        if (loaded[name]) return;
+        loaded[name] = true;
+        if (LIVE) loaders[name]();
+      }
+      function apply(p) {
+        if (!p) return;
+        if (p.analytics) run('analytics');
+        if (p.marketing) run('marketing');
+        if (p.functional) run('functional');
+        if (p.analytics && p.marketing) run('tags');
+      }
+      function saved() {
+        try { return JSON.parse(w.localStorage.getItem('cookieConsent') || 'null'); } catch (e) { return null; }
+      }
+      w.fixfyConsent = { apply: apply, saved: saved, loaded: loaded, live: LIVE };
+      apply(saved());
+    })(window, document);
     </script>
-    <!-- End Meta Pixel Code -->
-    
-    <!-- Zoho PageSense - Deferred -->
-    <script src="https://cdn-eu.pagesense.io/js/20106057743/76827fe18c2846bea774d285f2ddb2f0.js" defer></script>
-    
-    <!-- Microsoft Clarity - Deferred -->
-    <script type="text/javascript" defer>
-    (function(c,l,a,r,i,t,y){
-        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-    })(window, document, "clarity", "script", "np97wn3zh3");
-    </script>
-    
-    <!-- Zoho SalesIQ Chat Widget - Already has defer -->
-    <script defer>window.$zoho=window.$zoho || {};$zoho.salesiq=$zoho.salesiq||{ready:function(){}}</script>
-    <script id="zsiqscript" src="https://salesiq.zoho.eu/widget?wc=siq3e404450ccb37370f74ba15ecf5f6530793df23072c7a0654214923253a62e753b59e057da4886fa69acdcce754303f3" defer></script>
   </head>
   <body>
-    <!-- Google Tag Manager (noscript) -->
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5RR9M23N"
-    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-    <!-- End Google Tag Manager (noscript) -->
-    <!-- Meta Pixel noscript fallback -->
-    <noscript><img height="1" width="1" style="display:none"
-    src="https://www.facebook.com/tr?id=1555218078932742&ev=PageView&noscript=1"
-    /></noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
