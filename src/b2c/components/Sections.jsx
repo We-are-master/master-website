@@ -239,10 +239,12 @@ export function ServicesTrio() {
 /* ---------- Pague depois das fotos ---------- */
 
 /** `kind="deep"`: sem o re-clean e sem o "encaminhe ao agente", que são do end of tenancy. */
-export function PayAfterPhotos({ kind = 'eot' }) {
+/** `tone="light"`: fundo claro, para páginas que guardam o navy só para o topo e o fim. */
+export function PayAfterPhotos({ kind = 'eot', tone = 'navy' }) {
+  const light = tone === 'light'
   return (
-    <section className="mo-section mo-section--navy" id="how-it-works">
-      <div className="mo-wrap mo-pay">
+    <section className={light ? 'mo-section' : 'mo-section mo-section--navy'} id="how-it-works">
+      <div className={light ? 'mo-wrap mo-pay mo-pay--light' : 'mo-wrap mo-pay'}>
         <div className="mo-reveal">
           <Eyebrow icon={ListChecks}>How it works</Eyebrow>
           <h2 className="mo-h2">
@@ -624,14 +626,14 @@ export function ReviewTicker() {
   )
 }
 
-export function Reviews() {
+export function Reviews({ tone = 'paper' }) {
   const list = useReviewList()
   const sources = REVIEW_SOURCES.filter((s) => s.url && s.rating && s.count)
   if (list.length === 0) return null
   const rows = [list.filter((_, i) => i % 2 === 0), list.filter((_, i) => i % 2 === 1)]
 
   return (
-    <section className="mo-section mo-section--paper mo-section--reviews" id="reviews">
+    <section className={`mo-section ${tone === 'paper' ? 'mo-section--paper ' : ''}mo-section--reviews`} id="reviews">
       <div className="mo-wrap">
         <div className="mo-reviews__head mo-reveal">
           <div className="mo-section__head">

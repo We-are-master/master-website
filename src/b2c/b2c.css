@@ -1551,11 +1551,10 @@ body[data-site='b2c'] .zls-sptwndw {
   }
 }
 
-/* Páginas de serviço no mesmo molde: uma foto no lugar das três, título mais
-   longo, e os pontos e promessas depois do orçamento no celular. */
-.mo-strip--one figure {
-  width: clamp(168px, 44vw, 220px);
-  transform: rotate(-3deg);
+/* Páginas de serviço no mesmo molde, sem as fotos: título mais longo, e os
+   pontos e promessas depois do orçamento no celular. */
+.mo-hero--service {
+  padding-top: 48px;
 }
 
 .mo-hero--service .mo-hero__title {
@@ -1588,15 +1587,93 @@ body[data-site='b2c'] .zls-sptwndw {
     max-width: 15ch;
     margin-top: 14px;
   }
-  .mo-hero--service .mo-strip {
-    margin-bottom: 32px;
-  }
   .mo-hero--service .mo-shero__points {
     margin: 22px 0 0;
   }
   .mo-hero--service .mo-hero__promises {
     justify-content: flex-start;
     margin-top: 24px;
+  }
+}
+
+/* "Precisa de mais?" embaixo do orçamento, ainda no navy. */
+.mo-more {
+  margin-top: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--mo-on-navy-2);
+}
+
+.mo-more > span {
+  flex-basis: 100%;
+  text-align: center;
+  margin-bottom: 2px;
+}
+
+.mo-more__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #fff;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.mo-more__link b {
+  color: #ffb27d;
+  font-weight: 600;
+}
+
+.mo-more__link:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.32);
+}
+
+.mo-more__link:focus-visible {
+  outline: 2px solid var(--mo-orange);
+  outline-offset: 2px;
+}
+
+@media (min-width: 1100px) {
+  .mo-hero--service {
+    padding-top: 64px;
+  }
+  .mo-more {
+    justify-content: flex-start;
+  }
+  .mo-more > span {
+    text-align: left;
+  }
+}
+
+/* Depois do topo navy, a página de serviço segue clara até o CTA final: as
+   seções se separam por um fio na largura do conteúdo, não por troca de cor. */
+.mo-hero--service ~ .mo-section:not(.mo-section--navy, .mo-section--paper)
+  + .mo-section:not(.mo-section--navy, .mo-section--paper) {
+  padding-top: 64px;
+  background: linear-gradient(var(--mo-line), var(--mo-line)) top center / min(calc(100% - var(--mo-gutter) * 2), var(--mo-wrap)) 1px
+    no-repeat;
+}
+
+@media (min-width: 700px) {
+  .mo-hero--service ~ .mo-section:not(.mo-section--navy, .mo-section--paper)
+    + .mo-section:not(.mo-section--navy, .mo-section--paper) {
+    padding-top: 88px;
+  }
+}
+
+@media (min-width: 980px) {
+  .mo-hero--service ~ .mo-section:not(.mo-section--navy, .mo-section--paper)
+    + .mo-section:not(.mo-section--navy, .mo-section--paper) {
+    padding-top: 112px;
   }
 }
 
@@ -1942,6 +2019,25 @@ body[data-site='b2c'] .zls-sptwndw {
   color: var(--mo-on-navy-2);
   font-size: 15.5px;
   max-width: 48ch;
+}
+
+/* A mesma seção em fundo claro (páginas de serviço). */
+.mo-pay--light .mo-steps li {
+  border-top-color: var(--mo-line);
+}
+
+.mo-pay--light .mo-steps li::before {
+  background: var(--mo-paper-2);
+  color: var(--mo-ink);
+}
+
+.mo-pay--light .mo-steps li:last-child::before {
+  background: var(--mo-orange);
+  color: #fff;
+}
+
+.mo-pay--light .mo-steps p {
+  color: var(--mo-ink-2);
 }
 
 .mo-phone {
@@ -3219,16 +3315,6 @@ body[data-site='b2c'] .zls-sptwndw {
   color: var(--mo-orange);
 }
 
-/* Sozinho na seção logo depois do hero. */
-.mo-shero__quote .mo-day {
-  margin-top: 0;
-}
-
-@media (min-width: 900px) {
-  .mo-shero__quote .mo-day {
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.4fr);
-  }
-}
 
 /* ---------- Linha com caixa de seleção (pacote de materiais) ---------- */
 
