@@ -3,7 +3,7 @@
  * (é ele que relê a reserva gravada na sessão da Stripe).
  */
 import { formatPostcode } from '../content/site.js'
-import { getAttribution } from './track.js'
+import { adSignals, getAttribution } from './track.js'
 
 export const cleanPhone = (v = '') => v.replace(/[\s()-]/g, '')
 
@@ -27,6 +27,8 @@ export function bookingPayload(b, extra = {}) {
     address: { line1: (b.address?.line1 || '').trim(), line2: (b.address?.line2 || '').trim() },
     marketing: Boolean(b.marketing),
     attribution: getAttribution(),
+    // Só com o sim de marketing o servidor manda a compra à Meta (Conversions API).
+    ad: adSignals(),
     ...extra,
   }
 }

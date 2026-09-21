@@ -1,92 +1,68 @@
 import React, { useState, useEffect } from 'react';
 import { Cookie, X, Shield, Settings, Check } from 'lucide-react';
+import { ALL_CONSENT, NO_CONSENT, SETTINGS_EVENT, readConsent, saveConsent } from '../lib/consent';
 
+// Nada rastreia antes da resposta: quem liga cada ferramenta é saveConsent
+// (src/lib/consent.js) junto com o carregador do index.html.
 const CookieConsent = () => {
   const [showBanner, setShowBanner] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [preferences, setPreferences] = useState({
-    necessary: true, // Always required
-    analytics: false,
-    marketing: false,
-    functional: false
-  });
+  const [preferences, setPreferences] = useState(() => readConsent() || NO_CONSENT);
 
   useEffect(() => {
-    // Check if user has already made a choice
-    const consent = localStorage.getItem('cookieConsent');
-    if (!consent) {
-      // Small delay to show banner after page load
-      const timer = setTimeout(() => setShowBanner(true), 1000);
-      return () => clearTimeout(timer);
-    }
+    if (readConsent()) return undefined;
+    // Small delay to show banner after page load
+    const timer = setTimeout(() => setShowBanner(true), 1000);
+    return () => clearTimeout(timer);
   }, []);
 
-  const handleAcceptAll = () => {
-    const allAccepted = {
-      necessary: true,
-      analytics: true,
-      marketing: true,
-      functional: true
+  useEffect(() => {
+    // "Cookie settings" no rodapé reabre as preferências com a escolha atual.
+    const open = () => {
+      setPreferences(readConsent() || NO_CONSENT);
+      setShowSettings(true);
+      setShowBanner(true);
     };
-    localStorage.setItem('cookieConsent', JSON.stringify(allAccepted));
-    localStorage.setItem('cookieConsentDate', new Date().toISOString());
-    setPreferences(allAccepted);
-    setShowBanner(false);
-    
-    // Enable tracking scripts here if needed
-    enableAnalytics();
-  };
+    window.addEventListener(SETTINGS_EVENT, open);
+    return () => window.removeEventListener(SETTINGS_EVENT, open);
+  }, []);
 
-  const handleRejectAll = () => {
-    const onlyNecessary = {
-      necessary: true,
-      analytics: false,
-      marketing: false,
-      functional: false
-    };
-    localStorage.setItem('cookieConsent', JSON.stringify(onlyNecessary));
-    localStorage.setItem('cookieConsentDate', new Date().toISOString());
-    setPreferences(onlyNecessary);
-    setShowBanner(false);
-  };
-
-  const handleSavePreferences = () => {
-    localStorage.setItem('cookieConsent', JSON.stringify(preferences));
-    localStorage.setItem('cookieConsentDate', new Date().toISOString());
+  const close = (prefs) => {
+    setPreferences(prefs);
     setShowBanner(false);
     setShowSettings(false);
-    
-    if (preferences.analytics) {
-      enableAnalytics();
-    }
   };
 
-  const enableAnalytics = () => {
-    // Google Analytics, Facebook Pixel, etc. would be enabled here
-    // Example: window.gtag && window.gtag('consent', 'update', { analytics_storage: 'granted' });
-  };
+  const handleAcceptAll = () => close(saveConsent(ALL_CONSENT));
+
+  const handleRejectAll = () => close(saveConsent(NO_CONSENT));
+
+  const handleSavePreferences = () => close(saveConsent(preferences));
+
+  // Quem já escolheu e só abriu para conferir fecha sem mudar nada.
+  const handleCloseSettings = () => (readConsent() ? setShowBanner(false) : setShowSettings(false));
 
   const cookieTypes = [
     {
       id: 'necessary',
       name: 'Strictly Necessary',
-      description: 'Essential for the website to function. Cannot be disabled.',
+      description: 'Your booking in progress, this cookie choice and secure card payment by Stripe. Cannot be disabled.',
       required: true
     },
     {
       id: 'functional',
       name: 'Functional Cookies',
-      description: 'Enable personalised features and remember your preferences.'
+      description: 'The live chat window (Zoho SalesIQ).'
     },
     {
       id: 'analytics',
       name: 'Analytics Cookies',
-      description: 'Help us understand how visitors interact with our website.'
+      description: 'Google Analytics, Microsoft Clarity and Zoho PageSense show us how visitors use the site. Also the page or campaign that brought you, kept with your booking.'
     },
     {
       id: 'marketing',
       name: 'Marketing Cookies',
-      description: 'Used to deliver relevant ads and track campaign performance.'
+      description: 'The Meta Pixel measures our Facebook and Instagram ads. If you book, the booking value is shared with Meta for that measurement.'
     }
   ];
 
@@ -188,14 +164,14 @@ const CookieConsent = () => {
                     and analyse our traffic. By clicking "Accept All", you consent to our use of cookies. 
                     Read our{' '}
                     <a 
-                      href="/privacy-policy" 
+                      href="/privacy" 
                       style={{ color: '#ED4B00', textDecoration: 'underline' }}
                     >
                       Privacy Policy
                     </a>
                     {' '}and{' '}
                     <a 
-                      href="/cookie-policy" 
+                      href="/cookies" 
                       style={{ color: '#ED4B00', textDecoration: 'underline' }}
                     >
                       Cookie Policy
@@ -320,7 +296,8 @@ const CookieConsent = () => {
                 </h3>
               </div>
               <button
-                onClick={() => setShowSettings(false)}
+                onClick={handleCloseSettings}
+                aria-label="Close cookie preferences"
                 style={{
                   width: '36px',
                   height: '36px',

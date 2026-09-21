@@ -115,6 +115,19 @@
 .fx-foot-mono a:hover{
   color:rgba(255,255,255,0.72);
 }
+.fx-foot-link{
+  font:inherit;
+  letter-spacing:inherit;
+  color:inherit;
+  background:none;
+  border:0;
+  padding:0;
+  cursor:pointer;
+}
+.fx-foot-link:hover,
+.fx-foot-link:focus-visible{
+  color:rgba(255,255,255,0.72);
+}
 
 @media (max-width:720px){
   .fx-foot,

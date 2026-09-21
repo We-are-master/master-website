@@ -3,6 +3,7 @@ import { Link, NavLink, useLocation } from 'react-router-dom'
 import { ChevronDown, Menu, X } from 'lucide-react'
 import { COMPANY } from '../content/site.js'
 import { captureAttribution } from '../lib/track.js'
+import { openCookieSettings } from '../../lib/consent.js'
 import '../b2c.css'
 
 /**
@@ -249,6 +250,12 @@ export function B2CFooter() {
             <ul>
               <li><Link to="/terms">Terms</Link></li>
               <li><Link to="/privacy">Privacy</Link></li>
+              <li><Link to="/cookies">Cookies</Link></li>
+              <li>
+                <button type="button" className="mo-footer__link" onClick={openCookieSettings}>
+                  Cookie settings
+                </button>
+              </li>
             </ul>
           </div>
         </div>

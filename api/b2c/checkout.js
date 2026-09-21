@@ -1,6 +1,7 @@
 import { handleCheckout } from '../../server/b2c/booking.js'
 import { corsHeaders } from '../../server/growth/http.js'
 import { readBody } from './_body.js'
+import { clientIp } from '../../server/b2c/meta.js'
 
 export default async function handler(req, res) {
   const origin = req.headers.origin || null
@@ -14,7 +15,7 @@ export default async function handler(req, res) {
     return res.end(JSON.stringify({ error: 'Method not allowed' }))
   }
   try {
-    const { status, data } = await handleCheckout(await readBody(req), { origin })
+    const { status, data } = await handleCheckout(await readBody(req), { origin, ip: clientIp(req), userAgent: req.headers['user-agent'] })
     res.writeHead(status, headers)
     res.end(JSON.stringify(data))
   } catch (err) {

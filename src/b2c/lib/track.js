@@ -1,13 +1,20 @@
 /**
  * Eventos do funil B2C e origem da visita.
  *
- * A origem (UTM, fbclid, gclid) é guardada na primeira página da sessão e
- * viaja com a reserva até o job no OS: sem isso não dá para medir custo por
- * job pago por canal, que é a régua do plano.
+ * A origem (UTM, página de entrada, referrer) é guardada na primeira página
+ * da sessão e viaja com a reserva até o job no OS: sem isso não dá para
+ * medir custo por job pago por canal, que é a régua do plano. Só é gravada
+ * com o sim de "Analytics" no banner; até a resposta fica na memória da
+ * página. O id de clique de anúncio (fbclid, gclid) é marketing: só com esse sim.
  */
+import { CONSENT_EVENT, hasConsent, readConsent } from '../../lib/consent.js'
 
 const KEY = 'fx_b2c_attr'
-const PARAMS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'fbclid', 'gclid', 'ref']
+const PARAMS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'ref']
+const CLICK_IDS = ['fbclid', 'gclid']
+
+// Retrato da página de entrada, na memória até a resposta do banner.
+let landing = null
 
 function storage() {
   try {
@@ -17,35 +24,65 @@ function storage() {
   }
 }
 
-export function captureAttribution() {
-  if (typeof window === 'undefined') return
-  const store = storage()
-  if (!store) return
+function read() {
   try {
-    if (store.getItem(KEY)) return
-    const url = new URL(window.location.href)
-    const found = {}
-    for (const p of PARAMS) {
-      const v = url.searchParams.get(p)
-      if (v) found[p] = v.slice(0, 200)
-    }
-    found.landing = url.pathname
-    if (document.referrer && !document.referrer.startsWith(window.location.origin)) {
-      found.referrer = document.referrer.slice(0, 300)
-    }
-    found.at = new Date().toISOString()
-    store.setItem(KEY, JSON.stringify(found))
+    return JSON.parse(storage()?.getItem(KEY) || 'null')
+  } catch {
+    return null
+  }
+}
+
+function write(value) {
+  try {
+    storage()?.setItem(KEY, JSON.stringify(value))
   } catch {
     /* sessão sem storage: segue sem origem */
   }
 }
 
-export function getAttribution() {
-  try {
-    return JSON.parse(storage()?.getItem(KEY) || '{}')
-  } catch {
-    return {}
+function snapshot() {
+  const url = new URL(window.location.href)
+  const found = {}
+  for (const p of [...PARAMS, ...CLICK_IDS]) {
+    const v = url.searchParams.get(p)
+    if (v) found[p] = v.slice(0, 200)
   }
+  found.landing = url.pathname
+  if (document.referrer && !document.referrer.startsWith(window.location.origin)) {
+    found.referrer = document.referrer.slice(0, 300)
+  }
+  found.at = new Date().toISOString()
+  return found
+}
+
+/** Sem o sim de marketing, os ids de clique ficam de fora. */
+function withoutClicks(found) {
+  if (hasConsent('marketing')) return found
+  const out = { ...found }
+  for (const p of CLICK_IDS) delete out[p]
+  return out
+}
+
+function persist() {
+  if (!landing || !hasConsent('analytics')) return
+  const stored = read()
+  if (!stored) return write(withoutClicks(landing))
+  // A primeira página da sessão manda; o sim de marketing só acrescenta os ids de clique.
+  if (hasConsent('marketing') && CLICK_IDS.some((p) => landing[p] && !stored[p])) {
+    const clicks = Object.fromEntries(CLICK_IDS.filter((p) => landing[p]).map((p) => [p, landing[p]]))
+    write({ ...stored, ...clicks })
+  }
+}
+
+export function captureAttribution() {
+  if (typeof window === 'undefined') return
+  if (!landing) landing = snapshot()
+  persist()
+}
+
+export function getAttribution() {
+  if (typeof window === 'undefined' || !hasConsent('analytics')) return {}
+  return withoutClicks(read() || landing || {})
 }
 
 // Reserva paga é Purchase (com valor): é nele que a Meta otimiza venda e mede ROAS.
@@ -56,20 +93,53 @@ const META_EVENTS = {
   booking_confirmed: 'Purchase',
 }
 
+// Evento que nasce antes da resposta do banner espera aqui: sai se o sim vier.
+const pending = []
+
+function sendMeta(metaName, params) {
+  const payload = params.value != null ? { value: params.value, currency: 'GBP' } : {}
+  // Mesmo eventID para a mesma reserva: se a página de confirmação recarregar,
+  // a Meta conta a compra uma vez só (e o servidor manda o mesmo id).
+  const options = params.ref ? { eventID: `${metaName}-${params.ref}` } : undefined
+  window.fbq('track', metaName, payload, options)
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener(CONSENT_EVENT, (e) => {
+    const prefs = e.detail || {}
+    if (prefs.analytics) persist()
+    const queued = pending.splice(0)
+    if (prefs.marketing && typeof window.fbq === 'function') queued.forEach(([name, params]) => sendMeta(name, params))
+  })
+}
+
 export function track(event, params = {}) {
   if (typeof window === 'undefined') return
   try {
     window.dataLayer = window.dataLayer || []
     window.dataLayer.push({ event: `b2c_${event}`, ...params })
     const metaName = META_EVENTS[event]
-    if (metaName && typeof window.fbq === 'function') {
-      const payload = params.value != null ? { value: params.value, currency: 'GBP' } : {}
-      // Mesmo eventID para a mesma reserva: se a página de confirmação recarregar,
-      // a Meta conta a compra uma vez só.
-      const options = params.ref ? { eventID: `${metaName}-${params.ref}` } : undefined
-      window.fbq('track', metaName, payload, options)
-    }
+    if (!metaName) return
+    if (typeof window.fbq === 'function') sendMeta(metaName, params)
+    else if (!readConsent() && pending.length < 20) pending.push([metaName, params])
   } catch {
     /* analytics nunca derruba a página */
   }
+}
+
+function cookie(name) {
+  const hit = document.cookie.split('; ').find((c) => c.startsWith(`${name}=`))
+  return hit ? decodeURIComponent(hit.slice(name.length + 1)) : ''
+}
+
+/**
+ * O que vai com a reserva para o servidor mandar a compra à Meta (Conversions
+ * API). Sem o sim de marketing, só `consent: false` e nada sai do servidor.
+ */
+export function adSignals() {
+  if (typeof window === 'undefined' || !hasConsent('marketing')) return { consent: false }
+  const attr = getAttribution()
+  let fbc = cookie('_fbc')
+  if (!fbc && attr.fbclid) fbc = `fb.1.${Date.parse(attr.at) || Date.now()}.${attr.fbclid}`
+  return { consent: true, fbp: cookie('_fbp'), fbc }
 }

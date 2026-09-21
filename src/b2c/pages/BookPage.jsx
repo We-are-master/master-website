@@ -307,6 +307,9 @@ export default function BookPage() {
 
   const sel = booking.selection
   const has = (id) => sel.services.includes(id)
+  // O "from" da limpeza segue o tipo escolhido: end of tenancy começa em £149,
+  // não no £134 do deep clean (FROM_PRICE é o menor entre os tipos).
+  const fromPrice = (id) => (id === 'clean' ? cleanPrice('studio', sel.clean.kind) : FROM_PRICE[id])
   const suggested = suggestFixPackage(sel.fix.tasks)
   const fixPkg = FIX.packages.find((p) => p.id === sel.fix.package) || suggested
   const accessOption = ACCESS.find((a) => a.id === booking.access)
@@ -378,7 +381,7 @@ export default function BookPage() {
                             <span className="mo-dot">.</span>
                           </span>
                           <span className="bk-service__name">{serviceName(id, sel)}</span>
-                          <span className="bk-service__from">from {formatGBP(FROM_PRICE[id])}</span>
+                          <span className="bk-service__from">from {formatGBP(fromPrice(id))}</span>
                         </button>
                       ))}
                     </div>
@@ -775,7 +778,7 @@ export default function BookPage() {
                                     : 'Gas safety, electrical report and PAT'}
                             </span>
                             <span className="bk-upsell__cta">
-                              from {formatGBP(FROM_PRICE[id])} <Plus size={16} strokeWidth={2.6} />
+                              from {formatGBP(fromPrice(id))} <Plus size={16} strokeWidth={2.6} />
                             </span>
                           </button>
                         ))}

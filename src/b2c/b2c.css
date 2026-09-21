@@ -2769,6 +2769,25 @@ body[data-site='b2c'] .zls-sptwndw {
   text-underline-offset: 3px;
 }
 
+/* "Cookie settings" é botão (abre o banner), com cara de link. */
+.mo-footer ul .mo-footer__link {
+  font: inherit;
+  font-size: 15px;
+  color: var(--mo-ink-2);
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.mo-footer ul .mo-footer__link:hover,
+.mo-footer ul .mo-footer__link:focus-visible {
+  color: var(--mo-ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .mo-footer__legal {
   margin-top: 44px;
   padding-top: 22px;
@@ -2779,6 +2798,127 @@ body[data-site='b2c'] .zls-sptwndw {
   flex-wrap: wrap;
   justify-content: space-between;
   gap: 8px 24px;
+}
+
+/* ---------- Página de cookies ---------- */
+
+.mo-legal__cta {
+  margin-top: 28px;
+}
+
+.mo-legal {
+  display: grid;
+  gap: 44px;
+  margin-top: 56px;
+  max-width: 960px;
+}
+
+/* Item de grid encolhe abaixo da tabela: a rolagem fica dentro da caixa. */
+.mo-legal__group {
+  min-width: 0;
+}
+
+.mo-legal__group h2 {
+  font-family: var(--mo-display);
+  font-stretch: 108%;
+  font-weight: 760;
+  font-size: clamp(22px, 2.4vw, 28px);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 12px;
+}
+
+.mo-legal__state {
+  font-family: var(--mo-label);
+  font-stretch: 100%;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--mo-line);
+  background: var(--mo-paper);
+  color: var(--mo-mute);
+}
+
+.mo-legal__state.is-on {
+  color: var(--mo-green-text, #0b7a53);
+  border-color: currentColor;
+  background: transparent;
+}
+
+.mo-legal__group > p {
+  color: var(--mo-ink-2);
+  line-height: 1.55;
+  max-width: 62ch;
+  margin: 10px 0 0;
+}
+
+.mo-legal__table {
+  margin-top: 16px;
+  overflow-x: auto;
+  border: 1px solid var(--mo-line);
+  border-radius: 14px;
+}
+
+.mo-legal__table table {
+  width: 100%;
+  min-width: 640px;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.mo-legal__table th,
+.mo-legal__table td {
+  text-align: left;
+  vertical-align: top;
+  padding: 12px 14px;
+  line-height: 1.45;
+  border-bottom: 1px solid var(--mo-line);
+}
+
+.mo-legal__table th {
+  font-family: var(--mo-label);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--mo-mute);
+  background: var(--mo-paper);
+}
+
+.mo-legal__table tr:last-child td {
+  border-bottom: 0;
+}
+
+.mo-legal__table td:first-child {
+  width: 26%;
+}
+
+.mo-legal__table code {
+  font-family: var(--mo-mono);
+  font-size: 13px;
+  word-break: break-word;
+}
+
+.mo-legal__foot {
+  color: var(--mo-ink-2);
+  line-height: 1.6;
+  max-width: 62ch;
+  display: grid;
+  gap: 8px;
+}
+
+.mo-legal__foot p {
+  margin: 0;
+}
+
+.mo-legal__foot a {
+  color: var(--mo-ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 /* ---------- CTA fixo no celular ---------- */

@@ -52,6 +52,11 @@ const STATIC_PAGES = {
     ogType: 'website',
     noindex: true,
   },
+  '/cookies': {
+    title: 'Cookies | Fixfy',
+    description: 'The cookies on getfixfy.com, what each one does and how to change your choice.',
+    ogType: 'website',
+  },
   // Preço = end of tenancy × 90%, arredondado para baixo (src/b2c/content/pricing.js).
   '/deep-cleaning': {
     title: 'Deep cleaning in London, fixed prices from £134 | Fixfy',
