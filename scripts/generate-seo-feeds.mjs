@@ -13,6 +13,12 @@ const SITE_URL = 'https://getfixfy.com'
 
 const STATIC_ROUTES = [
   { path: '/',           priority: 1.0, changefreq: 'weekly' },
+  { path: '/end-of-tenancy-cleaning', priority: 0.9, changefreq: 'weekly' },
+  { path: '/deep-cleaning', priority: 0.9, changefreq: 'weekly' },
+  { path: '/painting',   priority: 0.8, changefreq: 'monthly' },
+  { path: '/repairs',    priority: 0.8, changefreq: 'monthly' },
+  { path: '/landlord-certificates', priority: 0.8, changefreq: 'monthly' },
+  { path: '/business',   priority: 0.7, changefreq: 'weekly' },
   { path: '/platform',   priority: 0.9, changefreq: 'monthly' },
   { path: '/for-fms',    priority: 0.8, changefreq: 'monthly' },
   { path: '/for-owners', priority: 0.8, changefreq: 'monthly' },

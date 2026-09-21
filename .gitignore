@@ -100,3 +100,6 @@ upload_function.sh
 *.md
 *.sql
 !README.md
+
+# Fotos reais de reports do OS: placeholder local, nunca vão para o git
+src/b2c/content/placeholder-jobs/

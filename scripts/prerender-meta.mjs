@@ -29,6 +29,43 @@ const SITE = {
 
 const STATIC_PAGES = {
   '/': {
+    title: 'Fixed-price cleaning, painting and repairs in London | Fixfy',
+    description: 'Home jobs at a fixed price across London: cleaning, painting, repairs and landlord certificates. See the price before you book, pick a day and pay online in two minutes.',
+    keywords: 'fixed price cleaning London, end of tenancy cleaning London, deep clean London, painting London, handyman half day London, landlord certificates',
+    ogType: 'website',
+  },
+  '/end-of-tenancy-cleaning': {
+    title: 'End of tenancy cleaning in London, fixed prices from £149 | Fixfy',
+    description: 'End of tenancy cleaning in London from £149, VAT included. Room-by-room checklist, photo report of every room, free re-clean within 7 days. Booked and paid online in two minutes.',
+    keywords: 'end of tenancy cleaning London, move out cleaning, deposit cleaning, check-out cleaning SE London, E London',
+    ogType: 'website',
+  },
+  // Preço = end of tenancy × 90%, arredondado para baixo (src/b2c/content/pricing.js).
+  '/deep-cleaning': {
+    title: 'Deep cleaning in London, fixed prices from £134 | Fixfy',
+    description: 'Deep cleaning in London from £134, VAT included. For moving in, a spring clean or a home that is just overdue. Oven included, photo of every room. Book online in two minutes.',
+    keywords: 'deep cleaning London, deep clean London, one-off deep clean, spring clean London, move in cleaning London',
+    ogType: 'website',
+  },
+  '/painting': {
+    title: 'End of tenancy painting and touch-ups in London | Fixfy',
+    description: 'Touch-ups from £215 and full repaints from £450 a room, VAT included. Booked with your end of tenancy clean or on its own. Photo report included.',
+    keywords: 'end of tenancy painting London, touch up painting, repaint room London, move out painting',
+    ogType: 'website',
+  },
+  '/repairs': {
+    title: 'Move-out repairs and handyman in London, half day £189 | Fixfy',
+    description: 'Move-out repairs in London: half day £189, full day £299, no call-out fee. Fill holes, reseal baths, refit rails and handles. Booked with your end of tenancy clean or on its own.',
+    keywords: 'move out repairs London, end of tenancy handyman, fill holes, reseal bath, check-out repairs',
+    ogType: 'website',
+  },
+  '/landlord-certificates': {
+    title: 'Landlord certificates in London: gas safety £79, EICR from £149 | Fixfy',
+    description: 'Gas safety certificate (CP12) £79, electrical safety report (EICR) from £149 and appliance testing £69 in London, VAT included. Registered engineers, certificate the same day.',
+    keywords: 'gas safety certificate London, CP12 landlord, EICR London, landlord certificates, PAT testing London',
+    ogType: 'website',
+  },
+  '/business': {
     title: 'Fixfy — Maintenance infrastructure for British business',
     description: 'One calm place for facilities teams, property owners and 3,400+ vetted tradespeople. Free to list. No ticket fees. Ever.',
     keywords: 'facilities management UK, commercial maintenance, SLA tracking, asset register, compliance, Gas Safe, NICEIC, EICR',
