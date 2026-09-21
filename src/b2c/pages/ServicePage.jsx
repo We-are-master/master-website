@@ -1,11 +1,12 @@
 import { Link } from 'react-router-dom'
-import { ArrowRight, Check, Paintbrush, ShieldCheck, Sparkles, Tag, Wrench } from 'lucide-react'
+import { Check, Paintbrush, ShieldCheck, Sparkles, Wrench } from 'lucide-react'
 import B2CLayout from '../components/Chrome.jsx'
 import QuoteWidget from '../components/QuoteWidget.jsx'
+import JobGuide from '../components/JobGuide.jsx'
 import { Areas, CheckoutStandard, Eyebrow, Faq, FinalCta, PayAfterPhotos, Promises, Reviews, StickyCta } from '../components/Sections.jsx'
 
 const SERVICE_ICON = { clean: Sparkles, paint: Paintbrush, fix: Wrench, cert: ShieldCheck }
-import { CERT, CLEAN, FIX, FROM_PRICE, PAINT, PROPERTY_SIZES, certPrice, cleanPrice, formatGBP } from '../content/pricing.js'
+import { CERT, CLEAN, FIX, FROM_PRICE, PAINT, certPrice, cleanPrice, formatGBP } from '../content/pricing.js'
 import { DEEP_FAQS, FAQS } from '../content/copy.js'
 import { PROMISES } from '../content/site.js'
 import { bookingHref } from '../lib/store.js'
@@ -234,80 +235,8 @@ export default function ServicePage({ service, kind }) {
           </div>
         </section>
       )}
+      <JobGuide guide={deep ? 'deep' : service === 'clean' ? 'eot' : service} active={deep ? 'deep' : service === 'clean' ? 'eot' : undefined} />
       <Reviews tone="light" />
-      {service === 'clean' && (
-        <section className="mo-section" id="prices">
-          <div className="mo-wrap">
-            <div className="mo-section__head mo-reveal">
-              <Eyebrow icon={Tag}>Prices</Eyebrow>
-              <h2 className="mo-h2">
-                By the size of the place<span className="mo-dot">.</span>
-              </h2>
-              <p className="mo-lede">One bathroom is included. Bigger homes, more bathrooms and the add-ons are priced on the booking before you confirm.</p>
-            </div>
-            <div className="mo-prices">
-              <div className="mo-pricecard mo-reveal">
-                <div className="mo-pricecard__head">
-                  <span className="mo-pricecard__verb">
-                    Clean<span className="mo-dot">.</span>
-                  </span>
-                  <span className="mo-pricecard__name">{deep ? 'Deep clean' : 'End of tenancy'}</span>
-                </div>
-                <ul className="mo-pricelist">
-                  {PROPERTY_SIZES.map((s) => (
-                    <li key={s.id}>
-                      <span>{s.label}</span>
-                      <b>{cleanPrice(s.id, page.kind) == null ? 'Photo quote' : formatGBP(cleanPrice(s.id, page.kind))}</b>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="mo-pricecard mo-reveal">
-                <div className="mo-pricecard__head">
-                  <span className="mo-pricecard__verb">Add-ons</span>
-                </div>
-                <ul className="mo-pricelist">
-                  <li>
-                    <span>Extra bathroom</span>
-                    <b>{formatGBP(CLEAN.extraBathroom)}</b>
-                  </li>
-                  {CLEAN.extras.map((x) => (
-                    <li key={x.id}>
-                      <span>
-                        {x.label}
-                        <small>{x.detail}</small>
-                      </span>
-                      <b>
-                        {formatGBP(x.price)}
-                        {x.unit ? ` a ${x.unit}` : ''}
-                      </b>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="mo-pricecard mo-reveal" style={{ background: 'var(--mo-navy)', color: '#fff', borderColor: 'var(--mo-navy)' }}>
-                <div className="mo-pricecard__head">
-                  <span className="mo-pricecard__verb">Included</span>
-                </div>
-                <ul className="mo-svc__list" style={{ color: 'rgba(255,255,255,.8)' }}>
-                  {(deep
-                    ? ['Room-by-room checklist', 'Oven deep clean', 'All products and equipment', 'Photo of every room', 'VAT']
-                    : ['Room-by-room checklist', 'All products and equipment', 'Photo of every room', `Free re-clean within ${PROMISES.recleanDays.value} days`, 'VAT']
-                  ).map((i) => (
-                    <li key={i} style={{ color: 'inherit' }}>
-                      <Check size={16} strokeWidth={2.6} style={{ color: 'var(--mo-orange)' }} />
-                      {i}
-                    </li>
-                  ))}
-                </ul>
-                <Link to={bookingHref({ services: ['clean'], size: '2', kind: page.kind })} className="mo-btn mo-btn--primary">
-                  Book a clean <ArrowRight size={18} />
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
       <Areas />
       <Faq items={page.faqs} />
       <FinalCta

@@ -1679,6 +1679,231 @@ body[data-site='b2c'] .zls-sptwndw {
   }
 }
 
+/* ---------- Guia do serviço: comparação, preparo e extras ---------- */
+
+.mo-compare {
+  margin-top: 40px;
+  border: 1px solid var(--mo-line);
+  border-radius: var(--mo-r-lg);
+  overflow: hidden;
+  background: #fff;
+}
+
+.mo-compare__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) repeat(var(--mo-compare-cols, 2), minmax(0, 1fr));
+  border-top: 1px solid var(--mo-line);
+}
+
+.mo-compare__row--head {
+  border-top: 0;
+  background: var(--mo-paper);
+}
+
+.mo-compare__label,
+.mo-compare__cell,
+.mo-compare__col {
+  padding: 16px 22px;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.mo-compare__label {
+  color: var(--mo-ink);
+  font-weight: 500;
+}
+
+.mo-compare__cell {
+  color: var(--mo-ink-2);
+  border-left: 1px solid var(--mo-line);
+}
+
+.mo-compare__col {
+  display: grid;
+  gap: 2px;
+  align-content: end;
+  border-left: 1px solid var(--mo-line);
+}
+
+.mo-compare__col b {
+  font-family: var(--mo-display);
+  font-stretch: 110%;
+  font-weight: 800;
+  font-size: 19px;
+  letter-spacing: -0.02em;
+  color: var(--mo-ink);
+}
+
+.mo-compare__col small {
+  font-size: 13px;
+  color: var(--mo-mute);
+}
+
+/* A coluna da página em que o visitante está. */
+.mo-compare__col.is-active {
+  background: var(--mo-navy);
+  border-left-color: var(--mo-navy);
+}
+
+.mo-compare__col.is-active b {
+  color: #fff;
+}
+
+.mo-compare__col.is-active small {
+  color: var(--mo-on-navy-2);
+}
+
+.mo-compare__cell.is-active {
+  background: #fafaff;
+}
+
+.mo-compare__yes,
+.mo-compare__no {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+}
+
+.mo-compare__yes {
+  background: var(--mo-green-wash);
+  color: var(--mo-green-text);
+}
+
+.mo-compare__no {
+  color: var(--mo-line-2);
+}
+
+/* Celular: o rótulo vira uma linha em cima dos valores. */
+@media (max-width: 639px) {
+  .mo-compare__row {
+    grid-template-columns: repeat(var(--mo-compare-cols, 2), minmax(0, 1fr));
+  }
+  .mo-compare__row--head .mo-compare__label {
+    display: none;
+  }
+  .mo-compare__label {
+    grid-column: 1 / -1;
+    padding: 14px 16px 0;
+    font-size: 13px;
+    color: var(--mo-mute);
+  }
+  .mo-compare__cell,
+  .mo-compare__col {
+    padding: 8px 16px 14px;
+    font-size: 14px;
+  }
+  .mo-compare__col {
+    padding-top: 14px;
+  }
+  .mo-compare__label + .mo-compare__cell,
+  .mo-compare__label + .mo-compare__col {
+    border-left: 0;
+  }
+  .mo-compare__col b {
+    font-size: 16px;
+  }
+}
+
+.mo-guide {
+  margin-top: 56px;
+  display: grid;
+  gap: 44px;
+}
+
+@media (min-width: 980px) {
+  .mo-guide {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 72px;
+  }
+  .mo-guide--solo {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .mo-guide--solo .mo-prep {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: 36px;
+  }
+}
+
+.mo-guide__title {
+  margin: 0 0 6px;
+  font-family: var(--mo-display);
+  font-stretch: 110%;
+  font-weight: 800;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+  color: var(--mo-ink);
+}
+
+.mo-prep,
+.mo-extras {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+}
+
+.mo-prep li {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  gap: 14px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--mo-line);
+}
+
+.mo-prep__icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: var(--mo-paper-2);
+  color: var(--mo-ink);
+}
+
+.mo-prep b,
+.mo-extras b {
+  display: block;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--mo-ink);
+}
+
+.mo-prep p,
+.mo-extras p {
+  margin: 4px 0 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--mo-ink-2);
+}
+
+.mo-extras li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 20px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--mo-line);
+}
+
+.mo-extras p {
+  font-size: 14px;
+  color: var(--mo-mute);
+}
+
+.mo-extras__price {
+  font-weight: 700;
+  color: var(--mo-ink);
+  white-space: nowrap;
+}
+
+.mo-guide__note {
+  margin: 14px 0 0;
+  font-size: 14px;
+  color: var(--mo-mute);
+}
+
 /* ---------- Popular jobs ---------- */
 
 .mo-popwrap {
