@@ -5,7 +5,7 @@ import QuoteWidget from '../components/QuoteWidget.jsx'
 import { Areas, CheckoutStandard, Eyebrow, Faq, FinalCta, PayAfterPhotos, Promises, Reviews, StickyCta } from '../components/Sections.jsx'
 
 const SERVICE_ICON = { clean: Sparkles, paint: Paintbrush, fix: Wrench, cert: ShieldCheck }
-import { CERT, CLEAN, FIX, FROM_PRICE, PAINT, PROPERTY_SIZES, certPrice, cleanPrice, formatGBP } from '../content/pricing.js'
+import { CERT, CLEAN, FIX, FROM_PRICE, PAINT, PROPERTY_SIZES, SERVICES, certPrice, cleanPrice, formatGBP } from '../content/pricing.js'
 import { DEEP_FAQS, FAQS } from '../content/copy.js'
 import { PROMISES } from '../content/site.js'
 import { bookingHref } from '../lib/store.js'
@@ -136,45 +136,46 @@ export default function ServicePage({ service, kind }) {
 
   return (
     <B2CLayout>
-      <section className="mo-shero">
+      {/* Mesmo molde da home: desktop com texto à esquerda e orçamento à direita, acima da dobra;
+          celular numa coluna, com os pontos e as promessas depois do orçamento. */}
+      <section className="mo-hero mo-hero--simple mo-hero--service">
         <div className="mo-wrap">
-          <div className="mo-shero__grid">
-            <div className="mo-shero__copy">
-              <Eyebrow icon={SERVICE_ICON[service]}>{page.eyebrow}</Eyebrow>
-              <h1 className="mo-display mo-shero__title">
-                {page.title}
-                <span className="mo-dot">.</span>
-              </h1>
-              <p className="mo-hero__sub">{page.lede}</p>
-              <ul className="mo-svc__list mo-shero__points">
-                {page.points.map((p) => (
-                  <li key={p}>
-                    <Check size={16} strokeWidth={2.6} />
-                    {p}
-                  </li>
-                ))}
-              </ul>
-              <Promises className="mo-hero__promises" reclean={!deep} />
+          <div className="mo-hero__copy">
+            <div className="mo-strip mo-strip--one">
+              <figure>
+                <img src={page.img} alt={page.alt} width="1200" height="896" loading="eager" />
+                <figcaption aria-hidden="true">
+                  {SERVICES[service].verb}
+                  <i>.</i>
+                </figcaption>
+              </figure>
             </div>
-            <div className="mo-shero__photo">
-              <img src={page.img} alt={page.alt} width="1200" height="896" />
-            </div>
+            <Eyebrow icon={SERVICE_ICON[service]}>{page.eyebrow}</Eyebrow>
+            <h1 className="mo-display mo-hero__title">
+              {page.title}
+              <span className="mo-dot">.</span>
+            </h1>
+            <p className="mo-hero__sub">{page.lede}</p>
+            <ul className="mo-svc__list mo-shero__points">
+              {page.points.map((p) => (
+                <li key={p}>
+                  <Check size={16} strokeWidth={2.6} />
+                  {p}
+                </li>
+              ))}
+            </ul>
+            <Promises className="mo-hero__promises" reclean={!deep} />
+          </div>
+
+          <div className="mo-hero__widget">
+            {/* key: trocar de página de serviço remonta o widget com o serviço e o tipo da página nova. */}
+            <QuoteWidget key={page.path} initial={service} initialKind={page.kind} lockService />
           </div>
         </div>
       </section>
 
-      <section className="mo-section mo-section--after-hero" id="price">
+      <section className="mo-section mo-section--tight">
         <div className="mo-wrap mo-shero__quote">
-          <div className="mo-section__head mo-reveal">
-            <Eyebrow icon={Tag}>Your price</Eyebrow>
-            <h2 className="mo-h2">
-              Fixed before you book<span className="mo-dot">.</span>
-            </h2>
-          </div>
-          <div className="mo-reveal" style={{ marginTop: 28 }}>
-            {/* key: trocar de página de serviço remonta o widget com o serviço e o tipo da página nova. */}
-            <QuoteWidget key={page.path} initial={service} initialKind={page.kind} lockService />
-          </div>
           <div className="mo-day mo-reveal">
             <div>
               <div className="mo-day__title">Need more than this?</div>
