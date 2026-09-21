@@ -48,59 +48,63 @@ export default function HomePage() {
 
   return (
     <B2CLayout>
-      {/* O que fazemos (fotos), como (linha de 3 passos) e quando (eyebrow e chips), numa coluna só. */}
+      {/* O que fazemos (fotos), como (linha de 3 passos) e quando (chips). Celular: uma coluna só,
+          com os chips depois do orçamento. Desktop: texto e fotos à esquerda, orçamento à direita,
+          para quem chega já ver onde começar sem rolar. */}
       <section className="mo-hero mo-hero--simple">
         <div className="mo-wrap">
-          <div className="mo-strip" aria-hidden="true">
-            {STRIP.map((s) => (
-              <figure key={s.verb}>
-                <img src={s.img} alt="" width="1200" height="896" loading="eager" />
-                <figcaption>
-                  {s.verb}
-                  <i>.</i>
-                </figcaption>
-              </figure>
-            ))}
+          <div className="mo-hero__copy">
+            <div className="mo-strip" aria-hidden="true">
+              {STRIP.map((s) => (
+                <figure key={s.verb}>
+                  <img src={s.img} alt="" width="1200" height="896" loading="eager" />
+                  <figcaption>
+                    {s.verb}
+                    <i>.</i>
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+
+            <h1 className="mo-display mo-hero__title">
+              Home jobs at a fixed price<span className="mo-dot">.</span>
+            </h1>
+            <p className="mo-hero__sub">
+              Cleaning, painting, repairs and landlord certificates<span className="mo-hero__where"> across London</span>.
+              <b>Booked and paid online in two minutes.</b>
+            </p>
+
+            <ol className="mo-flow" aria-label="How it works">
+              <li>
+                Get a price <span>now</span>
+              </li>
+              <li>
+                Pick a day <span>from tomorrow</span>
+              </li>
+              <li>
+                Book <span>and pay online</span>
+              </li>
+            </ol>
+
+            <ul className="mo-facts">
+              <li>
+                <Tag size={16} /> Fixed prices, VAT included
+              </li>
+              <li>
+                <CalendarDays size={16} /> Arrival slots 9am to 6pm
+              </li>
+              <li>
+                <Camera size={16} /> Photo of every room
+              </li>
+              <li>
+                <RotateCcw size={16} /> Free re-clean in {PROMISES.recleanDays.value} days
+              </li>
+            </ul>
           </div>
-
-          <h1 className="mo-display mo-hero__title">
-            Home jobs at a fixed price<span className="mo-dot">.</span>
-          </h1>
-          <p className="mo-hero__sub">
-            Cleaning, painting, repairs and landlord certificates across London.
-            <b>Booked and paid online in two minutes.</b>
-          </p>
-
-          <ol className="mo-flow" aria-label="How it works">
-            <li>
-              Get a price <span>now</span>
-            </li>
-            <li>
-              Pick a day <span>from tomorrow</span>
-            </li>
-            <li>
-              Book <span>and pay online</span>
-            </li>
-          </ol>
 
           <div className="mo-hero__widget">
             <QuoteWidget />
           </div>
-
-          <ul className="mo-facts">
-            <li>
-              <Tag size={16} /> Fixed prices, VAT included
-            </li>
-            <li>
-              <CalendarDays size={16} /> Arrival slots 9am to 6pm
-            </li>
-            <li>
-              <Camera size={16} /> Photo of every room
-            </li>
-            <li>
-              <RotateCcw size={16} /> Free re-clean in {PROMISES.recleanDays.value} days
-            </li>
-          </ul>
         </div>
         <ReviewTicker />
       </section>

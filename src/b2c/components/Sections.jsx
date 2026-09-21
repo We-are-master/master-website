@@ -560,27 +560,13 @@ function ReviewRow({ items, reverse, seconds }) {
 }
 
 /**
- * Pré-visualização das reviews de exemplo no site publicado, só para quem abre
- * com `?preview=reviews` (vale para a sessão; `?preview=off` desliga). Visitante
- * comum nunca vê: review inventada em público é proibida no UK (DMCC Act).
+ * As reviews reais; sem nenhuma real, os exemplos só em dev. Nunca no site
+ * publicado: review inventada em público é proibida no UK (DMCC Act).
  */
-function samplePreviewOn() {
-  if (typeof window === 'undefined') return false
-  try {
-    const flag = new URL(window.location.href).searchParams.get('preview')
-    if (flag === 'reviews') window.sessionStorage.setItem('fx_preview_reviews', '1')
-    if (flag === 'off') window.sessionStorage.removeItem('fx_preview_reviews')
-    return window.sessionStorage.getItem('fx_preview_reviews') === '1'
-  } catch {
-    return false
-  }
-}
-
-/** As reviews reais; sem nenhuma real, os exemplos só em dev ou na pré-visualização. */
 function useReviewList() {
   const [samples, setSamples] = useState([])
   useEffect(() => {
-    if (REVIEWS.length === 0 && (import.meta.env.DEV || samplePreviewOn())) {
+    if (REVIEWS.length === 0 && import.meta.env.DEV) {
       import('../content/reviews.sample.js').then((m) => setSamples(m.SAMPLE_REVIEWS))
     }
   }, [])

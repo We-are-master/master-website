@@ -71,7 +71,6 @@ export default function QuoteWidget({ initial = 'clean', initialKind, lockServic
   const [service, setService] = useState(initial)
   const [kind, setKind] = useState(() => cleanKind(initialKind).id)
   const [size, setSize] = useState('2')
-  const [bathrooms, setBathrooms] = useState(1)
   const [paintOption, setPaintOption] = useState('touchup')
   const [rooms, setRooms] = useState(1)
   const [materials, setMaterials] = useState(false)
@@ -85,13 +84,12 @@ export default function QuoteWidget({ initial = 'clean', initialKind, lockServic
     () => ({
       services: [service],
       size,
-      bathrooms,
       clean: { kind, extras: {} },
       paint: { option: paintOption, rooms, materials },
       fix: { package: fixPackage, tasks: [] },
       cert: { items: certItems, boiler },
     }),
-    [service, kind, size, bathrooms, paintOption, rooms, materials, fixPackage, certItems, boiler],
+    [service, kind, size, paintOption, rooms, materials, fixPackage, certItems, boiler],
   )
   const { total, needsQuote } = priceSelection(selection)
   const shown = useTween(needsQuote ? null : total)
@@ -100,7 +98,6 @@ export default function QuoteWidget({ initial = 'clean', initialKind, lockServic
     services: [service],
     kind: service === 'clean' ? kind : undefined,
     size: service === 'clean' || service === 'cert' ? size : undefined,
-    bathrooms: service === 'clean' ? bathrooms : undefined,
     paint: service === 'paint' ? { option: paintOption, rooms, materials } : undefined,
     fixPackage: service === 'fix' ? fixPackage : undefined,
     cert: service === 'cert' ? certItems : undefined,
@@ -184,12 +181,6 @@ export default function QuoteWidget({ initial = 'clean', initialKind, lockServic
                   </button>
                 ))}
               </div>
-            </div>
-            <div className="mo-row">
-              <p className="mo-q-label" style={{ margin: 0 }}>
-                Bathrooms <span>{CLEAN.includedBathrooms} included, then {formatGBP(CLEAN.extraBathroom)} each</span>
-              </p>
-              <Stepper value={bathrooms} min={1} max={4} onChange={setBathrooms} label="bathrooms" />
             </div>
           </>
         )}
