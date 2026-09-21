@@ -70,7 +70,7 @@ export default function HomePage() {
               Home jobs at a fixed price<span className="mo-dot">.</span>
             </h1>
             <p className="mo-hero__sub">
-              Cleaning, painting, repairs and landlord certificates across London.
+              Cleaning, painting, repairs and landlord certificates<span className="mo-hero__where"> across London</span>.
               <b>Booked and paid online in two minutes.</b>
             </p>
 
