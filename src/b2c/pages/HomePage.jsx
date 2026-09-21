@@ -67,7 +67,7 @@ export default function HomePage() {
             Home jobs at a fixed price<span className="mo-dot">.</span>
           </h1>
           <p className="mo-hero__sub">
-            Cleaning, painting, repairs and landlord certificates across London. You see the price before you book.
+            Cleaning, painting, repairs and landlord certificates across London.
             <b>Booked and paid online in two minutes.</b>
           </p>
 
