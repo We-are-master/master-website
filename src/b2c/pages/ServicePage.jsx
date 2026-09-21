@@ -5,7 +5,7 @@ import QuoteWidget from '../components/QuoteWidget.jsx'
 import { Areas, CheckoutStandard, Eyebrow, Faq, FinalCta, PayAfterPhotos, Promises, Reviews, StickyCta } from '../components/Sections.jsx'
 
 const SERVICE_ICON = { clean: Sparkles, paint: Paintbrush, fix: Wrench, cert: ShieldCheck }
-import { CERT, CLEAN, FIX, FROM_PRICE, PAINT, PROPERTY_SIZES, SERVICES, certPrice, cleanPrice, formatGBP } from '../content/pricing.js'
+import { CERT, CLEAN, FIX, FROM_PRICE, PAINT, PROPERTY_SIZES, certPrice, cleanPrice, formatGBP } from '../content/pricing.js'
 import { DEEP_FAQS, FAQS } from '../content/copy.js'
 import { PROMISES } from '../content/site.js'
 import { bookingHref } from '../lib/store.js'
@@ -136,20 +136,12 @@ export default function ServicePage({ service, kind }) {
 
   return (
     <B2CLayout>
-      {/* Mesmo molde da home: desktop com texto à esquerda e orçamento à direita, acima da dobra;
-          celular numa coluna, com os pontos e as promessas depois do orçamento. */}
+      {/* Mesmo molde da home, sem as fotos: desktop com texto à esquerda e orçamento à direita,
+          acima da dobra; celular numa coluna, com os pontos e as promessas depois do orçamento.
+          O "precisa de mais?" mora embaixo do orçamento, dentro do navy. */}
       <section className="mo-hero mo-hero--simple mo-hero--service">
         <div className="mo-wrap">
           <div className="mo-hero__copy">
-            <div className="mo-strip mo-strip--one">
-              <figure>
-                <img src={page.img} alt={page.alt} width="1200" height="896" loading="eager" />
-                <figcaption aria-hidden="true">
-                  {SERVICES[service].verb}
-                  <i>.</i>
-                </figcaption>
-              </figure>
-            </div>
             <Eyebrow icon={SERVICE_ICON[service]}>{page.eyebrow}</Eyebrow>
             <h1 className="mo-display mo-hero__title">
               {page.title}
@@ -170,22 +162,12 @@ export default function ServicePage({ service, kind }) {
           <div className="mo-hero__widget">
             {/* key: trocar de página de serviço remonta o widget com o serviço e o tipo da página nova. */}
             <QuoteWidget key={page.path} initial={service} initialKind={page.kind} lockService />
-          </div>
-        </div>
-      </section>
-
-      <section className="mo-section mo-section--tight">
-        <div className="mo-wrap mo-shero__quote">
-          <div className="mo-day mo-reveal">
-            <div>
-              <div className="mo-day__title">Need more than this?</div>
-              <p className="mo-day__text">Add it in the same booking and we plan the order.</p>
-            </div>
-            <div className="mo-chips">
-              <Link className="mo-pop" to={bookingHref({ services: [service, page.otherA.id].sort(), kind: page.kind })}>
+            <div className="mo-more">
+              <span>Need more? Same booking, we plan the order.</span>
+              <Link className="mo-more__link" to={bookingHref({ services: [service, page.otherA.id].sort(), kind: page.kind })}>
                 {page.otherA.label} <b>from {formatGBP(FROM_PRICE[page.otherA.id])}</b>
               </Link>
-              <Link className="mo-pop" to={bookingHref({ services: [service, page.otherB.id].sort(), kind: page.kind })}>
+              <Link className="mo-more__link" to={bookingHref({ services: [service, page.otherB.id].sort(), kind: page.kind })}>
                 {page.otherB.label} <b>from {formatGBP(FROM_PRICE[page.otherB.id])}</b>
               </Link>
             </div>
@@ -194,7 +176,7 @@ export default function ServicePage({ service, kind }) {
       </section>
 
       {service === 'clean' && <CheckoutStandard kind={page.kind} />}
-      <PayAfterPhotos kind={page.kind} />
+      <PayAfterPhotos kind={page.kind} tone="light" />
       {service !== 'clean' && (
         <section className="mo-section">
           <div className="mo-wrap mo-standard">
@@ -252,9 +234,9 @@ export default function ServicePage({ service, kind }) {
           </div>
         </section>
       )}
-      <Reviews />
+      <Reviews tone="light" />
       {service === 'clean' && (
-        <section className="mo-section mo-section--paper" id="prices">
+        <section className="mo-section" id="prices">
           <div className="mo-wrap">
             <div className="mo-section__head mo-reveal">
               <Eyebrow icon={Tag}>Prices</Eyebrow>
