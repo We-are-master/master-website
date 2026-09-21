@@ -1463,6 +1463,65 @@ body[data-site='b2c'] .zls-sptwndw {
   }
 }
 
+/* Abaixo do desktop o bloco de texto não existe para o layout: tudo segue numa
+   coluna só, e os chips vão para depois do orçamento, como antes. */
+.mo-hero__copy {
+  display: contents;
+}
+
+@media (max-width: 1099px) {
+  .mo-hero--simple .mo-facts {
+    order: 1;
+  }
+}
+
+/* Desktop: texto e fotos à esquerda, orçamento à direita, tudo acima da dobra. */
+@media (min-width: 1100px) {
+  .mo-hero--simple {
+    padding: 40px 0 56px;
+    text-align: left;
+  }
+  .mo-hero--simple .mo-wrap {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 560px);
+    gap: 56px;
+    align-items: center;
+    justify-items: stretch;
+  }
+  .mo-hero__copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .mo-hero--simple .mo-strip {
+    justify-content: flex-start;
+    margin: 0 0 26px 6px;
+  }
+  .mo-hero--simple .mo-strip figure {
+    width: clamp(120px, 11vw, 156px);
+  }
+  .mo-hero--simple .mo-hero__title {
+    font-size: clamp(48px, 4.8vw, 68px);
+    max-width: 12ch;
+    margin-top: 0;
+  }
+  .mo-hero--simple .mo-hero__sub {
+    margin: 18px 0 0;
+    text-align: left;
+  }
+  .mo-hero--simple .mo-flow,
+  .mo-hero--simple .mo-facts {
+    justify-content: flex-start;
+  }
+  .mo-hero--simple .mo-facts {
+    margin-top: 28px;
+    max-width: 520px;
+  }
+  .mo-hero__widget {
+    max-width: none;
+    margin-top: 0;
+  }
+}
+
 /* ---------- Popular jobs ---------- */
 
 .mo-popwrap {
