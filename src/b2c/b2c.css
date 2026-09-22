@@ -16,8 +16,8 @@ body[data-site='b2c'] {
 body[data-site='b2c'],
 body[data-site='b2c'] #root,
 body[data-site='b2c'] .App {
-  overflow-x: hidden;
-  overflow-x: clip;
+  overflow-x: hidden !important;
+  overflow-x: clip !important;
 }
 
 /* O chat da Zoho é do site B2B; no B2C o contato é outro (ver COMPANY). */
@@ -1229,16 +1229,9 @@ body[data-site='b2c'] .zls-sptwndw {
   }
 }
 
-.mo-section--after-hero {
-  padding-top: calc(96px + 64px);
-}
-
 @media (min-width: 980px) {
   .mo-section {
     padding: 112px 0;
-  }
-  .mo-section--after-hero {
-    padding-top: calc(120px + 72px);
   }
 }
 
@@ -1542,6 +1535,7 @@ body[data-site='b2c'] .zls-sptwndw {
   }
   .mo-hero--simple .mo-hero__sub {
     margin: 18px 0 0;
+    font-size: 19px;
     text-align: left;
   }
   .mo-hero--simple .mo-flow,
@@ -1555,6 +1549,369 @@ body[data-site='b2c'] .zls-sptwndw {
   .mo-hero__widget {
     max-width: none;
     margin-top: 0;
+  }
+}
+
+/* Páginas de serviço no mesmo molde, sem as fotos: título mais longo, e os
+   pontos e promessas depois do orçamento no celular. */
+.mo-hero--service {
+  padding-top: 48px;
+}
+
+.mo-hero--service .mo-hero__title {
+  font-size: clamp(34px, 5vw, 60px);
+  max-width: 16ch;
+  margin-top: 14px;
+}
+
+.mo-hero--service .mo-shero__points {
+  width: fit-content;
+  max-width: 100%;
+  margin: 24px auto 0;
+  text-align: left;
+}
+
+.mo-hero--service .mo-hero__promises {
+  justify-content: center;
+}
+
+@media (max-width: 1099px) {
+  .mo-hero--service .mo-shero__points,
+  .mo-hero--service .mo-hero__promises {
+    order: 1;
+  }
+}
+
+@media (min-width: 1100px) {
+  .mo-hero--service .mo-hero__title {
+    font-size: clamp(44px, 4vw, 58px);
+    max-width: 15ch;
+    margin-top: 14px;
+  }
+  .mo-hero--service .mo-shero__points {
+    margin: 22px 0 0;
+  }
+  .mo-hero--service .mo-hero__promises {
+    justify-content: flex-start;
+    margin-top: 24px;
+  }
+}
+
+/* "Precisa de mais?" embaixo do orçamento, ainda no navy. */
+.mo-more {
+  margin-top: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--mo-on-navy-2);
+}
+
+.mo-more > span {
+  flex-basis: 100%;
+  text-align: center;
+  margin-bottom: 2px;
+}
+
+.mo-more__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #fff;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.mo-more__link b {
+  color: #ffb27d;
+  font-weight: 600;
+}
+
+.mo-more__link:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.32);
+}
+
+.mo-more__link:focus-visible {
+  outline: 2px solid var(--mo-orange);
+  outline-offset: 2px;
+}
+
+@media (min-width: 1100px) {
+  .mo-hero--service {
+    padding-top: 64px;
+  }
+  .mo-more {
+    justify-content: flex-start;
+  }
+  .mo-more > span {
+    text-align: left;
+  }
+}
+
+/* Depois do topo navy, a página de serviço segue clara até o CTA final: as
+   seções se separam por um fio na largura do conteúdo, não por troca de cor. */
+.mo-hero--service ~ .mo-section:not(.mo-section--navy, .mo-section--paper)
+  + .mo-section:not(.mo-section--navy, .mo-section--paper) {
+  padding-top: 64px;
+  background: linear-gradient(var(--mo-line), var(--mo-line)) top center / min(calc(100% - var(--mo-gutter) * 2), var(--mo-wrap)) 1px
+    no-repeat;
+}
+
+@media (min-width: 700px) {
+  .mo-hero--service ~ .mo-section:not(.mo-section--navy, .mo-section--paper)
+    + .mo-section:not(.mo-section--navy, .mo-section--paper) {
+    padding-top: 88px;
+  }
+}
+
+@media (min-width: 980px) {
+  .mo-hero--service ~ .mo-section:not(.mo-section--navy, .mo-section--paper)
+    + .mo-section:not(.mo-section--navy, .mo-section--paper) {
+    padding-top: 112px;
+  }
+}
+
+/* ---------- Guia do serviço: comparação, preparo e extras ---------- */
+
+.mo-compare {
+  margin-top: 40px;
+  border: 1px solid var(--mo-line);
+  border-radius: var(--mo-r-lg);
+  overflow: hidden;
+  background: #fff;
+}
+
+.mo-compare__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) repeat(var(--mo-compare-cols, 2), minmax(0, 1fr));
+  border-top: 1px solid var(--mo-line);
+}
+
+.mo-compare__row--head {
+  border-top: 0;
+  background: var(--mo-paper);
+}
+
+.mo-compare__label,
+.mo-compare__cell,
+.mo-compare__col {
+  padding: 16px 22px;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.mo-compare__label {
+  color: var(--mo-ink);
+  font-weight: 500;
+}
+
+.mo-compare__cell {
+  color: var(--mo-ink-2);
+  border-left: 1px solid var(--mo-line);
+}
+
+.mo-compare__col {
+  display: grid;
+  gap: 2px;
+  align-content: end;
+  border-left: 1px solid var(--mo-line);
+}
+
+.mo-compare__col b {
+  font-family: var(--mo-display);
+  font-stretch: 110%;
+  font-weight: 800;
+  font-size: 19px;
+  letter-spacing: -0.02em;
+  color: var(--mo-ink);
+}
+
+.mo-compare__col small {
+  font-size: 13px;
+  color: var(--mo-mute);
+}
+
+/* A coluna da página em que o visitante está. */
+.mo-compare__col.is-active {
+  background: var(--mo-navy);
+  border-left-color: var(--mo-navy);
+}
+
+.mo-compare__col.is-active b {
+  color: #fff;
+}
+
+.mo-compare__col.is-active small {
+  color: var(--mo-on-navy-2);
+}
+
+.mo-compare__cell.is-active {
+  background: #fafaff;
+}
+
+.mo-compare__yes,
+.mo-compare__no {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+}
+
+.mo-compare__yes {
+  background: var(--mo-green-wash);
+  color: var(--mo-green-text);
+}
+
+.mo-compare__no {
+  color: var(--mo-line-2);
+}
+
+/* Celular: o rótulo vira uma linha em cima dos valores. */
+@media (max-width: 639px) {
+  .mo-compare__row {
+    grid-template-columns: repeat(var(--mo-compare-cols, 2), minmax(0, 1fr));
+  }
+  .mo-compare__row--head .mo-compare__label {
+    display: none;
+  }
+  .mo-compare__label {
+    grid-column: 1 / -1;
+    padding: 14px 16px 0;
+    font-size: 13px;
+    color: var(--mo-mute);
+  }
+  .mo-compare__cell,
+  .mo-compare__col {
+    padding: 8px 16px 14px;
+    font-size: 14px;
+  }
+  .mo-compare__col {
+    padding-top: 14px;
+  }
+  .mo-compare__label + .mo-compare__cell,
+  .mo-compare__label + .mo-compare__col {
+    border-left: 0;
+  }
+  .mo-compare__col b {
+    font-size: 16px;
+  }
+}
+
+.mo-guide {
+  margin-top: 56px;
+  display: grid;
+  gap: 44px;
+}
+
+@media (min-width: 980px) {
+  .mo-guide {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 72px;
+  }
+  .mo-guide--solo {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .mo-guide--solo .mo-prep {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: 36px;
+  }
+}
+
+.mo-guide__title {
+  margin: 0 0 6px;
+  font-family: var(--mo-display);
+  font-stretch: 110%;
+  font-weight: 800;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+  color: var(--mo-ink);
+}
+
+.mo-prep,
+.mo-extras {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+}
+
+.mo-prep li {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  gap: 14px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--mo-line);
+}
+
+.mo-prep__icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: var(--mo-paper-2);
+  color: var(--mo-ink);
+}
+
+.mo-prep b,
+.mo-extras b {
+  display: block;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--mo-ink);
+}
+
+.mo-prep p,
+.mo-extras p {
+  margin: 4px 0 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--mo-ink-2);
+}
+
+.mo-extras li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 20px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--mo-line);
+}
+
+.mo-extras p {
+  font-size: 14px;
+  color: var(--mo-mute);
+}
+
+.mo-extras__price {
+  font-weight: 700;
+  color: var(--mo-ink);
+  white-space: nowrap;
+}
+
+.mo-guide__note {
+  margin: 14px 0 0;
+  font-size: 14px;
+  color: var(--mo-mute);
+}
+
+/* Duas colunas com o card mais alto que o texto: o texto desce junto com a
+   rolagem até o card acabar. 96px = header fixo mais um respiro. */
+@media (min-width: 980px) {
+  .mo-standard > :first-child,
+  .mo-areas > :first-child,
+  .mo-faq-wrap > :first-child {
+    position: sticky;
+    top: 96px;
+    align-self: start;
   }
 }
 
@@ -1902,6 +2259,25 @@ body[data-site='b2c'] .zls-sptwndw {
   max-width: 48ch;
 }
 
+/* A mesma seção em fundo claro (páginas de serviço). */
+.mo-pay--light .mo-steps li {
+  border-top-color: var(--mo-line);
+}
+
+.mo-pay--light .mo-steps li::before {
+  background: var(--mo-paper-2);
+  color: var(--mo-ink);
+}
+
+.mo-pay--light .mo-steps li:last-child::before {
+  background: var(--mo-orange);
+  color: #fff;
+}
+
+.mo-pay--light .mo-steps p {
+  color: var(--mo-ink-2);
+}
+
 .mo-phone {
   justify-self: center;
   width: min(100%, 380px);
@@ -1976,28 +2352,6 @@ body[data-site='b2c'] .zls-sptwndw {
     gap: 64px;
     align-items: start;
   }
-}
-
-.mo-stat-row {
-  display: flex;
-  gap: 28px;
-  margin-top: 28px;
-  flex-wrap: wrap;
-}
-
-.mo-stat b {
-  display: block;
-  font-family: var(--mo-display);
-  font-stretch: 108%;
-  font-weight: 800;
-  font-size: 44px;
-  letter-spacing: -0.04em;
-  line-height: 1;
-}
-
-.mo-stat span {
-  font-size: 14px;
-  color: var(--mo-mute);
 }
 
 .mo-checklist {
@@ -3137,78 +3491,6 @@ body[data-site='b2c'] .zls-sptwndw {
   }
 }
 
-/* ---------- Service page hero ---------- */
-
-.mo-shero {
-  background: var(--mo-navy);
-  color: #fff;
-  padding: 48px 0 0;
-  position: relative;
-  isolation: isolate;
-}
-
-.mo-shero::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background-image: repeating-linear-gradient(to bottom, transparent 0 43px, rgba(255, 255, 255, 0.045) 43px 44px);
-  mask-image: linear-gradient(to bottom, #000 0%, #000 50%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 50%, transparent 100%);
-}
-
-.mo-shero .mo-eyebrow {
-  color: var(--mo-on-navy-2);
-}
-
-.mo-shero__grid {
-  display: grid;
-  gap: 28px;
-  margin-bottom: -96px;
-  position: relative;
-  z-index: 2;
-}
-
-@media (min-width: 980px) {
-  .mo-shero {
-    padding-top: 72px;
-  }
-  .mo-shero__grid {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 48px;
-    align-items: end;
-    margin-bottom: -120px;
-  }
-}
-
-.mo-shero__title {
-  font-size: clamp(44px, 6.4vw, 84px);
-  margin: 16px 0 0;
-}
-
-.mo-shero__copy {
-  padding-bottom: 8px;
-}
-
-@media (min-width: 980px) {
-  .mo-shero__copy {
-    padding-bottom: 160px;
-  }
-}
-
-.mo-shero__photo {
-  border-radius: var(--mo-r-xl);
-  overflow: hidden;
-  aspect-ratio: 4 / 3;
-  box-shadow: var(--mo-shadow-3);
-}
-
-.mo-shero__photo img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
 /* ---------- Reveal ---------- */
 
 @media (prefers-reduced-motion: no-preference) {
@@ -3249,24 +3531,6 @@ body[data-site='b2c'] .zls-sptwndw {
   color: var(--mo-orange);
 }
 
-.mo-shero__copy .mo-hero__promises {
-  margin-top: 26px;
-}
-
-.mo-shero__quote .mo-quote {
-  box-shadow: var(--mo-shadow-2);
-  border: 1px solid var(--mo-line);
-}
-
-.mo-shero__quote .mo-day {
-  margin-top: 18px;
-}
-
-@media (min-width: 900px) {
-  .mo-shero__quote .mo-day {
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.4fr);
-  }
-}
 
 /* ---------- Linha com caixa de seleção (pacote de materiais) ---------- */
 
