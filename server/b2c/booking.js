@@ -449,6 +449,13 @@ async function recordBooking(env, b, priced, ref, paymentIntentId) {
         postcode: b.postcode,
         description: scopeFor(service, b, priced, ref, { certItem: entry.certItem, withBoiler: entry.withBoiler, lines: entry.lines }),
         client_price: price,
+        // O cartão já passou: o job nasce PAGO e mesmo assim `unassigned`. Sem
+        // isto ele nascia `unpaid` e virava "a receber" de um dinheiro que já
+        // está na conta, com risco de alguém cobrar quem já pagou.
+        payment_status: 'paid',
+        paid_at: new Date().toISOString(),
+        payment_amount: price,
+        stripe_payment_intent_id: paymentIntentId,
         internal_notes: notes,
         // Uma conversa por reserva: o cliente vira o solicitante do ticket do
         // primeiro job, a cópia da confirmação fica lá como nota interna e o
