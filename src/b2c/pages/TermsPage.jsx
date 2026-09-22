@@ -1,12 +1,13 @@
 import { Link } from 'react-router-dom'
 import { ScrollText } from 'lucide-react'
 import LegalShell from '../components/LegalShell.jsx'
-import { COMPANY, COVERED_AREAS, PROMISES, TERMS } from '../content/site.js'
+import { COMPANY, COVERED_AREAS, GUARANTEE, PROMISES, TERMS } from '../content/site.js'
 import { FIX, PAINT, formatGBP } from '../content/pricing.js'
 import { usePageMeta } from '../lib/meta.js'
 
 const CANCEL = PROMISES.freeCancellationHours
 const RECLEAN = PROMISES.recleanDays.value
+const LONGER = GUARANTEE.longer.map((i) => `${i.label.toLowerCase()} ${i.months} months`).join(', ')
 const HALF_DAY = FIX.packages.find((p) => p.id === 'half')
 const FULL_DAY = FIX.packages.find((p) => p.id === 'day')
 const AREAS = `${COVERED_AREAS.slice(0, -1).join(', ')} and ${COVERED_AREAS[COVERED_AREAS.length - 1]}`
@@ -186,16 +187,21 @@ export default function TermsPage() {
           inconvenience, you are entitled to a price reduction or a refund for the part that was not right.
         </p>
         <p>
-          <b>7.2 Free re-clean (end of tenancy clean only).</b> If your letting agent or landlord flags anything on our checklist
+          <b>7.2 Our guarantee.</b> Every job is guaranteed for {GUARANTEE.standardDays} days from the day it is completed, and for
+          longer on some work: {LONGER}. What it covers and how to claim are on our <Link to="/guarantee">guarantee page</Link>. It is
+          in force since {GUARANTEE.inForceSince}.
+        </p>
+        <p>
+          <b>7.3 Free re-clean (end of tenancy clean only).</b> If your letting agent or landlord flags anything on our checklist
           within {RECLEAN} days of the clean, send us their note or a photo and we come back to put it right at no cost. The property
           needs to be empty and unchanged since we cleaned it.
         </p>
         <p>
-          <b>7.3</b> Decisions on deposits sit with your landlord, your letting agent and the deposit scheme. We cannot guarantee you
+          <b>7.4</b> Decisions on deposits sit with your landlord, your letting agent and the deposit scheme. We cannot guarantee you
           get your deposit back, but the photo report is yours to use as evidence.
         </p>
         <p>
-          <b>7.4</b> Nothing in these terms affects your legal rights. Citizens Advice can tell you more about them.
+          <b>7.5</b> Nothing in these terms affects your legal rights. Citizens Advice can tell you more about them.
         </p>
       </section>
 

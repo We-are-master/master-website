@@ -19,6 +19,7 @@ const B2CBook = lazy(() => import('./b2c/pages/BookPage.jsx'))
 const B2CConfirmed = lazy(() => import('./b2c/pages/ConfirmedPage.jsx'))
 const B2CCookies = lazy(() => import('./b2c/pages/CookiesPage.jsx'))
 const B2CTerms = lazy(() => import('./b2c/pages/TermsPage.jsx'))
+const B2CGuarantee = lazy(() => import('./b2c/pages/GuaranteePage.jsx'))
 const B2CPrivacy = lazy(() => import('./b2c/pages/PrivacyPage.jsx'))
 
 // Marketing — Fixfy Design System website v2 (static HTML modules + CSS)
@@ -63,7 +64,7 @@ function ScrollToTop() {
  *   bare      — no chrome (partner application screens, etc.)
  */
 const PORTAL_ROUTES = ['/dashboard', '/new-request', '/my-requests', '/settings']
-const B2C_ROUTES    = ['/', '/end-of-tenancy-cleaning', '/deep-cleaning', '/painting', '/repairs', '/landlord-certificates', '/book', '/book/confirmed', '/cookies', '/terms', '/privacy']
+const B2C_ROUTES    = ['/', '/end-of-tenancy-cleaning', '/deep-cleaning', '/painting', '/repairs', '/landlord-certificates', '/book', '/book/confirmed', '/cookies', '/terms', '/privacy', '/guarantee']
 const BARE_ROUTES   = ['/partner-apply', '/partner-apply/success', '/login', '/forgot-password']
 
 function chromeFor(pathname) {
@@ -112,6 +113,7 @@ function AppContent() {
         <Route path="/careers" element={<CareersStubV2 />} />
         <Route path="/privacy" element={<B2CPrivacy />} />
         <Route path="/terms" element={<B2CTerms />} />
+        <Route path="/guarantee" element={<B2CGuarantee />} />
         {/* Endereços antigos das páginas legais (rodapé antigo e banner de cookies) */}
         <Route path="/privacy-policy" element={<Navigate to="/privacy" replace />} />
         <Route path="/legal/privacy" element={<Navigate to="/privacy" replace />} />

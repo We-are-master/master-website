@@ -36,7 +36,7 @@ const STATIC_PAGES = {
   },
   '/end-of-tenancy-cleaning': {
     title: 'End of tenancy cleaning in London, fixed prices from £149 | Fixfy',
-    description: 'End of tenancy cleaning in London from £149, VAT included. Room-by-room checklist, photo report of every room, free re-clean within 7 days. Booked and paid online in two minutes.',
+    description: 'End of tenancy cleaning in London from £149, VAT included. Room-by-room checklist, photo report of every room, free re-clean within 14 days. Booked and paid online in two minutes.',
     keywords: 'end of tenancy cleaning London, move out cleaning, deposit cleaning, check-out cleaning SE London, E London',
     ogType: 'website',
   },
@@ -60,6 +60,11 @@ const STATIC_PAGES = {
   '/terms': {
     title: 'Booking terms | Fixfy',
     description: 'The terms for cleaning, painting, repairs and certificates booked and paid for on getfixfy.com.',
+    ogType: 'website',
+  },
+  '/guarantee': {
+    title: 'Our guarantee | Fixfy',
+    description: 'Every Fixfy job is guaranteed: 14 days as standard, 3 months for painting and tiling, 6 months for wall treatments, woodwork and structural work. On top of your legal rights.',
     ogType: 'website',
   },
   '/privacy': {

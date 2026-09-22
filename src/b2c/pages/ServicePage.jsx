@@ -22,7 +22,7 @@ const PAGES = {
     alt: 'Cleaner in orange gloves cleaning the inside of an oven door',
     meta: {
       title: 'End of tenancy cleaning in London, fixed prices from £149 | Fixfy',
-      description: 'End of tenancy cleaning in London from £149, VAT included. Room-by-room checklist, photo report of every room, free re-clean within 7 days. Book online in two minutes.',
+      description: `End of tenancy cleaning in London from £149, VAT included. Room-by-room checklist, photo report of every room, free re-clean within ${PROMISES.recleanDays.value} days. Book online in two minutes.`,
     },
     points: [
       `Fixed price by property size, from ${formatGBP(CLEAN.prices.studio)}`,

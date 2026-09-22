@@ -18,6 +18,7 @@ const STATIC_ROUTES = [
   { path: '/painting',   priority: 0.8, changefreq: 'monthly' },
   { path: '/repairs',    priority: 0.8, changefreq: 'monthly' },
   { path: '/landlord-certificates', priority: 0.8, changefreq: 'monthly' },
+  { path: '/guarantee',  priority: 0.5, changefreq: 'yearly' },
   { path: '/business',   priority: 0.7, changefreq: 'weekly' },
   { path: '/platform',   priority: 0.9, changefreq: 'monthly' },
   { path: '/for-fms',    priority: 0.8, changefreq: 'monthly' },
