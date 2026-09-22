@@ -98,14 +98,12 @@ export function whatsappLink(text = '') {
 }
 
 /**
- * Garantia de todo serviço da Fixfy (dono, 22/09/2026), em vigor desde
- * 10/01/2024. Soma-se aos direitos do consumidor, nunca os substitui. Os
+ * Garantia de todo serviço da Fixfy (dono, 22/09/2026). Soma-se aos
+ * direitos do consumidor, nunca os substitui. Os
  * prazos contam do dia em que o trabalho termina; o que não está na lista
  * fica com o prazo padrão.
  */
 export const GUARANTEE = {
-  inForceSince: '10 January 2024',
-  updated: '22 September 2026',
   standardDays: 14,
   longer: [
     { id: 'painting', label: 'Painting and decorating', months: 3 },
