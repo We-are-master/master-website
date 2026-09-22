@@ -26,7 +26,8 @@ export const PROMISES = {
   /** 18/09/2026: o dono descartou "cartão guardado, cobra depois"; paga no checkout (Stripe). */
   payAtCheckout: true,
   freeCancellationHours: 48,
-  recleanDays: { value: 7, pending: false }, // aprovado pelo dono em 18/09
+  // 22/09/2026: o dono pôs garantia de 14 dias em todo serviço, então o re-clean acompanha.
+  recleanDays: { value: 14, pending: false },
   pricesIncludeVat: true,
 }
 
@@ -36,7 +37,7 @@ export const PROMISES = {
  * de acesso e margem de peça são propostas. Mudou aqui, muda na página e no FAQ.
  */
 export const TERMS = {
-  version: '21 September 2026',
+  version: '22 September 2026',
   lateCancellationPercent: 50,
   noAccessMinutes: 30,
   partsMarkupPercent: 30,
@@ -95,3 +96,22 @@ export function whatsappLink(text = '') {
   const q = text ? `?text=${encodeURIComponent(text)}` : ''
   return `https://wa.me/${COMPANY.whatsapp}${q}`
 }
+
+/**
+ * Garantia de todo serviço da Fixfy (dono, 22/09/2026), em vigor desde
+ * 10/01/2024. Soma-se aos direitos do consumidor, nunca os substitui. Os
+ * prazos contam do dia em que o trabalho termina; o que não está na lista
+ * fica com o prazo padrão.
+ */
+export const GUARANTEE = {
+  inForceSince: '10 January 2024',
+  updated: '22 September 2026',
+  standardDays: 14,
+  longer: [
+    { id: 'painting', label: 'Painting and decorating', months: 3 },
+    { id: 'walls', label: 'Wall treatments', months: 6 },
+    { id: 'tiling', label: 'Tiling', months: 3 },
+    { id: 'wood', label: 'Woodwork and structural work', months: 6 },
+  ],
+}
+

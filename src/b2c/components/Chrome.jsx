@@ -249,6 +249,7 @@ export function B2CFooter() {
             <h4>Legal</h4>
             <ul>
               <li><Link to="/terms">Terms</Link></li>
+              <li><Link to="/guarantee">Guarantee</Link></li>
               <li><Link to="/privacy">Privacy</Link></li>
               <li><Link to="/cookies">Cookies</Link></li>
               <li>
