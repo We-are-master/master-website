@@ -182,7 +182,19 @@ function chargeLines(priced) {
  */
 function partnerCostAtListPrice(title, listPrice, price) {
   if (price >= listPrice || !/clean/i.test(title)) return {}
-  return { partner_cost: Math.round(listPrice * 70) / 100 }
+  // Teto no que o cliente pagou: o OS guarda a margem do job e repasse maior
+  // que o preço estoura o campo (cupom de 99% derrubou a reserva FX-DJJGAG).
+  // Com desconto até 30% o repasse cheio cabe inteiro; acima disso o
+  // escritório ajusta à mão, com a nota do job dizendo o valor cheio.
+  return { partner_cost: Math.min(Math.round(listPrice * 70) / 100, price) }
+}
+
+/** O que a nota do job conta ao escritório sobre o repasse, com cupom. */
+function promoPartnerNote(partnerCost, listPrice) {
+  const full = Math.round(listPrice * 70) / 100
+  if (partnerCost == null) return 'Partner pay was worked out on the discounted price: raise it to the usual rate if needed.'
+  if (partnerCost >= full) return `Partner pay kept at the full-price rate (${gbp(full)}).`
+  return `Partner pay capped at what the customer paid; the full-price rate is ${gbp(full)}: raise it by hand if the discount is ours to absorb.`
 }
 
 /**
@@ -405,11 +417,7 @@ async function recordBooking(env, b, priced, ref, paymentIntentId) {
         `Website booking ${ref} (${order.length > 1 ? `${order.indexOf(entry) + 1} of ${order.length}` : 'single job'}).`,
         `PAID ${gbp(priced.total)} by card at booking, Stripe payment ${paymentIntentId}${order.length > 1 ? ` (covers the whole booking of ${gbp(priced.total)})` : ''}. Materials, if any, are billed separately.`,
         priced.promo
-          ? `Promo code ${priced.promo.code}: this job is ${gbp(price)} instead of ${gbp(listPrices[i])}. ${
-              partnerPay.partner_cost
-                ? `Partner pay kept at the full-price rate (${gbp(partnerPay.partner_cost)}).`
-                : 'Partner pay was worked out on the discounted price: raise it to the usual rate if needed.'
-            }`
+          ? `Promo code ${priced.promo.code}: this job is ${gbp(price)} instead of ${gbp(listPrices[i])}. ${promoPartnerNote(partnerPay.partner_cost, listPrices[i])}`
           : null,
         b.role ? `Booked by: ${ROLE_LABEL[b.role]}.` : null,
         `Marketing opt-in: ${b.marketing ? 'yes' : 'no'}.`,

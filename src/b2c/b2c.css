@@ -9,6 +9,17 @@ body[data-site='b2c'] {
   color: #0a0a1f;
 }
 
+/* `overflow-x: hidden` (index.css) faz destes boxes um contêiner de rolagem, e
+   todo `position: sticky` dentro deles para de grudar: era por isso que o
+   resumo da reserva sumia no primeiro scroll. `clip` corta igual sem criar o
+   contêiner; navegador antigo ignora a segunda linha e fica como antes. */
+body[data-site='b2c'],
+body[data-site='b2c'] #root,
+body[data-site='b2c'] .App {
+  overflow-x: hidden;
+  overflow-x: clip;
+}
+
 /* O chat da Zoho é do site B2B; no B2C o contato é outro (ver COMPANY). */
 body[data-site='b2c'] > div[class*='zsiq'],
 body[data-site='b2c'] #zsiq_float,
