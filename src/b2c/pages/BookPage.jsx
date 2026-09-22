@@ -29,7 +29,7 @@ import { COMPANY, PROMISES, formatPostcode, whatsappLink } from '../content/site
 import { applyQuery, clearBooking, emptyBooking, loadBooking, saveBooking } from '../lib/store.js'
 import { bookableDates, windowsFor } from '../lib/slots.js'
 import { track } from '../lib/track.js'
-import { createCheckout, createPayment, getBookingConfig, submitBooking } from '../lib/api.js'
+import { checkPromo, createCheckout, createPayment, getBookingConfig, submitBooking } from '../lib/api.js'
 import { bookingPayload, cleanPhone } from '../lib/payload.js'
 import { usePageMeta } from '../lib/meta.js'
 import '../book.css'
@@ -325,6 +325,22 @@ export default function BookPage() {
   const help = whatsappLink('Hi Fixfy, I have a question about my booking')
   const canPay = config.loaded && config.payments
   const embedded = canPay && Boolean(config.publishableKey)
+
+  // Cupom pego fora do checkout (pop-up de saída): entra sozinho no primeiro
+  // passo, assim que existe preço, para o total já aparecer com desconto na
+  // barra e no resumo. Se não valer mais, some calado: ninguém prometeu
+  // desconto que a Stripe recusa.
+  useEffect(() => {
+    if (!config.loaded || booking.promo || !booking.promoCode || priced.needsQuote || !(priced.total > 0)) return undefined
+    let alive = true
+    checkPromo({ code: booking.promoCode, selection: booking.selection })
+      .then((res) => alive && update({ promo: res.promo, promoCode: '' }))
+      .catch(() => alive && update({ promoCode: '' }))
+    return () => {
+      alive = false
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [config.loaded, booking.promo, booking.promoCode, booking.selection, priced.needsQuote, priced.total])
   const ctaLabel = step < 3 ? 'Continue' : canPay ? `Pay ${formatGBP(priced.total)} securely` : 'Book now'
 
   return (

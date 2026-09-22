@@ -32,6 +32,13 @@ export const PROMISES = {
 }
 
 /**
+ * Oferta de quem está indo embora (dono, 22/09/2026): o pop-up guarda o código
+ * e o checkout aplica sozinho. O código tem de existir na Stripe (Coupons +
+ * Promotion code); se não existir, o checkout só não aplica e ninguém vê erro.
+ */
+export const EXIT_OFFER = { code: 'FIXFY10', percentOff: 10 }
+
+/**
  * Regras dos termos da reserva (/terms), 21/09/2026. Escritas por mim a pedido
  * do dono, esperando a leitura dele: taxa de cancelamento tardio, tolerância
  * de acesso e margem de peça são propostas. Mudou aqui, muda na página e no FAQ.

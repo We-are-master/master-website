@@ -28,6 +28,8 @@ export function emptyBooking() {
     contact: { firstName: '', lastName: '', email: '', phone: '' },
     address: { line1: '', line2: '' },
     marketing: false,
+    // Código de cupom pego fora do checkout (pop-up de saída): o checkout aplica.
+    promoCode: '',
   }
 }
 

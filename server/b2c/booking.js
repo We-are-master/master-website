@@ -152,6 +152,14 @@ const hasDeepClean = (sel) => sel.services.includes('clean') && cleanKind(sel.cl
 const gbp = (n) => (Number.isInteger(n) ? `£${n}` : `£${n.toFixed(2)}`)
 
 /**
+ * O que aparece na fatura do cartão, depois do nome da conta na Stripe
+ * ("PREFIXO* ISTO"). Uma palavra do serviço, para o cliente reconhecer a
+ * cobrança. O prefixo é ajuste de conta na Stripe, não dá para mudar daqui.
+ */
+const SUFFIX = { clean: 'CLEANING', paint: 'PAINTING', fix: 'REPAIRS', cert: 'CERTIFICATE' }
+const statementSuffix = (sel) => (sel.services.length === 1 ? SUFFIX[sel.services[0]] : 'BOOKING')
+
+/**
  * Cupom opcional: sem código nada muda; com código inválido a cobrança nem
  * nasce. O cupom aplicado vai junto com a reserva na metadata (é ele que
  * reprecifica no fim) e em chaves próprias, para contar os usos na busca.
@@ -221,6 +229,7 @@ export async function handleCheckout(body, { origin, ip, userAgent } = {}) {
     booking,
     baseUrl: returnBaseUrl(env, origin),
     summary: summaryOf(b),
+    suffix: statementSuffix(b.selection),
     contextLine: `Booking ${ref}: ${formatLongDate(b.date)}, arriving ${win.phrase}, at ${addressLineOf(b)}. Free changes up to ${PROMISES.freeCancellationHours} hours before, refunded in full.`,
 
     extraMetadata: { ...adMetadata(body.ad, { ip, userAgent }), ...metadata },
@@ -250,6 +259,7 @@ export async function handlePayment(body, { ip, userAgent } = {}) {
     email: b.contact.email,
     booking,
     summary: summaryOf(b),
+    suffix: statementSuffix(b.selection),
     extraMetadata: { ...adMetadata(body.ad, { ip, userAgent }), ...metadata },
   })
   return { status: 200, data: { clientSecret: intent.clientSecret, ref, total: priced.total } }

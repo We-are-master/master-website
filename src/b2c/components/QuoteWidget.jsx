@@ -30,7 +30,9 @@ export function useTween(value, duration = 280) {
     }
     const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
     const start = from.current ?? value
-    if (reduce || start === value) {
+    // Aba escondida não roda requestAnimationFrame: sem isto o total ficava
+    // congelado no valor velho quando o cupom entrava fora da tela.
+    if (reduce || start === value || document.hidden) {
       from.current = value
       setShown(value)
       return undefined
@@ -46,7 +48,16 @@ export function useTween(value, duration = 280) {
       else from.current = value
     }
     raf = requestAnimationFrame(step)
-    return () => cancelAnimationFrame(raf)
+    // Rede: se a animação não rodar (aba em segundo plano, quadro perdido), o
+    // número ainda assim termina no valor certo.
+    const land = setTimeout(() => {
+      from.current = value
+      setShown(value)
+    }, duration + 80)
+    return () => {
+      cancelAnimationFrame(raf)
+      clearTimeout(land)
+    }
   }, [value, duration])
   return shown
 }

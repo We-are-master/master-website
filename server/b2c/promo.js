@@ -67,7 +67,9 @@ export async function resolvePromo(env, rawCode, priced) {
 /** O código antes do pagamento, para o cliente ver o desconto no resumo. */
 export async function handlePromo(body = {}) {
   const env = b2cServerEnv()
-  if (!env.paymentsEnabled) return { status: 409, data: { error: UNAVAILABLE } }
+  // Conferir o código é só leitura na Stripe: vale mesmo onde o pagamento
+  // está desligado (dev), senão o preço com desconto só apareceria em produção.
+  if (!env.stripeSecretKey) return { status: 409, data: { error: UNAVAILABLE } }
   const priced = priceSelection(body.selection || {})
   if (priced.needsQuote || !(priced.total > 0)) return { status: 400, data: { error: 'Choose your job first, then add the code.' } }
   const r = await resolvePromo(env, body.code, priced)

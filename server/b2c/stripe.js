@@ -43,7 +43,7 @@ export function unpackBooking(metadata = {}) {
 
 const pence = (gbp) => Math.round(gbp * 100)
 
-export async function createCheckoutSession(env, { ref, lines, email, booking, baseUrl, summary, contextLine, extraMetadata = {} }) {
+export async function createCheckoutSession(env, { ref, lines, email, booking, baseUrl, summary, contextLine, suffix, extraMetadata = {} }) {
   const session = await stripe(env).checkout.sessions.create({
     mode: 'payment',
     locale: 'en-GB',
@@ -61,7 +61,7 @@ export async function createCheckoutSession(env, { ref, lines, email, booking, b
     payment_intent_data: {
       description: `Fixfy ${summary} · ${ref}`,
       receipt_email: email,
-      statement_descriptor_suffix: 'FIXFY',
+      statement_descriptor_suffix: suffix,
       metadata: { ref, source: 'b2c-site' },
     },
     custom_text: { submit: { message: contextLine.slice(0, 1000) } },
@@ -77,14 +77,14 @@ export async function createCheckoutSession(env, { ref, lines, email, booking, b
  * Checkout transparente: a cobrança nasce aqui com o valor do servidor e a
  * reserva inteira na metadata; o navegador só confirma com o cartão.
  */
-export async function createPaymentIntent(env, { ref, amount, email, booking, summary, extraMetadata = {} }) {
+export async function createPaymentIntent(env, { ref, amount, email, booking, summary, suffix, extraMetadata = {} }) {
   const intent = await stripe(env).paymentIntents.create({
     amount: pence(amount),
     currency: 'gbp',
     automatic_payment_methods: { enabled: true },
     receipt_email: email,
     description: `Fixfy ${summary} · ${ref}`,
-    statement_descriptor_suffix: 'FIXFY',
+    statement_descriptor_suffix: suffix,
     metadata: { ref, source: 'b2c-site', ...packBooking(booking), ...extraMetadata },
   })
   return { clientSecret: intent.client_secret, id: intent.id }
