@@ -3,6 +3,7 @@
  * confirmação ao cliente e o aviso ao escritório. Texto em inglês.
  */
 import { TERMS } from '../../src/b2c/content/site.js'
+import { LOGO_EMAIL_ATTACHMENT } from './brand.js'
 import { confirmationEmail } from './confirmation-email.js'
 
 function esc(s = '') {
@@ -35,7 +36,7 @@ async function send(env, { to, subject, html, text, replyTo, attachments }) {
 function layout(title, body) {
   return `<!doctype html><html><body style="margin:0;background:#f7f7fb;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#0a0a1f">
   <div style="max-width:560px;margin:0 auto;padding:24px 16px">
-    <div style="background:#020040;border-radius:16px 16px 0 0;padding:20px 24px;color:#fff;font-weight:700;font-size:18px">Fixfy <span style="color:#ed4b00">.</span></div>
+    <div style="background:#020040;border-radius:16px 16px 0 0;padding:20px 24px"><img src="cid:fixfy-logo" width="108" height="38" alt="Fixfy" style="display:block;border:0;outline:none;width:108px;height:38px"></div>
     <div style="background:#fff;border:1px solid #e4e4ec;border-top:0;border-radius:0 0 16px 16px;padding:24px">
       <h1 style="font-size:22px;margin:0 0 12px">${esc(title)}</h1>
       ${body}
@@ -101,5 +102,6 @@ export async function sendOfficeNotification(env, b) {
     subject: `New B2C booking ${b.ref}: ${b.summary}, ${b.dateLabel}`,
     html: layout('New booking from the website', body),
     replyTo: b.email,
+    attachments: [LOGO_EMAIL_ATTACHMENT],
   })
 }

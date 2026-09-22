@@ -10,7 +10,7 @@
  */
 import { PROMISES, TERMS } from '../../src/b2c/content/site.js'
 import { beforeWeArrive, workOrderLine } from '../../src/b2c/content/copy.js'
-import { LOGO_WHITE_PNG_BASE64 } from './brand.js'
+import { LOGO_EMAIL_ATTACHMENT } from './brand.js'
 
 const C = {
   page: '#EEEEF4',
@@ -274,6 +274,6 @@ export function confirmationEmail(env, b, { encodedId = null } = {}) {
     subject: `Job confirmed: ${b.summary} on ${b.dateLabel} (${b.ref})`,
     html,
     text,
-    attachments: [{ filename: 'fixfy.png', content: LOGO_WHITE_PNG_BASE64, content_id: 'fixfy-logo', content_type: 'image/png' }],
+    attachments: [LOGO_EMAIL_ATTACHMENT],
   }
 }

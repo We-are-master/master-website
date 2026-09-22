@@ -1544,13 +1544,15 @@ body[data-site='b2c'] .zls-sptwndw {
     margin: 18px 0 0;
     text-align: left;
   }
-  .mo-hero--simple .mo-flow,
-  .mo-hero--simple .mo-facts {
+  .mo-hero--simple .mo-flow {
     justify-content: flex-start;
   }
+  /* Os chips ficam centrados dentro da própria caixa: em duas linhas, alinhados
+     à esquerda, a segunda sobrava curta e o bloco pendia para um lado. */
   .mo-hero--simple .mo-facts {
     margin-top: 28px;
     max-width: 520px;
+    justify-content: center;
   }
   .mo-hero__widget {
     max-width: none;
