@@ -196,7 +196,7 @@ export const CERT = {
       short: 'Electrical safety (EICR)',
       detail: 'Every circuit tested and signed off by a NICEIC or NAPIT registered electrician',
       valid: 'Renew every 5 years',
-      prices: { studio: 149, 1: 149, 2: 179, 3: 179, 4: 229, 5: null },
+      prices: { studio: 89, 1: 89, 2: 179, 3: 179, 4: 229, 5: null },
       osTitle: 'Electrical Safety Report',
     },
     {
