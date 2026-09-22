@@ -4,6 +4,7 @@ import { ArrowRight, Camera, Check, CreditCard, Loader2, Phone, Sparkles } from 
 import B2CLayout from '../components/Chrome.jsx'
 import { formatGBP } from '../content/pricing.js'
 import { COMPANY, PROMISES, whatsappLink } from '../content/site.js'
+import { beforeWeArrive, workOrderLine } from '../content/copy.js'
 import { findWindow, formatLongDate } from '../lib/slots.js'
 import { clearBooking } from '../lib/store.js'
 import { submitBooking } from '../lib/api.js'
@@ -11,28 +12,6 @@ import { track } from '../lib/track.js'
 import { usePageMeta } from '../lib/meta.js'
 import '../book.css'
 
-// Ordem do dia quando há mais de um serviço (a mesma do scope no OS).
-const WORK_ORDER = [
-  ['cert', 'certificates'],
-  ['fix', 'repairs'],
-  ['paint', 'paint'],
-  ['clean', 'the clean'],
-]
-
-function workOrder(services = []) {
-  const steps = WORK_ORDER.filter(([id]) => services.includes(id)).map(([, label]) => label)
-  if (steps.length < 2) return ''
-  const [first, ...rest] = steps
-  return `${first[0].toUpperCase()}${first.slice(1)} first, then ${rest.join(', then ')}. `
-}
-
-const PREP = {
-  clean: ['Empty the place as much as you can, including cupboards and the fridge', 'Leave the electricity and hot water on', 'Take the rubbish out or tell us to add a collection'],
-  // Deep clean é casa ocupada: nada de esvaziar o imóvel.
-  deep: ['Clear the worktops and surfaces you want cleaned', 'Empty any cupboards or wardrobes you want cleaned inside', 'Put away anything fragile or valuable'],
-  paint: ['Tell us if the landlord left matching paint', 'Move furniture off the walls that need work'],
-  fix: ['Leave any parts you already bought where the team can see them', 'Say in a message if something needs a specific finish'],
-}
 
 /**
  * Volta da Stripe: `?session_id=cs_...`. O servidor confere que a sessão foi
@@ -115,7 +94,7 @@ export default function ConfirmedPage() {
   const help = whatsappLink(`Hi Fixfy, about booking ${data.ref}`)
   // Deep clean é casa ocupada: outra preparação e sem o re-clean, que é do end of tenancy.
   const homeClean = (data.services || []).includes('clean') && data.cleanKind === 'deep'
-  const prep = [...new Set((data.services || []).flatMap((s) => PREP[s === 'clean' && homeClean ? 'deep' : s] || []))]
+  const prep = beforeWeArrive(data.services || [], data.cleanKind)
   const isPaid = data.payment === 'card'
 
   return (
@@ -171,7 +150,7 @@ export default function ConfirmedPage() {
                   </span>
                   <div>
                     <b>{formatLongDate(data.date)} · the work</b>
-                    <p>{workOrder(data.services)}Photos of every room as the team finishes.</p>
+                    <p>{workOrderLine(data.services)}Photos of every room as the team finishes.</p>
                   </div>
                 </li>
                 <li>

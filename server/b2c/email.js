@@ -3,6 +3,7 @@
  * confirmação ao cliente e o aviso ao escritório. Texto em inglês.
  */
 import { TERMS } from '../../src/b2c/content/site.js'
+import { confirmationEmail } from './confirmation-email.js'
 
 function esc(s = '') {
   return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c])
@@ -12,11 +13,19 @@ function money(n) {
   return new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 0 }).format(n)
 }
 
-async function send(env, { to, subject, html, replyTo }) {
+async function send(env, { to, subject, html, text, replyTo, attachments }) {
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${env.resendKey}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from: env.resendFrom, to: [to], subject, html, reply_to: replyTo || undefined }),
+    body: JSON.stringify({
+      from: env.resendFrom,
+      to: [to],
+      subject,
+      html,
+      text: text || undefined,
+      reply_to: replyTo || undefined,
+      attachments: attachments?.length ? attachments : undefined,
+    }),
   })
   if (!res.ok) throw new Error(`resend ${res.status}: ${await res.text()}`)
   return res.json()
@@ -45,9 +54,9 @@ function linesTable(lines, total) {
 }
 
 /**
- * Confirmação que o cliente recebe pelo ticket do Zendesk (sai do hello@, e a
- * resposta dele volta para o mesmo ticket). HTML simples: o Zendesk põe o
- * próprio cabeçalho e limpa estilo, então nada de tabela nem CSS.
+ * Cópia da confirmação que fica no ticket do Zendesk como nota interna (o
+ * cliente recebe a versão com a marca, de sendCustomerConfirmation). HTML
+ * simples: o Zendesk limpa estilo.
  */
 export function customerMessageHtml(env, b) {
   const lines = b.lines
@@ -65,19 +74,14 @@ export function customerMessageHtml(env, b) {
   ].join('\n')
 }
 
-export async function sendCustomerConfirmation(env, b) {
-  const body = `
-    <p style="font-size:16px;line-height:1.5;margin:0 0 16px">Hi ${esc(b.firstName)}, your booking <b>${esc(b.ref)}</b> is in for <b>${esc(b.dateLabel)}</b>, arriving <b>${esc(b.windowLabel)}</b>, at ${esc(b.addressLine)}.</p>
-    ${linesTable(b.lines, b.total)}
-    <p style="font-size:15px;line-height:1.5;margin:16px 0 0">Paid by card through Stripe; your receipt arrives separately. The photo report of every room comes the same day the work is done.</p>
-    <p style="font-size:15px;line-height:1.5;margin:12px 0 0">We will call or message you the day before to confirm the team and how we get in. Free changes and cancellation up to 48 hours before your slot, refunded in full. Reply to this email if anything changes.</p>
-    <p style="font-size:13px;line-height:1.5;color:#6b6b85;margin:16px 0 0">Your booking is under our <a href="${esc(env.siteUrl)}/terms" style="color:#0a0a1f">booking terms</a> (version of ${esc(TERMS.version)}), which also explain your legal right to cancel within 14 days and how to use it. You asked us to do the work on the day you picked, so once it is done it can no longer be cancelled.</p>`
-  return send(env, {
-    to: b.email,
-    subject: `Booked: ${b.summary} on ${b.dateLabel} (${b.ref})`,
-    html: layout('Booked and paid. See you on the day.', body),
-    replyTo: 'hello@getfixfy.com',
-  })
+/**
+ * Confirmação ao cliente, com a marca (server/b2c/confirmation-email.js). Sai
+ * do hello@ com resposta para o hello@; com o encoded id do ticket, a resposta
+ * do cliente cai no ticket da compra no Zendesk.
+ */
+export async function sendCustomerConfirmation(env, b, { encodedId = null } = {}) {
+  const mail = confirmationEmail(env, b, { encodedId })
+  return send(env, { to: b.email, replyTo: 'hello@getfixfy.com', ...mail })
 }
 
 export async function sendOfficeNotification(env, b) {

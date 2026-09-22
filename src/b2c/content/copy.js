@@ -71,6 +71,41 @@ export const CHECKLIST = [
 
 export const CHECKLIST_COUNT = CHECKLIST.reduce((n, r) => n + r.items.length, 0)
 
+/**
+ * O que o cliente deixa pronto antes da visita, por serviço. Aparece na página
+ * de confirmação e no e-mail de confirmação (server/b2c/email.js).
+ */
+export const BEFORE_WE_ARRIVE = {
+  clean: ['Empty the place as much as you can, including cupboards and the fridge', 'Leave the electricity and hot water on', 'Take the rubbish out or tell us to add a collection'],
+  // Deep clean é casa ocupada: nada de esvaziar o imóvel.
+  deep: ['Clear the worktops and surfaces you want cleaned', 'Empty any cupboards or wardrobes you want cleaned inside', 'Put away anything fragile or valuable'],
+  paint: ['Tell us if the landlord left matching paint', 'Move furniture off the walls that need work'],
+  fix: ['Leave any parts you already bought where the team can see them', 'Say in a message if something needs a specific finish'],
+  cert: ['Keep the gas and electricity on', 'Clear the way to the boiler, the fuse box and every gas appliance'],
+}
+
+/** Itens do "Before we arrive" para os serviços da reserva, sem repetir. */
+export function beforeWeArrive(services = [], cleanKindId = null) {
+  const keys = services.map((s) => (s === 'clean' && cleanKindId === 'deep' ? 'deep' : s))
+  return [...new Set(keys.flatMap((k) => BEFORE_WE_ARRIVE[k] || []))]
+}
+
+// Ordem do dia quando há mais de um serviço (a mesma do scope no OS).
+const WORK_ORDER = [
+  ['cert', 'certificates'],
+  ['fix', 'repairs'],
+  ['paint', 'paint'],
+  ['clean', 'the clean'],
+]
+
+/** "Repairs first, then paint, then the clean. " ou '' com um serviço só. */
+export function workOrderLine(services = []) {
+  const steps = WORK_ORDER.filter(([id]) => services.includes(id)).map(([, label]) => label)
+  if (steps.length < 2) return ''
+  const [first, ...rest] = steps
+  return `${first[0].toUpperCase()}${first.slice(1)} first, then ${rest.join(', then ')}. `
+}
+
 export const FAQS = [
   {
     q: 'How do I pay?',

@@ -315,10 +315,17 @@ async function recordBooking(env, b, priced, ref, paymentIntentId) {
     paymentIntentId,
     marketing: b.marketing,
     attribution: b.attribution,
+    // Para o e-mail com a marca: serviços, tipo de limpeza, calendário e acesso.
+    services: b.selection.services,
+    cleanKind: b.selection.services.includes('clean') ? cleanKind(b.selection.clean.kind).id : null,
+    dateIso: b.date,
+    windowRange: win.range,
+    accessId: b.access,
   }
   const osJobs = []
   let osError = null
-  let customerMessagePosted = false
+  // Código do ticket do Zendesk (encoded id) quando o cliente virou o solicitante.
+  let threadId = null
   try {
     if (!env.osKey) throw new Error('MASTER_OS_JOB_WEBHOOK_API_KEY not set')
     const accountId = await resolveFixfyAccountId(env)
@@ -370,14 +377,19 @@ async function recordBooking(env, b, priced, ref, paymentIntentId) {
         description: scopeFor(service, b, priced, ref, { certItem: entry.certItem, withBoiler: entry.withBoiler, lines: entry.lines }),
         client_price: price,
         internal_notes: notes,
-        // Uma conversa por reserva: o ticket do primeiro job vira o do cliente
-        // (ele passa a ser o solicitante e recebe a confirmação por ali, saindo
-        // do hello@). O que ele responder cai no mesmo ticket das notas internas.
+        // Uma conversa por reserva: o cliente vira o solicitante do ticket do
+        // primeiro job, a cópia da confirmação fica lá como nota interna e o
+        // e-mail com a marca sai daqui com o código do ticket, para a resposta
+        // dele cair no mesmo ticket das notas internas.
         ...(osJobs.length === 0
-          ? { customer_message_html: customerMessageHtml(env, details), ticket_subject: `Booking ${ref}: ${details.summary}, ${details.dateLabel}` }
+          ? {
+              customer_message_html: customerMessageHtml(env, details),
+              customer_message_via: 'email',
+              ticket_subject: `Booking ${ref}: ${details.summary}, ${details.dateLabel}`,
+            }
           : {}),
       })
-      if (osJobs.length === 0) customerMessagePosted = job.customerMessagePosted
+      if (osJobs.length === 0 && job.customerRequesterSet) threadId = job.encodedId
       osJobs.push({ ...job, title: entry.title })
     }
   } catch (err) {
@@ -386,17 +398,16 @@ async function recordBooking(env, b, priced, ref, paymentIntentId) {
   }
 
   const emailData = { ...details, osJobs, osError }
-  // A confirmação normal sai pelo ticket (Zendesk, hello@). Por e-mail direto só
-  // quando o ticket falhou; o aviso ao escritório só quando o job não nasceu no
-  // OS, e vai para o hello@, onde vira ticket: nada fica em e-mail pessoal.
-  const sends = []
-  if (!customerMessagePosted) sends.push(sendCustomerConfirmation(env, emailData))
-  if (osError || !osJobs.length) sends.push(sendOfficeNotification(env, emailData))
-  if (sends.length && env.resendKey) {
+  // O cliente sempre recebe o e-mail com a marca; com o código do ticket, a
+  // resposta dele cai no ticket da compra. O aviso ao escritório só sai quando
+  // o job não nasceu no OS, e vai para o hello@ (vira ticket): nada em e-mail pessoal.
+  if (env.resendKey) {
+    const sends = [sendCustomerConfirmation(env, emailData, { encodedId: threadId })]
+    if (osError || !osJobs.length) sends.push(sendOfficeNotification(env, emailData))
     const results = await Promise.allSettled(sends)
     results.forEach((r) => r.status === 'rejected' && console.error('[b2c/booking] email failed', ref, r.reason))
-  } else if (sends.length) {
-    console.error('[b2c/booking] RESEND_API_KEY not set: fallback emails not sent for', ref)
+  } else {
+    console.error('[b2c/booking] RESEND_API_KEY not set: no emails sent for', ref)
   }
   return osJobs
 }
