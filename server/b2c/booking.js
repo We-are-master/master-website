@@ -21,7 +21,7 @@ import {
   retrieveSession,
   unpackBooking,
 } from './stripe.js'
-import { sendCustomerConfirmation, sendOfficeNotification } from './email.js'
+import { customerMessageHtml, sendCustomerConfirmation, sendOfficeNotification } from './email.js'
 import { createOsJob, resolveFixfyAccountId } from './os.js'
 import { adMetadata, sendPurchase } from './meta.js'
 import {
@@ -294,8 +294,31 @@ function confirmation(b, priced, ref, mode, payment) {
 async function recordBooking(env, b, priced, ref, paymentIntentId) {
   const name = `${b.contact.firstName} ${b.contact.lastName}`
   const win = findWindow(b.window)
+  // O que o cliente lê (no ticket ou, se ele falhar, por e-mail) e o escritório também.
+  const details = {
+    ref,
+    total: priced.total,
+    lines: priced.lines,
+    summary: summaryOf(b),
+    firstName: b.contact.firstName,
+    name,
+    email: b.contact.email,
+    phone: b.contact.phone,
+    dateLabel: formatLongDate(b.date),
+    windowLabel: win.phrase,
+    addressLine: addressLineOf(b),
+    role: ROLE_LABEL[b.role] || '',
+    access: ACCESS_LABEL[b.access],
+    accessNote: b.accessNote,
+    parking: PARKING_LABEL[b.parking],
+    notes: b.notes,
+    paymentIntentId,
+    marketing: b.marketing,
+    attribution: b.attribution,
+  }
   const osJobs = []
   let osError = null
+  let customerMessagePosted = false
   try {
     if (!env.osKey) throw new Error('MASTER_OS_JOB_WEBHOOK_API_KEY not set')
     const accountId = await resolveFixfyAccountId(env)
@@ -347,7 +370,14 @@ async function recordBooking(env, b, priced, ref, paymentIntentId) {
         description: scopeFor(service, b, priced, ref, { certItem: entry.certItem, withBoiler: entry.withBoiler, lines: entry.lines }),
         client_price: price,
         internal_notes: notes,
+        // Uma conversa por reserva: o ticket do primeiro job vira o do cliente
+        // (ele passa a ser o solicitante e recebe a confirmação por ali, saindo
+        // do hello@). O que ele responder cai no mesmo ticket das notas internas.
+        ...(osJobs.length === 0
+          ? { customer_message_html: customerMessageHtml(env, details), ticket_subject: `Booking ${ref}: ${details.summary}, ${details.dateLabel}` }
+          : {}),
       })
+      if (osJobs.length === 0) customerMessagePosted = job.customerMessagePosted
       osJobs.push({ ...job, title: entry.title })
     }
   } catch (err) {
@@ -355,34 +385,18 @@ async function recordBooking(env, b, priced, ref, paymentIntentId) {
     console.error('[b2c/booking] OS job failed', ref, err)
   }
 
-  const emailData = {
-    ref,
-    total: priced.total,
-    lines: priced.lines,
-    summary: summaryOf(b),
-    firstName: b.contact.firstName,
-    name,
-    email: b.contact.email,
-    phone: b.contact.phone,
-    dateLabel: formatLongDate(b.date),
-    windowLabel: win.phrase,
-    addressLine: addressLineOf(b),
-    role: ROLE_LABEL[b.role] || '',
-    access: ACCESS_LABEL[b.access],
-    accessNote: b.accessNote,
-    parking: PARKING_LABEL[b.parking],
-    notes: b.notes,
-    paymentIntentId,
-    marketing: b.marketing,
-    attribution: b.attribution,
-    osJobs,
-    osError,
-  }
-  if (env.resendKey) {
-    const results = await Promise.allSettled([sendCustomerConfirmation(env, emailData), sendOfficeNotification(env, emailData)])
+  const emailData = { ...details, osJobs, osError }
+  // A confirmação normal sai pelo ticket (Zendesk, hello@). Por e-mail direto só
+  // quando o ticket falhou; o aviso ao escritório só quando o job não nasceu no
+  // OS, e vai para o hello@, onde vira ticket: nada fica em e-mail pessoal.
+  const sends = []
+  if (!customerMessagePosted) sends.push(sendCustomerConfirmation(env, emailData))
+  if (osError || !osJobs.length) sends.push(sendOfficeNotification(env, emailData))
+  if (sends.length && env.resendKey) {
+    const results = await Promise.allSettled(sends)
     results.forEach((r) => r.status === 'rejected' && console.error('[b2c/booking] email failed', ref, r.reason))
-  } else {
-    console.error('[b2c/booking] RESEND_API_KEY not set: no emails sent for', ref)
+  } else if (sends.length) {
+    console.error('[b2c/booking] RESEND_API_KEY not set: fallback emails not sent for', ref)
   }
   return osJobs
 }

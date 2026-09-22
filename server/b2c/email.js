@@ -44,6 +44,27 @@ function linesTable(lines, total) {
   return `<table style="width:100%;border-collapse:collapse;font-size:15px">${rows}<tr><td style="padding:12px 0;font-weight:700">Paid by card, VAT included</td><td style="padding:12px 0;text-align:right;font-weight:700">${money(total)}</td></tr></table>`
 }
 
+/**
+ * Confirmação que o cliente recebe pelo ticket do Zendesk (sai do hello@, e a
+ * resposta dele volta para o mesmo ticket). HTML simples: o Zendesk põe o
+ * próprio cabeçalho e limpa estilo, então nada de tabela nem CSS.
+ */
+export function customerMessageHtml(env, b) {
+  const lines = b.lines
+    .map((l) => `<li>${esc(l.label)}${l.detail ? `, ${esc(l.detail)}` : ''}: <b>${l.amount == null ? 'quote' : money(l.amount)}</b></li>`)
+    .join('')
+  return [
+    `<p>Hi ${esc(b.firstName)},</p>`,
+    `<p>Your booking <b>${esc(b.ref)}</b> is confirmed and paid.</p>`,
+    `<ul>${lines}</ul>`,
+    `<p><b>When:</b> ${esc(b.dateLabel)}, arriving ${esc(b.windowLabel)}<br><b>Where:</b> ${esc(b.addressLine)}<br><b>Paid:</b> ${money(b.total)} by card, VAT included. Your receipt from Stripe arrives separately.</p>`,
+    `<p>We will call or message you the day before to confirm the team and how we get in. The photo report of every room comes the same day the work is done.</p>`,
+    `<p>Free changes and cancellation up to 48 hours before your slot, refunded in full. Your booking is under our <a href="${esc(env.siteUrl)}/terms">booking terms</a> (version of ${esc(TERMS.version)}), which also explain your legal right to cancel within 14 days. You asked us to do the work on the day you picked, so once it is done it can no longer be cancelled.</p>`,
+    `<p>Anything to add or change? Just reply to this email.</p>`,
+    `<p>Fixfy</p>`,
+  ].join('\n')
+}
+
 export async function sendCustomerConfirmation(env, b) {
   const body = `
     <p style="font-size:16px;line-height:1.5;margin:0 0 16px">Hi ${esc(b.firstName)}, your booking <b>${esc(b.ref)}</b> is in for <b>${esc(b.dateLabel)}</b>, arriving <b>${esc(b.windowLabel)}</b>, at ${esc(b.addressLine)}.</p>

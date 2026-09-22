@@ -42,7 +42,8 @@ export function b2cServerEnv() {
     serviceKey: (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY || '').trim(),
     resendKey: (process.env.RESEND_API_KEY || '').trim(),
     resendFrom: (process.env.RESEND_FROM_EMAIL || 'Fixfy <hello@getfixfy.com>').trim(),
-    notifyEmail: (process.env.B2C_NOTIFY_EMAIL || 'victor@getfixfy.com').trim(),
+    // Só usado quando o OS falha: vira ticket no Zendesk (hello@ é o endereço dele).
+    notifyEmail: (process.env.B2C_NOTIFY_EMAIL || 'hello@getfixfy.com').trim(),
     siteUrl: (process.env.B2C_SITE_URL || 'https://getfixfy.com').replace(/\/$/, ''),
     // Conversions API da Meta: a compra também sai do servidor (só com o sim de marketing).
     metaPixelId: (process.env.META_PIXEL_ID || '1555218078932742').trim(),
