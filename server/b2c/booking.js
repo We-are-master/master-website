@@ -24,6 +24,7 @@ import {
 import { customerMessageHtml, sendCustomerConfirmation, sendOfficeNotification } from './email.js'
 import { createOsJob, resolveFixfyAccountId } from './os.js'
 import { adMetadata, sendPurchase } from './meta.js'
+import { partnerPayFor } from './partner-pay.js'
 import { resolvePromo } from './promo.js'
 import {
   CERT,
@@ -175,26 +176,21 @@ function chargeLines(priced) {
 }
 
 /**
- * Cupom é custo da Fixfy, não do parceiro. Na limpeza o OS paga ao parceiro
- * 70% do preço (AUTO_PARTNER_MARGIN_PCT_CLEANING = 30 no master-os): com
- * desconto, o repasse segue calculado no preço cheio. Nas outras trades a
- * margem vem do Setup do OS, que o site não enxerga: a nota do job avisa.
+ * Repasse do parceiro no job: a tabela do que a Fixfy paga (partner-pay.js),
+ * não uma porcentagem do preço. O cupom é custo da Fixfy, então o repasse
+ * segue o preço cheio, com um teto no que o cliente pagou: o OS guarda a
+ * margem do job e repasse maior que o preço estoura o campo (o cupom de 99%
+ * derrubou a reserva FX-DJJGAG).
  */
-function partnerCostAtListPrice(title, listPrice, price) {
-  if (price >= listPrice || !/clean/i.test(title)) return {}
-  // Teto no que o cliente pagou: o OS guarda a margem do job e repasse maior
-  // que o preço estoura o campo (cupom de 99% derrubou a reserva FX-DJJGAG).
-  // Com desconto até 30% o repasse cheio cabe inteiro; acima disso o
-  // escritório ajusta à mão, com a nota do job dizendo o valor cheio.
-  return { partner_cost: Math.min(Math.round(listPrice * 70) / 100, price) }
+function partnerCostFor(pay, price) {
+  return pay == null ? {} : { partner_cost: Math.min(pay, price) }
 }
 
 /** O que a nota do job conta ao escritório sobre o repasse, com cupom. */
-function promoPartnerNote(partnerCost, listPrice) {
-  const full = Math.round(listPrice * 70) / 100
-  if (partnerCost == null) return 'Partner pay was worked out on the discounted price: raise it to the usual rate if needed.'
-  if (partnerCost >= full) return `Partner pay kept at the full-price rate (${gbp(full)}).`
-  return `Partner pay capped at what the customer paid; the full-price rate is ${gbp(full)}: raise it by hand if the discount is ours to absorb.`
+function promoPartnerNote(partnerCost, pay) {
+  if (pay == null) return 'Partner pay is not set by the website: set it when you assign.'
+  if (partnerCost >= pay) return `Partner pay kept at the full rate (${gbp(pay)}).`
+  return `Partner pay capped at what the customer paid; the rate for this job is ${gbp(pay)}: raise it by hand if the discount is ours to absorb.`
 }
 
 /**
@@ -406,18 +402,20 @@ async function recordBooking(env, b, priced, ref, paymentIntentId) {
       }
     }
     // Com cupom, o desconto sai de cada job na proporção do preço (a sobra fica no maior).
-    const listPrices = order.map((e) => (e.lines || priced.lines.filter((l) => l.service === e.service)).reduce((s, l) => s + (l.amount || 0), 0))
+    const entryLines = order.map((e) => e.lines || priced.lines.filter((l) => l.service === e.service))
+    const listPrices = entryLines.map((lines) => lines.reduce((s, l) => s + (l.amount || 0), 0))
     const discounts = splitDiscount(listPrices, priced.discount)
     for (const entry of order) {
       const { service } = entry
       const i = order.indexOf(entry)
       const price = Math.round((listPrices[i] - discounts[i]) * 100) / 100
-      const partnerPay = partnerCostAtListPrice(entry.title, listPrices[i], price)
+      const pay = partnerPayFor({ service, lines: entryLines[i], size: sel.size })
+      const partnerPay = partnerCostFor(pay, price)
       const notes = [
         `Website booking ${ref} (${order.length > 1 ? `${order.indexOf(entry) + 1} of ${order.length}` : 'single job'}).`,
         `PAID ${gbp(priced.total)} by card at booking, Stripe payment ${paymentIntentId}${order.length > 1 ? ` (covers the whole booking of ${gbp(priced.total)})` : ''}. Materials, if any, are billed separately.`,
         priced.promo
-          ? `Promo code ${priced.promo.code}: this job is ${gbp(price)} instead of ${gbp(listPrices[i])}. ${promoPartnerNote(partnerPay.partner_cost, listPrices[i])}`
+          ? `Promo code ${priced.promo.code}: this job is ${gbp(price)} instead of ${gbp(listPrices[i])}. ${promoPartnerNote(partnerPay.partner_cost, pay)}`
           : null,
         b.role ? `Booked by: ${ROLE_LABEL[b.role]}.` : null,
         `Marketing opt-in: ${b.marketing ? 'yes' : 'no'}.`,
