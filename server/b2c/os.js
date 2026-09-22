@@ -37,5 +37,13 @@ export async function createOsJob(env, job) {
   })
   const data = await res.json().catch(() => ({}))
   if (!res.ok) throw new Error(`OS /api/jobs ${res.status}: ${data.error || 'unknown error'}`)
-  return { id: data.id, reference: data.reference, status: data.status, ticket: data.zendesk_ticket_id || null }
+  return {
+    id: data.id,
+    reference: data.reference,
+    status: data.status,
+    ticket: data.zendesk_ticket_id || null,
+    customerMessagePosted: data.customer_message_posted === true,
+    customerRequesterSet: data.customer_requester_set === true,
+    encodedId: data.zendesk_encoded_id || null,
+  }
 }
