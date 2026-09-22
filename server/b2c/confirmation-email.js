@@ -148,7 +148,7 @@ export function confirmationEmail(env, b, { encodedId = null } = {}) {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light">
 <meta name="supported-color-schemes" content="light">
-<title>Booked and paid</title>
+<title>Job confirmed</title>
 <style>
   @media (max-width: 620px) {
     .fx-pad { padding-left: 22px !important; padding-right: 22px !important; }
@@ -159,7 +159,7 @@ export function confirmationEmail(env, b, { encodedId = null } = {}) {
 </style>
 </head>
 <body style="margin:0;padding:0;background:${C.page};">
-<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;">Booked and paid: ${esc(b.summary)} on ${esc(b.dateLabel)}. Everything you need for the day is inside.</div>
+<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;">Job confirmed: ${esc(b.summary)} on ${esc(b.dateLabel)}. Everything you need for the day is inside.</div>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${C.page};">
 <tr><td align="center" style="padding:28px 12px 36px;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;">
@@ -172,7 +172,7 @@ export function confirmationEmail(env, b, { encodedId = null } = {}) {
   </td></tr>
 
   <tr><td style="background:${C.navy};padding:34px 32px 38px;" class="fx-pad">
-    <div class="fx-h1" style="font:800 40px/44px ${FONT};letter-spacing:-0.02em;color:${C.white};">Booked and paid<span style="color:${C.orange};">.</span></div>
+    <div class="fx-h1" style="font:800 40px/44px ${FONT};letter-spacing:-0.02em;color:${C.white};">Job confirmed<span style="color:${C.orange};">.</span></div>
     <div style="font:400 17px/26px ${FONT};color:${C.onNavy};margin-top:12px;">Thanks, ${esc(firstName)}. Your ${esc(b.summary.toLowerCase())} is set for <span style="color:${C.white};font-weight:600;">${esc(b.dateLabel)}</span>. Everything you need for the day is below.</div>
   </td></tr>
 
@@ -237,7 +237,7 @@ export function confirmationEmail(env, b, { encodedId = null } = {}) {
 </html>`
 
   const text = [
-    `Booked and paid. See you on ${b.dateLabel}.`,
+    `Job confirmed. See you on ${b.dateLabel}.`,
     '',
     `Hi ${firstName},`,
     `Your booking ${b.ref} is confirmed and paid.`,
@@ -270,7 +270,7 @@ export function confirmationEmail(env, b, { encodedId = null } = {}) {
     .join('\n')
 
   return {
-    subject: `Booked: ${b.summary} on ${b.dateLabel} (${b.ref})`,
+    subject: `Job confirmed: ${b.summary} on ${b.dateLabel} (${b.ref})`,
     html,
     text,
     attachments: [{ filename: 'fixfy.png', content: LOGO_WHITE_PNG_BASE64, content_id: 'fixfy-logo', content_type: 'image/png' }],
