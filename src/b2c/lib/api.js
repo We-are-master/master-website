@@ -44,3 +44,8 @@ export function createCheckout(payload) {
 export function submitBooking(payload) {
   return post('/api/b2c/booking', payload)
 }
+
+/** Confere o cupom antes de pagar: { promo: { code, percentOff, amountOff }, discount, total }. */
+export function checkPromo({ code, selection }) {
+  return post('/api/b2c/promo', { code, selection })
+}

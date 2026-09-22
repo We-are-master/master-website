@@ -24,6 +24,7 @@ import {
 import { sendCustomerConfirmation, sendOfficeNotification } from './email.js'
 import { createOsJob, resolveFixfyAccountId } from './os.js'
 import { adMetadata, sendPurchase } from './meta.js'
+import { resolvePromo } from './promo.js'
 import {
   CERT,
   CLEAN,
@@ -31,10 +32,12 @@ import {
   PAINT,
   PROPERTY_SIZES,
   SERVICES,
+  applyPromo,
   cleanKind,
   normalizeSelection,
   priceSelection,
   serviceName,
+  splitDiscount,
 } from '../../src/b2c/content/pricing.js'
 import { COVERED_AREAS, PROMISES, formatPostcode, looksLikePostcode, postcodeArea } from '../../src/b2c/content/site.js'
 import { findWindow, formatLongDate, isBookableDate } from '../../src/b2c/lib/slots.js'
@@ -145,6 +148,43 @@ const summaryOf = (b) => b.selection.services.map((s) => serviceName(s, b.select
 /** O re-clean grátis é promessa do end of tenancy; reserva com deep clean não leva. */
 const hasDeepClean = (sel) => sel.services.includes('clean') && cleanKind(sel.clean.kind).id === 'deep'
 
+const gbp = (n) => (Number.isInteger(n) ? `£${n}` : `£${n.toFixed(2)}`)
+
+/**
+ * Cupom opcional: sem código nada muda; com código inválido a cobrança nem
+ * nasce. O cupom aplicado vai junto com a reserva na metadata (é ele que
+ * reprecifica no fim) e em chaves próprias, para contar os usos na busca.
+ */
+async function withPromo(env, body, b, priced) {
+  if (!body.promoCode) return { priced, booking: b, metadata: {} }
+  const r = await resolvePromo(env, body.promoCode, priced)
+  if (!r.ok) return { error: r.error }
+  return { priced: r.priced, booking: { ...b, promo: r.promo }, metadata: { promo: r.promo.code, promo_id: r.promo.id } }
+}
+
+/** Linhas para a Stripe, que não aceita linha negativa: o desconto sai de cada uma na proporção. */
+function chargeLines(priced) {
+  const lines = priced.lines.filter((l) => l.service !== 'promo')
+  if (!priced.discount) return lines
+  const shares = splitDiscount(lines.map((l) => l.amount), priced.discount)
+  return lines.map((l, i) => ({
+    ...l,
+    amount: Math.round((l.amount - shares[i]) * 100) / 100,
+    detail: [l.detail, `with code ${priced.promo.code}`].filter(Boolean).join(' · '),
+  }))
+}
+
+/**
+ * Cupom é custo da Fixfy, não do parceiro. Na limpeza o OS paga ao parceiro
+ * 70% do preço (AUTO_PARTNER_MARGIN_PCT_CLEANING = 30 no master-os): com
+ * desconto, o repasse segue calculado no preço cheio. Nas outras trades a
+ * margem vem do Setup do OS, que o site não enxerga: a nota do job avisa.
+ */
+function partnerCostAtListPrice(title, listPrice, price) {
+  if (price >= listPrice || !/clean/i.test(title)) return {}
+  return { partner_cost: Math.round(listPrice * 70) / 100 }
+}
+
 /**
  * Passo 1 do pagamento: a reserva chega inteira, é validada e reprecificada
  * (data incluída, para ninguém pagar um dia que já não existe), e a sessão
@@ -157,23 +197,25 @@ export async function handleCheckout(body, { origin, ip, userAgent } = {}) {
   const { errors, clean: b } = validate(body)
   if (!errors.length && !isBookableDate(b.date)) errors.push('That day is no longer available. Pick another one.')
   if (errors.length) return { status: 400, data: { error: errors[0], errors } }
-  const priced = priceSelection(b.selection)
-  if (priced.needsQuote) return { status: 400, data: { error: 'This booking needs a photo quote.' } }
+  const listed = priceSelection(b.selection)
+  if (listed.needsQuote) return { status: 400, data: { error: 'This booking needs a photo quote.' } }
   if (!env.paymentsEnabled) {
     return { status: 409, data: { error: 'Online payment is not enabled in this environment.' } }
   }
+  const { priced, booking, metadata, error } = await withPromo(env, body, b, listed)
+  if (error) return { status: 400, data: { error, field: 'promo' } }
   const ref = newRef()
   const win = findWindow(b.window)
   const session = await createCheckoutSession(env, {
     ref,
-    lines: priced.lines,
+    lines: chargeLines(priced),
     email: b.contact.email,
-    booking: b,
+    booking,
     baseUrl: returnBaseUrl(env, origin),
     summary: summaryOf(b),
     contextLine: `Booking ${ref}: ${formatLongDate(b.date)}, arriving ${win.phrase}, at ${addressLineOf(b)}. Free changes up to ${PROMISES.freeCancellationHours} hours before, refunded in full.`,
 
-    extraMetadata: adMetadata(body.ad, { ip, userAgent }),
+    extraMetadata: { ...adMetadata(body.ad, { ip, userAgent }), ...metadata },
   })
   return { status: 200, data: { url: session.url, ref, total: priced.total } }
 }
@@ -186,19 +228,21 @@ export async function handlePayment(body, { ip, userAgent } = {}) {
   const { errors, clean: b } = validate(body)
   if (!errors.length && !isBookableDate(b.date)) errors.push('That day is no longer available. Pick another one.')
   if (errors.length) return { status: 400, data: { error: errors[0], errors } }
-  const priced = priceSelection(b.selection)
-  if (priced.needsQuote) return { status: 400, data: { error: 'This booking needs a photo quote.' } }
+  const listed = priceSelection(b.selection)
+  if (listed.needsQuote) return { status: 400, data: { error: 'This booking needs a photo quote.' } }
   if (!env.paymentsEnabled || !env.publishableKey) {
     return { status: 409, data: { error: 'Card payment on this page is not enabled in this environment.' } }
   }
+  const { priced, booking, metadata, error } = await withPromo(env, body, b, listed)
+  if (error) return { status: 400, data: { error, field: 'promo' } }
   const ref = newRef()
   const intent = await createPaymentIntent(env, {
     ref,
     amount: priced.total,
     email: b.contact.email,
-    booking: b,
+    booking,
     summary: summaryOf(b),
-    extraMetadata: adMetadata(body.ad, { ip, userAgent }),
+    extraMetadata: { ...adMetadata(body.ad, { ip, userAgent }), ...metadata },
   })
   return { status: 200, data: { clientSecret: intent.clientSecret, ref, total: priced.total } }
 }
@@ -319,12 +363,24 @@ async function recordBooking(env, b, priced, ref, paymentIntentId) {
         order.push({ service, title: item.osTitle, certItem: item, withBoiler, lines })
       }
     }
+    // Com cupom, o desconto sai de cada job na proporção do preço (a sobra fica no maior).
+    const listPrices = order.map((e) => (e.lines || priced.lines.filter((l) => l.service === e.service)).reduce((s, l) => s + (l.amount || 0), 0))
+    const discounts = splitDiscount(listPrices, priced.discount)
     for (const entry of order) {
       const { service } = entry
-      const price = (entry.lines || priced.lines.filter((l) => l.service === service)).reduce((s, l) => s + (l.amount || 0), 0)
+      const i = order.indexOf(entry)
+      const price = Math.round((listPrices[i] - discounts[i]) * 100) / 100
+      const partnerPay = partnerCostAtListPrice(entry.title, listPrices[i], price)
       const notes = [
         `Website booking ${ref} (${order.length > 1 ? `${order.indexOf(entry) + 1} of ${order.length}` : 'single job'}).`,
-        `PAID £${priced.total} by card at booking, Stripe payment ${paymentIntentId}${order.length > 1 ? ` (covers the whole booking of £${priced.total})` : ''}. Materials, if any, are billed separately.`,
+        `PAID ${gbp(priced.total)} by card at booking, Stripe payment ${paymentIntentId}${order.length > 1 ? ` (covers the whole booking of ${gbp(priced.total)})` : ''}. Materials, if any, are billed separately.`,
+        priced.promo
+          ? `Promo code ${priced.promo.code}: this job is ${gbp(price)} instead of ${gbp(listPrices[i])}. ${
+              partnerPay.partner_cost
+                ? `Partner pay kept at the full-price rate (${gbp(partnerPay.partner_cost)}).`
+                : 'Partner pay was worked out on the discounted price: raise it to the usual rate if needed.'
+            }`
+          : null,
         b.role ? `Booked by: ${ROLE_LABEL[b.role]}.` : null,
         `Marketing opt-in: ${b.marketing ? 'yes' : 'no'}.`,
         Object.keys(b.attribution || {}).length ? `Source: ${JSON.stringify(b.attribution)}` : null,
@@ -332,6 +388,7 @@ async function recordBooking(env, b, priced, ref, paymentIntentId) {
         .filter(Boolean)
         .join('\n')
       const job = await createOsJob(env, {
+        ...partnerPay,
         account_id: accountId,
         date: b.date,
         // id do slot do OS (ARRIVAL_SLOT_LOOKUP): casa exato, inclusive o 9am sharp
@@ -399,7 +456,8 @@ async function finalizePaid(env, { pi, metadata, amount }) {
 
   // A data já foi conferida quando a cobrança nasceu; aqui só a forma.
   const { errors, clean: b } = validate(stored)
-  const priced = priceSelection(b.selection)
+  // Com cupom, o desconto é o que o servidor gravou na cobrança (nada de consultar de novo).
+  const priced = applyPromo(priceSelection(b.selection), stored.promo)
   if (errors.length || priced.needsQuote || amount !== pence(priced.total)) {
     console.error('[b2c/booking] paid amount does not match booking', ref, errors, amount, priced.total)
     return { status: 409, data: { error: `Payment received for ${ref}, but the booking needs a check. We will email you within the hour.` } }

@@ -40,7 +40,8 @@ export function useTween(value, duration = 280) {
     const step = (now) => {
       const p = Math.min(1, (now - t0) / duration)
       const eased = 1 - Math.pow(1 - p, 3)
-      setShown(Math.round(start + (value - start) * eased))
+      // Libras inteiras no caminho; no fim o valor exato (com cupom pode ter pence).
+      setShown(p < 1 ? Math.round(start + (value - start) * eased) : value)
       if (p < 1) raf = requestAnimationFrame(step)
       else from.current = value
     }
