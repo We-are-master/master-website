@@ -60,12 +60,12 @@
           w.$zoho.salesiq = w.$zoho.salesiq || { ready: function () {} };
           script('https://salesiq.zoho.eu/widget?wc=siq3e404450ccb37370f74ba15ecf5f6530793df23072c7a0654214923253a62e753b59e057da4886fa69acdcce754303f3', 'zsiqscript');
         },
-        // O container do GTM tem tags de análise e de anúncio: só com os dois sins.
-        tags: function () {
-          w.dataLayer = w.dataLayer || [];
-          w.dataLayer.push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
-          script('https://www.googletagmanager.com/gtm.js?id=GTM-5RR9M23N');
-        }
+        // O GTM (GTM-5RR9M23N) saiu daqui em 22/09/2026: o container é do site
+        // antigo e as tags de Meta que moram nele mandavam PageView e Purchase
+        // de novo, sem o nosso event id, então a Meta contava a mesma visita e a
+        // mesma compra duas vezes. Analytics, Clarity, PageSense e o Pixel são
+        // carregados aqui em cima, um a um. Tag nova entra por aqui, não por lá.
+        tags: function () {}
       };
       function run(name) {
         if (loaded[name]) return;
