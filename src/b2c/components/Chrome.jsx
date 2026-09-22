@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { ChevronDown, Menu, X } from 'lucide-react'
 import { COMPANY } from '../content/site.js'
+import ExitOffer from './ExitOffer.jsx'
 import { captureAttribution } from '../lib/track.js'
 import { openCookieSettings } from '../../lib/consent.js'
 import '../b2c.css'
@@ -289,6 +290,8 @@ export default function B2CLayout({ children, minimalHeader = false, headerRight
       <B2CHeader minimal={minimalHeader} right={headerRight} />
       <main>{children}</main>
       {footer && <B2CFooter />}
+      {/* Quem já está na reserva não leva pop-up: ele atrapalharia a compra. */}
+      {!pathname.startsWith('/book') && <ExitOffer />}
     </div>
   )
 }
