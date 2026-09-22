@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { CalendarDays, Camera, RotateCcw, Sparkles, Tag } from 'lucide-react'
 import B2CLayout from '../components/Chrome.jsx'
@@ -35,7 +35,52 @@ const STRIP = [
   { verb: 'Clean', img: '/b2c/img/svc-clean.webp' },
   { verb: 'Paint', img: '/b2c/img/svc-paint.webp' },
   { verb: 'Fix', img: '/b2c/img/svc-fix.webp' },
+  { verb: 'Certify', img: '/b2c/img/svc-cert.webp' },
 ]
+const STRIP_FRAMES = 3
+const STRIP_MS = 3000
+
+/**
+ * As três molduras do topo passeiam pelos quatro serviços, de 3 em 3
+ * segundos, para nenhum ficar de fora. As quatro fotos ficam empilhadas em
+ * cada moldura e só trocam de opacidade: nada recarrega na troca. Quem pede
+ * menos animação (prefers-reduced-motion) fica com as três primeiras.
+ */
+function ServiceStrip() {
+  const [shift, setShift] = useState(0)
+  useEffect(() => {
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return undefined
+    const t = setInterval(() => setShift((n) => (n + 1) % STRIP.length), STRIP_MS)
+    return () => clearInterval(t)
+  }, [])
+
+  return (
+    <div className="mo-strip" aria-hidden="true">
+      {Array.from({ length: STRIP_FRAMES }, (_, frame) => {
+        const active = (frame + shift) % STRIP.length
+        return (
+          <figure key={frame}>
+            {STRIP.map((s, i) => (
+              <img
+                key={s.verb}
+                className={i === active ? 'is-on' : undefined}
+                src={s.img}
+                alt=""
+                width="1200"
+                height="896"
+                loading="eager"
+              />
+            ))}
+            <figcaption key={STRIP[active].verb}>
+              {STRIP[active].verb}
+              <i>.</i>
+            </figcaption>
+          </figure>
+        )
+      })}
+    </div>
+  )
+}
 
 export default function HomePage() {
   useHashScroll()
@@ -54,25 +99,12 @@ export default function HomePage() {
       <section className="mo-hero mo-hero--simple">
         <div className="mo-wrap">
           <div className="mo-hero__copy">
-            <div className="mo-strip" aria-hidden="true">
-              {STRIP.map((s) => (
-                <figure key={s.verb}>
-                  <img src={s.img} alt="" width="1200" height="896" loading="eager" />
-                  <figcaption>
-                    {s.verb}
-                    <i>.</i>
-                  </figcaption>
-                </figure>
-              ))}
-            </div>
+            <ServiceStrip />
 
             <h1 className="mo-display mo-hero__title">
               Home jobs at a fixed price<span className="mo-dot">.</span>
             </h1>
-            <p className="mo-hero__sub">
-              Cleaning, painting, repairs and landlord certificates<span className="mo-hero__where"> across London</span>.
-              <b>Booked and paid online in two minutes.</b>
-            </p>
+            <p className="mo-hero__sub">Cleaning, Painting, Repairs &amp; Certificates.</p>
 
             <ol className="mo-flow" aria-label="How it works">
               <li>

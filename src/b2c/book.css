@@ -165,6 +165,9 @@
 @media (min-width: 980px) {
   .bk__aside {
     display: block;
+    /* Sem esticar a coluna, ela acaba no fim do cartão e o sticky não tem
+       para onde descer: o resumo sumia no primeiro scroll. */
+    align-self: stretch;
   }
   .bk__sticky {
     position: sticky;
@@ -313,6 +316,15 @@
   }
 }
 
+/* Os quatro serviços numa linha só (dono, 22/09): cartão e texto encolhem
+   junto com a coluna, que fica estreita quando o resumo aparece ao lado. */
+@media (min-width: 760px) {
+  .bk-services {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+  }
+}
+
 .bk-service {
   appearance: none;
   position: relative;
@@ -364,12 +376,53 @@
   font-size: 30px;
   letter-spacing: -0.035em;
   line-height: 1;
+  padding-right: 26px;
 }
 
 .bk-service__name {
   font-size: 14.5px;
   font-weight: 600;
   color: var(--mo-ink-2);
+}
+
+@media (min-width: 760px) {
+  .bk-service {
+    padding: 14px 12px 12px;
+    border-radius: 16px;
+  }
+  .bk-service__check {
+    top: 9px;
+    right: 9px;
+    width: 18px;
+    height: 18px;
+  }
+  .bk-service__verb {
+    /* "Certify." é a palavra mais larga: tem de caber sem tocar o círculo. */
+    font-size: 16px;
+    padding-right: 22px;
+  }
+  .bk-service__name {
+    font-size: 13px;
+  }
+}
+
+@media (min-width: 1100px) {
+  .bk-service {
+    padding: 16px 14px 14px;
+  }
+  .bk-service__verb {
+    font-size: 22px;
+    padding-right: 24px;
+  }
+}
+
+@media (min-width: 1320px) {
+  .bk-service__verb {
+    font-size: 26px;
+  }
+  .bk-service__name {
+    font-size: 14px;
+  }
 }
 
 .bk-service__from {
