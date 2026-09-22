@@ -34,7 +34,6 @@ export default function GuaranteePage() {
       eyebrow="Our guarantee"
       title="Our guarantee"
       lede="Every job we do is guaranteed. If our work is not right within the period below, we come back and put it right at no cost. This is on top of your legal rights, not instead of them."
-      version={`In force since ${GUARANTEE.inForceSince} · Updated ${GUARANTEE.updated}`}
       toc={TOC}
     >
       <section id="how-long">

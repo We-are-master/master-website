@@ -188,8 +188,7 @@ export default function TermsPage() {
         </p>
         <p>
           <b>7.2 Our guarantee.</b> Every job is guaranteed for {GUARANTEE.standardDays} days from the day it is completed, and for
-          longer on some work: {LONGER}. What it covers and how to claim are on our <Link to="/guarantee">guarantee page</Link>. It is
-          in force since {GUARANTEE.inForceSince}.
+          longer on some work: {LONGER}. What it covers and how to claim are on our <Link to="/guarantee">guarantee page</Link>.
         </p>
         <p>
           <b>7.3 Free re-clean (end of tenancy clean only).</b> If your letting agent or landlord flags anything on our checklist
