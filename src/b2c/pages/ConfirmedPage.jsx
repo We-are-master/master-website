@@ -11,6 +11,21 @@ import { track } from '../lib/track.js'
 import { usePageMeta } from '../lib/meta.js'
 import '../book.css'
 
+// Ordem do dia quando há mais de um serviço (a mesma do scope no OS).
+const WORK_ORDER = [
+  ['cert', 'certificates'],
+  ['fix', 'repairs'],
+  ['paint', 'paint'],
+  ['clean', 'the clean'],
+]
+
+function workOrder(services = []) {
+  const steps = WORK_ORDER.filter(([id]) => services.includes(id)).map(([, label]) => label)
+  if (steps.length < 2) return ''
+  const [first, ...rest] = steps
+  return `${first[0].toUpperCase()}${first.slice(1)} first, then ${rest.join(', then ')}. `
+}
+
 const PREP = {
   clean: ['Empty the place as much as you can, including cupboards and the fridge', 'Leave the electricity and hot water on', 'Take the rubbish out or tell us to add a collection'],
   // Deep clean é casa ocupada: nada de esvaziar o imóvel.
@@ -156,7 +171,7 @@ export default function ConfirmedPage() {
                   </span>
                   <div>
                     <b>{formatLongDate(data.date)} · the work</b>
-                    <p>Repairs first, then paint, then the clean. Photos of every room as the team finishes.</p>
+                    <p>{workOrder(data.services)}Photos of every room as the team finishes.</p>
                   </div>
                 </li>
                 <li>
