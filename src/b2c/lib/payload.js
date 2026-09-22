@@ -29,6 +29,8 @@ export function bookingPayload(b, extra = {}) {
     attribution: getAttribution(),
     // Só com o sim de marketing o servidor manda a compra à Meta (Conversions API).
     ad: adSignals(),
+    // Só o código: o desconto quem calcula é o servidor, relendo o cupom na Stripe.
+    promoCode: b.promo?.code || undefined,
     ...extra,
   }
 }

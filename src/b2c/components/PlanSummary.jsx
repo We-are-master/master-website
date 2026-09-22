@@ -33,7 +33,7 @@ export default function PlanSummary({ booking, priced, sizeChosen }) {
       ) : (
         <ul className="bk-plan__lines">
           {priced.lines.map((l) => (
-            <li key={l.id}>
+            <li key={l.id} className={l.service === 'promo' ? 'is-promo' : undefined}>
               <span>
                 {l.label}
                 {l.detail && <small>{l.detail}</small>}

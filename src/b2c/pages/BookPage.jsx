@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { ArrowLeft, ArrowRight, Check, ChevronUp, Loader2, Lock, MapPin, Plus, X } from 'lucide-react'
 import B2CLayout from '../components/Chrome.jsx'
 import PlanSummary from '../components/PlanSummary.jsx'
+import PromoField from '../components/PromoField.jsx'
 import AddressField from '../components/AddressField.jsx'
 import { Stepper, useTween } from '../components/QuoteWidget.jsx'
 import { PostcodeResult, usePostcodeCheck } from '../components/Sections.jsx'
@@ -15,6 +16,7 @@ import {
   PROPERTY_SIZES,
   SERVICE_ORDER,
   SERVICES,
+  applyPromo,
   certPrice,
   cleanKind,
   cleanPrice,
@@ -163,7 +165,8 @@ export default function BookPage() {
     payment.current = api
   }, [])
 
-  const priced = useMemo(() => priceSelection(booking.selection), [booking.selection])
+  // Com cupom, o desconto entra no resumo e no total; a cobrança revalida no servidor.
+  const priced = useMemo(() => applyPromo(priceSelection(booking.selection), booking.promo), [booking.selection, booking.promo])
   const pc = usePostcodeCheck(booking.postcode)
   const dates = useMemo(() => bookableDates(), [])
   const windows = useMemo(() => windowsFor(), [])
@@ -303,6 +306,8 @@ export default function BookPage() {
       clearBooking()
       navigate('/book/confirmed', { replace: true, state: res })
     } catch (err) {
+      // Cupom que venceu ou esgotou entre o "Apply" e o pagamento: sai do resumo, o motivo fica.
+      if (err.field === 'promo') update({ promo: null })
       setSubmitError(err.message || 'We could not complete the booking. Please try again.')
     } finally {
       setSubmitting(false)
@@ -1001,6 +1006,9 @@ export default function BookPage() {
 
                   <fieldset className="bk-block">
                     <legend className="bk-legend">Payment</legend>
+                    {canPay && (
+                      <PromoField promo={booking.promo} selection={booking.selection} onChange={(promo) => update({ promo })} />
+                    )}
                     {!config.loaded ? (
                       <p className="bk-pay__loading">
                         <Loader2 size={18} className="bk-spin" /> Loading…

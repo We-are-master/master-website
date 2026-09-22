@@ -781,6 +781,72 @@
   white-space: nowrap;
 }
 
+.bk-plan__lines li.is-promo,
+.bk-plan__lines li.is-promo small {
+  color: var(--mo-green-text);
+}
+
+/* Cupom no checkout */
+.bk-promo__open {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 14px;
+  font-size: 15px;
+}
+
+.bk-promo {
+  margin-bottom: 16px;
+}
+
+.bk-promo__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.bk-promo__row .mo-input {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.bk-promo__row .mo-btn {
+  min-width: 88px;
+}
+
+.bk-promo__close {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  color: var(--mo-mute);
+  cursor: pointer;
+}
+
+.bk-promo__close:hover {
+  color: var(--mo-ink);
+  background: var(--mo-line);
+}
+
+.bk-promo--on {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--mo-green-wash);
+  color: var(--mo-green-text);
+  font-size: 15px;
+}
+
+.bk-promo--on span {
+  flex: 1;
+}
+
 .bk-plan__facts {
   list-style: none;
   margin: 0;

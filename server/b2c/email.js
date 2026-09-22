@@ -9,7 +9,8 @@ function esc(s = '') {
 }
 
 function money(n) {
-  return new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 0 }).format(n)
+  const d = Math.round(n * 100) % 100 !== 0 ? 2 : 0 // com cupom pode ter pence
+  return new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: d, maximumFractionDigits: d }).format(n)
 }
 
 async function send(env, { to, subject, html, replyTo }) {

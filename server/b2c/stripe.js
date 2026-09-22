@@ -108,3 +108,20 @@ export async function markBooked(env, paymentIntentId, jobs) {
 export function constructWebhookEvent(env, rawBody, signature) {
   return stripe(env).webhooks.constructEvent(rawBody, signature, env.webhookSecret)
 }
+
+/** O código que o cliente digitou (a Stripe não diferencia maiúsculas), já com o cupom. */
+export async function findPromotionCode(env, code) {
+  const list = await stripe(env).promotionCodes.list({ code, active: true, limit: 1, expand: ['data.promotion.coupon'] })
+  return list.data[0] || null
+}
+
+/**
+ * Reservas pagas com o código. O PaymentIntent não baixa o cupom na Stripe
+ * (só o Checkout baixa), então o limite de usos é contado aqui. A busca da
+ * Stripe leva até um minuto para enxergar um pagamento novo.
+ */
+export async function countPromoRedemptions(env, promoId) {
+  if (!/^promo_[A-Za-z0-9]+$/.test(promoId)) return 0
+  const found = await stripe(env).paymentIntents.search({ query: `status:'succeeded' AND metadata['promo_id']:'${promoId}'`, limit: 100 })
+  return found.data.length
+}

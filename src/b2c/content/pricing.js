@@ -411,12 +411,63 @@ export function priceSelection(rawSelection) {
   return { selection: sel, lines, total, needsQuote }
 }
 
+/** Menor cobrança da Stripe em libra: abaixo disso o cartão nem passa. */
+export const MIN_CHARGE = 0.3
+
+/**
+ * Cupom aplicado ao preço: a linha do desconto entra no fim e o total cai.
+ * `promo` é o que o servidor validou na Stripe (percentOff OU amountOff, em
+ * libras). A conta é em pence para o total bater com a cobrança.
+ */
+export function applyPromo(priced, promo) {
+  if (!promo || priced.needsQuote || !(priced.total > 0)) return priced
+  const subtotal = Math.round(priced.total * 100)
+  const off = promo.percentOff
+    ? Math.round((subtotal * promo.percentOff) / 100)
+    : Math.min(Math.round((promo.amountOff || 0) * 100), subtotal)
+  if (off <= 0) return priced
+  const discount = off / 100
+  return {
+    ...priced,
+    lines: [
+      ...priced.lines,
+      {
+        service: 'promo',
+        id: 'promo',
+        label: `Promo code ${promo.code}`,
+        detail: promo.percentOff ? `${promo.percentOff}% off` : '',
+        amount: -discount,
+      },
+    ],
+    subtotal: priced.total,
+    discount,
+    total: (subtotal - off) / 100,
+    promo,
+  }
+}
+
+/**
+ * Reparte o desconto entre partes (jobs no OS, linhas do Checkout) na
+ * proporção de cada uma, em pence; a sobra do arredondamento fica na maior.
+ */
+export function splitDiscount(amounts, discount) {
+  const pence = amounts.map((a) => Math.round((a || 0) * 100))
+  const whole = pence.reduce((s, p) => s + p, 0)
+  const off = Math.round((discount || 0) * 100)
+  if (!whole || !off) return amounts.map(() => 0)
+  const shares = pence.map((p) => Math.floor((off * p) / whole))
+  shares[pence.indexOf(Math.max(...pence))] += off - shares.reduce((s, x) => s + x, 0)
+  return shares.map((s) => s / 100)
+}
+
 export function formatGBP(amount, { pence = false } = {}) {
   if (amount == null) return 'On request'
+  // Com cupom o valor pode ter pence: aí aparecem, senão £120.60 viraria £121.
+  const digits = pence || Math.round(amount * 100) % 100 !== 0 ? 2 : 0
   return new Intl.NumberFormat('en-GB', {
     style: 'currency',
     currency: CURRENCY,
-    minimumFractionDigits: pence ? 2 : 0,
-    maximumFractionDigits: pence ? 2 : 0,
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
   }).format(amount)
 }
