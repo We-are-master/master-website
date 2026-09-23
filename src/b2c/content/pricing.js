@@ -70,7 +70,8 @@ export const CLEAN_KINDS = [
     tiny: 'Moving out',
     hint: 'Oven included',
     detail: 'For an empty property, cleaned for check-out day',
-    prices: { studio: 223, 1: 223, 2: 266, 3: 318, 4: 384, 5: 451 },
+    // Studio 10% abaixo do 1 quarto, arredondado para baixo (dono, 23/09/2026).
+    prices: { studio: 200, 1: 223, 2: 266, 3: 318, 4: 384, 5: 451 },
     osTitle: 'End of Tenancy Clean',
   },
   {
@@ -80,7 +81,8 @@ export const CLEAN_KINDS = [
     tiny: 'Deep',
     hint: 'Oven included',
     detail: 'For the home you live in: moving in, a spring clean, or just overdue',
-    prices: { studio: 194, 1: 194, 2: 237, 3: 289, 4: 356, 5: 422 },
+    // Studio 10% abaixo do 1 quarto, arredondado para baixo (dono, 23/09/2026).
+    prices: { studio: 174, 1: 194, 2: 237, 3: 289, 4: 356, 5: 422 },
     osTitle: 'Deep Clean',
   },
   {
