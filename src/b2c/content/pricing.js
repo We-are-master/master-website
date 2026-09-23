@@ -70,8 +70,8 @@ export const CLEAN_KINDS = [
     tiny: 'Moving out',
     hint: 'Oven included',
     detail: 'For an empty property, cleaned for check-out day',
-    // Studio a £199, abaixo da barreira dos £200 no "from" do site (dono, 23/09/2026).
-    prices: { studio: 199, 1: 223, 2: 266, 3: 318, 4: 384, 5: 451 },
+    // Studio 10% abaixo do 1 quarto, arredondado para baixo (dono, 23/09/2026).
+    prices: { studio: 200, 1: 223, 2: 266, 3: 318, 4: 384, 5: 451 },
     osTitle: 'End of Tenancy Clean',
   },
   {
