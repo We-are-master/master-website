@@ -1,11 +1,12 @@
 import { Check } from 'lucide-react'
-import { formatGBP } from '../content/pricing.js'
+import { FIX, PAINT, cleanPrice, formatGBP } from '../content/pricing.js'
 
 /**
  * O relatório de check-out: a peça que a página inteira repete.
- * Os dados aqui são um EXEMPLO (marcado na tela), montado com os preços
- * reais da tabela: limpeza 2 quartos £249 + forno £45, retoque de pintura
- * £215 e 2 horas de reparo £144.
+ * Os dados aqui são um EXEMPLO (marcado na tela), e o total sai da própria
+ * tabela de preços: end of tenancy de 2 quartos (forno incluso), retoque de
+ * pintura e meia diária de reparo. Antes era número digitado e ficou velho
+ * (£653 de uma tabela que não existe mais); assim acompanha o preço.
  */
 export const EXAMPLE_REPORT = {
   title: 'Check-out report',
@@ -16,7 +17,10 @@ export const EXAMPLE_REPORT = {
     { room: 'Kitchen', work: 'Clean · oven included', time: '15:32', img: '/b2c/img/rep-kitchen.webp' },
     { room: 'Bathroom', work: 'Clean · limescale off', time: '16:07', img: '/b2c/img/rep-bathroom.webp' },
   ],
-  total: 249 + 45 + 215 + 144,
+  total:
+    cleanPrice('2', 'eot') +
+    PAINT.options.find((o) => o.id === 'touchup').price +
+    FIX.packages.find((p) => p.id === 'half').price,
 }
 
 export default function ReportCard({ report = EXAMPLE_REPORT, cover = null, animate = true, className = '' }) {
