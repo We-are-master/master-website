@@ -54,6 +54,24 @@ export function loadBooking() {
   }
 }
 
+/**
+ * Código que veio no link (`?promo=WEEK10`), de e-mail ou WhatsApp.
+ *
+ * Guarda na reserva e o checkout aplica sozinho, como faz com o pop-up de
+ * saída: quem clicou "Book with WEEK10" não pode ter que digitar o código de
+ * novo. Um código aplicado antes sai, senão o checkout mantém o velho. O
+ * servidor continua sendo quem diz se o código vale (validade, mínimo): aqui
+ * só se guarda o texto.
+ */
+export function capturePromoFromUrl(search) {
+  const code = (new URLSearchParams(search).get('promo') || '').trim().toUpperCase()
+  if (!/^[A-Z0-9-]{2,40}$/.test(code)) return null
+  const booking = loadBooking()
+  if (booking.promo?.code === code || booking.promoCode === code) return code
+  saveBooking({ ...booking, promo: null, promoCode: code })
+  return code
+}
+
 export function saveBooking(booking) {
   try {
     window.sessionStorage.setItem(KEY, JSON.stringify(booking))
