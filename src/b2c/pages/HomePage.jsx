@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { CalendarDays, Camera, RotateCcw, Sparkles, Tag } from 'lucide-react'
 import B2CLayout from '../components/Chrome.jsx'
@@ -20,6 +20,7 @@ import {
 } from '../components/Sections.jsx'
 import { PROMISES } from '../content/site.js'
 import { usePageMeta } from '../lib/meta.js'
+import { quotePreset } from '../lib/store.js'
 
 /** Link com âncora vindo de outra página (/#prices): rola depois de montar. */
 export function useHashScroll() {
@@ -29,6 +30,45 @@ export function useHashScroll() {
     const t = setTimeout(() => document.querySelector(hash)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60)
     return () => clearTimeout(t)
   }, [hash])
+}
+
+/**
+ * Altura do cabeçalho só se ele de fato gruda no topo. No celular o #root
+ * vira contêiner de rolagem (overflow-x hidden) e o sticky não gruda: aí
+ * descontar a altura dele deixaria um buraco em cima do cartão.
+ */
+function stuckHeaderHeight() {
+  const header = document.querySelector('.mo-header')
+  if (!header || getComputedStyle(header).position !== 'sticky') return 0
+  for (let el = header.parentElement; el && el !== document.documentElement; el = el.parentElement) {
+    const { overflowY } = getComputedStyle(el)
+    if (overflowY !== 'visible' && overflowY !== 'clip') {
+      return el.scrollHeight > el.clientHeight + 1 ? header.getBoundingClientRect().height : 0
+    }
+  }
+  return header.getBoundingClientRect().height
+}
+
+/**
+ * Chegou de um anúncio com o preço escolhido (/?s=clean&size=3): se o cartão
+ * de preço não cabe inteiro na tela (celular, ou com o banner de cookies por
+ * cima), ele sobe até o topo. O cliente vê de cara o mesmo tamanho e o mesmo
+ * preço que clicou. Espera o scroll para o topo do App.
+ */
+function useQuoteScroll(preset) {
+  useEffect(() => {
+    if (!preset) return undefined
+    const t = setTimeout(() => {
+      const body = document.querySelector('#price .mo-quote__body')
+      const foot = document.querySelector('#price .mo-quote__foot')
+      if (!body || !foot) return
+      if (foot.getBoundingClientRect().bottom <= window.innerHeight - 16) return
+      const top = body.getBoundingClientRect().top + window.scrollY - stuckHeaderHeight() - 12
+      const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+      window.scrollTo({ top: Math.max(0, top), behavior: reduce ? 'auto' : 'smooth' })
+    }, 350)
+    return () => clearTimeout(t)
+  }, [preset])
 }
 
 const STRIP = [
@@ -84,6 +124,11 @@ function ServiceStrip() {
 
 export default function HomePage() {
   useHashScroll()
+  const { search } = useLocation()
+  // Lido uma vez, na chegada: o link escolhe o preço, depois quem escolhe é o cliente.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const preset = useMemo(() => quotePreset(search), [])
+  useQuoteScroll(preset)
   usePageMeta({
     title: 'Fixed-price cleaning, painting and repairs in London | Fixfy',
     description:
@@ -135,7 +180,7 @@ export default function HomePage() {
           </div>
 
           <div className="mo-hero__widget">
-            <QuoteWidget />
+            <QuoteWidget preset={preset} />
           </div>
         </div>
         <ReviewTicker />

@@ -78,16 +78,20 @@ export function Stepper({ value, min = 1, max = 8, onChange, label }) {
 
 const CTA = { clean: 'Book this clean', paint: 'Book the painter', fix: 'Book repairs', cert: 'Book the certificates' }
 
-export default function QuoteWidget({ initial = 'clean', initialKind, lockService = false }) {
+/**
+ * `preset` (só na home) vem de `quotePreset` em store.js: o cartão abre no
+ * serviço, tipo e tamanho do link do anúncio, com o mesmo preço do anúncio.
+ */
+export default function QuoteWidget({ initial = 'clean', initialKind, lockService = false, preset = null }) {
   const navigate = useNavigate()
-  const [service, setService] = useState(initial)
-  const [kind, setKind] = useState(() => cleanKind(initialKind).id)
-  const [size, setSize] = useState('2')
-  const [paintOption, setPaintOption] = useState('touchup')
-  const [rooms, setRooms] = useState(1)
-  const [materials, setMaterials] = useState(false)
-  const [fixPackage, setFixPackage] = useState('half')
-  const [certItems, setCertItems] = useState(['gas'])
+  const [service, setService] = useState(preset?.service || initial)
+  const [kind, setKind] = useState(() => cleanKind(preset?.kind || initialKind).id)
+  const [size, setSize] = useState(preset?.size || '2')
+  const [paintOption, setPaintOption] = useState(preset?.paint?.option || 'touchup')
+  const [rooms, setRooms] = useState(preset?.paint?.rooms || 1)
+  const [materials, setMaterials] = useState(preset?.paint?.materials === true)
+  const [fixPackage, setFixPackage] = useState(preset?.fix || 'half')
+  const [certItems, setCertItems] = useState(preset?.cert || ['gas'])
   const toggleCert = (id) =>
     setCertItems((list) => (list.includes(id) ? list.filter((x) => x !== id) : [...list, id]))
 
