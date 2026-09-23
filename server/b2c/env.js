@@ -37,6 +37,8 @@ export function b2cServerEnv() {
     webhookSecret: (process.env.B2C_STRIPE_WEBHOOK_SECRET || '').trim(),
     osUrl: (process.env.MASTER_OS_URL || 'http://localhost:3000').replace(/\/$/, ''),
     osKey: (process.env.MASTER_OS_JOB_WEBHOOK_API_KEY || '').trim(),
+    // Lead do primeiro passo (/api/contacts/ingest do OS). Sem ela, vai com a chave de job.
+    osLeadKey: (process.env.MASTER_OS_LEAD_WEBHOOK_API_KEY || '').trim(),
     fixfyAccountId: (process.env.FIXFY_ACCOUNT_ID || process.env.NEXT_PUBLIC_FIXFY_ACCOUNT_ID || '').trim(),
     supabaseUrl: (process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '').replace(/\/$/, ''),
     serviceKey: (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY || '').trim(),

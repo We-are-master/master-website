@@ -312,11 +312,14 @@ function scopeFor(service, b, priced, ref, opts = {}) {
     parts.push(`${item.label}. ${item.detail}.`)
     if (item.id === 'gas') {
       parts.push('Landlord gas safety record (CP12) for the boiler and every gas appliance, issued in the engineer\'s own Gas Safe name and number. Fixfy never issues or reissues the certificate.')
-      if (opts.withBoiler) parts.push('Full boiler service in the same visit, already paid by the customer.')
     }
     if (item.id === 'eicr') parts.push(`Full EICR on the installation of a ${size ? size.toLowerCase() : 'flat'}, with observation codes and the schedule of test results, signed by a NICEIC or NAPIT registered electrician.`)
-    if (item.id === 'pat') parts.push('Portable appliance testing, up to 10 appliances, each labelled with the test date.')
-    parts.push('Upload the signed certificate to the report, plus a photo of the appliance or consumer unit tested. Anything that fails: list it with the fix and the price, do not start the work.')
+    if (item.id === 'epc') {
+      parts.push(`Domestic EPC for a ${size ? size.toLowerCase() : 'flat'}: an accredited energy assessor surveys the property and lodges the certificate on the national EPC register.`)
+      parts.push('Upload the certificate PDF to the report with the certificate number and the rating. If the rating is F or G, say so on the report: a landlord cannot let a property below E.')
+    } else {
+      parts.push('Upload the signed certificate to the report, plus a photo of the appliance or consumer unit tested. Anything that fails: list it with the fix and the price, do not start the work.')
+    }
   }
   parts.push(`Price to the customer: ${money(lines.reduce((s, l) => s + (l.amount || 0), 0))} inc VAT, fixed (${lines.map((l) => `${l.label} ${money(l.amount)}`).join(', ')}).`)
   if (sel.services.length > 1) {
@@ -406,9 +409,8 @@ async function recordBooking(env, b, priced, ref, paymentIntentId) {
       // Cada certificado é um job: engenheiro diferente e título da lista canônica do OS.
       for (const item of CERT.items) {
         if (!sel.cert.items.includes(item.id)) continue
-        const withBoiler = item.id === 'gas' && sel.cert.boiler
-        const lines = priced.lines.filter((l) => l.id === `cert-${item.id}` || (withBoiler && l.id === 'cert-boiler'))
-        order.push({ service, title: item.osTitle, certItem: item, withBoiler, lines })
+        const lines = priced.lines.filter((l) => l.id === `cert-${item.id}`)
+        order.push({ service, title: item.osTitle, certItem: item, lines })
       }
     }
     // Com cupom, o desconto sai de cada job na proporção do preço (a sobra fica no maior).
@@ -419,7 +421,14 @@ async function recordBooking(env, b, priced, ref, paymentIntentId) {
       const { service } = entry
       const i = order.indexOf(entry)
       const price = Math.round((listPrices[i] - discounts[i]) * 100) / 100
-      const pay = partnerPayFor({ service, lines: entryLines[i], size: sel.size })
+      const pay = partnerPayFor({
+        service,
+        lines: entryLines[i],
+        size: sel.size,
+        kind: sel.clean?.kind,
+        bathrooms: sel.bathrooms,
+        certItem: entry.certItem,
+      })
       const partnerPay = partnerCostFor(pay, price)
       const notes = [
         `Website booking ${ref} (${order.length > 1 ? `${order.indexOf(entry) + 1} of ${order.length}` : 'single job'}).`,
@@ -447,7 +456,7 @@ async function recordBooking(env, b, priced, ref, paymentIntentId) {
         // No Reino Unido o apartamento vem antes da rua: "Flat 3, 112 Rye Lane".
         property_address: [b.address.line2, b.address.line1, 'London'].filter(Boolean).join(', '),
         postcode: b.postcode,
-        description: scopeFor(service, b, priced, ref, { certItem: entry.certItem, withBoiler: entry.withBoiler, lines: entry.lines }),
+        description: scopeFor(service, b, priced, ref, { certItem: entry.certItem, lines: entry.lines }),
         client_price: price,
         // O cartão já passou: o job nasce PAGO e mesmo assim `unassigned`. Sem
         // isto ele nascia `unpaid` e virava "a receber" de um dinheiro que já

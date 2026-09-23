@@ -57,6 +57,28 @@ export const GUIDES = {
     ],
     extras: 'clean',
   },
+  after: {
+    title: 'Which clean do you need',
+    lede: 'All three follow the same room-by-room checklist and come with a photo of every room. After builders is for the dust and residue a job leaves behind.',
+    columns: [
+      { id: 'eot', name: 'Moving out', price: from(cleanPrice('studio', 'eot')) },
+      { id: 'deep', name: 'Deep clean', price: from(cleanPrice('studio', 'deep')) },
+      { id: 'after', name: 'After builders', price: from(cleanPrice('studio', 'after')) },
+    ],
+    rows: [
+      { label: 'Best for', cells: ['An empty property on check-out day', 'The home you live in', 'A property just out of building work'] },
+      { label: 'Oven deep clean', cells: [true, true, true] },
+      { label: 'Products and equipment', cells: [true, true, true] },
+      { label: 'Photo of every room', cells: [true, true, true] },
+      { label: `Free re-clean within ${RECLEAN} days`, cells: [true, false, false] },
+    ],
+    prep: [
+      { icon: 'layers', title: 'Book it after the last trade', text: 'Dust keeps falling while work goes on, so pick a day after the builders have finished.' },
+      { icon: 'zap', title: 'Keep the power and hot water on', text: 'The team needs both to clean properly, so leave them on until we finish.' },
+      ACCESS,
+    ],
+    extras: 'clean',
+  },
   paint: {
     title: 'Touch-ups or a full repaint',
     lede: 'Touch-ups take the marks of living off the whole property. A full repaint gives chosen rooms a proper finish.',
@@ -111,11 +133,11 @@ export const GUIDES = {
       { label: 'Photo report the same day', cells: CERT.items.map(() => true) },
     ],
     prep: [
-      { icon: 'shield', title: 'Book what is due', text: 'Tick the certificates you need. Add a boiler service to the gas check and it happens in the same visit.' },
+      { icon: 'shield', title: 'Book what is due', text: 'Tick the certificates you need in the booking. Each one is priced by the size of the property.' },
       { icon: 'alert', title: 'If something fails', text: 'You get what failed and why, with a fixed price to put it right. Nothing is done until you say yes.' },
       ACCESS,
     ],
-    extras: 'cert',
+    extras: null,
   },
 }
 
@@ -123,7 +145,7 @@ export const GUIDES = {
 export function guideExtras(kind) {
   if (kind === 'clean') {
     return [
-      { id: 'bath', label: 'Extra bathroom', detail: `${CLEAN.includedBathrooms} is included in the price`, price: formatGBP(CLEAN.extraBathroom) },
+      { id: 'bath', label: 'Extra bathroom', detail: `${CLEAN.includedBathrooms} is included in the price`, price: from(CLEAN.extraBathroomSteps[0]).toLowerCase() },
       ...CLEAN.extras.map((x) => ({
         id: x.id,
         label: x.label,
@@ -134,10 +156,6 @@ export function guideExtras(kind) {
   }
   if (kind === 'paint') {
     return [{ id: PAINT.materials.id, label: PAINT.materials.label, detail: PAINT.materials.detail, price: formatGBP(PAINT.materials.price) }]
-  }
-  if (kind === 'cert') {
-    const b = CERT.items[0].addOn
-    return [{ id: b.id, label: 'Boiler service', detail: 'Same engineer, same visit as the gas check', price: `+${formatGBP(b.price)}` }]
   }
   return []
 }

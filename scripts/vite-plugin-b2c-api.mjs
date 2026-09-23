@@ -3,6 +3,7 @@
  */
 import { handleBooking, handleCheckout, handleConfig, handlePayment, handleWebhook } from '../server/b2c/booking.js'
 import { handlePromo } from '../server/b2c/promo.js'
+import { handleLead } from '../server/b2c/lead.js'
 import { clientIp } from '../server/b2c/meta.js'
 import { corsHeaders, readJsonBody } from '../server/growth/http.js'
 
@@ -38,6 +39,7 @@ export default function b2cApiPlugin() {
           if (url === '/api/b2c/checkout' && req.method === 'POST') return reply(await handleCheckout(await readJsonBody(req), { origin, ip: clientIp(req), userAgent: req.headers['user-agent'] }))
           if (url === '/api/b2c/booking' && req.method === 'POST') return reply(await handleBooking(await readJsonBody(req)))
           if (url === '/api/b2c/promo' && req.method === 'POST') return reply(await handlePromo(await readJsonBody(req)))
+          if (url === '/api/b2c/lead' && req.method === 'POST') return reply(await handleLead(await readJsonBody(req)))
           if (url === '/api/b2c/webhook' && req.method === 'POST') return reply(await handleWebhook(await readRaw(req), req.headers['stripe-signature']))
           return reply({ status: 404, data: { error: 'Not found' } })
         } catch (err) {

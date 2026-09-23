@@ -6,7 +6,7 @@ import JobGuide from '../components/JobGuide.jsx'
 import { Areas, CheckoutStandard, Eyebrow, Faq, FinalCta, PayAfterPhotos, Promises, Reviews, StickyCta } from '../components/Sections.jsx'
 
 const SERVICE_ICON = { clean: Sparkles, paint: Paintbrush, fix: Wrench, cert: ShieldCheck }
-import { CERT, CLEAN, FIX, FROM_PRICE, PAINT, certPrice, cleanPrice, formatGBP } from '../content/pricing.js'
+import { CERT, FIX, FROM_PRICE, PAINT, certPrice, cleanPrice, formatGBP } from '../content/pricing.js'
 import { DEEP_FAQS, FAQS } from '../content/copy.js'
 import { PROMISES } from '../content/site.js'
 import { bookingHref } from '../lib/store.js'
@@ -22,11 +22,12 @@ const PAGES = {
     img: '/b2c/img/svc-clean.webp',
     alt: 'Cleaner in orange gloves cleaning the inside of an oven door',
     meta: {
-      title: 'End of tenancy cleaning in London, fixed prices from £149 | Fixfy',
-      description: `End of tenancy cleaning in London from £149, VAT included. Room-by-room checklist, photo report of every room, free re-clean within ${PROMISES.recleanDays.value} days. Book online in two minutes.`,
+      title: `End of tenancy cleaning in London, fixed prices from ${formatGBP(cleanPrice('studio', 'eot'))} | Fixfy`,
+      description: `End of tenancy cleaning in London from ${formatGBP(cleanPrice('studio', 'eot'))}, VAT included. Products and equipment included, two cleaners from two bedrooms, photo report of every room and a free re-clean within ${PROMISES.recleanDays.value} days.`,
     },
     points: [
-      `Fixed price by property size, from ${formatGBP(CLEAN.prices.studio)}`,
+      `Fixed price by property size, from ${formatGBP(cleanPrice('studio', 'eot'))}`,
+      'Products, cloths, hoover and mop all included. Two cleaners from two bedrooms up',
       'Oven deep clean included. Carpets, fridge and outside windows as priced add-ons',
       'A photo of every room when we finish, to forward to your agent',
       `Free re-clean within ${PROMISES.recleanDays.value} days if the check-out flags something on our list`,
@@ -51,6 +52,7 @@ const PAGES = {
     },
     points: [
       `Fixed price by property size, from ${formatGBP(cleanPrice('studio', 'deep'))}`,
+      'Products, cloths, hoover and mop all included. Two cleaners from two bedrooms up',
       'Oven deep clean included. Carpets, fridge and outside windows as priced add-ons',
       'Done around your furniture and belongings, room by room',
       'A photo of every room when we finish',
@@ -59,6 +61,31 @@ const PAGES = {
     otherA: { id: 'paint', label: 'Add a fresh coat', to: '/painting' },
     otherB: { id: 'fix', label: 'Add repairs', to: '/repairs' },
     sticky: cleanPrice('studio', 'deep'),
+  },
+  // After builders: mesmo serviço `clean`, tabela própria (Housekeep menos 5%), para imóvel que saiu de obra.
+  after: {
+    path: '/after-builders-cleaning',
+    kind: 'after',
+    eyebrow: 'After builders cleaning · London',
+    title: 'After builders cleaning',
+    lede: 'Building dust gets everywhere and normal cleaning spreads it. We take it out of the property, top to bottom, at a fixed price booked online.',
+    img: '/b2c/img/svc-clean.webp',
+    alt: 'Cleaner in orange gloves cleaning the inside of an oven door',
+    meta: {
+      title: `After builders cleaning in London, fixed prices from ${formatGBP(cleanPrice('studio', 'after'))} | Fixfy`,
+      description: `After builders cleaning in London from ${formatGBP(cleanPrice('studio', 'after'))}, VAT included. Fine dust, paint specks and grout residue removed room by room. Products and equipment included, photo report of every room.`,
+    },
+    points: [
+      `Fixed price by property size, from ${formatGBP(cleanPrice('studio', 'after'))}`,
+      'Products, cloths, hoover and mop all included. Two cleaners from two bedrooms up',
+      'Fine dust off surfaces, skirting, frames and inside windows',
+      'Paint specks and grout residue taken off where they come away safely',
+      'A photo of every room when we finish, to send to whoever did the work',
+    ],
+    faqs: FAQS.filter((f) => /how do i pay|get in|how long|change or cancel|areas|photo report/i.test(f.q)),
+    otherA: { id: 'paint', label: 'Add a fresh coat', to: '/painting' },
+    otherB: { id: 'fix', label: 'Add repairs', to: '/repairs' },
+    sticky: cleanPrice('studio', 'after'),
   },
   paint: {
     path: '/painting',
@@ -90,13 +117,14 @@ const PAGES = {
     img: '/b2c/img/svc-fix.webp',
     alt: 'Handyman filling nail holes in a hallway wall',
     meta: {
-      title: 'Move-out repairs and handyman in London, half day £189 | Fixfy',
-      description: 'Move-out repairs in London: half day £189, full day £299, no call-out fee. Fill holes, reseal baths, refit rails and handles. Booked with your end of tenancy clean or on its own.',
+      title: `Move-out repairs and handyman in London, half day ${formatGBP(FIX.packages[0].price)} | Fixfy`,
+      description: `Move-out repairs in London: half day ${formatGBP(FIX.packages[0].price)}, full day ${formatGBP(FIX.packages[1].price)}, every tool included and no call-out fee. Fill holes, reseal baths, refit rails and handles.`,
     },
     points: [
       `Half day ${formatGBP(FIX.packages[0].price)} or full day ${formatGBP(FIX.packages[1].price)}, no call-out fee`,
+      'Every tool the job needs comes with the handyman',
       'Tick the jobs on your list and we suggest half or full day',
-      'Parts billed at the end and listed in your report',
+      'Parts are the only extra: billed at the end and listed in your report',
       'Booked with the clean, repairs go first so the dust is cleaned away',
     ],
     faqs: FAQS.filter((f) => /paint and materials|how do i pay|photo report|change or cancel|areas|get in|how long|book painting/i.test(f.q)),
@@ -112,13 +140,13 @@ const PAGES = {
     img: '/b2c/img/svc-cert.webp',
     alt: 'Gas engineer checking a boiler in a London flat kitchen',
     meta: {
-      title: 'Landlord certificates in London: gas safety £79, EICR from £89 | Fixfy',
-      description: 'Gas safety certificate (CP12) £79, electrical safety report (EICR) from £89 and appliance testing £69 in London, VAT included. Registered engineers, certificate the same day.',
+      title: `Landlord certificates in London: gas safety ${formatGBP(CERT.items[0].price)}, EICR from ${formatGBP(certPrice(CERT.items[1], 'studio'))} | Fixfy`,
+      description: `Gas safety certificate (CP12) ${formatGBP(CERT.items[0].price)}, electrical safety report (EICR) from ${formatGBP(certPrice(CERT.items[1], 'studio'))} and energy performance certificate (EPC) from ${formatGBP(certPrice(CERT.items[2], 'studio'))} in London, VAT included. Registered engineers and assessors.`,
     },
     points: [
       `Gas safety certificate (CP12) ${formatGBP(CERT.items[0].price)}, by a Gas Safe registered engineer`,
       `Electrical safety report (EICR) from ${formatGBP(certPrice(CERT.items[1], 'studio'))}, by a NICEIC or NAPIT registered electrician`,
-      `Appliance testing ${formatGBP(CERT.items[2].price)}, or add a full boiler service for ${formatGBP(CERT.items[0].addOn.price)}`,
+      `Energy performance certificate (EPC) from ${formatGBP(certPrice(CERT.items[2], 'studio'))}, by an accredited assessor and lodged on the national register`,
       'If something fails, you get the list and a fixed price before any work starts',
     ],
     faqs: FAQS.filter((f) => /certificate|safety check|how do i pay|photo report|change or cancel|areas|get in/i.test(f.q)),
@@ -128,10 +156,12 @@ const PAGES = {
   },
 }
 
-/** `kind="deep"` com `service="clean"` é a página do deep clean (/deep-cleaning). */
+/** `kind` com `service="clean"` escolhe a página do tipo (/deep-cleaning, /after-builders-cleaning). */
 export default function ServicePage({ service, kind }) {
-  const deep = service === 'clean' && kind === 'deep'
-  const page = PAGES[deep ? 'deep' : service]
+  const page = PAGES[service === 'clean' && kind && PAGES[kind] ? kind : service]
+  // Re-clean só vale no imóvel vazio do end of tenancy; o nome na tabela segue o tipo da página.
+  const cleanKindId = service === 'clean' ? kind || 'eot' : null
+  const isEot = cleanKindId === 'eot'
   useHashScroll()
   usePageMeta({ ...page.meta, path: page.path, image: page.img })
 
@@ -157,7 +187,7 @@ export default function ServicePage({ service, kind }) {
                 </li>
               ))}
             </ul>
-            <Promises className="mo-hero__promises" reclean={!deep} />
+            <Promises className="mo-hero__promises" reclean={isEot} />
           </div>
 
           <div className="mo-hero__widget">
@@ -207,8 +237,7 @@ export default function ServicePage({ service, kind }) {
                   ? [
                       'Gas safety certificate (CP12), renewed every 12 months',
                       'Electrical safety report (EICR), renewed every 5 years',
-                      'Appliance testing (PAT) for a furnished let',
-                      'Boiler service in the same visit as the gas check',
+                      'Energy performance certificate (EPC), valid for 10 years',
                       'Certificate PDF and photo report the same day',
                       'A fixed price to put right anything that fails',
                     ]
@@ -235,22 +264,24 @@ export default function ServicePage({ service, kind }) {
           </div>
         </section>
       )}
-      <JobGuide guide={deep ? 'deep' : service === 'clean' ? 'eot' : service} active={deep ? 'deep' : service === 'clean' ? 'eot' : undefined} />
+      <JobGuide guide={cleanKindId || service} active={cleanKindId || undefined} />
       <Reviews tone="light" />
       <Areas />
       <Faq items={page.faqs} />
       <FinalCta
         title={
-          deep
+          cleanKindId === 'deep'
             ? 'Time for a deep clean?'
-            : service === 'clean'
-              ? 'Check-out coming up?'
-              : service === 'cert'
-                ? 'Certificates due?'
-                : 'Handing back the keys soon?'
+            : cleanKindId === 'after'
+              ? 'Work finished?'
+              : service === 'clean'
+                ? 'Check-out coming up?'
+                : service === 'cert'
+                  ? 'Certificates due?'
+                  : 'Handing back the keys soon?'
         }
         to={bookingHref({ services: [service], kind: page.kind })}
-        reclean={!deep}
+        reclean={isEot}
       />
       <StickyCta amount={page.sticky} to={bookingHref({ services: [service], kind: page.kind })} />
     </B2CLayout>

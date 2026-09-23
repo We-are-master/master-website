@@ -2823,6 +2823,35 @@ body[data-site='b2c'] .zls-sptwndw {
   color: var(--mo-mute);
 }
 
+/* O que já está no preço: some a dúvida antes de o cliente perguntar. */
+.mo-incl {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 7px;
+}
+
+.mo-incl li {
+  position: relative;
+  padding-left: 22px;
+  font-size: 14px;
+  color: var(--mo-ink);
+  line-height: 1.4;
+}
+
+.mo-incl li::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: 6px;
+  width: 11px;
+  height: 6px;
+  border-left: 2px solid var(--mo-green);
+  border-bottom: 2px solid var(--mo-green);
+  transform: rotate(-45deg);
+}
+
 /* Card de limpeza da home: o preço dos dois tipos lado a lado, por tamanho,
    no mesmo ritmo da .mo-pricelist (linha tracejada, número tabular). */
 .mo-pricetable {
@@ -3448,6 +3477,48 @@ body[data-site='b2c'] .zls-sptwndw {
 
 .mo-doc-box p:last-child {
   margin: 0;
+}
+
+/* ---------- WhatsApp fixo, canto inferior direito ---------- */
+
+.mo-wa {
+  position: fixed;
+  right: 20px;
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  z-index: 70;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #25d366;
+  color: #fff;
+  box-shadow: 0 6px 20px rgba(9, 61, 33, 0.28);
+  transition: transform 0.18s var(--mo-ease), box-shadow 0.18s var(--mo-ease);
+}
+
+.mo-wa:hover,
+.mo-wa:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(9, 61, 33, 0.34);
+  color: #fff;
+}
+
+/* No celular a barra de preço mora embaixo: o botão sobe para não cobrir. */
+@media (max-width: 899px) {
+  .mo-wa {
+    right: 14px;
+    bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+    width: 50px;
+    height: 50px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mo-wa {
+    transition: none;
+  }
 }
 
 /* ---------- CTA fixo no celular ---------- */

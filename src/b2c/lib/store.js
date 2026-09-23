@@ -4,10 +4,13 @@
  * O tipo de limpeza vai em `kind=deep`; sem ele, limpeza é end of tenancy.
  */
 import {
+  CERT,
   CLEAN_KINDS,
   DEFAULT_CLEAN_KIND,
   emptySelection,
+  FIX,
   normalizeSelection,
+  PAINT,
   SERVICE_ORDER,
   PROPERTY_SIZES,
 } from '../content/pricing.js'
@@ -25,9 +28,10 @@ export function emptyBooking() {
     accessNote: '',
     parking: '',
     notes: '',
-    contact: { firstName: '', lastName: '', email: '', phone: '' },
+    contact: { fullName: '', firstName: '', lastName: '', email: '', phone: '' },
     address: { line1: '', line2: '' },
-    marketing: false,
+    // Marcado no primeiro passo: "Don't email me offers".
+    noOffers: false,
     // Código de cupom pego fora do checkout (pop-up de saída): o checkout aplica.
     promoCode: '',
   }
@@ -88,15 +92,41 @@ export function bookingHref(preset = {}) {
   if (preset.fixPackage) q.set('fix', preset.fixPackage)
   if (preset.fixTasks?.length) q.set('tasks', preset.fixTasks.join(','))
   if (preset.cert?.length) q.set('cert', preset.cert.join(','))
-  if (preset.boiler) q.set('boiler', '1')
   const s = q.toString()
   return s ? `/book?${s}` : '/book'
+}
+
+/**
+ * Cartão de preço da home aberto por um link: cada cartão do carrossel de
+ * anúncio leva o cliente para a home já no preço que ele clicou
+ * (`/?s=clean&size=3`, `/?s=clean&kind=deep&size=studio`). Só o que veio no
+ * link e é válido; o resto fica no padrão do cartão. Link sem nada: null.
+ * Anúncio de cliente sempre cai na home, nunca numa página de serviço.
+ */
+export function quotePreset(search) {
+  const q = new URLSearchParams(search)
+  const preset = {}
+  const service = (q.get('s') || '').split(',').find((id) => SERVICE_ORDER.includes(id))
+  const kind = q.get('kind')
+  const size = q.get('size')
+  if (CLEAN_KINDS.some((k) => k.id === kind)) preset.kind = kind
+  if (service) preset.service = service
+  else if (preset.kind) preset.service = 'clean'
+  if (PROPERTY_SIZES.some((p) => p.id === size)) preset.size = size
+  const [option, rooms] = (q.get('paint') || '').split(':')
+  if (PAINT.options.some((o) => o.id === option)) {
+    preset.paint = { option, rooms: Math.min(8, Math.max(1, Number(rooms) || 1)), materials: q.get('pm') === '1' }
+  }
+  if (FIX.packages.some((p) => p.id === q.get('fix'))) preset.fix = q.get('fix')
+  const certs = (q.get('cert') || '').split(',').filter((id) => CERT.items.some((i) => i.id === id))
+  if (certs.length) preset.cert = certs
+  return Object.keys(preset).length ? preset : null
 }
 
 /** Aplica os parâmetros de um link de reserva por cima do estado salvo. */
 export function applyQuery(booking, search) {
   const q = new URLSearchParams(search)
-  if (![...q.keys()].some((k) => ['s', 'kind', 'size', 'bath', 'x', 'paint', 'pm', 'fix', 'tasks', 'cert', 'boiler', 'pc'].includes(k))) {
+  if (![...q.keys()].some((k) => ['s', 'kind', 'size', 'bath', 'x', 'paint', 'pm', 'fix', 'tasks', 'cert', 'pc'].includes(k))) {
     return booking
   }
   const sel = { ...booking.selection }
@@ -131,7 +161,7 @@ export function applyQuery(booking, search) {
   const tasks = (q.get('tasks') || '').split(',').filter(Boolean)
   if (fix || tasks.length) sel.fix = { package: fix || null, tasks }
   const certs = (q.get('cert') || '').split(',').filter(Boolean)
-  if (certs.length) sel.cert = { items: certs, boiler: q.get('boiler') === '1' }
+  if (certs.length) sel.cert = { items: certs }
   const pc = q.get('pc')
   return {
     ...booking,

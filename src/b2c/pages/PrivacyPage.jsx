@@ -23,7 +23,7 @@ const USES = [
   ['Handle changes, complaints, re-cleans and damage claims', 'Contract, and our legitimate interest in defending our business'],
   ['Keep accounting and tax records', 'Legal obligation'],
   ['Check the quality of our work and improve our service', 'Our legitimate interest in running and improving our business'],
-  ['Send you offers, including a reminder before a certificate we issued expires', 'Consent: only if you ticked the box at checkout'],
+  ['Help you finish a booking you started, send you offers, and remind you before a certificate we issued expires', 'Our legitimate interest in keeping in touch with customers and with people who started a booking. You can say no when you give us your email, and in every email we send'],
   ['Analytics and advertising cookies, and telling Meta about your booking to measure our ads', 'Consent: only if you said yes in the cookie banner'],
   ['Reply to enquiries and consider applications to work with us', 'Our legitimate interest in replying, or steps you ask for before a contract'],
 ]
@@ -57,9 +57,13 @@ export default function PrivacyPage() {
         <h2>2. What we collect</h2>
         <ul>
           <li>
-            <b>When you book:</b> your name, email, mobile number, the property address, your role (homeowner, tenant, landlord or
-            letting agent), the services and day you choose, how we get in (including key arrangements and the key safe code we ask
-            for the day before), parking and any notes.
+            <b>When you start a booking:</b> your name and email as soon as you give them to us, with the services you picked,
+            even if you do not finish. We use them to help you finish, and for offers unless you tick &quot;Don&apos;t email me
+            offers&quot;.
+          </li>
+          <li>
+            <b>When you book:</b> your name, email, mobile number, the property address, the services and day you choose, how we
+            get in (including key arrangements and the key safe code we ask for the day before), parking and any notes.
           </li>
           <li>
             <b>Payment:</b> Stripe takes your card details, and we never see or store them. We receive confirmation of the payment
@@ -155,7 +159,8 @@ export default function PrivacyPage() {
             again.
           </li>
           <li>
-            <b>Enquiries that do not become a booking, and applications to work with us that do not go ahead:</b> 12 months.
+            <b>Enquiries and bookings you started but did not finish, and applications to work with us that do not go
+            ahead:</b> 12 months.
           </li>
           <li>
             <b>Cookies:</b> as listed in our <Link to="/cookies">cookie policy</Link>.

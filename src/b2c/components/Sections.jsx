@@ -85,7 +85,7 @@ function presetPrice(preset) {
     clean: { kind: preset.kind, extras: preset.extras || {} },
     paint: preset.paint || { option: 'touchup', rooms: 1 },
     fix: { package: preset.fixPackage || null, tasks: preset.fixTasks || [] },
-    cert: { items: preset.cert || [], boiler: preset.boiler === true },
+    cert: { items: preset.cert || [] },
   }).total
 }
 
@@ -161,7 +161,7 @@ const SERVICE_CARDS = [
     alt: 'Gas engineer checking a boiler in a London flat kitchen',
     to: '/landlord-certificates',
     points: [
-      'Gas safety, electrical safety and appliance testing',
+      'Gas safety, electrical safety and EPC',
       'Signed by registered engineers, certificate the same day',
       'Expiry date kept on file for the next renewal',
     ],
@@ -678,9 +678,9 @@ export function PriceTables() {
               <span className="mo-pricecard__verb">
                 Clean<span className="mo-dot">.</span>
               </span>
-              <span className="mo-pricecard__name">End of tenancy or deep clean</span>
+              <span className="mo-pricecard__name">End of tenancy, deep or after builders</span>
             </div>
-            {/* Os dois tipos lado a lado; o preço de cada um sai do pricing.js (deep = 90% arredondado para baixo). */}
+            {/* Os três tipos lado a lado; cada um tem a sua tabela no pricing.js (Housekeep menos 5%). */}
             <table className="mo-pricetable">
               <caption className="mo-sr">Cleaning prices by size, VAT included</caption>
               <thead>
@@ -708,6 +708,11 @@ export function PriceTables() {
                 ))}
               </tbody>
             </table>
+            <ul className="mo-incl">
+              <li>Products, cloths, hoover and mop, all brought by the team</li>
+              <li>Two cleaners from two bedrooms up</li>
+              <li>Inside the oven included in all three</li>
+            </ul>
             <Link to={bookingHref({ services: ['clean'], size: '2' })} className="mo-btn mo-btn--dark">
               Book a clean <ArrowRight size={18} />
             </Link>
@@ -757,7 +762,7 @@ export function PriceTables() {
                 </li>
               ))}
             </ul>
-            <p className="mo-price__note">No call-out fee. Parts are billed at the end and listed in your photo report.</p>
+            <p className="mo-price__note">Every tool included and no call-out fee. Parts are the only extra: billed at the end and listed in your photo report.</p>
             <Link to={bookingHref({ services: ['fix'], fixPackage: 'half' })} className="mo-btn mo-btn--dark">
               Book repairs <ArrowRight size={18} />
             </Link>
@@ -780,13 +785,6 @@ export function PriceTables() {
                   <b>{item.prices ? `from ${formatGBP(certPrice(item, 'studio'))}` : formatGBP(item.price)}</b>
                 </li>
               ))}
-              <li>
-                <span>
-                  {CERT.items[0].addOn.label.replace('Add a full ', 'Full ')}
-                  <small>{CERT.items[0].addOn.detail}</small>
-                </span>
-                <b>+{formatGBP(CERT.items[0].addOn.price)}</b>
-              </li>
             </ul>
             <p className="mo-price__note">Signed by Gas Safe and NICEIC or NAPIT registered engineers. Certificate and photo report the same day.</p>
             <Link to={bookingHref({ services: ['cert'], cert: ['gas'] })} className="mo-btn mo-btn--dark">
