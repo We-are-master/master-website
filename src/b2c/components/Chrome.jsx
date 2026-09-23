@@ -8,24 +8,22 @@ import { openCookieSettings } from '../../lib/consent.js'
 import '../b2c.css'
 
 /**
- * "Cleaning" agrupa os dois tipos de limpeza: no computador vira um menu
- * pequeno (um sétimo item não cabe a partir de 1000px), no celular vira dois
- * links na lista.
+ * "Services" agrupa todos os serviços: no computador vira um menu pequeno,
+ * no celular vira um link por serviço na lista.
  */
 const NAV = [
+  { to: '/business', label: 'For Business' },
   {
-    label: 'Cleaning',
+    label: 'Services',
     items: [
       { to: '/end-of-tenancy-cleaning', label: 'End of tenancy cleaning' },
       { to: '/deep-cleaning', label: 'Deep cleaning' },
       { to: '/after-builders-cleaning', label: 'After builders cleaning' },
+      { to: '/painting', label: 'Painting' },
+      { to: '/repairs', label: 'Repairs' },
+      { to: '/landlord-certificates', label: 'Certificates' },
     ],
   },
-  { to: '/painting', label: 'Painting' },
-  { to: '/repairs', label: 'Repairs' },
-  { to: '/landlord-certificates', label: 'Certificates' },
-  { to: '/#prices', label: 'Prices', hash: true },
-  { to: '/business', label: 'For agents' },
 ]
 
 /**

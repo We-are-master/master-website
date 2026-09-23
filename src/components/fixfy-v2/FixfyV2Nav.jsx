@@ -34,7 +34,7 @@ export default function FixfyV2Nav() {
   return (
     <nav className={`v2-nav${menuOpen ? ' is-open' : ''}`}>
       <div className="v2-nav-inner">
-        <Link to="/business" className="v2-nav-brand" aria-label="Fixfy — Home" onClick={closeMenu}>
+        <Link to="/" className="v2-nav-brand" aria-label="Fixfy — Home" onClick={closeMenu}>
           <FixfyLogo variant="onDark" />
         </Link>
 
