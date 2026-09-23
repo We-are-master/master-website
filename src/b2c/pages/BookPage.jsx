@@ -754,7 +754,7 @@ export default function BookPage() {
                                 aria-pressed={on}
                                 onClick={() => {
                                   const items = on ? sel.cert.items.filter((x) => x !== item.id) : [...sel.cert.items, item.id]
-                                  updateSel({ cert: { items, boiler: items.includes('gas') ? sel.cert.boiler : false } })
+                                  updateSel({ cert: { items } })
                                   setErrors((e) => ({ ...e, cert: undefined }))
                                 }}
                               >
@@ -764,29 +764,11 @@ export default function BookPage() {
                             </li>
                           )
                         })}
-                        {sel.cert.items.includes('gas') && (
-                          <li className={sel.cert.boiler ? 'is-on' : ''}>
-                            <div className="bk-extra__text">
-                              <b>{CERT.items[0].addOn.label}</b>
-                              <span>{CERT.items[0].addOn.detail}</span>
-                            </div>
-                            <span className="bk-extra__price">{formatGBP(CERT.items[0].addOn.price)}</span>
-                            <button
-                              type="button"
-                              className={`bk-toggle${sel.cert.boiler ? ' is-on' : ''}`}
-                              aria-pressed={sel.cert.boiler}
-                              onClick={() => updateSel({ cert: { ...sel.cert, boiler: !sel.cert.boiler } })}
-                            >
-                              {sel.cert.boiler ? <Check size={16} strokeWidth={3} /> : <Plus size={16} strokeWidth={2.6} />}
-                              <span className="mo-sr">{sel.cert.boiler ? 'Remove the boiler service' : 'Add the boiler service'}</span>
-                            </button>
-                          </li>
-                        )}
                       </ul>
                       <ErrorText>{errors.cert}</ErrorText>
                       <p className="bk-note">
-                        Gas by a Gas Safe registered engineer, electrics by a NICEIC or NAPIT registered electrician. The certificate and the photo
-                        report land on the same day.
+                        Gas by a Gas Safe registered engineer, electrics by a NICEIC or NAPIT registered electrician, the EPC by an accredited
+                        energy assessor. The certificate and the photo report land on the same day.
                       </p>
                     </fieldset>
                   )}
@@ -808,7 +790,7 @@ export default function BookPage() {
                                   ? 'Touch up the walls before check-out'
                                   : id === 'fix'
                                     ? 'Holes, handles, rails and sealant'
-                                    : 'Gas safety, electrical report and PAT'}
+                                    : 'Gas safety, EICR and EPC'}
                             </span>
                             <span className="bk-upsell__cta">
                               from {formatGBP(fromPrice(id))} <Plus size={16} strokeWidth={2.6} />

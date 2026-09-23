@@ -161,7 +161,7 @@ const SERVICE_CARDS = [
     alt: 'Gas engineer checking a boiler in a London flat kitchen',
     to: '/landlord-certificates',
     points: [
-      'Gas safety, electrical safety and appliance testing',
+      'Gas safety, electrical safety and EPC',
       'Signed by registered engineers, certificate the same day',
       'Expiry date kept on file for the next renewal',
     ],

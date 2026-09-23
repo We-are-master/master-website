@@ -253,8 +253,7 @@ export default function ServicePage({ service, kind }) {
                   ? [
                       'Gas safety certificate (CP12), renewed every 12 months',
                       'Electrical safety report (EICR), renewed every 5 years',
-                      'Appliance testing (PAT) for a furnished let',
-                      'Boiler service in the same visit as the gas check',
+                      'Energy performance certificate (EPC), valid for 10 years',
                       'Certificate PDF and photo report the same day',
                       'A fixed price to put right anything that fails',
                     ]
