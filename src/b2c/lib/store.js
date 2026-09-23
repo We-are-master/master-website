@@ -28,9 +28,10 @@ export function emptyBooking() {
     accessNote: '',
     parking: '',
     notes: '',
-    contact: { firstName: '', lastName: '', email: '', phone: '' },
+    contact: { fullName: '', firstName: '', lastName: '', email: '', phone: '' },
     address: { line1: '', line2: '' },
-    marketing: false,
+    // Marcado no primeiro passo: "Don't email me offers".
+    noOffers: false,
     // Código de cupom pego fora do checkout (pop-up de saída): o checkout aplica.
     promoCode: '',
   }

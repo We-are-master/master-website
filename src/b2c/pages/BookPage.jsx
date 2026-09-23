@@ -1,6 +1,6 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { ArrowLeft, ArrowRight, Check, ChevronUp, Loader2, Lock, MapPin, Plus, X } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Check, ChevronUp, FileCheck2, Loader2, Lock, Paintbrush, Plus, Sparkles, Wrench, X } from 'lucide-react'
 import B2CLayout from '../components/Chrome.jsx'
 import PlanSummary from '../components/PlanSummary.jsx'
 import PromoField from '../components/PromoField.jsx'
@@ -30,8 +30,8 @@ import { COMPANY, PROMISES, formatPostcode, whatsappLink } from '../content/site
 import { applyQuery, clearBooking, emptyBooking, loadBooking, saveBooking } from '../lib/store.js'
 import { bookableDates, windowsFor } from '../lib/slots.js'
 import { track } from '../lib/track.js'
-import { checkPromo, createCheckout, createPayment, getBookingConfig, submitBooking } from '../lib/api.js'
-import { bookingPayload, cleanPhone } from '../lib/payload.js'
+import { checkPromo, createCheckout, createPayment, getBookingConfig, sendLead, submitBooking } from '../lib/api.js'
+import { bookingPayload, cleanPhone, contactName, leadPayload, splitName } from '../lib/payload.js'
 import { usePageMeta } from '../lib/meta.js'
 import '../book.css'
 
@@ -49,12 +49,8 @@ const STEPS = [
   { id: 'checkout', label: 'Checkout' },
 ]
 
-const ROLES = [
-  { id: 'homeowner', label: 'Homeowner' },
-  { id: 'tenant', label: 'Tenant moving out' },
-  { id: 'landlord', label: 'Landlord' },
-  { id: 'agent', label: 'Letting agent' },
-]
+// Ícone pequeno de cada serviço no primeiro passo (quadrados 2x2 no celular).
+const SERVICE_ICON = { clean: Sparkles, paint: Paintbrush, fix: Wrench, cert: FileCheck2 }
 
 const ACCESS = [
   { id: 'meet', label: 'I will be there', detail: 'Or someone I trust' },
@@ -75,18 +71,22 @@ const PHONE_RE = /^(\+44|0)\d{9,10}$/
 function validate(step, b, ctx) {
   const e = {}
   const sel = b.selection
+  // Passo 1: o quê, quem e onde. Nome e e-mail vêm antes do endereço para
+  // quem desistir no meio já ser um lead no OS.
   if (step === 0) {
-    if (sel.services.length === 0) e.services = 'Choose at least one: clean, paint or fix.'
+    if (sel.services.length === 0) e.services = 'Choose at least one: clean, paint, fix or certify.'
+    if (splitName(contactName(b)).lastName === '') e.name = 'Enter your first and last name.'
+    if (!EMAIL_RE.test(b.contact.email.trim())) e.email = 'Enter an email we can send the booking to.'
     if (!b.postcode) e.address = 'Find the property address to continue.'
     else if (ctx.pc.status === 'outside') e.address = 'We only book London postcodes for now.'
     else if (!b.address.line1.trim()) e.address = 'Add the house number and street.'
     else if (ctx.pc.status === 'checking') e.address = 'Checking the postcode…'
     else if (ctx.pc.status !== 'covered') e.address = 'Check the postcode of the property.'
+  }
+  if (step === 1) {
     const needsSize = sel.services.includes('clean') || (sel.services.includes('cert') && sel.cert.items.includes('eicr'))
     if (needsSize && !b.sizeChosen) e.size = 'Choose the size of the place.'
     if (ctx.priced.needsQuote) e.size = 'For 5 or more bedrooms we price from photos. Send us a message and we reply within the day.'
-  }
-  if (step === 1) {
     if (sel.services.includes('fix') && sel.fix.tasks.length === 0) e.tasks = 'Tick at least one job so the team brings the right tools.'
     if (sel.services.includes('cert') && sel.cert.items.length === 0) e.cert = 'Tick at least one certificate.'
   }
@@ -97,12 +97,10 @@ function validate(step, b, ctx) {
     const access = ACCESS.find((a) => a.id === b.access)
     if (access?.ask && !b.accessNote.trim()) e.accessNote = 'Add the details so the team is not stuck at the door.'
     if (!b.parking) e.parking = 'Choose the parking situation.'
-  }
-  if (step === 3) {
-    if (!b.contact.firstName.trim()) e.firstName = 'Enter your first name.'
-    if (!b.contact.lastName.trim()) e.lastName = 'Enter your last name.'
-    if (!EMAIL_RE.test(b.contact.email.trim())) e.email = 'Enter an email we can send the report to.'
     if (!PHONE_RE.test(cleanPhone(b.contact.phone))) e.phone = 'Enter a UK mobile, like 07700 900123.'
+  }
+  // Passo 4: só o pagamento.
+  if (step === 3) {
     if (!ctx.terms) e.terms = 'Tick to accept the booking terms.'
   }
   return e
@@ -243,6 +241,7 @@ export default function BookPage() {
       })
       return
     }
+    if (step === 0) captureLead()
     if (step < 3) {
       goTo(step + 1)
       return
@@ -327,6 +326,21 @@ export default function BookPage() {
   const canPay = config.loaded && config.payments
   const embedded = canPay && Boolean(config.publishableKey)
 
+  // Nome e e-mail válidos viram lead no OS (quem desistir no meio entra no
+  // pós-venda). Sai ao sair do campo e ao continuar, uma vez por combinação
+  // de e-mail, serviços e recusa de ofertas; nunca segura a tela.
+  const leadSentKey = useRef('')
+  const captureLead = () => {
+    const email = booking.contact.email.trim()
+    if (!EMAIL_RE.test(email) || contactName(booking).length < 2) return
+    const key = [email.toLowerCase(), sel.services.join(','), booking.noOffers ? 'no-offers' : ''].join('|')
+    if (leadSentKey.current === key) return
+    leadSentKey.current = key
+    sendLead(leadPayload(booking, { elapsedMs: Date.now() - startedAt.current, website: honey })).catch(() => {
+      // lead é bônus: a reserva segue igual
+    })
+  }
+
   // Cupom pego fora do checkout (pop-up de saída): entra sozinho no primeiro
   // passo, assim que existe preço, para o total já aparecer com desconto na
   // barra e no resumo. Se não valer mais, some calado: ninguém prometeu
@@ -378,43 +392,89 @@ export default function BookPage() {
 
           <div className="bk__grid">
             <form className="bk__main" onSubmit={next} noValidate>
-              {/* ---------- Passo 1 ---------- */}
+              {/* ---------- Passo 1: o quê, quem e onde ---------- */}
               {step === 0 && (
                 <>
-                  <header className="bk-head">
+                  <header className="bk-head bk-head--tight">
                     <h1 className="bk-title">
                       What do you need done<span className="mo-dot">?</span>
                     </h1>
-                    <p className="bk-sub">Pick one or all four. We plan the order for you.</p>
                   </header>
 
-                  <fieldset className="bk-block">
-                    <legend className="bk-legend">Services</legend>
-                    <div className="bk-services">
-                      {SERVICE_ORDER.map((id) => (
-                        <button
-                          key={id}
-                          type="button"
-                          className="bk-service"
-                          aria-pressed={has(id)}
-                          onClick={() => toggleService(id)}
-                        >
-                          <span className="bk-service__check" aria-hidden="true">
-                            <Check size={14} strokeWidth={3} />
-                          </span>
-                          <span className="bk-service__verb">
-                            {SERVICES[id].verb}
-                            <span className="mo-dot">.</span>
-                          </span>
-                          <span className="bk-service__name">{serviceName(id, sel)}</span>
-                          <span className="bk-service__from">from {formatGBP(fromPrice(id))}</span>
-                        </button>
-                      ))}
+                  <fieldset className="bk-block bk-block--tight">
+                    <legend className="mo-sr">Services</legend>
+                    <div className="bk-tiles">
+                      {SERVICE_ORDER.map((id) => {
+                        const Icon = SERVICE_ICON[id]
+                        return (
+                          <button
+                            key={id}
+                            type="button"
+                            className="bk-tile"
+                            aria-pressed={has(id)}
+                            onClick={() => toggleService(id)}
+                          >
+                            <span className="bk-tile__check" aria-hidden="true">
+                              <Check size={12} strokeWidth={3} />
+                            </span>
+                            {Icon && <Icon className="bk-tile__icon" size={20} strokeWidth={2} aria-hidden="true" />}
+                            <span className="bk-tile__verb">
+                              {SERVICES[id].verb}
+                              <span className="mo-dot">.</span>
+                            </span>
+                            <span className="bk-tile__from">from {formatGBP(fromPrice(id))}</span>
+                          </button>
+                        )
+                      })}
                     </div>
                     <ErrorText>{errors.services}</ErrorText>
                   </fieldset>
 
-                  <fieldset className="bk-block">
+                  <fieldset className="bk-block bk-block--tight">
+                    <legend className="bk-legend">Your details</legend>
+                    <div className="bk-grid2">
+                      <Field id="bk-name" label="Full name" error={errors.name}>
+                        <input
+                          id="bk-name"
+                          className="mo-input"
+                          autoComplete="name"
+                          value={contactName(booking)}
+                          onChange={(e) => {
+                            update({ contact: { ...booking.contact, fullName: e.target.value } })
+                            setErrors((er) => ({ ...er, name: undefined }))
+                          }}
+                          onBlur={captureLead}
+                        />
+                      </Field>
+                      <Field id="bk-em" label="Email" error={errors.email}>
+                        <input
+                          id="bk-em"
+                          type="email"
+                          inputMode="email"
+                          className="mo-input"
+                          autoComplete="email"
+                          value={booking.contact.email}
+                          onChange={(e) => {
+                            update({ contact: { ...booking.contact, email: e.target.value } })
+                            setErrors((er) => ({ ...er, email: undefined }))
+                          }}
+                          onBlur={captureLead}
+                        />
+                      </Field>
+                    </div>
+                    <label className="bk-check bk-check--small">
+                      <input type="checkbox" checked={Boolean(booking.noOffers)} onChange={(e) => update({ noOffers: e.target.checked })} />
+                      <span>
+                        Don&apos;t email me offers. We keep these details if you stop halfway, to help you finish (
+                        <Link to="/privacy" target="_blank">
+                          privacy
+                        </Link>
+                        ).
+                      </span>
+                    </label>
+                  </fieldset>
+
+                  <fieldset className="bk-block bk-block--tight">
                     <legend className="bk-legend">Where is it?</legend>
                     <AddressField
                       value={{ line1: booking.address.line1, line2: booking.address.line2, postcode: booking.postcode }}
@@ -434,6 +494,18 @@ export default function BookPage() {
                     {booking.postcode && <PostcodeResult check={pc} />}
                     <ErrorText>{errors.address}</ErrorText>
                   </fieldset>
+                </>
+              )}
+
+              {/* ---------- Passo 2 ---------- */}
+              {step === 1 && (
+                <>
+                  <header className="bk-head">
+                    <h1 className="bk-title">
+                      The details<span className="mo-dot">.</span>
+                    </h1>
+                    <p className="bk-sub">Everything here has a fixed price. Add what applies and skip the rest.</p>
+                  </header>
 
                   {has('clean') && (
                     <fieldset className="bk-block">
@@ -530,43 +602,6 @@ export default function BookPage() {
                     </fieldset>
                   )}
 
-                  <fieldset className="bk-block">
-                    <legend className="bk-legend">
-                      You are <span className="bk-optional">optional</span>
-                    </legend>
-                    <div className="mo-chips" role="radiogroup" aria-label="Who is booking">
-                      {ROLES.map((r) => (
-                        <button
-                          key={r.id}
-                          type="button"
-                          role="radio"
-                          aria-checked={booking.role === r.id}
-                          className="mo-chip"
-                          onClick={() => update({ role: booking.role === r.id ? '' : r.id })}
-                        >
-                          {r.label}
-                        </button>
-                      ))}
-                    </div>
-                    {booking.role === 'agent' && (
-                      <p className="bk-note">
-                        Booking for a portfolio? <Link to="/contact">Ask about an agent account</Link> for account prices. This
-                        booking still goes through as normal.
-                      </p>
-                    )}
-                  </fieldset>
-                </>
-              )}
-
-              {/* ---------- Passo 2 ---------- */}
-              {step === 1 && (
-                <>
-                  <header className="bk-head">
-                    <h1 className="bk-title">
-                      The details<span className="mo-dot">.</span>
-                    </h1>
-                    <p className="bk-sub">Everything here has a fixed price. Add what applies and skip the rest.</p>
-                  </header>
 
                   {has('clean') && (
                     <fieldset className="bk-block" id="bk-clean">
@@ -924,6 +959,24 @@ export default function BookPage() {
                   </fieldset>
 
                   <fieldset className="bk-block">
+                    <Field id="bk-ph" label="Mobile" hint="for the day-before call" error={errors.phone}>
+                      <input
+                        id="bk-ph"
+                        type="tel"
+                        inputMode="tel"
+                        className="mo-input"
+                        autoComplete="tel"
+                        placeholder="07700 900123"
+                        value={booking.contact.phone}
+                        onChange={(e) => {
+                          update({ contact: { ...booking.contact, phone: e.target.value } })
+                          setErrors((er) => ({ ...er, phone: undefined }))
+                        }}
+                      />
+                    </Field>
+                  </fieldset>
+
+                  <fieldset className="bk-block">
                     <Field id="bk-notes" label="Anything else?" hint="optional">
                       <textarea
                         id="bk-notes"
@@ -939,76 +992,15 @@ export default function BookPage() {
                 </>
               )}
 
-              {/* ---------- Passo 4 ---------- */}
+              {/* ---------- Passo 4: só o pagamento ---------- */}
               {step === 3 && (
                 <>
-                  <header className="bk-head">
+                  <header className="bk-head bk-head--tight">
                     <h1 className="bk-title">
-                      Your details<span className="mo-dot">.</span>
+                      Pay and confirm<span className="mo-dot">.</span>
                     </h1>
-                    <p className="bk-sub">The photo report and the booking confirmation go to this email.</p>
+                    <p className="bk-sub">The confirmation goes to {booking.contact.email.trim() || 'your email'}.</p>
                   </header>
-
-                  <div className="bk-prop">
-                    <MapPin size={18} />
-                    <div>
-                      <b>{[booking.address.line2, booking.address.line1].filter(Boolean).join(', ')}</b>
-                      <span>London {formatPostcode(booking.postcode)}</span>
-                    </div>
-                    <button type="button" className="mo-link" onClick={() => goTo(0)}>
-                      Change
-                    </button>
-                  </div>
-
-                  <fieldset className="bk-block">
-                    <legend className="bk-legend">Contact</legend>
-                    <div className="bk-grid2">
-                      <Field id="bk-fn" label="First name" error={errors.firstName}>
-                        <input
-                          id="bk-fn"
-                          className="mo-input"
-                          autoComplete="given-name"
-                          value={booking.contact.firstName}
-                          onChange={(e) => update({ contact: { ...booking.contact, firstName: e.target.value } })}
-                        />
-                      </Field>
-                      <Field id="bk-ln" label="Last name" error={errors.lastName}>
-                        <input
-                          id="bk-ln"
-                          className="mo-input"
-                          autoComplete="family-name"
-                          value={booking.contact.lastName}
-                          onChange={(e) => update({ contact: { ...booking.contact, lastName: e.target.value } })}
-                        />
-                      </Field>
-                    </div>
-                    <div className="bk-grid2">
-                      <Field id="bk-em" label="Email" error={errors.email}>
-                        <input
-                          id="bk-em"
-                          type="email"
-                          inputMode="email"
-                          className="mo-input"
-                          autoComplete="email"
-                          value={booking.contact.email}
-                          onChange={(e) => update({ contact: { ...booking.contact, email: e.target.value } })}
-                        />
-                      </Field>
-                      <Field id="bk-ph" label="Mobile" hint="for the day-before call" error={errors.phone}>
-                        <input
-                          id="bk-ph"
-                          type="tel"
-                          inputMode="tel"
-                          className="mo-input"
-                          autoComplete="tel"
-                          placeholder="07700 900123"
-                          value={booking.contact.phone}
-                          onChange={(e) => update({ contact: { ...booking.contact, phone: e.target.value } })}
-                        />
-                      </Field>
-                    </div>
-                  </fieldset>
-
 
                   <fieldset className="bk-block">
                     <legend className="bk-legend">Payment</legend>
@@ -1093,14 +1085,6 @@ export default function BookPage() {
                       </span>
                     </label>
                     <ErrorText>{errors.terms}</ErrorText>
-                    <label className="bk-check">
-                      <input
-                        type="checkbox"
-                        checked={booking.marketing}
-                        onChange={(e) => update({ marketing: e.target.checked })}
-                      />
-                      <span>Send me the occasional offer from Fixfy. Unsubscribe any time.</span>
-                    </label>
                     <div className="bk-honey" aria-hidden="true">
                       <label>
                         Website

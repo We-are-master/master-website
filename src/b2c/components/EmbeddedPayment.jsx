@@ -99,6 +99,10 @@ export default function EmbeddedPayment({ publishableKey, amount, register }) {
         mode: 'payment',
         amount: Math.round(amount * 100),
         currency: 'gbp',
+        // Sem o Link da Stripe: o bloco "Save my information for faster checkout"
+        // (cadastro opcional, com e-mail e celular de novo) só alongava o
+        // pagamento. Cartão, Apple Pay, Google Pay e Klarna continuam.
+        excludedPaymentMethodTypes: ['link'],
         appearance: APPEARANCE,
         fonts: [{ cssSrc: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap' }],
       }}
