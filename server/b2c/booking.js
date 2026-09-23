@@ -419,7 +419,15 @@ async function recordBooking(env, b, priced, ref, paymentIntentId) {
       const { service } = entry
       const i = order.indexOf(entry)
       const price = Math.round((listPrices[i] - discounts[i]) * 100) / 100
-      const pay = partnerPayFor({ service, lines: entryLines[i], size: sel.size })
+      const pay = partnerPayFor({
+        service,
+        lines: entryLines[i],
+        size: sel.size,
+        kind: sel.clean?.kind,
+        bathrooms: sel.bathrooms,
+        certItem: entry.certItem,
+        withBoiler: entry.withBoiler,
+      })
       const partnerPay = partnerCostFor(pay, price)
       const notes = [
         `Website booking ${ref} (${order.length > 1 ? `${order.indexOf(entry) + 1} of ${order.length}` : 'single job'}).`,
