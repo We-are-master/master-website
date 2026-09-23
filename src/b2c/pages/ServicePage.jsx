@@ -169,7 +169,8 @@ export default function ServicePage({ service, kind }) {
     <B2CLayout>
       {/* Mesmo molde da home, sem as fotos: desktop com texto à esquerda e orçamento à direita,
           acima da dobra; celular numa coluna, com os pontos e as promessas depois do orçamento.
-          O "precisa de mais?" mora embaixo do orçamento, dentro do navy. */}
+          O "precisa de mais?" mora embaixo do orçamento, dentro do navy; as promessas fecham o
+          topo numa linha de chips centrada, embaixo das duas colunas. */}
       <section className="mo-hero mo-hero--simple mo-hero--service">
         <div className="mo-wrap">
           <div className="mo-hero__copy">
@@ -187,7 +188,6 @@ export default function ServicePage({ service, kind }) {
                 </li>
               ))}
             </ul>
-            <Promises className="mo-hero__promises" reclean={isEot} />
           </div>
 
           <div className="mo-hero__widget">
@@ -203,6 +203,8 @@ export default function ServicePage({ service, kind }) {
               </Link>
             </div>
           </div>
+
+          <Promises className="mo-hero__promises" reclean={isEot} />
         </div>
       </section>
 

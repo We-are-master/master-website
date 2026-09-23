@@ -1573,8 +1573,19 @@ body[data-site='b2c'] .zls-sptwndw {
   text-align: left;
 }
 
+/* Promessas como chips, a mesma pílula dos fatos da home. */
 .mo-hero--service .mo-hero__promises {
   justify-content: center;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.mo-hero--service .mo-hero__promises li {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 14px;
 }
 
 @media (max-width: 1099px) {
@@ -1592,10 +1603,16 @@ body[data-site='b2c'] .zls-sptwndw {
   }
   .mo-hero--service .mo-shero__points {
     margin: 22px 0 0;
+    max-width: 54ch;
   }
+  /* Os chips fecham o topo numa linha só, centrada embaixo das duas colunas. */
   .mo-hero--service .mo-hero__promises {
-    justify-content: flex-start;
-    margin-top: 24px;
+    grid-column: 1 / -1;
+    justify-self: center;
+    margin-top: 0;
+    padding-top: 28px;
+    width: 100%;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
   }
 }
 
@@ -1648,12 +1665,6 @@ body[data-site='b2c'] .zls-sptwndw {
 @media (min-width: 1100px) {
   .mo-hero--service {
     padding-top: 64px;
-  }
-  .mo-more {
-    justify-content: flex-start;
-  }
-  .mo-more > span {
-    text-align: left;
   }
 }
 
@@ -3598,6 +3609,7 @@ body[data-site='b2c'] .zls-sptwndw {
 
 .mo-shero__points li {
   color: var(--mo-on-navy-2);
+  text-wrap: pretty;
 }
 
 .mo-shero__points svg {
