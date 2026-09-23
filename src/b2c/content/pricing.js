@@ -19,12 +19,12 @@
  *    £329 (7h), decisão do dono em 22/09/2026, abaixo do Checkatrade Express
  *    (£190 e £350 com a booking fee deles dentro). Ferramentas inclusas,
  *    material nunca.
- *  - Certificados (19/09/2026): PROPOSTA minha, a confirmar com o custo do
- *    parceiro no OS. Referências: OpenRent vende CP12 a partir de £55 e EICR a
- *    £185; guia de preço do OS põe EICR entre £125 (1 quarto) e £300 (5).
- *    Título do job no OS vem da lista canônica (Gas Safety Certificate,
- *    Electrical Safety Report, Appliance Testing, Boiler Service). EPC ficou de
- *    fora porque não existe nessa lista.
+ *  - Certificados (dono, 23/09/2026): o site vende EPC, gas safety e EICR. O
+ *    EPC entrou no preço do Checkatrade Express, que é o teto do mercado, por
+ *    ser o certificado para o qual ainda não temos mão de obra própria.
+ *    Appliance testing e boiler service saíram da vitrine.
+ *    Referências de mercado: OpenRent vende CP12 a partir de £55 e EICR a
+ *    £185; o Express cobra EPC de £75 a £130 em Londres.
  *  - Pacote de materiais de pintura £130 (tinta, massa, lixa, fita e lonas):
  *    valor do dono, 18/09/2026, fixo por reserva.
  *
@@ -227,7 +227,6 @@ export const CERT = {
       valid: 'Renew every 12 months',
       price: 79,
       osTitle: 'Gas Safety Certificate',
-      addOn: { id: 'boiler', label: 'Add a full boiler service', detail: 'Same engineer, same visit', price: 70, osTitle: 'Boiler Service' },
     },
     {
       id: 'eicr',
@@ -235,17 +234,23 @@ export const CERT = {
       short: 'Electrical safety (EICR)',
       detail: 'Every circuit tested and signed off by a NICEIC or NAPIT registered electrician',
       valid: 'Renew every 5 years',
-      prices: { studio: 149, 1: 149, 2: 179, 3: 179, 4: 229, 5: null },
+      // Preço do Checkatrade Express em Londres (dono, 23/09/2026). O 5+ fica
+      // sob consulta porque "cinco ou mais" é aberto e o número de circuitos
+      // é o que manda no tempo do eletricista.
+      prices: { studio: 129, 1: 129, 2: 165, 3: 195, 4: 225, 5: null },
       osTitle: 'Electrical Safety Report',
     },
     {
-      id: 'pat',
-      label: 'Appliance testing (PAT)',
-      short: 'Appliance testing (PAT)',
-      detail: 'Up to 10 portable appliances tested and labelled',
-      valid: 'Usually every 12 months in a furnished let',
-      price: 69,
-      osTitle: 'Appliance Testing',
+      id: 'epc',
+      label: 'Energy performance certificate (EPC)',
+      short: 'Energy performance (EPC)',
+      detail: 'Accredited assessor visits, rates the property and lodges the certificate on the national register',
+      valid: 'Valid for 10 years',
+      // O assessor cobra £60 cravado em qualquer tamanho (dono, 23/09/2026),
+      // então os pequenos têm piso de £95: a £75 do Express sobrava £1 depois
+      // do VAT. Do três quartos para cima, o preço é o do Express.
+      prices: { studio: 95, 1: 95, 2: 95, 3: 99, 4: 109, 5: 130 },
+      osTitle: 'Energy Performance Certificate',
     },
   ],
 }
@@ -270,7 +275,7 @@ export const FROM_PRICE = {
   clean: Math.min(...CLEAN_KINDS.map((k) => cleanPrice('studio', k.id))),
   paint: PAINT.options[0].price,
   fix: FIX.packages[0].price,
-  cert: CERT.items[2].price,
+  cert: Math.min(...CERT.items.map((i) => (i.prices ? Math.min(...Object.values(i.prices).filter((v) => v != null)) : i.price))),
 }
 
 /** Pacote sugerido para a lista de tarefas: o menor que cabe no tempo. */
@@ -291,7 +296,7 @@ export function emptySelection() {
     clean: { kind: DEFAULT_CLEAN_KIND, extras: {} },
     paint: { option: 'touchup', rooms: 1, materials: false },
     fix: { tasks: [], package: null },
-    cert: { items: [], boiler: false },
+    cert: { items: [] },
   }
 }
 
@@ -334,7 +339,6 @@ export function normalizeSelection(raw = {}) {
   const certItems = Array.isArray(raw.cert?.items)
     ? CERT.items.filter((i) => raw.cert.items.includes(i.id)).map((i) => i.id)
     : []
-  const boiler = certItems.includes('gas') && raw.cert?.boiler === true
 
   return {
     ...base,
@@ -344,7 +348,7 @@ export function normalizeSelection(raw = {}) {
     clean: { kind, extras },
     paint: { option: paintOption, rooms: paintRooms, materials: paintMaterials },
     fix: { tasks, package: pkg },
-    cert: { items: certItems, boiler },
+    cert: { items: certItems },
   }
 }
 
@@ -434,15 +438,6 @@ export function priceSelection(rawSelection) {
         detail: item.prices ? sizeLabel : item.valid,
         amount,
       })
-      if (item.addOn && sel.cert.boiler) {
-        lines.push({
-          service: 'cert',
-          id: `cert-${item.addOn.id}`,
-          label: item.addOn.label.replace('Add a full ', 'Full ').replace('Add a ', ''),
-          detail: item.addOn.detail,
-          amount: item.addOn.price,
-        })
-      }
     }
   }
 

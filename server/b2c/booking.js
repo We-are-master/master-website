@@ -426,7 +426,6 @@ async function recordBooking(env, b, priced, ref, paymentIntentId) {
         kind: sel.clean?.kind,
         bathrooms: sel.bathrooms,
         certItem: entry.certItem,
-        withBoiler: entry.withBoiler,
       })
       const partnerPay = partnerCostFor(pay, price)
       const notes = [

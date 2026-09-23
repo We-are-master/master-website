@@ -85,7 +85,7 @@ function presetPrice(preset) {
     clean: { kind: preset.kind, extras: preset.extras || {} },
     paint: preset.paint || { option: 'touchup', rooms: 1 },
     fix: { package: preset.fixPackage || null, tasks: preset.fixTasks || [] },
-    cert: { items: preset.cert || [], boiler: preset.boiler === true },
+    cert: { items: preset.cert || [] },
   }).total
 }
 
@@ -795,13 +795,6 @@ export function PriceTables() {
                   <b>{item.prices ? `from ${formatGBP(certPrice(item, 'studio'))}` : formatGBP(item.price)}</b>
                 </li>
               ))}
-              <li>
-                <span>
-                  {CERT.items[0].addOn.label.replace('Add a full ', 'Full ')}
-                  <small>{CERT.items[0].addOn.detail}</small>
-                </span>
-                <b>+{formatGBP(CERT.items[0].addOn.price)}</b>
-              </li>
             </ul>
             <p className="mo-price__note">Signed by Gas Safe and NICEIC or NAPIT registered engineers. Certificate and photo report the same day.</p>
             <Link to={bookingHref({ services: ['cert'], cert: ['gas'] })} className="mo-btn mo-btn--dark">

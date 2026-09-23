@@ -14,8 +14,11 @@ export const COMPANY = {
   email: 'hello@getfixfy.com',
   /** Ex.: '+44 20 0000 0000'. Null esconde. */
   phone: null,
-  /** Número no formato internacional sem espaços, ex.: '447700900000'. Null esconde. */
-  whatsapp: null,
+  /**
+   * Número no formato internacional sem espaços. Null esconde o botão.
+   * 23/09/2026: o fixo do Zendesk Talk, que é onde a equipe atende.
+   */
+  whatsapp: '442045384668',
 }
 
 /**
