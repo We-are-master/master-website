@@ -135,7 +135,7 @@ export function B2CHeader({ minimal = false, right = null }) {
   useLayoutEffect(() => {
     const update = () => {
       setScrolled(window.scrollY > 8)
-      const hero = document.querySelector('.mo-hero, .mo-shero')
+      const hero = document.querySelector('.mo-hero')
       setOverNavy(Boolean(hero) && hero.getBoundingClientRect().bottom > HEADER_H)
     }
     update()
