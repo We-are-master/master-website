@@ -18,7 +18,7 @@
  *    custo, porque o site cobra custo mais 30%.
  *  - Certificados: o custo que o catálogo do OS paga em cada faixa.
  */
-import { PAINT } from '../../src/b2c/content/pricing.js'
+import { CLEAN, PAINT } from '../../src/b2c/content/pricing.js'
 
 export const PARTNER_PAY = {
   clean: {
@@ -49,7 +49,6 @@ export const PARTNER_PAY = {
 const SIZE_ORDER = ['studio', '1', '2', '3', '4', '5']
 const extraBedrooms = (size) => Math.max(0, SIZE_ORDER.indexOf(String(size)) - 1)
 const round = (n) => Math.round(n * 100) / 100
-const sum = (lines) => lines.reduce((s, l) => s + (l.amount || 0), 0)
 
 /** Soma os primeiros `n` degraus da escada; o último se repete se acabar. */
 function steps(n) {
@@ -59,13 +58,33 @@ function steps(n) {
   return total
 }
 
-/** Repasse da limpeza: base do tipo, escada de quarto e de banheiro, add-ons a 60%. */
+/**
+ * Add-ons de limpeza: 60% do preço de cada unidade, em libra inteira, igual ao
+ * add-on gravado no catálogo do OS (carpete £38 → £23 por cômodo, geladeira
+ * £43 → £26, janela £35 → £21, varanda £57 → £34). Antes saía 60% exato
+ * (£22,80 no carpete) e o job nascia com um repasse que o catálogo não tinha.
+ */
+function extrasPay(lines) {
+  let total = 0
+  for (const l of lines) {
+    if (l.id === 'clean-base' || l.id === 'clean-bathrooms') continue
+    const extra = CLEAN.extras.find((x) => `clean-${x.id}` === l.id)
+    if (!extra) {
+      total += ((l.amount || 0) * PARTNER_PAY.clean.extraPct) / 100
+      continue
+    }
+    const qty = Math.max(1, Math.round((l.amount || 0) / extra.price))
+    total += Math.round((extra.price * PARTNER_PAY.clean.extraPct) / 100) * qty
+  }
+  return total
+}
+
+/** Repasse da limpeza: base do tipo, escada de quarto e de banheiro, add-ons a 60% por unidade. */
 function cleanPay({ lines, size, kind, bathrooms }) {
   const base = PARTNER_PAY.clean.base[kind]
   if (base == null || SIZE_ORDER.indexOf(String(size)) < 0) return null
   const beds = extraBedrooms(size)
-  const extras = sum(lines.filter((l) => l.id !== 'clean-base' && l.id !== 'clean-bathrooms'))
-  return round(base + steps(beds) + steps(Math.max(0, (Number(bathrooms) || 1) - 1)) + (extras * PARTNER_PAY.clean.extraPct) / 100)
+  return round(base + steps(beds) + steps(Math.max(0, (Number(bathrooms) || 1) - 1)) + extrasPay(lines))
 }
 
 /**

@@ -316,8 +316,8 @@ export default function BookPage() {
 
   const sel = booking.selection
   const has = (id) => sel.services.includes(id)
-  // O "from" da limpeza segue o tipo escolhido: end of tenancy começa em £149,
-  // não no £134 do deep clean (FROM_PRICE é o menor entre os tipos).
+  // O "from" da limpeza segue o tipo escolhido: end of tenancy começa em £223,
+  // não no £194 do deep clean (FROM_PRICE é o menor entre os tipos).
   const fromPrice = (id) => (id === 'clean' ? cleanPrice('studio', sel.clean.kind) : FROM_PRICE[id])
   const suggested = suggestFixPackage(sel.fix.tasks)
   const fixPkg = FIX.packages.find((p) => p.id === sel.fix.package) || suggested
