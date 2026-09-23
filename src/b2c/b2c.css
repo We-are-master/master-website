@@ -2469,6 +2469,35 @@ body[data-site='b2c'] .zls-sptwndw {
   color: var(--mo-mute);
 }
 
+/* O que já está no preço: some a dúvida antes de o cliente perguntar. */
+.mo-incl {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 7px;
+}
+
+.mo-incl li {
+  position: relative;
+  padding-left: 22px;
+  font-size: 14px;
+  color: var(--mo-ink);
+  line-height: 1.4;
+}
+
+.mo-incl li::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: 6px;
+  width: 11px;
+  height: 6px;
+  border-left: 2px solid var(--mo-green);
+  border-bottom: 2px solid var(--mo-green);
+  transform: rotate(-45deg);
+}
+
 /* Card de limpeza da home: o preço dos dois tipos lado a lado, por tamanho,
    no mesmo ritmo da .mo-pricelist (linha tracejada, número tabular). */
 .mo-pricetable {

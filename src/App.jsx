@@ -64,7 +64,7 @@ function ScrollToTop() {
  *   bare      — no chrome (partner application screens, etc.)
  */
 const PORTAL_ROUTES = ['/dashboard', '/new-request', '/my-requests', '/settings']
-const B2C_ROUTES    = ['/', '/end-of-tenancy-cleaning', '/deep-cleaning', '/painting', '/repairs', '/landlord-certificates', '/book', '/book/confirmed', '/cookies', '/terms', '/privacy', '/guarantee']
+const B2C_ROUTES    = ['/', '/end-of-tenancy-cleaning', '/deep-cleaning', '/after-builders-cleaning', '/painting', '/repairs', '/landlord-certificates', '/book', '/book/confirmed', '/cookies', '/terms', '/privacy', '/guarantee']
 const BARE_ROUTES   = ['/partner-apply', '/partner-apply/success', '/login', '/forgot-password']
 
 function chromeFor(pathname) {
@@ -93,6 +93,7 @@ function AppContent() {
         <Route path="/" element={<B2CHome />} />
         <Route path="/end-of-tenancy-cleaning" element={<B2CService service="clean" />} />
         <Route path="/deep-cleaning" element={<B2CService service="clean" kind="deep" />} />
+        <Route path="/after-builders-cleaning" element={<B2CService service="clean" kind="after" />} />
         <Route path="/painting" element={<B2CService service="paint" />} />
         <Route path="/repairs" element={<B2CService service="fix" />} />
         <Route path="/landlord-certificates" element={<B2CService service="cert" />} />

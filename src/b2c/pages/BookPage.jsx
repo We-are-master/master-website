@@ -20,6 +20,7 @@ import {
   certPrice,
   cleanKind,
   cleanPrice,
+  cleanTeamSize,
   formatGBP,
   priceSelection,
   serviceName,
@@ -498,11 +499,18 @@ export default function BookPage() {
                         ))}
                       </div>
                       {has('clean') && (
+                        <p className="bk-hint">
+                          {cleanTeamSize(sel.size) === 2
+                            ? 'Two cleaners on the day, with all products and equipment.'
+                            : 'One cleaner on the day, with all products and equipment.'}
+                        </p>
+                      )}
+                      {has('clean') && (
                         <div className="mo-row bk-baths">
                           <span className="bk-label" style={{ margin: 0 }}>
                             Bathrooms
                             <span>
-                              {CLEAN.includedBathrooms} included, then {formatGBP(CLEAN.extraBathroom)} each
+                              {CLEAN.includedBathrooms} included, then from {formatGBP(CLEAN.extraBathroomSteps[0])}
                             </span>
                           </span>
                           <Stepper value={sel.bathrooms} min={1} max={4} onChange={(v) => updateSel({ bathrooms: v })} label="bathrooms" />
