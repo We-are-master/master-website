@@ -13,7 +13,6 @@ import {
   PayAfterPhotos,
   PopularJobs,
   PriceTables,
-  ReviewTicker,
   Reviews,
   ServicesTrio,
   StickyCta,
@@ -183,7 +182,6 @@ export default function HomePage() {
             <QuoteWidget preset={preset} />
           </div>
         </div>
-        <ReviewTicker />
       </section>
 
       <section className="mo-section mo-section--tight">
