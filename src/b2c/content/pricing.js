@@ -92,7 +92,8 @@ export const CLEAN_KINDS = [
     tiny: 'After works',
     hint: 'Dust and residue',
     detail: 'For a property that has just had building, refit or renovation work',
-    prices: { studio: 227, 1: 227, 2: 269, 3: 322, 4: 388, 5: 455 },
+    // Studio 10% abaixo do 1 quarto, arredondado para baixo (dono, 23/09/2026).
+    prices: { studio: 204, 1: 227, 2: 269, 3: 322, 4: 388, 5: 455 },
     osTitle: 'After Builders Clean',
   },
 ]
