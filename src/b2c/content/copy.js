@@ -3,12 +3,12 @@
  * frequentes e as reviews. Inglês britânico, sem travessão.
  */
 import { PROMISES, TERMS } from './site.js'
-import { cleanKind } from './pricing.js'
+import { cleanPrice } from './pricing.js'
 
 const RECLEAN = PROMISES.recleanDays.value
 const CANCEL = PROMISES.freeCancellationHours
-/** Desconto do deep clean sobre o end of tenancy, lido do pricing.js (hoje 10). */
-const DEEP_OFF = 100 - cleanKind('deep').percent
+/** Quanto o deep clean sai abaixo do end of tenancy no mesmo imóvel de 2 quartos. */
+const DEEP_SAVING = cleanPrice('2', 'eot') - cleanPrice('2', 'deep')
 
 /** "Check-out ready": o que a equipe faz, cômodo a cômodo. */
 export const CHECKLIST = [
@@ -169,7 +169,7 @@ export const FAQS = [
 export const DEEP_FAQS = [
   {
     q: 'How is a deep clean different from an end of tenancy clean?',
-    a: `A deep clean is for the home you live in, so we work around your furniture and belongings, and it costs ${DEEP_OFF}% less. An end of tenancy clean is for an empty property on check-out day. The oven is included in both, and the add-ons are the same.`,
+    a: `A deep clean is for the home you live in, so we work around your furniture and belongings, and it costs around £${DEEP_SAVING} less on a two bedroom. An end of tenancy clean is for an empty property on check-out day. The oven is included in both, and the add-ons are the same.`,
   },
   {
     q: 'Do I need to empty the place?',

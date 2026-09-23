@@ -18,6 +18,7 @@ const NAV = [
     items: [
       { to: '/end-of-tenancy-cleaning', label: 'End of tenancy cleaning' },
       { to: '/deep-cleaning', label: 'Deep cleaning' },
+      { to: '/after-builders-cleaning', label: 'After builders cleaning' },
     ],
   },
   { to: '/painting', label: 'Painting' },
@@ -231,6 +232,7 @@ export function B2CFooter() {
             <ul>
               <li><Link to="/end-of-tenancy-cleaning">End of tenancy cleaning</Link></li>
               <li><Link to="/deep-cleaning">Deep cleaning</Link></li>
+              <li><Link to="/after-builders-cleaning">After builders cleaning</Link></li>
               <li><Link to="/painting">Painting and touch-ups</Link></li>
               <li><Link to="/repairs">Repairs</Link></li>
               <li><Link to="/landlord-certificates">Landlord certificates</Link></li>

@@ -4,17 +4,21 @@
  * nunca é confiado).
  *
  * Origem dos números:
- *  - Limpeza: proposta do "Plano Cleaning London" (18/09/2026), 10% a 15%
- *    abaixo da Fantastic. AINDA PENDENTE com o dono (VAT muda a tabela).
- *  - Extras de limpeza: carpete £30 por cômodo e banheiro extra £30 vêm do
- *    plano; forno, geladeira, janelas e varanda são proposta minha, a validar.
- *  - Tipos de limpeza (dono, 21/09/2026): deep clean 10% abaixo do end of
- *    tenancy, arredondado para baixo, calculado da MESMA tabela (não existe
- *    segunda tabela). Banheiro extra, extras e forno incluso iguais nos dois.
+ *  - Limpeza (dono, 22/09/2026): a tabela é a da Housekeep menos 5%,
+ *    arredondada para baixo no £, medida no quote deles em 22/09 para um
+ *    postcode de Londres. Cada tipo tem a SUA tabela (não é mais um percentual
+ *    do end of tenancy): end of tenancy, deep clean e after builders são três
+ *    produtos com preço próprio, do mesmo jeito que a Housekeep vende.
+ *  - Banheiro extra e extras de limpeza: mesma régua, Housekeep menos 5%. O
+ *    banheiro sobe em escada (£42, £52, £66) porque na Housekeep o segundo
+ *    banheiro custa menos que o terceiro.
+ *  - Janela por fora não existe na Housekeep e fica no preço que já tínhamos.
  *  - Pintura: catálogo público do OS (/api/public/service-catalog, lido em
  *    18/09/2026): Painter meia diária £215, cômodo £450.
- *  - Reparos: decisão do dono em 19/09/2026. Vendido só em meia diária £189
- *    (3h30) e diária £299 (7h); acabou a hora avulsa.
+ *  - Reparos: só por tempo, sem hora avulsa. Meia diária £180 (3h30) e diária
+ *    £329 (7h), decisão do dono em 22/09/2026, abaixo do Checkatrade Express
+ *    (£190 e £350 com a booking fee deles dentro). Ferramentas inclusas,
+ *    material nunca.
  *  - Certificados (19/09/2026): PROPOSTA minha, a confirmar com o custo do
  *    parceiro no OS. Referências: OpenRent vende CP12 a partir de £55 e EICR a
  *    £185; guia de preço do OS põe EICR entre £125 (1 quarto) e £300 (5).
@@ -42,11 +46,12 @@ export const PROPERTY_SIZES = [
 export const BATHROOM_OPTIONS = [1, 2, 3, 4]
 
 /**
- * Dois tipos de limpeza (dono, 21/09/2026), calculados da tabela do end of
- * tenancy (`CLEAN.prices`) com `percent` e arredondados para baixo:
- *  - eot: imóvel vazio, dia da entrega das chaves. 100%.
- *  - deep: casa ocupada (mudança para dentro, faxina de primavera, atrasada). 90%.
- * Forno incluso nos dois. Tipo desconhecido (inclusive `regular`, pedido e
+ * Três tipos de limpeza (dono, 22/09/2026), cada um com a sua tabela, tirada
+ * do preço da Housekeep menos 5% e arredondada para baixo:
+ *  - eot: imóvel vazio, dia da entrega das chaves.
+ *  - deep: casa ocupada (mudança para dentro, faxina de primavera, atrasada).
+ *  - after: depois de obra, reforma ou instalação nova.
+ * Forno incluso nos três. Tipo desconhecido (inclusive `regular`, pedido e
  * retirado pelo dono no mesmo dia) volta para end of tenancy.
  *
  * `osTitle` só da lista canônica do OS (master-os src/lib/type-of-work.ts):
@@ -65,7 +70,7 @@ export const CLEAN_KINDS = [
     tiny: 'Moving out',
     hint: 'Oven included',
     detail: 'For an empty property, cleaned for check-out day',
-    percent: 100,
+    prices: { studio: 223, 1: 223, 2: 266, 3: 318, 4: 384, 5: 451 },
     osTitle: 'End of Tenancy Clean',
   },
   {
@@ -75,8 +80,18 @@ export const CLEAN_KINDS = [
     tiny: 'Deep',
     hint: 'Oven included',
     detail: 'For the home you live in: moving in, a spring clean, or just overdue',
-    percent: 90,
+    prices: { studio: 194, 1: 194, 2: 237, 3: 289, 4: 356, 5: 422 },
     osTitle: 'Deep Clean',
+  },
+  {
+    id: 'after',
+    name: 'After builders clean',
+    short: 'After builders',
+    tiny: 'After works',
+    hint: 'Dust and residue',
+    detail: 'For a property that has just had building, refit or renovation work',
+    prices: { studio: 227, 1: 227, 2: 269, 3: 322, 4: 388, 5: 455 },
+    osTitle: 'After Builders Clean',
   },
 ]
 
@@ -95,31 +110,53 @@ export const CLEAN = {
   name: cleanKind(DEFAULT_CLEAN_KIND).name,
   osTitle: cleanKind(DEFAULT_CLEAN_KIND).osTitle,
   /**
-   * A ÚNICA tabela: preço do end of tenancy. Os outros tipos saem daqui pelo
-   * `cleanPrice`. null = sob consulta (5+ quartos) em todos os tipos.
+   * Tabela do tipo padrão (end of tenancy). Cada tipo tem a sua em
+   * `CLEAN_KINDS[].prices`; esta fica aqui para quem só precisa saber se o
+   * tamanho tem preço fixo. null = sob consulta (6+ quartos).
    */
-  prices: { studio: 149, 1: 209, 2: 249, 3: 299, 4: 379, 5: null },
+  prices: cleanKind(DEFAULT_CLEAN_KIND).prices,
   includedBathrooms: 1,
-  /** Forno entra no preço base dos dois tipos desde 18/09 (o mercado inclui; decisão do dono). */
+  /** Forno entra no preço base dos três tipos desde 18/09 (o mercado inclui; decisão do dono). */
   ovenIncluded: true,
-  extraBathroom: 30,
+  /**
+   * Produtos, pano, aspirador e mop entram no preço. É diferencial de venda:
+   * a faxina por hora do mercado londrino chega sem equipamento.
+   */
+  productsIncluded: true,
+  /** De 2 quartos para cima vai equipe de dois (dono, 22/09/2026). */
+  teamOfTwoFromSize: '2',
+  /**
+   * Banheiro extra em escada, igual à Housekeep: o segundo custa £42, o
+   * terceiro £52, o quarto £66. Fora da lista, repete o último degrau.
+   */
+  extraBathroomSteps: [42, 52, 66],
   extras: [
-    { id: 'carpet', label: 'Carpet steam clean', detail: 'Per room, hallway or staircase', price: 30, unit: 'room', max: 8 },
-    { id: 'fridge', label: 'Fridge freezer', detail: 'Defrosted, cleaned inside and out', price: 20 },
+    { id: 'carpet', label: 'Carpet steam clean', detail: 'Per room, hallway or staircase', price: 38, unit: 'room', max: 8 },
+    { id: 'fridge', label: 'Fridge freezer', detail: 'Defrosted, cleaned inside and out', price: 43 },
     { id: 'windows', label: 'Windows outside', detail: 'Ground floor and safely reachable', price: 35 },
-    { id: 'balcony', label: 'Balcony or patio', detail: 'Swept, washed and wiped down', price: 20 },
+    { id: 'balcony', label: 'Balcony or patio', detail: 'Swept, washed and wiped down', price: 57 },
   ],
 }
 
-/**
- * Preço da limpeza no tamanho e tipo: tabela do end of tenancy × percent do
- * tipo, arredondado para baixo. Conta em inteiros (preço × percent / 100) para
- * não herdar erro de ponto flutuante. null = sob consulta.
- */
+/** Preço da limpeza no tamanho e tipo. null = sob consulta. */
 export function cleanPrice(size, kindId) {
-  const base = CLEAN.prices[size]
-  if (base == null) return null
-  return Math.floor((base * cleanKind(kindId).percent) / 100)
+  const price = cleanKind(kindId).prices[size]
+  return price == null ? null : price
+}
+
+/** Quantos profissionais vão no imóvel: um até 1 quarto, dois de 2 para cima. */
+export function cleanTeamSize(size) {
+  const order = PROPERTY_SIZES.map((s) => s.id)
+  return order.indexOf(String(size)) >= order.indexOf(CLEAN.teamOfTwoFromSize) ? 2 : 1
+}
+
+/** Quanto custam os banheiros além do que já vem no preço, pela escada. */
+export function extraBathroomsPrice(bathrooms) {
+  const extra = Math.max(0, (Number(bathrooms) || 1) - CLEAN.includedBathrooms)
+  const steps = CLEAN.extraBathroomSteps
+  let total = 0
+  for (let i = 0; i < extra; i += 1) total += steps[Math.min(i, steps.length - 1)]
+  return total
 }
 
 export const PAINT = {
@@ -157,9 +194,11 @@ export const FIX = {
   name: 'Repairs',
   osTitle: 'General Maintenance',
   packages: [
-    { id: 'half', label: 'Half day', detail: 'Up to 3.5 hours', minutes: 210, price: 189 },
-    { id: 'day', label: 'Full day', detail: 'Up to 7 hours', minutes: 420, price: 299 },
+    { id: 'half', label: 'Half day', detail: 'Up to 3.5 hours', minutes: 210, price: 180 },
+    { id: 'day', label: 'Full day', detail: 'Up to 7 hours', minutes: 420, price: 329 },
   ],
+  /** Ferramentas sempre incluídas; material do cliente ou cotado à parte (dono, 22/09/2026). */
+  toolsIncluded: true,
   tasks: [
     { id: 'holes', label: 'Fill holes and nail marks', minutes: 30 },
     { id: 'silicone', label: 'Reseal a bath or shower', minutes: 60 },
@@ -334,7 +373,7 @@ export function priceSelection(rawSelection) {
         service: 'clean',
         id: 'clean-bathrooms',
         label: extraBaths === 1 ? 'Extra bathroom' : `${extraBaths} extra bathrooms`,
-        amount: extraBaths * CLEAN.extraBathroom,
+        amount: extraBathroomsPrice(sel.bathrooms),
       })
     }
     for (const extra of CLEAN.extras) {

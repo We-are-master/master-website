@@ -248,6 +248,13 @@
   color: var(--mo-mute);
 }
 
+/* Quem vai no dia e o que vem junto: dito antes de o cliente perguntar. */
+.bk-hint {
+  margin: 10px 0 0;
+  font-size: 13.5px;
+  color: var(--mo-ink-2);
+}
+
 .bk-field {
   margin-bottom: 14px;
   min-width: 0;

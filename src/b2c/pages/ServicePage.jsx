@@ -5,7 +5,7 @@ import QuoteWidget from '../components/QuoteWidget.jsx'
 import { Areas, CheckoutStandard, Eyebrow, Faq, FinalCta, PayAfterPhotos, Promises, Reviews, StickyCta } from '../components/Sections.jsx'
 
 const SERVICE_ICON = { clean: Sparkles, paint: Paintbrush, fix: Wrench, cert: ShieldCheck }
-import { CERT, CLEAN, FIX, FROM_PRICE, PAINT, PROPERTY_SIZES, certPrice, cleanPrice, formatGBP } from '../content/pricing.js'
+import { CERT, CLEAN, FIX, FROM_PRICE, PAINT, PROPERTY_SIZES, certPrice, cleanPrice, cleanTeamSize, formatGBP } from '../content/pricing.js'
 import { DEEP_FAQS, FAQS } from '../content/copy.js'
 import { PROMISES } from '../content/site.js'
 import { bookingHref } from '../lib/store.js'
@@ -21,11 +21,12 @@ const PAGES = {
     img: '/b2c/img/svc-clean.webp',
     alt: 'Cleaner in orange gloves cleaning the inside of an oven door',
     meta: {
-      title: 'End of tenancy cleaning in London, fixed prices from £149 | Fixfy',
-      description: `End of tenancy cleaning in London from £149, VAT included. Room-by-room checklist, photo report of every room, free re-clean within ${PROMISES.recleanDays.value} days. Book online in two minutes.`,
+      title: `End of tenancy cleaning in London, fixed prices from ${formatGBP(cleanPrice('studio', 'eot'))} | Fixfy`,
+      description: `End of tenancy cleaning in London from ${formatGBP(cleanPrice('studio', 'eot'))}, VAT included. Products and equipment included, two cleaners from two bedrooms, photo report of every room and a free re-clean within ${PROMISES.recleanDays.value} days.`,
     },
     points: [
-      `Fixed price by property size, from ${formatGBP(CLEAN.prices.studio)}`,
+      `Fixed price by property size, from ${formatGBP(cleanPrice('studio', 'eot'))}`,
+      'Products, cloths, hoover and mop all included. Two cleaners from two bedrooms up',
       'Oven deep clean included. Carpets, fridge and outside windows as priced add-ons',
       'A photo of every room when we finish, to forward to your agent',
       `Free re-clean within ${PROMISES.recleanDays.value} days if the check-out flags something on our list`,
@@ -50,6 +51,7 @@ const PAGES = {
     },
     points: [
       `Fixed price by property size, from ${formatGBP(cleanPrice('studio', 'deep'))}`,
+      'Products, cloths, hoover and mop all included. Two cleaners from two bedrooms up',
       'Oven deep clean included. Carpets, fridge and outside windows as priced add-ons',
       'Done around your furniture and belongings, room by room',
       'A photo of every room when we finish',
@@ -58,6 +60,31 @@ const PAGES = {
     otherA: { id: 'paint', label: 'Add a fresh coat', to: '/painting' },
     otherB: { id: 'fix', label: 'Add repairs', to: '/repairs' },
     sticky: cleanPrice('studio', 'deep'),
+  },
+  // After builders: mesmo serviço `clean`, tabela própria (Housekeep menos 5%), para imóvel que saiu de obra.
+  after: {
+    path: '/after-builders-cleaning',
+    kind: 'after',
+    eyebrow: 'After builders cleaning · London',
+    title: 'After builders cleaning',
+    lede: 'Building dust gets everywhere and normal cleaning spreads it. We take it out of the property, top to bottom, at a fixed price booked online.',
+    img: '/b2c/img/svc-clean.webp',
+    alt: 'Cleaner in orange gloves cleaning the inside of an oven door',
+    meta: {
+      title: `After builders cleaning in London, fixed prices from ${formatGBP(cleanPrice('studio', 'after'))} | Fixfy`,
+      description: `After builders cleaning in London from ${formatGBP(cleanPrice('studio', 'after'))}, VAT included. Fine dust, paint specks and grout residue removed room by room. Products and equipment included, photo report of every room.`,
+    },
+    points: [
+      `Fixed price by property size, from ${formatGBP(cleanPrice('studio', 'after'))}`,
+      'Products, cloths, hoover and mop all included. Two cleaners from two bedrooms up',
+      'Fine dust off surfaces, skirting, frames and inside windows',
+      'Paint specks and grout residue taken off where they come away safely',
+      'A photo of every room when we finish, to send to whoever did the work',
+    ],
+    faqs: FAQS.filter((f) => /how do i pay|get in|how long|change or cancel|areas|photo report/i.test(f.q)),
+    otherA: { id: 'paint', label: 'Add a fresh coat', to: '/painting' },
+    otherB: { id: 'fix', label: 'Add repairs', to: '/repairs' },
+    sticky: cleanPrice('studio', 'after'),
   },
   paint: {
     path: '/painting',
@@ -89,13 +116,14 @@ const PAGES = {
     img: '/b2c/img/svc-fix.webp',
     alt: 'Handyman filling nail holes in a hallway wall',
     meta: {
-      title: 'Move-out repairs and handyman in London, half day £189 | Fixfy',
-      description: 'Move-out repairs in London: half day £189, full day £299, no call-out fee. Fill holes, reseal baths, refit rails and handles. Booked with your end of tenancy clean or on its own.',
+      title: `Move-out repairs and handyman in London, half day ${formatGBP(FIX.packages[0].price)} | Fixfy`,
+      description: `Move-out repairs in London: half day ${formatGBP(FIX.packages[0].price)}, full day ${formatGBP(FIX.packages[1].price)}, every tool included and no call-out fee. Fill holes, reseal baths, refit rails and handles.`,
     },
     points: [
       `Half day ${formatGBP(FIX.packages[0].price)} or full day ${formatGBP(FIX.packages[1].price)}, no call-out fee`,
+      'Every tool the job needs comes with the handyman',
       'Tick the jobs on your list and we suggest half or full day',
-      'Parts billed at the end and listed in your report',
+      'Parts are the only extra: billed at the end and listed in your report',
       'Booked with the clean, repairs go first so the dust is cleaned away',
     ],
     faqs: FAQS.filter((f) => /paint and materials|how do i pay|photo report|change or cancel|areas|get in|how long|book painting/i.test(f.q)),
@@ -127,10 +155,12 @@ const PAGES = {
   },
 }
 
-/** `kind="deep"` com `service="clean"` é a página do deep clean (/deep-cleaning). */
+/** `kind` com `service="clean"` escolhe a página do tipo (/deep-cleaning, /after-builders-cleaning). */
 export default function ServicePage({ service, kind }) {
-  const deep = service === 'clean' && kind === 'deep'
-  const page = PAGES[deep ? 'deep' : service]
+  const page = PAGES[service === 'clean' && kind && PAGES[kind] ? kind : service]
+  // Re-clean só vale no imóvel vazio do end of tenancy; o nome na tabela segue o tipo da página.
+  const cleanKindId = service === 'clean' ? kind || 'eot' : null
+  const isEot = cleanKindId === 'eot'
   useHashScroll()
   usePageMeta({ ...page.meta, path: page.path, image: page.img })
 
@@ -154,7 +184,7 @@ export default function ServicePage({ service, kind }) {
                   </li>
                 ))}
               </ul>
-              <Promises className="mo-hero__promises" reclean={!deep} />
+              <Promises className="mo-hero__promises" reclean={isEot} />
             </div>
             <div className="mo-shero__photo">
               <img src={page.img} alt={page.alt} width="1200" height="896" />
@@ -268,15 +298,23 @@ export default function ServicePage({ service, kind }) {
                   <span className="mo-pricecard__verb">
                     Clean<span className="mo-dot">.</span>
                   </span>
-                  <span className="mo-pricecard__name">{deep ? 'Deep clean' : 'End of tenancy'}</span>
+                  <span className="mo-pricecard__name">{page.title}</span>
                 </div>
                 <ul className="mo-pricelist">
                   {PROPERTY_SIZES.map((s) => (
                     <li key={s.id}>
-                      <span>{s.label}</span>
+                      <span>
+                        {s.label}
+                        <small>{cleanTeamSize(s.id) === 2 ? 'Two cleaners' : 'One cleaner'}</small>
+                      </span>
                       <b>{cleanPrice(s.id, page.kind) == null ? 'Photo quote' : formatGBP(cleanPrice(s.id, page.kind))}</b>
                     </li>
                   ))}
+                </ul>
+                <ul className="mo-incl">
+                  <li>Products, cloths, hoover and mop all included</li>
+                  <li>Inside the oven included, every size</li>
+                  <li>VAT included, nothing added at checkout</li>
                 </ul>
               </div>
               <div className="mo-pricecard mo-reveal">
@@ -285,8 +323,11 @@ export default function ServicePage({ service, kind }) {
                 </div>
                 <ul className="mo-pricelist">
                   <li>
-                    <span>Extra bathroom</span>
-                    <b>{formatGBP(CLEAN.extraBathroom)}</b>
+                    <span>
+                      Extra bathroom
+                      <small>First one included in the price</small>
+                    </span>
+                    <b>from {formatGBP(CLEAN.extraBathroomSteps[0])}</b>
                   </li>
                   {CLEAN.extras.map((x) => (
                     <li key={x.id}>
@@ -307,9 +348,9 @@ export default function ServicePage({ service, kind }) {
                   <span className="mo-pricecard__verb">Included</span>
                 </div>
                 <ul className="mo-svc__list" style={{ color: 'rgba(255,255,255,.8)' }}>
-                  {(deep
-                    ? ['Room-by-room checklist', 'Oven deep clean', 'All products and equipment', 'Photo of every room', 'VAT']
-                    : ['Room-by-room checklist', 'All products and equipment', 'Photo of every room', `Free re-clean within ${PROMISES.recleanDays.value} days`, 'VAT']
+                  {(isEot
+                    ? ['Room-by-room checklist', 'Oven deep clean', 'All products and equipment', 'Two cleaners from two bedrooms', `Free re-clean within ${PROMISES.recleanDays.value} days`, 'VAT']
+                    : ['Room-by-room checklist', 'Oven deep clean', 'All products and equipment', 'Two cleaners from two bedrooms', 'Photo of every room', 'VAT']
                   ).map((i) => (
                     <li key={i} style={{ color: 'inherit' }}>
                       <Check size={16} strokeWidth={2.6} style={{ color: 'var(--mo-orange)' }} />
@@ -329,16 +370,18 @@ export default function ServicePage({ service, kind }) {
       <Faq items={page.faqs} />
       <FinalCta
         title={
-          deep
+          cleanKindId === 'deep'
             ? 'Time for a deep clean?'
-            : service === 'clean'
-              ? 'Check-out coming up?'
-              : service === 'cert'
-                ? 'Certificates due?'
-                : 'Handing back the keys soon?'
+            : cleanKindId === 'after'
+              ? 'Work finished?'
+              : service === 'clean'
+                ? 'Check-out coming up?'
+                : service === 'cert'
+                  ? 'Certificates due?'
+                  : 'Handing back the keys soon?'
         }
         to={bookingHref({ services: [service], kind: page.kind })}
-        reclean={!deep}
+        reclean={isEot}
       />
       <StickyCta amount={page.sticky} to={bookingHref({ services: [service], kind: page.kind })} />
     </B2CLayout>
