@@ -49,3 +49,19 @@ export function submitBooking(payload) {
 export function checkPromo({ code, selection }) {
   return post('/api/b2c/promo', { code, selection })
 }
+
+/**
+ * Lead do primeiro passo: nome e e-mail de quem começou a reservar. Vai ao OS
+ * (pós-venda de quem desistir no meio). `keepalive` deixa a chamada terminar
+ * mesmo se a pessoa fechar a aba logo depois.
+ */
+export async function sendLead(payload) {
+  const res = await fetch('/api/b2c/lead', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+    keepalive: true,
+  })
+  if (!res.ok) throw new Error(`lead ${res.status}`)
+  return res.json().catch(() => ({}))
+}
