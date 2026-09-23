@@ -88,7 +88,6 @@ export default function QuoteWidget({ initial = 'clean', initialKind, lockServic
   const [materials, setMaterials] = useState(false)
   const [fixPackage, setFixPackage] = useState('half')
   const [certItems, setCertItems] = useState(['gas'])
-  const [boiler, setBoiler] = useState(false)
   const toggleCert = (id) =>
     setCertItems((list) => (list.includes(id) ? list.filter((x) => x !== id) : [...list, id]))
 
@@ -99,9 +98,9 @@ export default function QuoteWidget({ initial = 'clean', initialKind, lockServic
       clean: { kind, extras: {} },
       paint: { option: paintOption, rooms, materials },
       fix: { package: fixPackage, tasks: [] },
-      cert: { items: certItems, boiler },
+      cert: { items: certItems },
     }),
-    [service, kind, size, paintOption, rooms, materials, fixPackage, certItems, boiler],
+    [service, kind, size, paintOption, rooms, materials, fixPackage, certItems],
   )
   const { total, needsQuote } = priceSelection(selection)
   const shown = useTween(needsQuote ? null : total)
@@ -113,7 +112,6 @@ export default function QuoteWidget({ initial = 'clean', initialKind, lockServic
     paint: service === 'paint' ? { option: paintOption, rooms, materials } : undefined,
     fixPackage: service === 'fix' ? fixPackage : undefined,
     cert: service === 'cert' ? certItems : undefined,
-    boiler: service === 'cert' ? boiler : undefined,
   })
 
   const go = () => {
@@ -262,16 +260,6 @@ export default function QuoteWidget({ initial = 'clean', initialKind, lockServic
                   </label>
                 )
               })}
-              {certItems.includes('gas') && (
-                <label className="mo-toggle-row">
-                  <input type="checkbox" checked={boiler} onChange={(e) => setBoiler(e.target.checked)} />
-                  <span>
-                    <b>{CERT.items[0].addOn.label}</b>
-                    <small>{CERT.items[0].addOn.detail}</small>
-                  </span>
-                  <em>+{formatGBP(CERT.items[0].addOn.price)}</em>
-                </label>
-              )}
             </div>
             {certItems.includes('eicr') && (
               <div style={{ marginTop: 14 }}>

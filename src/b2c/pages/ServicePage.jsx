@@ -139,13 +139,13 @@ const PAGES = {
     img: '/b2c/img/svc-cert.webp',
     alt: 'Gas engineer checking a boiler in a London flat kitchen',
     meta: {
-      title: 'Landlord certificates in London: gas safety £79, EICR from £149 | Fixfy',
-      description: 'Gas safety certificate (CP12) £79, electrical safety report (EICR) from £149 and appliance testing £69 in London, VAT included. Registered engineers, certificate the same day.',
+      title: `Landlord certificates in London: gas safety ${formatGBP(CERT.items[0].price)}, EICR from ${formatGBP(certPrice(CERT.items[1], 'studio'))} | Fixfy`,
+      description: `Gas safety certificate (CP12) ${formatGBP(CERT.items[0].price)}, electrical safety report (EICR) from ${formatGBP(certPrice(CERT.items[1], 'studio'))} and energy performance certificate (EPC) from ${formatGBP(certPrice(CERT.items[2], 'studio'))} in London, VAT included. Registered engineers and assessors.`,
     },
     points: [
       `Gas safety certificate (CP12) ${formatGBP(CERT.items[0].price)}, by a Gas Safe registered engineer`,
       `Electrical safety report (EICR) from ${formatGBP(certPrice(CERT.items[1], 'studio'))}, by a NICEIC or NAPIT registered electrician`,
-      `Appliance testing ${formatGBP(CERT.items[2].price)}, or add a full boiler service for ${formatGBP(CERT.items[0].addOn.price)}`,
+      `Energy performance certificate (EPC) from ${formatGBP(certPrice(CERT.items[2], 'studio'))}, by an accredited assessor and lodged on the national register`,
       'If something fails, you get the list and a fixed price before any work starts',
     ],
     faqs: FAQS.filter((f) => /certificate|safety check|how do i pay|photo report|change or cancel|areas|get in/i.test(f.q)),

@@ -33,13 +33,14 @@ export const PARTNER_PAY = {
   fix: { hour: 40, half: 117, day: 214 },
   /** Pintura: touch-up até 3,5h, cômodo em duas demãos, e o material a custo. */
   paint: { touchup: 95, rooms: 230, materials: 100 },
-  /** Certificados: o custo do catálogo em cada faixa. */
+  /**
+   * Certificados: o custo do catálogo em cada faixa. O preço de venda vive em
+   * pricing.js; aqui fica só o que o parceiro recebe.
+   */
   cert: {
     gas: 60,
-    boiler: 56,
-    pat: 50,
     eicr: { studio: 69, 1: 69, 2: 99, 3: 99, 4: 139, 5: null },
-    /** O preço do EICR por tamanho vive em pricing.js; aqui fica só o custo. */
+    epc: { studio: 46, 1: 46, 2: 55, 3: 65, 4: 65, 5: 80 },
   },
 }
 
@@ -73,7 +74,7 @@ function cleanPay({ lines, size, kind, bathrooms }) {
  * `lines` são as linhas de preço DESTE job (sem desconto: o cupom sai da
  * margem da Fixfy, não do parceiro).
  */
-export function partnerPayFor({ service, lines = [], size, kind, bathrooms = 1, certItem, withBoiler }) {
+export function partnerPayFor({ service, lines = [], size, kind, bathrooms = 1, certItem }) {
   if (!lines.length) return null
 
   if (service === 'clean') return cleanPay({ lines, size, kind, bathrooms })
@@ -96,11 +97,10 @@ export function partnerPayFor({ service, lines = [], size, kind, bathrooms = 1, 
   }
 
   if (service === 'cert') {
-    const id = certItem?.id
-    if (!id) return null
-    const own = id === 'eicr' ? PARTNER_PAY.cert.eicr[String(size)] : PARTNER_PAY.cert[id]
-    if (own == null) return null
-    return round(own + (withBoiler ? PARTNER_PAY.cert.boiler : 0))
+    const table = PARTNER_PAY.cert[certItem?.id]
+    if (table == null) return null
+    const own = typeof table === 'object' ? table[String(size)] : table
+    return own == null ? null : round(own)
   }
 
   return null

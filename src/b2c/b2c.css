@@ -3125,6 +3125,48 @@ body[data-site='b2c'] .zls-sptwndw {
   margin: 0;
 }
 
+/* ---------- WhatsApp fixo, canto inferior direito ---------- */
+
+.mo-wa {
+  position: fixed;
+  right: 20px;
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  z-index: 70;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #25d366;
+  color: #fff;
+  box-shadow: 0 6px 20px rgba(9, 61, 33, 0.28);
+  transition: transform 0.18s var(--mo-ease), box-shadow 0.18s var(--mo-ease);
+}
+
+.mo-wa:hover,
+.mo-wa:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(9, 61, 33, 0.34);
+  color: #fff;
+}
+
+/* No celular a barra de preço mora embaixo: o botão sobe para não cobrir. */
+@media (max-width: 899px) {
+  .mo-wa {
+    right: 14px;
+    bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+    width: 50px;
+    height: 50px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mo-wa {
+    transition: none;
+  }
+}
+
 /* ---------- CTA fixo no celular ---------- */
 
 .mo-sticky {
