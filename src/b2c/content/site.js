@@ -47,7 +47,7 @@ export const EXIT_OFFER = { code: 'FIXFY10', percentOff: 10 }
  * de acesso e margem de peça são propostas. Mudou aqui, muda na página e no FAQ.
  */
 export const TERMS = {
-  version: '22 September 2026',
+  version: '23 September 2026',
   lateCancellationPercent: 50,
   noAccessMinutes: 30,
   partsMarkupPercent: 30,

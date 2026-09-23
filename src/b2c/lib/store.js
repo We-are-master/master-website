@@ -88,7 +88,6 @@ export function bookingHref(preset = {}) {
   if (preset.fixPackage) q.set('fix', preset.fixPackage)
   if (preset.fixTasks?.length) q.set('tasks', preset.fixTasks.join(','))
   if (preset.cert?.length) q.set('cert', preset.cert.join(','))
-  if (preset.boiler) q.set('boiler', '1')
   const s = q.toString()
   return s ? `/book?${s}` : '/book'
 }
@@ -96,7 +95,7 @@ export function bookingHref(preset = {}) {
 /** Aplica os parâmetros de um link de reserva por cima do estado salvo. */
 export function applyQuery(booking, search) {
   const q = new URLSearchParams(search)
-  if (![...q.keys()].some((k) => ['s', 'kind', 'size', 'bath', 'x', 'paint', 'pm', 'fix', 'tasks', 'cert', 'boiler', 'pc'].includes(k))) {
+  if (![...q.keys()].some((k) => ['s', 'kind', 'size', 'bath', 'x', 'paint', 'pm', 'fix', 'tasks', 'cert', 'pc'].includes(k))) {
     return booking
   }
   const sel = { ...booking.selection }
@@ -131,7 +130,7 @@ export function applyQuery(booking, search) {
   const tasks = (q.get('tasks') || '').split(',').filter(Boolean)
   if (fix || tasks.length) sel.fix = { package: fix || null, tasks }
   const certs = (q.get('cert') || '').split(',').filter(Boolean)
-  if (certs.length) sel.cert = { items: certs, boiler: q.get('boiler') === '1' }
+  if (certs.length) sel.cert = { items: certs }
   const pc = q.get('pc')
   return {
     ...booking,

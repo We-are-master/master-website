@@ -169,9 +169,9 @@ export default function TermsPage() {
           or leave the rest.
         </p>
         <p>
-          <b>6.5 Certificates.</b> Gas safety record (CP12), electrical installation condition report (EICR) and portable appliance
-          testing (PAT). The price covers the check, not repairs. If something fails, you get the reason and a fixed price to put it
-          right. Nothing is done until you say yes, and you are free to use someone else.
+          <b>6.5 Certificates.</b> Gas safety record (CP12), electrical installation condition report (EICR) and energy performance
+          certificate (EPC). The price covers the check or the assessment, not repairs or improvement works. If something fails, you
+          get the reason and a fixed price to put it right. Nothing is done until you say yes, and you are free to use someone else.
         </p>
         <p>
           <b>6.6 Photo report.</b> When the work is done, the team photographs every room they worked on, and we send you the report
