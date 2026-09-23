@@ -40,7 +40,8 @@ export const PARTNER_PAY = {
   cert: {
     gas: 60,
     eicr: { studio: 69, 1: 69, 2: 99, 3: 99, 4: 139, 5: null },
-    epc: { studio: 46, 1: 46, 2: 55, 3: 65, 4: 65, 5: 80 },
+    /** O assessor de EPC cobra o mesmo em qualquer tamanho (dono, 23/09/2026). */
+    epc: 60,
   },
 }
 

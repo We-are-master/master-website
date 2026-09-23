@@ -234,7 +234,10 @@ export const CERT = {
       short: 'Electrical safety (EICR)',
       detail: 'Every circuit tested and signed off by a NICEIC or NAPIT registered electrician',
       valid: 'Renew every 5 years',
-      prices: { studio: 149, 1: 149, 2: 179, 3: 179, 4: 229, 5: null },
+      // Preço do Checkatrade Express em Londres (dono, 23/09/2026). O 5+ fica
+      // sob consulta porque "cinco ou mais" é aberto e o número de circuitos
+      // é o que manda no tempo do eletricista.
+      prices: { studio: 129, 1: 129, 2: 165, 3: 195, 4: 225, 5: null },
       osTitle: 'Electrical Safety Report',
     },
     {
@@ -243,10 +246,10 @@ export const CERT = {
       short: 'Energy performance (EPC)',
       detail: 'Accredited assessor visits, rates the property and lodges the certificate on the national register',
       valid: 'Valid for 10 years',
-      // Preço do Checkatrade Express em Londres (22/09/2026), que é o teto do
-      // mercado nesta faixa. O site não pergunta flat ou casa, então cada
-      // tamanho usa o valor de casa, que é o mais alto dos dois.
-      prices: { studio: 75, 1: 79, 2: 89, 3: 99, 4: 109, 5: 130 },
+      // O assessor cobra £60 cravado em qualquer tamanho (dono, 23/09/2026),
+      // então os pequenos têm piso de £95: a £75 do Express sobrava £1 depois
+      // do VAT. Do três quartos para cima, o preço é o do Express.
+      prices: { studio: 95, 1: 95, 2: 95, 3: 99, 4: 109, 5: 130 },
       osTitle: 'Energy Performance Certificate',
     },
   ],
