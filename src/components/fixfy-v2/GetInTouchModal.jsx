@@ -88,7 +88,7 @@ export default function GetInTouchModal() {
         <div className="gim-head">
           <div className="gim-eyebrow">Get in touch</div>
           <h2 id="gim-title" className="gim-title">Let&rsquo;s talk about your maintenance.</h2>
-          <p className="gim-sub">Tell us about your properties. We reply within a working day.</p>
+          <p className="gim-sub">Tell us about your properties. We&rsquo;ll get in touch within 24 to 48 hours.</p>
         </div>
 
         <div className="gim-body">
@@ -123,7 +123,7 @@ function ContactForm({ firstFieldRef, onClose }) {
       <div className="gim-success">
         <div className="gim-success-ic" aria-hidden>✓</div>
         <h3 className="gim-success-title">Message sent</h3>
-        <p className="gim-success-body">Thanks. We&rsquo;ll be in touch within a working day.</p>
+        <p className="gim-success-body">Thanks. We&rsquo;ve emailed you a copy and we&rsquo;ll get in touch within 24 to 48 hours.</p>
         <button type="button" className="gim-submit" onClick={onClose}>Done</button>
       </div>
     )
