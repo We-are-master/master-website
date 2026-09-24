@@ -241,7 +241,7 @@ export default function BookPage() {
       })
       return
     }
-    if (step === 0) captureLead()
+    if (step < 3) captureLead(step + 2)
     if (step < 3) {
       goTo(step + 1)
       return
@@ -329,14 +329,17 @@ export default function BookPage() {
   // Nome e e-mail válidos viram lead no OS (quem desistir no meio entra no
   // pós-venda). Sai ao sair do campo e ao continuar, uma vez por combinação
   // de e-mail, serviços e recusa de ofertas; nunca segura a tela.
+  //
+  // Cada passo vencido também vai (`reached` 2, 3 e 4): é o que a aba Leads do OS
+  // usa para saber até onde a pessoa chegou e quando mandar o e-mail de retomada.
   const leadSentKey = useRef('')
-  const captureLead = () => {
+  const captureLead = (reached = 1) => {
     const email = booking.contact.email.trim()
     if (!EMAIL_RE.test(email) || contactName(booking).length < 2) return
-    const key = [email.toLowerCase(), sel.services.join(','), booking.noOffers ? 'no-offers' : ''].join('|')
+    const key = [email.toLowerCase(), sel.services.join(','), booking.noOffers ? 'no-offers' : '', reached].join('|')
     if (leadSentKey.current === key) return
     leadSentKey.current = key
-    sendLead(leadPayload(booking, { elapsedMs: Date.now() - startedAt.current, website: honey })).catch(() => {
+    sendLead(leadPayload(booking, { step: reached, elapsedMs: Date.now() - startedAt.current, website: honey })).catch(() => {
       // lead é bônus: a reserva segue igual
     })
   }
@@ -443,7 +446,7 @@ export default function BookPage() {
                             update({ contact: { ...booking.contact, fullName: e.target.value } })
                             setErrors((er) => ({ ...er, name: undefined }))
                           }}
-                          onBlur={captureLead}
+                          onBlur={() => captureLead(1)}
                         />
                       </Field>
                       <Field id="bk-em" label="Email" error={errors.email}>
@@ -458,7 +461,7 @@ export default function BookPage() {
                             update({ contact: { ...booking.contact, email: e.target.value } })
                             setErrors((er) => ({ ...er, email: undefined }))
                           }}
-                          onBlur={captureLead}
+                          onBlur={() => captureLead(1)}
                         />
                       </Field>
                     </div>

@@ -19,6 +19,7 @@
 import { b2cServerEnv } from './env.js'
 import { resolveFixfyAccountId } from './os.js'
 import { normalizeSelection, serviceName } from '../../src/b2c/content/pricing.js'
+import { postSiteLead } from './site-lead.js'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 const str = (v, max = 200) => (typeof v === 'string' ? v.trim().slice(0, max).replace(/\0/g, '') : '')
@@ -55,6 +56,35 @@ export function leadNotes(body, today = new Date()) {
     .join('\n')
 }
 
+/** Origem limpa (só as chaves conhecidas), para o lead do OS. */
+function cleanAttribution(body) {
+  const out = {}
+  for (const k of ATTR_KEYS) {
+    const v = str(body.attribution?.[k], 200)
+    if (v) out[k] = v
+  }
+  return out
+}
+
+/** Aviso de passo à aba Leads do OS (e-mails de retomada). */
+function stepPayload(body, email, name, step) {
+  const price = Number(body.price)
+  return {
+    event: 'step',
+    email,
+    name,
+    phone: str(body.phone, 30) || null,
+    postcode: str(body.postcode, 10) || null,
+    step,
+    selection: body.selection && typeof body.selection === 'object' ? body.selection : {},
+    serviceLabel: str(body.serviceLabel, 120) || null,
+    price: Number.isFinite(price) && price > 0 ? price : null,
+    resumeUrl: /^https:\/\/(www\.)?getfixfy\.com\//.test(str(body.resumeUrl, 1000)) ? str(body.resumeUrl, 1000) : null,
+    source: cleanAttribution(body),
+    marketingOptOut: Boolean(body.noOffers),
+  }
+}
+
 export async function handleLead(body = {}) {
   const env = b2cServerEnv()
   const name = str(body.name, 120)
@@ -62,6 +92,12 @@ export async function handleLead(body = {}) {
   // Robô: campo escondido preenchido, ou rápido demais. Responde 200 para não ensinar nada.
   if (str(body.website) || (Number(body.elapsedMs) > 0 && Number(body.elapsedMs) < 1500)) return { status: 200, data: { ok: true } }
   if (name.length < 2 || !EMAIL_RE.test(email)) return { status: 400, data: { error: 'Name and email are needed.' } }
+  const step = Math.min(4, Math.max(1, Math.round(Number(body.step) || 1)))
+
+  // A aba Leads do OS recebe todo passo. O cliente (contacts/ingest) nasce no 1 ou
+  // no 2: quem digita e clica em Continue sem sair do campo pula o aviso do 1.
+  const siteLead = await postSiteLead(stepPayload(body, email, name, step), env)
+  if (step > 2) return { status: 200, data: { ok: true, step, siteLead: siteLead.ok !== false } }
 
   const live = env.mode === 'live' && process.env.VERCEL === '1'
   const key = env.osLeadKey || env.osKey

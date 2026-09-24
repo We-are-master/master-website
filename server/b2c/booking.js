@@ -26,6 +26,7 @@ import { createOsJob, resolveFixfyAccountId } from './os.js'
 import { adMetadata, sendPurchase } from './meta.js'
 import { partnerPayFor } from './partner-pay.js'
 import { resolvePromo } from './promo.js'
+import { postSiteLead } from './site-lead.js'
 import {
   CERT,
   CLEAN,
@@ -535,6 +536,11 @@ async function finalizePaid(env, { pi, metadata, amount }) {
   }
   // Depois do booked=1: a compra vai à Meta uma vez só, mesmo com página de volta + webhook.
   await sendPurchase(env, { metadata, ref, value: priced.total, contact: b.contact, postcode: b.postcode })
+  // Quem pagou sai dos leads do OS e não recebe mais e-mail de retomada.
+  await postSiteLead(
+    { event: 'paid', email: b.contact.email, jobId: jobs[0]?.id || null, bookingRef: ref, total: priced.total, promoCode: priced.promo?.code || null },
+    env,
+  )
   return { status: 200, data: { ...data, jobs: jobs.map((j) => j.reference) } }
 }
 
