@@ -29,6 +29,16 @@ const NAV = [
 ]
 
 /**
+ * Nas páginas de empresa e de parceiro o menu não vende serviço de casa:
+ * Home volta para o B2C e Services some.
+ */
+const NAV_PRO = [
+  { to: '/', label: 'Home', end: true },
+  { to: '/business', label: 'For Business' },
+  { to: '/network', label: 'For Trades' },
+]
+
+/**
  * Revela seções ao entrar na tela (só quando o usuário aceita movimento).
  * Também vigia o que monta depois (reviews que chegam em seguida, páginas
  * carregadas sob demanda): antes, isso ficava invisível para sempre.
@@ -134,6 +144,7 @@ export function B2CHeader({ minimal = false, right = null, business = false, tra
   // primeira tela é navy inteira. Passou do hero, volta a branco.
   const [overNavy, setOverNavy] = useState(false)
   const { pathname } = useLocation()
+  const nav = business || trades ? NAV_PRO : NAV
 
   useEffect(() => setOpen(false), [pathname])
   useLayoutEffect(() => {
@@ -168,7 +179,7 @@ export function B2CHeader({ minimal = false, right = null, business = false, tra
         ) : (
           <>
             <nav className="mo-nav" aria-label="Main">
-              {NAV.map((item) =>
+              {nav.map((item) =>
                 item.items ? (
                   <NavGroup key={item.label} item={item} />
                 ) : item.hash || item.page ? (
@@ -176,7 +187,7 @@ export function B2CHeader({ minimal = false, right = null, business = false, tra
                     {item.label}
                   </a>
                 ) : (
-                  <NavLink key={item.to} to={item.to} className={({ isActive }) => (isActive ? 'is-active' : undefined)}>
+                  <NavLink key={item.to} to={item.to} end={item.end} className={({ isActive }) => (isActive ? 'is-active' : undefined)}>
                     {item.label}
                   </NavLink>
                 ),
@@ -218,7 +229,7 @@ export function B2CHeader({ minimal = false, right = null, business = false, tra
       </div>
       {!minimal && open && (
         <nav id="mo-mobile-nav" className="mo-mobile-nav" aria-label="Mobile">
-          {NAV.flatMap((item) => item.items || [item]).map((item) =>
+          {nav.flatMap((item) => item.items || [item]).map((item) =>
             item.hash || item.page ? (
               <a key={item.to} href={item.to} onClick={() => setOpen(false)}>
                 {item.label}
