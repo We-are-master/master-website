@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom'
 import { CalendarDays, Camera, RotateCcw, Sparkles, Tag } from 'lucide-react'
 import B2CLayout from '../components/Chrome.jsx'
 import QuoteWidget from '../components/QuoteWidget.jsx'
-import TrustpilotBadge from '../components/TrustpilotBadge.jsx'
+import ReviewBadges from '../components/ReviewBadges.jsx'
 import {
   Areas,
   Audiences,
@@ -146,7 +146,7 @@ export default function HomePage() {
           <div className="mo-hero__copy">
             <ServiceStrip />
 
-            <TrustpilotBadge where="mobile" />
+            <ReviewBadges where="mobile" />
 
             <h1 className="mo-display mo-hero__title">
               Home jobs at a fixed price<span className="mo-dot">.</span>
@@ -183,7 +183,7 @@ export default function HomePage() {
 
           <div className="mo-hero__widget">
             <QuoteWidget preset={preset} />
-            <TrustpilotBadge where="desktop" />
+            <ReviewBadges where="desktop" />
           </div>
         </div>
       </section>

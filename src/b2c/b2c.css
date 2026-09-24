@@ -1554,34 +1554,74 @@ body[data-site='b2c'] .zls-sptwndw {
   }
 }
 
-/* Selo do Trustpilot: no celular e tablet acima do título, no desktop embaixo
-   do cartão de orçamento. Os dois sobre o navy, por isso a versão de texto claro. */
-.mo-tp {
-  display: block;
-  width: min(280px, 78vw);
+/* Selos de avaliação (Google e, quando tiver, Trustpilot): no celular e tablet
+   acima do título, no desktop embaixo do cartão de orçamento. Os dois sobre o navy. */
+.mo-proof {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 10px 22px;
   margin: 0 auto 18px;
-  line-height: 0;
 }
-.mo-tp img {
-  width: 100%;
+.mo-proof__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #fff;
+  text-decoration: none;
+  line-height: 1;
+}
+.mo-proof__g {
+  width: 20px;
+  height: 20px;
+  flex: none;
+}
+.mo-proof__score {
+  font-weight: 700;
+  font-size: 17px;
+  font-variant-numeric: tabular-nums;
+}
+.mo-proof__stars {
+  width: 100px;
+  height: 20px;
+  flex: none;
+}
+.mo-proof__star {
+  fill: #fbbc04;
+}
+.mo-proof__star-empty {
+  fill: rgba(255, 255, 255, 0.22);
+}
+.mo-proof__count {
+  font-size: 14px;
+  color: var(--mo-on-navy-2);
+  text-decoration: underline;
+  text-decoration-color: rgba(255, 255, 255, 0.3);
+  text-underline-offset: 3px;
+}
+.mo-proof__item:hover .mo-proof__count {
+  color: #fff;
+}
+.mo-proof__item--tp img {
+  width: min(250px, 70vw);
   height: auto;
 }
-.mo-tp:focus-visible {
+.mo-proof__item:focus-visible {
   outline: 2px solid var(--mo-orange);
   outline-offset: 4px;
   border-radius: 4px;
 }
-.mo-tp--desktop {
+.mo-proof--desktop {
   display: none;
 }
 @media (min-width: 1100px) {
-  .mo-tp--mobile {
+  .mo-proof--mobile {
     display: none;
   }
-  .mo-tp--desktop {
-    display: block;
-    width: 300px;
-    margin: 22px auto 0;
+  .mo-proof--desktop {
+    display: flex;
+    margin: 22px 0 0;
   }
 }
 
