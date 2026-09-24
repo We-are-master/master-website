@@ -1593,16 +1593,6 @@ body[data-site='b2c'] .zls-sptwndw {
 .mo-proof__star-empty {
   fill: rgba(255, 255, 255, 0.22);
 }
-.mo-proof__count {
-  font-size: 14px;
-  color: var(--mo-on-navy-2);
-  text-decoration: underline;
-  text-decoration-color: rgba(255, 255, 255, 0.3);
-  text-underline-offset: 3px;
-}
-.mo-proof__item:hover .mo-proof__count {
-  color: #fff;
-}
 .mo-proof__item--tp img {
   width: min(250px, 70vw);
   height: auto;

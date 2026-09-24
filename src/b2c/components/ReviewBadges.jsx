@@ -45,7 +45,7 @@ function Stars({ rating }) {
 }
 
 function GoogleBadge() {
-  const { url, rating, count } = GOOGLE_REVIEWS
+  const { url, rating } = GOOGLE_REVIEWS
   const shown = rating.toFixed(1)
   return (
     <a
@@ -53,7 +53,7 @@ function GoogleBadge() {
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label={`Rated ${shown} out of 5 from ${count} Google reviews. Read them on Google`}
+      aria-label={`Rated ${shown} out of 5 on Google. Read our reviews`}
     >
       <svg className="mo-proof__g" viewBox="0 0 48 48" aria-hidden="true">
         <path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.6-.4-3.9z" />
@@ -63,7 +63,6 @@ function GoogleBadge() {
       </svg>
       <span className="mo-proof__score">{shown}</span>
       <Stars rating={rating} />
-      <span className="mo-proof__count">{count} Google reviews</span>
     </a>
   )
 }
