@@ -1,9 +1,10 @@
 /**
- * Dev server: /api/b2c/* com o mesmo código das funções da Vercel.
+ * Dev server: /api/b2c/* e /api/b2b/contact com o mesmo código das funções da Vercel.
  */
 import { handleBooking, handleCheckout, handleConfig, handlePayment, handleWebhook } from '../server/b2c/booking.js'
 import { handlePromo } from '../server/b2c/promo.js'
 import { handleLead } from '../server/b2c/lead.js'
+import { handleContact } from '../server/b2b/contact.js'
 import { clientIp } from '../server/b2c/meta.js'
 import { corsHeaders, readJsonBody } from '../server/growth/http.js'
 
@@ -22,7 +23,7 @@ export default function b2cApiPlugin() {
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
         const url = req.url?.split('?')[0] || ''
-        if (!url.startsWith('/api/b2c/')) return next()
+        if (!url.startsWith('/api/b2c/') && url !== '/api/b2b/contact') return next()
         const origin = req.headers.origin || null
         const headers = { ...corsHeaders(origin), 'Content-Type': 'application/json' }
         const reply = ({ status, data }) => {
@@ -34,6 +35,7 @@ export default function b2cApiPlugin() {
             res.writeHead(204, corsHeaders(origin))
             return res.end()
           }
+          if (url === '/api/b2b/contact' && req.method === 'POST') return reply(await handleContact(await readJsonBody(req)))
           if (url === '/api/b2c/config' && req.method === 'GET') return reply(handleConfig())
           if (url === '/api/b2c/payment' && req.method === 'POST') return reply(await handlePayment(await readJsonBody(req), { ip: clientIp(req), userAgent: req.headers['user-agent'] }))
           if (url === '/api/b2c/checkout' && req.method === 'POST') return reply(await handleCheckout(await readJsonBody(req), { origin, ip: clientIp(req), userAgent: req.headers['user-agent'] }))

@@ -98,9 +98,9 @@ const STATIC_PAGES = {
     ogType: 'website',
   },
   '/business': {
-    title: 'Fixfy — Maintenance infrastructure for British business',
-    description: 'One calm place for facilities teams, property owners and 3,400+ vetted tradespeople. Free to list. No ticket fees. Ever.',
-    keywords: 'facilities management UK, commercial maintenance, SLA tracking, asset register, compliance, Gas Safe, NICEIC, EICR',
+    title: 'Property maintenance for letting agents and businesses in London | Fixfy',
+    description: 'Tradespeople, certified engineers and professional cleaning across London. On demand or on an annual contract, with a written quote within 24 hours for bigger work.',
+    keywords: 'property maintenance London, letting agent maintenance, facilities maintenance contract, gas safety certificate, EICR, commercial cleaning London',
     ogType: 'website',
   },
   '/platform': {

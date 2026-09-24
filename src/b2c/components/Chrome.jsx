@@ -124,7 +124,7 @@ function NavGroup({ item }) {
   )
 }
 
-export function B2CHeader({ minimal = false, right = null }) {
+export function B2CHeader({ minimal = false, right = null, business = false }) {
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   // Enquanto o hero navy está atrás do header, o header também é navy: a
@@ -154,9 +154,9 @@ export function B2CHeader({ minimal = false, right = null }) {
         <Link to="/" className="mo-brand" aria-label="Fixfy home">
           <img src={overNavy ? '/b2c/fixfy-white.png' : '/b2c/fixfy-navy.png'} alt="Fixfy" width="85" height="30" />
           <span className="mo-brand__tag">
-            Home jobs at
+            {business ? 'Property maintenance' : 'Home jobs at'}
             <br />
-            a fixed price
+            {business ? 'for business' : 'a fixed price'}
           </span>
         </Link>
 
@@ -180,9 +180,16 @@ export function B2CHeader({ minimal = false, right = null }) {
               )}
             </nav>
             <div className="mo-header__cta">
-              <Link to="/book" className="mo-btn mo-btn--primary mo-btn--sm">
-                Get a price
-              </Link>
+              {/* No /business o CTA abre o formulário de contato (o modal intercepta /contact). */}
+              {business ? (
+                <a href="/contact" className="mo-btn mo-btn--primary mo-btn--sm">
+                  Talk to us
+                </a>
+              ) : (
+                <Link to="/book" className="mo-btn mo-btn--primary mo-btn--sm">
+                  Get a price
+                </Link>
+              )}
               <button
                 type="button"
                 className="mo-menu-btn"
@@ -304,7 +311,7 @@ function WhatsAppButton() {
 }
 
 /** Moldura das páginas B2C: fundo branco, cabeçalho próprio, origem capturada. */
-export default function B2CLayout({ children, minimalHeader = false, headerRight = null, footer = true }) {
+export default function B2CLayout({ children, minimalHeader = false, headerRight = null, footer = true, business = false }) {
   const { pathname } = useLocation()
 
   useEffect(() => {
@@ -319,12 +326,13 @@ export default function B2CLayout({ children, minimalHeader = false, headerRight
 
   return (
     <div className="mo-root">
-      <B2CHeader minimal={minimalHeader} right={headerRight} />
+      <B2CHeader minimal={minimalHeader} right={headerRight} business={business} />
       <main>{children}</main>
       {footer && <B2CFooter />}
       <WhatsAppButton />
       {/* Quem já está na reserva não leva pop-up: ele atrapalharia a compra. */}
-      {!pathname.startsWith('/book') && <ExitOffer />}
+      {/* A oferta de saída é cupom de cliente final: não aparece para empresa. */}
+      {!business && !pathname.startsWith('/book') && <ExitOffer />}
     </div>
   )
 }
