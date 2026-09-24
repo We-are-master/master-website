@@ -14,6 +14,8 @@ import '../b2c.css'
  */
 const NAV = [
   { to: '/business', label: 'For Business' },
+  // Página estática fora do app (public/network): precisa de carregamento cheio.
+  { to: '/network', label: 'For Trades', page: true },
   {
     label: 'Services',
     items: [
@@ -166,7 +168,7 @@ export function B2CHeader({ minimal = false, right = null }) {
               {NAV.map((item) =>
                 item.items ? (
                   <NavGroup key={item.label} item={item} />
-                ) : item.hash ? (
+                ) : item.hash || item.page ? (
                   <a key={item.to} href={item.to}>
                     {item.label}
                   </a>
@@ -198,7 +200,7 @@ export function B2CHeader({ minimal = false, right = null }) {
       {!minimal && open && (
         <nav id="mo-mobile-nav" className="mo-mobile-nav" aria-label="Mobile">
           {NAV.flatMap((item) => item.items || [item]).map((item) =>
-            item.hash ? (
+            item.hash || item.page ? (
               <a key={item.to} href={item.to} onClick={() => setOpen(false)}>
                 {item.label}
               </a>
