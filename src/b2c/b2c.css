@@ -1554,6 +1554,37 @@ body[data-site='b2c'] .zls-sptwndw {
   }
 }
 
+/* Selo do Trustpilot: no celular e tablet acima do título, no desktop embaixo
+   do cartão de orçamento. Os dois sobre o navy, por isso a versão de texto claro. */
+.mo-tp {
+  display: block;
+  width: min(280px, 78vw);
+  margin: 0 auto 18px;
+  line-height: 0;
+}
+.mo-tp img {
+  width: 100%;
+  height: auto;
+}
+.mo-tp:focus-visible {
+  outline: 2px solid var(--mo-orange);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+.mo-tp--desktop {
+  display: none;
+}
+@media (min-width: 1100px) {
+  .mo-tp--mobile {
+    display: none;
+  }
+  .mo-tp--desktop {
+    display: block;
+    width: 300px;
+    margin: 22px auto 0;
+  }
+}
+
 /* Páginas de serviço no mesmo molde, sem as fotos: título mais longo, e os
    pontos e promessas depois do orçamento no celular. */
 .mo-hero--service {
