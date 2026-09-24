@@ -793,3 +793,189 @@
     height: 96px;
   }
 }
+
+/* ---------- Soluções (accordion) ----------
+   Um item aberto por vez. No computador a foto do aberto fica ao lado; no
+   celular ela aparece dentro do item. A abertura só anima altura, e nada
+   anima para quem pede menos movimento. */
+
+.bz-sol {
+  display: grid;
+  gap: 28px;
+  margin-top: 32px;
+  align-items: start;
+}
+
+@media (min-width: 960px) {
+  .bz-sol {
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 48px;
+    margin-top: 44px;
+  }
+}
+
+.bz-sol__list {
+  border-top: 1px solid var(--mo-line);
+}
+
+.bz-sol__item {
+  border-bottom: 1px solid var(--mo-line);
+}
+
+.bz-sol__head {
+  display: grid;
+  grid-template-columns: 44px 1fr 20px;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding: 18px 0;
+  background: none;
+  border: 0;
+  text-align: left;
+  cursor: pointer;
+}
+
+.bz-sol__icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--mo-paper);
+  color: var(--mo-ink-2);
+  transition: background 0.2s var(--mo-ease), color 0.2s var(--mo-ease);
+}
+
+.bz-sol__item.is-open .bz-sol__icon,
+.bz-sol__head:hover .bz-sol__icon {
+  background: var(--mo-orange-wash);
+  color: var(--mo-orange);
+}
+
+.bz-sol__title b {
+  display: block;
+  font-family: var(--mo-display);
+  font-stretch: 108%;
+  font-weight: 780;
+  font-size: clamp(19px, 1.9vw, 23px);
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  color: var(--mo-ink);
+}
+
+.bz-sol__title span {
+  display: block;
+  margin-top: 3px;
+  font-size: 15px;
+  color: var(--mo-mute);
+}
+
+.bz-sol__chev {
+  color: var(--mo-mute);
+  transition: transform 0.25s var(--mo-ease);
+}
+
+.bz-sol__item.is-open .bz-sol__chev {
+  transform: rotate(180deg);
+  color: var(--mo-ink);
+}
+
+.bz-sol__panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s var(--mo-ease);
+}
+
+.bz-sol__item.is-open .bz-sol__panel {
+  grid-template-rows: 1fr;
+}
+
+.bz-sol__inner {
+  overflow: hidden;
+  min-height: 0;
+  padding-left: 60px;
+}
+
+.bz-sol__item.is-open .bz-sol__inner {
+  padding-bottom: 22px;
+}
+
+.bz-sol__inner > p {
+  margin: 0;
+  color: var(--mo-ink-2);
+  font-size: 16px;
+  line-height: 1.55;
+  max-width: 56ch;
+}
+
+.bz-sol__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 18px;
+  font-weight: 600;
+  color: var(--mo-orange-text);
+}
+
+/* .mo-root img põe display:block em toda imagem: precisa da mesma força aqui. */
+.mo-root .bz-sol__img-m {
+  display: none;
+}
+
+.bz-sol__photo {
+  display: none;
+  margin: 0;
+}
+
+@media (min-width: 960px) {
+  .bz-sol__photo {
+    display: block;
+    position: sticky;
+    top: 96px;
+    border-radius: var(--mo-r-xl);
+    overflow: hidden;
+    aspect-ratio: 4 / 3;
+    background: var(--mo-paper-2);
+  }
+  .bz-sol__photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    animation: bzSolFade 0.35s var(--mo-ease);
+  }
+}
+
+@keyframes bzSolFade {
+  from {
+    opacity: 0.35;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 959px) {
+  .bz-sol__inner {
+    padding-left: 0;
+  }
+  .mo-root .bz-sol__img-m {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    height: auto;
+    object-fit: cover;
+    border-radius: var(--mo-r);
+    margin-bottom: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bz-sol__panel,
+  .bz-sol__chev,
+  .bz-sol__icon {
+    transition: none;
+  }
+  .bz-sol__photo img {
+    animation: none;
+  }
+}

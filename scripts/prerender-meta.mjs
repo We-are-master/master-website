@@ -97,6 +97,12 @@ const STATIC_PAGES = {
     keywords: 'gas safety certificate London, CP12 landlord, EICR London, landlord certificates, PAT testing London',
     ogType: 'website',
   },
+  '/network': {
+    title: 'Join Fixfy: jobs for tradespeople in London, paid every two weeks | Fixfy',
+    description: 'Pre-booked jobs and quote requests from letting agents, property managers and businesses across London. Your fee up front, photo reports in the app, self-billing every two weeks. Free to join.',
+    keywords: 'jobs for tradespeople London, handyman jobs, plumber jobs, electrician jobs, cleaning jobs, subcontract work London, trade partner',
+    ogType: 'website',
+  },
   '/business': {
     title: 'Property maintenance for letting agents and businesses in London | Fixfy',
     description: 'Tradespeople, certified engineers and professional cleaning across London. On demand or on an annual contract, with a written quote within 24 hours for bigger work.',

@@ -22,6 +22,7 @@ const B2CTerms = lazy(() => import('./b2c/pages/TermsPage.jsx'))
 const B2CGuarantee = lazy(() => import('./b2c/pages/GuaranteePage.jsx'))
 const B2CPrivacy = lazy(() => import('./b2c/pages/PrivacyPage.jsx'))
 const B2BBusiness = lazy(() => import('./b2c/pages/BusinessPage.jsx'))
+const B2BPartners = lazy(() => import('./b2c/pages/PartnersPage.jsx'))
 
 // Marketing — Fixfy Design System website v2 (static HTML modules + CSS)
 import {
@@ -64,7 +65,7 @@ function ScrollToTop() {
  *   bare      — no chrome (partner application screens, etc.)
  */
 const PORTAL_ROUTES = ['/dashboard', '/new-request', '/my-requests', '/settings']
-const B2C_ROUTES    = ['/', '/business', '/end-of-tenancy-cleaning', '/deep-cleaning', '/after-builders-cleaning', '/painting', '/repairs', '/landlord-certificates', '/book', '/book/confirmed', '/cookies', '/terms', '/privacy', '/guarantee']
+const B2C_ROUTES    = ['/', '/business', '/network', '/end-of-tenancy-cleaning', '/deep-cleaning', '/after-builders-cleaning', '/painting', '/repairs', '/landlord-certificates', '/book', '/book/confirmed', '/cookies', '/terms', '/privacy', '/guarantee']
 const BARE_ROUTES   = ['/partner-apply', '/partner-apply/success', '/login', '/forgot-password']
 
 function chromeFor(pathname) {
@@ -125,7 +126,7 @@ function AppContent() {
         <Route path="/dpa" element={<DpaStubV2 />} />
         <Route path="/fixfypro/start" element={<ExternalRedirect to="https://partners.getfixfy.com/get-started" />} />
         <Route path="/fixfypro/demo" element={<Navigate to="/contact" replace />} />
-        <Route path="/network" element={<ExternalRedirect to="/network/index.html" />} />
+        <Route path="/network" element={<B2BPartners />} />
         <Route path="/partners" element={<Navigate to="/network" replace />} />
         <Route path="/growth" element={<ExternalRedirect to="/growth/index.html" />} />
 

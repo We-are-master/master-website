@@ -1,5 +1,11 @@
 import {
   ArrowRight,
+  Briefcase,
+  ChevronDown,
+  Home,
+  KeyRound,
+  Plug,
+  Store,
   BadgeCheck,
   Building2,
   CalendarRange,
@@ -16,6 +22,7 @@ import {
   Wrench,
   Zap,
 } from 'lucide-react'
+import { useState } from 'react'
 import B2CLayout from '../components/Chrome.jsx'
 import { Eyebrow, Faq } from '../components/Sections.jsx'
 import GetInTouchModal from '../../components/fixfy-v2/GetInTouchModal.jsx'
@@ -31,7 +38,8 @@ import '../business.css'
  * Todo link para /contact abre o formulário (GetInTouchModal intercepta).
  */
 
-const IMG = (name) => `/business/img/${name}.webp`
+// Nome solto = foto do /business; com barra = caminho a partir de /public.
+const IMG = (name) => (name.includes('/') ? `/${name}.webp` : `/business/img/${name}.webp`)
 
 const FRONTS = [
   {
@@ -50,8 +58,8 @@ const FRONTS = [
   },
   {
     verb: 'Professional cleaning',
-    img: 'offer-cleaning',
-    alt: 'Fixfy cleaners looking after the lobby of a London residential building',
+    img: 'partners/img/p-cleaner',
+    alt: 'Fixfy cleaner deep cleaning an oven in a London flat',
     sub: 'Homes, blocks and offices',
     list: ['End of tenancy and deep cleans', 'Communal areas and receptions', 'After builders cleaning'],
   },
@@ -108,6 +116,125 @@ const FAQS = [
     a: 'Yes. Visit our partner page to apply and get access to jobs from letting agents, property managers and businesses.',
   },
 ]
+
+
+/* Soluções por tipo de cliente (o site antigo tinha em abas, com números sem
+   fonte; aqui só o que a operação faz de verdade). */
+const SOLUTIONS = [
+  {
+    id: 'agents',
+    icon: KeyRound,
+    name: 'Letting agents',
+    line: 'Check-outs, re-lets and landlord compliance.',
+    img: 'sol-agent',
+    alt: 'Fixfy engineer handing keys and the job report back at a letting agency',
+    text: 'One number for every property you manage. Send the address and the date, we handle the clean, the touch-ups, the repairs and the certificates, and you get a photo report to forward to the landlord.',
+    points: ['Check-out cleans, paint and repairs in one booking', 'Gas safety, EICR and PAT booked before they expire', 'Photo report on every job, ready for the landlord'],
+  },
+  {
+    id: 'landlords',
+    icon: Home,
+    name: 'Landlords and portfolio owners',
+    line: 'Voids turned around and every certificate on file.',
+    img: 'partners/img/p-painter',
+    alt: 'Fixfy painter getting an empty London flat ready to let',
+    text: 'From one flat to a full portfolio. We get empty properties ready to let, keep your compliance up to date and fix what tenants report, with the price agreed before we start.',
+    points: ['Void works: clean, paint and repairs between tenants', 'Compliance calendar per property', 'Tenant repairs handled end to end'],
+  },
+  {
+    id: 'blocks',
+    icon: Building2,
+    name: 'Property and block managers',
+    line: 'Communal areas, reactive repairs and planned work.',
+    img: 'offer-cleaning',
+    alt: 'Fixfy cleaners looking after the lobby of a London residential building',
+    text: 'Keep buildings clean, safe and in good order without chasing contractors. Regular communal cleaning, reactive repairs and planned maintenance, with a record kept for every building.',
+    points: ['Communal and reception cleaning on a schedule', 'Reactive repairs with photos of the finished work', 'Planned maintenance and a record per building'],
+  },
+  {
+    id: 'platforms',
+    icon: Plug,
+    name: 'Service platforms',
+    line: 'We deliver the jobs you sell across London.',
+    img: 'partners/img/p-van',
+    alt: 'Fixfy tradesman arriving at a job in a Fixfy van',
+    text: 'Sell cleaning, repairs or certificates to your customers and let us deliver them. Send jobs by email, through our portal or by API, and get the photo report back on every job.',
+    points: ['Checked, insured and certified people on every job', 'Jobs in by email, portal or API', 'Photo report and status back on every job'],
+  },
+  {
+    id: 'business',
+    icon: Store,
+    name: 'Businesses and offices',
+    line: 'Offices, shops and sites kept running.',
+    img: 'sol-office',
+    alt: 'Fixfy technician replacing a ceiling light in a London office',
+    text: 'Repairs, cleaning and certificates for offices, shops and multi-site businesses. One account and one monthly invoice, on demand or on an annual contract.',
+    points: ['Reactive repairs and planned maintenance', 'Office and commercial cleaning', 'One account and one monthly invoice'],
+  },
+]
+
+/** Accordion: um aberto por vez; a foto do aberto aparece ao lado no computador e dentro do item no celular. */
+function Solutions() {
+  const [open, setOpen] = useState(SOLUTIONS[0].id)
+  const current = SOLUTIONS.find((s) => s.id === open) || SOLUTIONS[0]
+  return (
+    <section className="mo-section" id="solutions">
+      <div className="mo-wrap">
+        <div className="mo-section__head mo-reveal">
+          <Eyebrow icon={Briefcase}>Who we work with</Eyebrow>
+          <h2 className="mo-h2">
+            Built around how you work<span className="mo-dot">.</span>
+          </h2>
+          <p className="mo-lede">Pick what describes you best. Same team and the same standard, set up for the way you run your properties.</p>
+        </div>
+        <div className="bz-sol mo-reveal">
+          <div className="bz-sol__list">
+            {SOLUTIONS.map((s) => {
+              const isOpen = s.id === open
+              return (
+                <div key={s.id} className={`bz-sol__item${isOpen ? ' is-open' : ''}`}>
+                  <button
+                    type="button"
+                    className="bz-sol__head"
+                    aria-expanded={isOpen}
+                    aria-controls={`sol-${s.id}`}
+                    onClick={() => setOpen(isOpen ? '' : s.id)}
+                  >
+                    <span className="bz-sol__icon">
+                      <s.icon size={20} />
+                    </span>
+                    <span className="bz-sol__title">
+                      <b>{s.name}</b>
+                      <span>{s.line}</span>
+                    </span>
+                    <ChevronDown className="bz-sol__chev" size={20} aria-hidden="true" />
+                  </button>
+                  <div className="bz-sol__panel" id={`sol-${s.id}`} role="region" aria-label={s.name}>
+                    <div className="bz-sol__inner">
+                      <img className="bz-sol__img-m" src={IMG(s.img)} alt={s.alt} width="1600" height="1067" loading="lazy" />
+                      <p>{s.text}</p>
+                      <ul className="bz-list">
+                        {s.points.map((p) => (
+                          <li key={p}>{p}</li>
+                        ))}
+                      </ul>
+                      <a href="/contact" className="mo-link bz-sol__cta">
+                        Talk to us about this <ArrowRight size={16} />
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+          <figure className="bz-sol__photo" aria-hidden="true">
+            <img key={current.id} src={IMG(current.img)} alt="" width="1600" height="1067" loading="lazy" />
+          </figure>
+        </div>
+      </div>
+    </section>
+  )
+}
 
 function Photo({ name, alt, className = '', eager = false }) {
   return (
@@ -177,6 +304,8 @@ export default function BusinessPage() {
           </ul>
         </div>
       </section>
+
+      <Solutions />
 
       <section className="mo-section mo-section--paper" id="services">
         <div className="mo-wrap">
