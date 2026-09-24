@@ -134,7 +134,7 @@ export default function PartnersPage() {
           </div>
 
           <div className="bz-hero__photos">
-            <Photo className="bz-hero__main" src="partners/img/p-van" alt="Fixfy tradesman arriving at a job in a Fixfy van" eager />
+            <Photo className="bz-hero__main" src="partners/img/p-phone" alt="Fixfy partner getting a new job on his phone in his van" eager w={900} h={900} />
             <Photo className="bz-hero__side" src="business/img/ondemand" alt="Fixfy engineer arriving at a London mansion block" eager />
             <Photo className="bz-hero__side" src="business/img/hero-cleaner" alt="Fixfy cleaner in a London office" eager />
           </div>
@@ -213,7 +213,7 @@ export default function PartnersPage() {
             </ol>
           </div>
           <figure className="bz-how__photo mo-reveal">
-            <img src={IMG('partners/img/p-phone')} alt="Fixfy partner getting a new job on his phone in his van" width="1024" height="1024" loading="lazy" />
+            <img src={IMG('business/img/report')} alt="Fixfy partner photographing a finished repair for the report" width="900" height="900" loading="lazy" />
           </figure>
         </div>
       </section>
