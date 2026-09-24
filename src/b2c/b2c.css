@@ -1577,11 +1577,6 @@ body[data-site='b2c'] .zls-sptwndw {
   height: 20px;
   flex: none;
 }
-.mo-proof__score {
-  font-weight: 700;
-  font-size: 17px;
-  font-variant-numeric: tabular-nums;
-}
 .mo-proof__stars {
   width: 100px;
   height: 20px;
