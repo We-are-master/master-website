@@ -99,7 +99,7 @@ const STATIC_PAGES = {
   },
   '/network': {
     title: 'Join Fixfy: jobs for tradespeople in London, paid every two weeks | Fixfy',
-    description: 'Pre-booked jobs and quote requests from letting agents, property managers and businesses across London. Your fee up front, photo reports in the app, self-billing every two weeks. 7 days free.',
+    description: 'Pre-booked jobs and quote requests from letting agents, property managers and businesses across London. Your fee up front, photo reports in the app, self-billing every two weeks. Free to join.',
     keywords: 'jobs for tradespeople London, handyman jobs, plumber jobs, electrician jobs, cleaning jobs, subcontract work London, trade partner',
     ogType: 'website',
   },

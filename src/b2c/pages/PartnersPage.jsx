@@ -26,7 +26,7 @@ import '../partners.css'
  * "16 Partner Applications Remaining"), parceiros inventados com números e
  * uma média de £4k a £8k por mês que o payday não sustenta. Aqui só entra
  * o que é verdade: self-bill quinzenal, call-out de £25, documentos do /join,
- * preço do plano. Todo "Join" vai para o cadastro no portal do parceiro.
+ * entrada grátis (sem plano, decisão do dono em 24/09/2026). Todo "Join" vai para o cadastro no portal do parceiro.
  */
 
 const IMG = (path) => `/${path}.webp`
@@ -74,24 +74,6 @@ const REQUIREMENTS = [
   { title: 'Reliable and presentable', text: 'On time, clear with clients, tidy on site.' },
 ]
 
-const PLANS = [
-  {
-    name: 'Monthly',
-    price: '£99',
-    per: '/ month',
-    note: 'Cancel anytime.',
-    list: ['Every job and quote request in your trades and area', 'Pre-booked and recurring work', 'Fixfy app and partner portal', 'Photo reports and self-billing'],
-  },
-  {
-    name: 'Annual',
-    price: '£499',
-    per: '/ year',
-    note: 'About £42 a month, billed yearly.',
-    best: true,
-    list: ['Everything in Monthly', 'Work from London businesses and agents', 'Payments through the portal', 'Refund if it does not pay for itself'],
-  },
-]
-
 const FAQS = [
   {
     q: 'How and when do I get paid?',
@@ -99,7 +81,7 @@ const FAQS = [
   },
   {
     q: 'What does it cost to join?',
-    a: 'The first 7 days are free. After that it is £99 a month, or £499 a year.',
+    a: 'Nothing. Joining Fixfy is free, with no subscription and no fee to see or accept jobs.',
   },
   {
     q: 'What do I need to apply?',
@@ -127,7 +109,7 @@ export default function PartnersPage() {
   usePageMeta({
     title: 'Join Fixfy: jobs for tradespeople in London, paid every two weeks | Fixfy',
     description:
-      'Pre-booked jobs and quote requests from letting agents, property managers and businesses across London. Your fee up front, photo reports in the app, self-billing every two weeks. 7 days free.',
+      'Pre-booked jobs and quote requests from letting agents, property managers and businesses across London. Your fee up front, photo reports in the app, self-billing every two weeks. Free to join.',
     path: '/network',
   })
 
@@ -159,8 +141,8 @@ export default function PartnersPage() {
 
           <ul className="bz-hero__facts">
             <li>
-              <Sparkles size={16} /> <span className="bz-long">7 days free to start</span>
-              <span className="bz-short">7 days free</span>
+              <Sparkles size={16} /> <span className="bz-long">Free to join</span>
+              <span className="bz-short">Free to join</span>
             </li>
             <li>
               <Banknote size={16} /> <span className="bz-long">Paid every two weeks</span>
@@ -297,38 +279,6 @@ export default function PartnersPage() {
         </div>
       </section>
 
-      <section className="mo-section" id="pricing">
-        <div className="mo-wrap">
-          <div className="mo-section__head mo-section__head--center mo-reveal">
-            <Eyebrow icon={Sparkles}>Membership</Eyebrow>
-            <h2 className="mo-h2">
-              7 days free. Then pick your plan<span className="mo-dot">.</span>
-            </h2>
-          </div>
-          <div className="pt-plans">
-            {PLANS.map((p) => (
-              <article key={p.name} className={`pt-plan mo-reveal${p.best ? ' pt-plan--best' : ''}`}>
-                {p.best && <span className="pt-plan__badge">Best value</span>}
-                <h3>{p.name}</h3>
-                <div className="pt-plan__price">
-                  <b>{p.price}</b>
-                  <span>{p.per}</span>
-                </div>
-                <p className="pt-plan__note">{p.note}</p>
-                <ul className="bz-list">
-                  {p.list.map((i) => (
-                    <li key={i}>{i}</li>
-                  ))}
-                </ul>
-                <a href={PARTNER_JOIN} className={`mo-btn ${p.best ? 'mo-btn--primary' : 'mo-btn--dark'} mo-btn--block`}>
-                  Start 7 days free <ArrowRight size={17} />
-                </a>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
       <Faq items={FAQS} title="Questions from tradespeople" />
 
       <section className="mo-section mo-section--navy pt-final">
@@ -336,10 +286,10 @@ export default function PartnersPage() {
           <div className="mo-reveal">
             <Eyebrow icon={Wrench}>Join the network</Eyebrow>
             <h2 className="mo-h2">Built to be the best company in the UK to work with.</h2>
-            <p className="mo-lede">Apply today. Once your documents are checked, jobs start landing in your app.</p>
+            <p className="mo-lede">Free to join. Once your documents are checked, jobs start landing in your app.</p>
             <div className="mo-final__actions pt-final__actions">
               <a href={PARTNER_JOIN} className="mo-btn mo-btn--primary mo-btn--lg">
-                Join now, 7 days free <ArrowRight size={18} />
+                Join now, it&rsquo;s free <ArrowRight size={18} />
               </a>
             </div>
           </div>
