@@ -38,6 +38,10 @@ export default function ExitOffer() {
 
   const show = useCallback(() => {
     if (alreadySeen()) return
+    // Quem chegou com código de campanha já tem desconto: o pop-up trocaria
+    // o código dele pelo nosso sem ele perceber.
+    const current = loadBooking()
+    if (current.promoCode || current.promo) return
     try {
       if (!window.localStorage.getItem('cookieConsent')) return
     } catch {
