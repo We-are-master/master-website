@@ -80,8 +80,20 @@ export function captureAttribution() {
   persist()
 }
 
+// Etiquetas de campanha do próprio link (utm_*, ref). Sem o sim de Analytics
+// elas vão com a reserva direto da memória da página: nada é gravado no aparelho,
+// então a lei de cookies não se aplica, e o job no OS sabe de qual anúncio veio.
+const CAMPAIGN_TAGS = PARAMS
+
+function campaignOnly(found) {
+  const out = {}
+  for (const p of CAMPAIGN_TAGS) if (found?.[p]) out[p] = found[p]
+  return out
+}
+
 export function getAttribution() {
-  if (typeof window === 'undefined' || !hasConsent('analytics')) return {}
+  if (typeof window === 'undefined') return {}
+  if (!hasConsent('analytics')) return campaignOnly(landing)
   return withoutClicks(read() || landing || {})
 }
 
@@ -105,6 +117,9 @@ function sendMeta(metaName, params) {
 }
 
 if (typeof window !== 'undefined') {
+  // Retrato na carga do módulo: o /book limpa a URL num efeito que roda antes
+  // do efeito da moldura, e a UTM de quem cai direto na reserva se perdia.
+  landing = snapshot()
   window.addEventListener(CONSENT_EVENT, (e) => {
     const prefs = e.detail || {}
     if (prefs.analytics) persist()

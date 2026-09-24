@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Cookie, X, Shield, Settings, Check } from 'lucide-react';
+import { X, Shield } from 'lucide-react';
 import { ALL_CONSENT, NO_CONSENT, SETTINGS_EVENT, readConsent, saveConsent } from '../lib/consent';
 
 // Nada rastreia antes da resposta: quem liga cada ferramenta é saveConsent
@@ -68,10 +68,54 @@ const CookieConsent = () => {
 
   if (!showBanner) return null;
 
+  // Barra compacta no rodapé: não cobre a página nem trava o clique, e Reject
+  // tem o mesmo tamanho e peso de Accept (o ICO cobra recusa tão fácil quanto aceite).
+  if (!showSettings) {
+    return (
+      <div className="fx-cc" role="dialog" aria-live="polite" aria-label="Cookie choice">
+        <style>{`
+          .fx-cc{position:fixed;left:0;right:0;bottom:0;z-index:9999;background:#fff;
+            border-top:1px solid #e3e3ee;box-shadow:0 -6px 24px rgba(2,0,64,.10);
+            padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));
+            animation:fxCcUp .35s ease-out}
+          .fx-cc__in{max-width:1120px;margin:0 auto;display:flex;align-items:center;gap:12px 20px}
+          .fx-cc__text{flex:1;margin:0;font-size:13.5px;line-height:1.45;color:#3d3d5c}
+          .fx-cc__text a,.fx-cc__link{color:#020040;text-decoration:underline;text-underline-offset:2px}
+          .fx-cc__link{background:none;border:0;padding:0;font:inherit;cursor:pointer;white-space:nowrap}
+          .fx-cc__btns{display:flex;gap:8px;flex-shrink:0}
+          .fx-cc__btn{min-width:112px;padding:10px 16px;border-radius:10px;font-size:14px;font-weight:600;
+            cursor:pointer;border:1.5px solid #020040;line-height:1.2}
+          .fx-cc__btn--reject{background:#fff;color:#020040}
+          .fx-cc__btn--accept{background:#020040;color:#fff}
+          .fx-cc__btn:focus-visible,.fx-cc__link:focus-visible{outline:2px solid #ED4B00;outline-offset:2px}
+          @media (max-width:640px){
+            .fx-cc__in{flex-direction:column;align-items:stretch}
+            .fx-cc__text{font-size:13px}
+            .fx-cc__btns .fx-cc__btn{flex:1;min-width:0}
+          }
+          @keyframes fxCcUp{from{transform:translateY(100%)}to{transform:none}}
+          @media (prefers-reduced-motion:reduce){.fx-cc{animation:none}}
+        `}</style>
+        <div className="fx-cc__in">
+          <p className="fx-cc__text">
+            We use cookies to measure our ads and improve the site.{' '}
+            <a href="/cookies">Cookie policy</a>
+            {' · '}
+            <button type="button" className="fx-cc__link" onClick={() => setShowSettings(true)}>Settings</button>
+          </p>
+          <div className="fx-cc__btns">
+            <button type="button" className="fx-cc__btn fx-cc__btn--reject" onClick={handleRejectAll}>Reject</button>
+            <button type="button" className="fx-cc__btn fx-cc__btn--accept" onClick={handleAcceptAll}>Accept</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
-      {/* Overlay */}
-      <div 
+      {/* Overlay só nas preferências detalhadas */}
+      <div
         style={{
           position: 'fixed',
           top: 0,
@@ -79,202 +123,28 @@ const CookieConsent = () => {
           right: 0,
           bottom: 0,
           backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          zIndex: 9998,
-          opacity: showBanner ? 1 : 0,
-          transition: 'opacity 0.3s ease'
+          zIndex: 9998
         }}
-        onClick={() => {}} // Prevent clicking through
+        onClick={handleCloseSettings}
       />
 
-      {/* Cookie Banner */}
+      {/* Preferências */}
       <div
         style={{
           position: 'fixed',
-          bottom: showSettings ? '50%' : '0',
+          bottom: '50%',
           left: '50%',
-          transform: showSettings ? 'translate(-50%, 50%)' : 'translateX(-50%)',
-          width: showSettings ? '90%' : '95%',
-          maxWidth: showSettings ? '600px' : '1200px',
+          transform: 'translate(-50%, 50%)',
+          width: '90%',
+          maxWidth: '600px',
           backgroundColor: 'white',
-          borderRadius: showSettings ? '20px' : '20px 20px 0 0',
+          borderRadius: '20px',
           boxShadow: '0 -10px 40px rgba(0, 0, 0, 0.15)',
           zIndex: 9999,
-          overflow: 'hidden',
-          animation: 'slideUp 0.5s ease-out'
+          overflow: 'hidden'
         }}
       >
-        <style>{`
-          @keyframes slideUp {
-            from {
-              transform: ${showSettings ? 'translate(-50%, 60%)' : 'translateX(-50%) translateY(100%)'};
-              opacity: 0;
-            }
-            to {
-              transform: ${showSettings ? 'translate(-50%, 50%)' : 'translateX(-50%) translateY(0)'};
-              opacity: 1;
-            }
-          }
-        `}</style>
-
-        {!showSettings ? (
-          /* Main Banner */
-          <div style={{ padding: '1.5rem 2rem' }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'flex-start',
-              gap: '1.5rem',
-              flexWrap: 'wrap'
-            }}>
-              {/* Icon & Text */}
-              <div style={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: '1rem',
-                flex: 1,
-                minWidth: '300px'
-              }}>
-                <div style={{
-                  width: '48px',
-                  height: '48px',
-                  borderRadius: '12px',
-                  backgroundColor: '#f0f9ff',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0
-                }}>
-                  <Cookie size={24} style={{ color: '#ED4B00' }} />
-                </div>
-                <div>
-                  <h3 style={{
-                    fontSize: '1.125rem',
-                    fontWeight: '700',
-                    color: '#111827',
-                    marginBottom: '0.5rem'
-                  }}>
-                    We value your privacy 🍪
-                  </h3>
-                  <p style={{
-                    fontSize: '0.9rem',
-                    color: '#6b7280',
-                    lineHeight: '1.6',
-                    margin: 0
-                  }}>
-                    We use cookies to enhance your browsing experience, serve personalised ads or content, 
-                    and analyse our traffic. By clicking "Accept All", you consent to our use of cookies. 
-                    Read our{' '}
-                    <a 
-                      href="/privacy" 
-                      style={{ color: '#ED4B00', textDecoration: 'underline' }}
-                    >
-                      Privacy Policy
-                    </a>
-                    {' '}and{' '}
-                    <a 
-                      href="/cookies" 
-                      style={{ color: '#ED4B00', textDecoration: 'underline' }}
-                    >
-                      Cookie Policy
-                    </a>.
-                  </p>
-                </div>
-              </div>
-
-              {/* Buttons */}
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.75rem',
-                flexWrap: 'wrap'
-              }}>
-                <button
-                  onClick={() => setShowSettings(true)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    padding: '0.75rem 1.25rem',
-                    backgroundColor: 'transparent',
-                    color: '#374151',
-                    border: '2px solid #e5e7eb',
-                    borderRadius: '10px',
-                    fontSize: '0.9rem',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                    whiteSpace: 'nowrap'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.borderColor = '#9ca3af';
-                    e.target.style.backgroundColor = '#f9fafb';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.borderColor = '#e5e7eb';
-                    e.target.style.backgroundColor = 'transparent';
-                  }}
-                >
-                  <Settings size={16} />
-                  Customise
-                </button>
-                <button
-                  onClick={handleRejectAll}
-                  style={{
-                    padding: '0.75rem 1.25rem',
-                    backgroundColor: 'transparent',
-                    color: '#374151',
-                    border: '2px solid #e5e7eb',
-                    borderRadius: '10px',
-                    fontSize: '0.9rem',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                    whiteSpace: 'nowrap'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.borderColor = '#9ca3af';
-                    e.target.style.backgroundColor = '#f9fafb';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.borderColor = '#e5e7eb';
-                    e.target.style.backgroundColor = 'transparent';
-                  }}
-                >
-                  Reject All
-                </button>
-                <button
-                  onClick={handleAcceptAll}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    padding: '0.75rem 1.5rem',
-                    backgroundColor: '#ED4B00',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '10px',
-                    fontSize: '0.9rem',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                    whiteSpace: 'nowrap'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.backgroundColor = '#d13d00';
-                    e.target.style.transform = 'translateY(-2px)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.backgroundColor = '#ED4B00';
-                    e.target.style.transform = 'translateY(0)';
-                  }}
-                >
-                  <Check size={16} />
-                  Accept All
-                </button>
-              </div>
-            </div>
-          </div>
-        ) : (
-          /* Settings Panel */
+        {/* Settings Panel */}
           <div>
             {/* Header */}
             <div style={{
@@ -473,7 +343,6 @@ const CookieConsent = () => {
               </button>
             </div>
           </div>
-        )}
       </div>
     </>
   );

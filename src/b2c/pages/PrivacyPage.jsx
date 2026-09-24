@@ -79,7 +79,9 @@ export default function PrivacyPage() {
           <li>
             <b>Our website:</b> with your consent, cookies and similar tools, listed in our <Link to="/cookies">cookie policy</Link>.
             Vercel Web Analytics counts page views without cookies, and our website host processes your IP address to keep the site
-            secure. With your consent to analytics, we also keep the page or campaign that brought you with your booking.
+            secure. If you arrived from one of our ads, the campaign name in that link (its UTM tags) goes with your booking, so we
+            know which ads bring bookings; nothing is stored on your device for this. With your consent to analytics, we also keep
+            the page that brought you and the site that referred you.
           </li>
           <li>
             <b>If you contact us or apply to work with us:</b> the details you send, such as your name, company, contact details,
