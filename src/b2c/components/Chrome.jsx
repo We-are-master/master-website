@@ -14,8 +14,7 @@ import '../b2c.css'
  */
 const NAV = [
   { to: '/business', label: 'For Business' },
-  // Página estática fora do app (public/network): precisa de carregamento cheio.
-  { to: '/network', label: 'For Trades', page: true },
+  { to: '/network', label: 'For Trades' },
   {
     label: 'Services',
     items: [
@@ -74,6 +73,10 @@ function useReveal(pathname) {
 
 const HEADER_H = 68
 
+/** Cadastro e login do parceiro moram no portal (partners.getfixfy.com). */
+export const PARTNER_JOIN = 'https://partners.getfixfy.com/get-started'
+export const PARTNER_LOGIN = 'https://partners.getfixfy.com/login'
+
 /** Menu de um grupo do cabeçalho: abre no hover (mouse) ou no clique, fecha fora, no Esc e ao trocar de página. */
 function NavGroup({ item }) {
   const [open, setOpen] = useState(false)
@@ -124,7 +127,7 @@ function NavGroup({ item }) {
   )
 }
 
-export function B2CHeader({ minimal = false, right = null, business = false }) {
+export function B2CHeader({ minimal = false, right = null, business = false, trades = false }) {
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   // Enquanto o hero navy está atrás do header, o header também é navy: a
@@ -154,9 +157,9 @@ export function B2CHeader({ minimal = false, right = null, business = false }) {
         <Link to="/" className="mo-brand" aria-label="Fixfy home">
           <img src={overNavy ? '/b2c/fixfy-white.png' : '/b2c/fixfy-navy.png'} alt="Fixfy" width="85" height="30" />
           <span className="mo-brand__tag">
-            {business ? 'Property maintenance' : 'Home jobs at'}
+            {trades ? 'Work with Fixfy' : business ? 'Property maintenance' : 'Home jobs at'}
             <br />
-            {business ? 'for business' : 'a fixed price'}
+            {trades ? 'for tradespeople' : business ? 'for business' : 'a fixed price'}
           </span>
         </Link>
 
@@ -181,7 +184,16 @@ export function B2CHeader({ minimal = false, right = null, business = false }) {
             </nav>
             <div className="mo-header__cta">
               {/* No /business o CTA abre o formulário de contato (o modal intercepta /contact). */}
-              {business ? (
+              {trades ? (
+                <>
+                  <a href={PARTNER_LOGIN} className="mo-header__login">
+                    Login
+                  </a>
+                  <a href={PARTNER_JOIN} className="mo-btn mo-btn--primary mo-btn--sm">
+                    Join now
+                  </a>
+                </>
+              ) : business ? (
                 <a href="/contact" className="mo-btn mo-btn--primary mo-btn--sm">
                   Talk to us
                 </a>
@@ -217,6 +229,7 @@ export function B2CHeader({ minimal = false, right = null, business = false }) {
               </Link>
             ),
           )}
+          {trades && <a href={PARTNER_LOGIN}>Partner login</a>}
         </nav>
       )}
     </header>
@@ -311,7 +324,7 @@ function WhatsAppButton() {
 }
 
 /** Moldura das páginas B2C: fundo branco, cabeçalho próprio, origem capturada. */
-export default function B2CLayout({ children, minimalHeader = false, headerRight = null, footer = true, business = false }) {
+export default function B2CLayout({ children, minimalHeader = false, headerRight = null, footer = true, business = false, trades = false }) {
   const { pathname } = useLocation()
 
   useEffect(() => {
@@ -326,13 +339,13 @@ export default function B2CLayout({ children, minimalHeader = false, headerRight
 
   return (
     <div className="mo-root">
-      <B2CHeader minimal={minimalHeader} right={headerRight} business={business} />
+      <B2CHeader minimal={minimalHeader} right={headerRight} business={business} trades={trades} />
       <main>{children}</main>
       {footer && <B2CFooter />}
       <WhatsAppButton />
       {/* Quem já está na reserva não leva pop-up: ele atrapalharia a compra. */}
       {/* A oferta de saída é cupom de cliente final: não aparece para empresa. */}
-      {!business && !pathname.startsWith('/book') && <ExitOffer />}
+      {!business && !trades && !pathname.startsWith('/book') && <ExitOffer />}
     </div>
   )
 }

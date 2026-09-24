@@ -1,13 +1,11 @@
 /**
- * Serve static microsites at /network and /growth in dev/preview,
+ * Serve the static /growth microsite in dev/preview (/network is a React page now),
  * and inject runtime config for Growth funnel (Stripe + Supabase).
  */
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 const STATIC_ROUTES = [
-  { path: '/network', index: '/network/index.html' },
-  { path: '/partners', index: '/network/index.html' },
   { path: '/growth', index: '/growth/index.html' },
 ]
 

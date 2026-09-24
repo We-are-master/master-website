@@ -33,10 +33,6 @@
   ],
   "rewrites": [
     {
-      "source": "/network",
-      "destination": "/network/index.html"
-    },
-    {
       "source": "/growth",
       "destination": "/growth/index.html"
     },
