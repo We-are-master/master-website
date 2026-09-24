@@ -105,15 +105,35 @@ const META_EVENTS = {
   booking_confirmed: 'Purchase',
 }
 
+// Passos do meio da reserva, como eventos próprios da Meta: cada um vira uma
+// conversão personalizada e uma coluna no Ads Manager, e dá para ver em qual
+// passo a pessoa desiste. O passo 1 (Your job) é o InitiateCheckout.
+const STEP_EVENTS = {
+  2: 'BookingDetails',
+  3: 'BookingDateAccess',
+  4: 'BookingCheckout',
+}
+
+// Voltar e avançar de novo não conta duas vezes na mesma visita.
+const stepsSent = new Set()
+
+function metaEventFor(event, params) {
+  if (event !== 'booking_step') return META_EVENTS[event] ? { name: META_EVENTS[event], custom: false } : null
+  const name = STEP_EVENTS[params.step]
+  if (!name || stepsSent.has(name)) return null
+  stepsSent.add(name)
+  return { name, custom: true }
+}
+
 // Evento que nasce antes da resposta do banner espera aqui: sai se o sim vier.
 const pending = []
 
-function sendMeta(metaName, params) {
+function sendMeta({ name, custom }, params) {
   const payload = params.value != null ? { value: params.value, currency: 'GBP' } : {}
   // Mesmo eventID para a mesma reserva: se a página de confirmação recarregar,
   // a Meta conta a compra uma vez só (e o servidor manda o mesmo id).
-  const options = params.ref ? { eventID: `${metaName}-${params.ref}` } : undefined
-  window.fbq('track', metaName, payload, options)
+  const options = params.ref ? { eventID: `${name}-${params.ref}` } : undefined
+  window.fbq(custom ? 'trackCustom' : 'track', name, payload, options)
 }
 
 if (typeof window !== 'undefined') {
@@ -133,10 +153,12 @@ export function track(event, params = {}) {
   try {
     window.dataLayer = window.dataLayer || []
     window.dataLayer.push({ event: `b2c_${event}`, ...params })
-    const metaName = META_EVENTS[event]
-    if (!metaName) return
-    if (typeof window.fbq === 'function') sendMeta(metaName, params)
-    else if (!readConsent() && pending.length < 20) pending.push([metaName, params])
+    // O GA4 só existe com o sim de Analytics; sem o GTM, o dataLayer sozinho não chega nele.
+    if (typeof window.gtag === 'function') window.gtag('event', `b2c_${event}`, params)
+    const meta = metaEventFor(event, params)
+    if (!meta) return
+    if (typeof window.fbq === 'function') sendMeta(meta, params)
+    else if (!readConsent() && pending.length < 20) pending.push([meta, params])
   } catch {
     /* analytics nunca derruba a página */
   }

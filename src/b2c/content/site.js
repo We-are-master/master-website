@@ -42,6 +42,25 @@ export const PROMISES = {
 export const EXIT_OFFER = { code: 'FIXFY10', percentOff: 10 }
 
 /**
+ * Selo do Trustpilot no topo da home. Só aparece com `url` preenchida: o
+ * endereço do NOSSO perfil, conferido, e `label` igual à nota que ele mostra
+ * hoje (Excellent é TrustScore 4,3 ou mais). Selo de nota que não temos é
+ * avaliação falsa (DMCC Act) e uso indevido da marca deles.
+ */
+export const TRUSTPILOT = { url: null, label: 'Excellent' }
+
+/**
+ * Nota do perfil da Fixfy no Google, conferida à mão (o selo não lê a nota
+ * sozinho): mudou lá, muda aqui, com a data. `url: null` esconde o selo.
+ */
+export const GOOGLE_REVIEWS = {
+  url: 'https://share.google/xs9HzIccBF88TgZoj',
+  rating: 4.4,
+  count: 13,
+  checkedAt: '2026-09-24',
+}
+
+/**
  * Regras dos termos da reserva (/terms), 21/09/2026. Escritas por mim a pedido
  * do dono, esperando a leitura dele: taxa de cancelamento tardio, tolerância
  * de acesso e margem de peça são propostas. Mudou aqui, muda na página e no FAQ.

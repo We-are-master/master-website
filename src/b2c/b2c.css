@@ -1554,6 +1554,62 @@ body[data-site='b2c'] .zls-sptwndw {
   }
 }
 
+/* Selos de avaliação (Google e, quando tiver, Trustpilot): no celular e tablet
+   acima do título, no desktop embaixo do cartão de orçamento. Os dois sobre o navy. */
+.mo-proof {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 10px 22px;
+  margin: 0 auto 18px;
+}
+.mo-proof__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #fff;
+  text-decoration: none;
+  line-height: 1;
+}
+.mo-proof__g {
+  width: 20px;
+  height: 20px;
+  flex: none;
+}
+.mo-proof__stars {
+  width: 100px;
+  height: 20px;
+  flex: none;
+}
+.mo-proof__star {
+  fill: #fbbc04;
+}
+.mo-proof__star-empty {
+  fill: rgba(255, 255, 255, 0.22);
+}
+.mo-proof__item--tp img {
+  width: min(250px, 70vw);
+  height: auto;
+}
+.mo-proof__item:focus-visible {
+  outline: 2px solid var(--mo-orange);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+.mo-proof--desktop {
+  display: none;
+}
+@media (min-width: 1100px) {
+  .mo-proof--mobile {
+    display: none;
+  }
+  .mo-proof--desktop {
+    display: flex;
+    margin: 22px 0 0;
+  }
+}
+
 /* Páginas de serviço no mesmo molde, sem as fotos: título mais longo, e os
    pontos e promessas depois do orçamento no celular. */
 .mo-hero--service {
