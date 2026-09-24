@@ -4,7 +4,6 @@ import {
   Banknote,
   BellRing,
   Building2,
-  Camera,
   ClipboardCheck,
   FileText,
   Headphones,
@@ -16,6 +15,7 @@ import {
 import B2CLayout, { PARTNER_JOIN } from '../components/Chrome.jsx'
 import { Eyebrow, Faq } from '../components/Sections.jsx'
 import { usePageMeta } from '../lib/meta.js'
+import PortalShowcase from '../components/PortalShowcase.jsx'
 import '../business.css'
 import '../partners.css'
 
@@ -61,8 +61,8 @@ const REASONS = [
   { icon: Banknote, title: 'Paid every two weeks', text: 'We raise the self-bill for you. No invoices to write, no clients to chase for payment.' },
   { icon: FileText, title: 'Your fee up front', text: 'The fee is on the job before you accept it. Materials are agreed and paid back.' },
   { icon: Headphones, title: 'A real ops team', text: 'We handle the client, the access and the rescheduling, so you can focus on the work.' },
-  { icon: Smartphone, title: 'App and portal', text: 'Jobs, photo reports and self-bills on your phone, and on the desktop portal.' },
-  { icon: Users, title: 'Bring your team', text: 'Run a company with your own handymen or cleaners? Manage the whole team from the portal.' },
+  { icon: Smartphone, title: 'App and portal', text: 'Take jobs on your phone with the Fixfy app, or on the desktop portal.' },
+  { icon: Users, title: 'Companies welcome', text: 'Run a company with your own handymen or cleaners? Join as a company and take jobs for your team.' },
 ]
 
 const REQUIREMENTS = [
@@ -93,7 +93,7 @@ const FAQS = [
   },
   {
     q: 'Can my company join with a team?',
-    a: 'Yes. Run jobs, photo reports and self-bills for your whole team from the partner portal on your desktop.',
+    a: 'Yes. Limited companies join the same way as sole traders, and the self-bill goes to the company for every job your team does.',
   },
   {
     q: 'Which areas do you cover?',
@@ -241,23 +241,7 @@ export default function PartnersPage() {
         </div>
       </section>
 
-      <section className="mo-section" id="report">
-        <div className="mo-wrap pt-split">
-          <figure className="pt-split__photo mo-reveal">
-            <Photo src="business/img/team" alt="Fixfy partners walking to a job in London" />
-          </figure>
-          <div className="mo-reveal">
-            <Eyebrow icon={Camera}>Proof, not paperwork</Eyebrow>
-            <h2 className="mo-h2">
-              Photos in the app. Invoice done for you<span className="mo-dot">.</span>
-            </h2>
-            <p className="mo-lede">
-              When you finish, you take the photos in the Fixfy app and you are done. The client gets the report, we send the invoice, and
-              the job lands on your next self-bill.
-            </p>
-          </div>
-        </div>
-      </section>
+      <PortalShowcase />
 
       <section className="mo-section mo-section--paper" id="requirements">
         <div className="mo-wrap">
