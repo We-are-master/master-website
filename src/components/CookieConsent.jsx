@@ -8,6 +8,26 @@ const CookieConsent = () => {
   const [showBanner, setShowBanner] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [preferences, setPreferences] = useState(() => readConsent() || NO_CONSENT);
+  // Na reserva, a barra do celular (Total + Continue) fica presa no rodapé. O
+  // banner sobe e senta em cima dela: antes ele cobria o Continue e o passo 1
+  // parecia não ter botão para seguir.
+  const [acima, setAcima] = useState(0);
+
+  useEffect(() => {
+    if (!showBanner) return undefined;
+    const medir = () => {
+      const barra = document.querySelector('.bk-bar');
+      const r = barra && getComputedStyle(barra).display !== 'none' ? barra.getBoundingClientRect().height : 0;
+      setAcima((a) => (Math.abs(a - r) > 1 ? r : a));
+    };
+    medir();
+    const id = setInterval(medir, 500);
+    window.addEventListener('resize', medir);
+    return () => {
+      clearInterval(id);
+      window.removeEventListener('resize', medir);
+    };
+  }, [showBanner]);
 
   useEffect(() => {
     if (readConsent()) return undefined;
@@ -72,7 +92,7 @@ const CookieConsent = () => {
   // tem o mesmo tamanho e peso de Accept (o ICO cobra recusa tão fácil quanto aceite).
   if (!showSettings) {
     return (
-      <div className="fx-cc" role="dialog" aria-live="polite" aria-label="Cookie choice">
+      <div className="fx-cc" role="dialog" aria-live="polite" aria-label="Cookie choice" style={acima ? { bottom: acima, paddingBottom: 12 } : undefined}>
         <style>{`
           .fx-cc{position:fixed;left:0;right:0;bottom:0;z-index:9999;background:#fff;
             border-top:1px solid #e3e3ee;box-shadow:0 -6px 24px rgba(2,0,64,.10);

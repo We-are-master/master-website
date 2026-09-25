@@ -82,9 +82,14 @@ const CTA = { clean: 'Book this clean', paint: 'Book the painter', fix: 'Book re
  * `preset` (só na home) vem de `quotePreset` em store.js: o cartão abre no
  * serviço, tipo e tamanho do link do anúncio, com o mesmo preço do anúncio.
  */
-export default function QuoteWidget({ initial = 'clean', initialKind, lockService = false, preset = null }) {
+export default function QuoteWidget({ initial = 'clean', initialKind, lockService = false, preset = null, onServiceChange }) {
   const navigate = useNavigate()
-  const [service, setService] = useState(preset?.service || initial)
+  const [service, setServiceState] = useState(preset?.service || initial)
+  // A home mostra as promessas do serviço escolhido (limpeza não promete o mesmo que reparo).
+  const setService = (id) => {
+    setServiceState(id)
+    onServiceChange?.(id)
+  }
   const [kind, setKind] = useState(() => cleanKind(preset?.kind || initialKind).id)
   const [size, setSize] = useState(preset?.size || '2')
   const [paintOption, setPaintOption] = useState(preset?.paint?.option || 'touchup')
