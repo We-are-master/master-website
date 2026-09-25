@@ -85,6 +85,34 @@ const HEADER_H = 68
 
 /** Cadastro e login do parceiro moram no portal (partners.getfixfy.com). */
 export const PARTNER_JOIN = 'https://partners.getfixfy.com/get-started'
+
+// O anúncio de recrutamento cai em /network e o cadastro é no portal. O link
+// leva junto a origem (utm_*) e o clique da Meta (fbclid), para o pixel do
+// portal creditar o cadastro ao anúncio certo. Guardado na chegada, então
+// vale mesmo se a pessoa navegar pelo site antes de clicar em Apply.
+const LEVA = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'fbclid']
+const CHAVE_ORIGEM = 'fx_partner_origin'
+
+export function partnerJoinUrl(search = typeof window !== 'undefined' ? window.location.search : '') {
+  const agora = new URLSearchParams(search)
+  let guardado = {}
+  try {
+    guardado = JSON.parse(sessionStorage.getItem(CHAVE_ORIGEM) || '{}')
+  } catch {
+    guardado = {}
+  }
+  const daUrl = Object.fromEntries(LEVA.filter((k) => agora.get(k)).map((k) => [k, agora.get(k).slice(0, 200)]))
+  if (Object.keys(daUrl).length) {
+    guardado = daUrl
+    try {
+      sessionStorage.setItem(CHAVE_ORIGEM, JSON.stringify(daUrl))
+    } catch {
+      // sem storage: vale só o que está na URL
+    }
+  }
+  const qs = new URLSearchParams(guardado).toString()
+  return qs ? `${PARTNER_JOIN}?${qs}` : PARTNER_JOIN
+}
 export const PARTNER_LOGIN = 'https://partners.getfixfy.com/login'
 
 /** Menu de um grupo do cabeçalho: abre no hover (mouse) ou no clique, fecha fora, no Esc e ao trocar de página. */
@@ -200,7 +228,7 @@ export function B2CHeader({ minimal = false, right = null, business = false, tra
                   <a href={PARTNER_LOGIN} className="mo-header__login">
                     Login
                   </a>
-                  <a href={PARTNER_JOIN} className="mo-btn mo-btn--primary mo-btn--sm">
+                  <a href={partnerJoinUrl()} className="mo-btn mo-btn--primary mo-btn--sm">
                     Join now
                   </a>
                 </>

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import {
   ArrowRight,
   BadgeCheck,
@@ -13,7 +14,7 @@ import {
   Users,
   Wrench,
 } from 'lucide-react'
-import B2CLayout, { PARTNER_JOIN } from '../components/Chrome.jsx'
+import B2CLayout, { partnerJoinUrl } from '../components/Chrome.jsx'
 import { Eyebrow, Faq } from '../components/Sections.jsx'
 import { usePageMeta } from '../lib/meta.js'
 import '../business.css'
@@ -106,6 +107,8 @@ function Photo({ src, alt, className = '', eager = false, w = 1600, h = 1067 }) 
 }
 
 export default function PartnersPage() {
+  // Lido na chegada: o anúncio traz utm_* e fbclid, e o Apply leva para o portal.
+  const [join] = useState(() => partnerJoinUrl())
   usePageMeta({
     title: 'Join Fixfy: jobs for tradespeople in London, paid every two weeks | Fixfy',
     description:
@@ -124,7 +127,7 @@ export default function PartnersPage() {
             </h1>
             <p className="bz-hero__sub">Jobs from letting agents, property managers and businesses across London, straight to your phone.</p>
             <div className="bz-hero__actions">
-              <a href={PARTNER_JOIN} className="mo-btn mo-btn--primary mo-btn--lg">
+              <a href={join} className="mo-btn mo-btn--primary mo-btn--lg">
                 Join now <ArrowRight size={18} />
               </a>
               <a href="#how" className="mo-btn mo-btn--on-navy mo-btn--lg">
@@ -180,7 +183,7 @@ export default function PartnersPage() {
                 </div>
               </article>
             ))}
-            <a className="pt-trade pt-trade--cta mo-reveal" href={PARTNER_JOIN}>
+            <a className="pt-trade pt-trade--cta mo-reveal" href={join}>
               <div className="pt-trade__body">
                 <h3>Another trade?</h3>
                 <p>Apply anyway. We add trades as our clients need them.</p>
@@ -288,7 +291,7 @@ export default function PartnersPage() {
             <h2 className="mo-h2">Built to be the best company in the UK to work with.</h2>
             <p className="mo-lede">Free to join. Once your documents are checked, jobs start landing in your app.</p>
             <div className="mo-final__actions pt-final__actions">
-              <a href={PARTNER_JOIN} className="mo-btn mo-btn--primary mo-btn--lg">
+              <a href={join} className="mo-btn mo-btn--primary mo-btn--lg">
                 Join now, it&rsquo;s free <ArrowRight size={18} />
               </a>
             </div>
