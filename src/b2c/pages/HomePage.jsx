@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useLocation } from 'react-router-dom'
-import { CalendarDays, Camera, RotateCcw, Sparkles, Tag } from 'lucide-react'
+import { CalendarDays, Camera, CreditCard, RotateCcw, Sparkles, Tag } from 'lucide-react'
 import B2CLayout from '../components/Chrome.jsx'
 import QuoteWidget from '../components/QuoteWidget.jsx'
 import ReviewBadges from '../components/ReviewBadges.jsx'
@@ -128,6 +128,7 @@ export default function HomePage() {
   // Lido uma vez, na chegada: o link escolhe o preço, depois quem escolhe é o cliente.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const preset = useMemo(() => quotePreset(search), [])
+  const [service, setService] = useState(preset?.service || 'clean')
   useQuoteScroll(preset)
   usePageMeta({
     title: 'Fixed-price cleaning, painting and repairs in London | Fixfy',
@@ -172,17 +173,39 @@ export default function HomePage() {
               <li>
                 <CalendarDays size={16} /> Arrival slots 9am to 6pm
               </li>
-              <li>
-                <Camera size={16} /> Photo of every room
-              </li>
-              <li>
-                <RotateCcw size={16} /> Free re-clean in {PROMISES.recleanDays.value} days
-              </li>
+              {service === 'clean' ? (
+                <>
+                  <li>
+                    <Camera size={16} /> Photo of every room
+                  </li>
+                  <li>
+                    <RotateCcw size={16} /> Free re-clean in {PROMISES.recleanDays.value} days
+                  </li>
+                </>
+              ) : service === 'cert' ? (
+                <>
+                  <li>
+                    <RotateCcw size={16} /> Free cancellation up to {PROMISES.freeCancellationHours}h
+                  </li>
+                  <li>
+                    <CreditCard size={16} /> Pay by card or Klarna
+                  </li>
+                </>
+              ) : (
+                <>
+                  <li>
+                    <Camera size={16} /> Photo report when we finish
+                  </li>
+                  <li>
+                    <RotateCcw size={16} /> Put right free within {PROMISES.recleanDays.value} days
+                  </li>
+                </>
+              )}
             </ul>
           </div>
 
           <div className="mo-hero__widget">
-            <QuoteWidget preset={preset} />
+            <QuoteWidget preset={preset} onServiceChange={setService} />
             <ReviewBadges where="desktop" />
           </div>
         </div>
