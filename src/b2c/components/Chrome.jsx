@@ -3,7 +3,7 @@ import { Link, NavLink, useLocation } from 'react-router-dom'
 import { ChevronDown, Menu, X } from 'lucide-react'
 import { COMPANY, whatsappLink } from '../content/site.js'
 import ExitOffer from './ExitOffer.jsx'
-import { captureAttribution, track } from '../lib/track.js'
+import { captureAttribution, track, funnel } from '../lib/track.js'
 import { capturePromoFromUrl } from '../lib/store.js'
 import { openCookieSettings } from '../../lib/consent.js'
 import '../b2c.css'
@@ -369,6 +369,7 @@ export default function B2CLayout({ children, minimalHeader = false, headerRight
   useEffect(() => {
     document.body.setAttribute('data-site', 'b2c')
     captureAttribution()
+    funnel('landing')
     const promo = capturePromoFromUrl(window.location.search)
     if (promo) track('promo_link_opened', { code: promo })
     return () => document.body.removeAttribute('data-site')

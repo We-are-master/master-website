@@ -85,8 +85,33 @@ function stepPayload(body, email, name, step) {
   }
 }
 
+const FUNNEL_STEPS = ['landing', 'book_1', 'book_2', 'book_3', 'book_4']
+
+/** Contagem anônima do funil (sem cookie): só repassa ao OS o que é da lista. */
+function funnelPayload(body) {
+  const utm = {}
+  for (const k of ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content']) {
+    const v = str(body.utm?.[k], 120)
+    if (v) utm[k] = v
+  }
+  return {
+    event: 'funnel',
+    visitId: str(body.visitId, 40),
+    step: str(body.step, 10),
+    services: (Array.isArray(body.services) ? body.services : []).filter((s) => SERVICES.includes(s)),
+    utm,
+    landing: str(body.landing, 200) || null,
+  }
+}
+
 export async function handleLead(body = {}) {
   const env = b2cServerEnv()
+  // Mesma função da Vercel para não gastar outra: o funil é só um aviso ao OS.
+  if (body.funnel) {
+    if (!FUNNEL_STEPS.includes(body.step)) return { status: 400, data: { error: 'Unknown step.' } }
+    const r = await postSiteLead(funnelPayload(body), env)
+    return { status: 200, data: { ok: r.ok !== false } }
+  }
   const name = str(body.name, 120)
   const email = str(body.email, 200).toLowerCase()
   // Robô: campo escondido preenchido, ou rápido demais. Responde 200 para não ensinar nada.
