@@ -164,6 +164,34 @@ export function track(event, params = {}) {
   }
 }
 
+// ---------------------------------------------------------------- funil sem cookie
+//
+// A Meta só vê quem aceitou marketing no banner (uns 12% em 25/09/2026). Este
+// contador vê todo mundo sem guardar nada no aparelho: o id da visita é
+// aleatório e mora só nesta variável (recarregar a página começa outra
+// visita), e as etiquetas são as do próprio link do anúncio. Sem cookie, sem
+// storage, sem dado pessoal. Vai ao OS (site_funnel_events), lido na Online Room.
+
+const visitId = typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function' ? crypto.randomUUID() : null
+const funnelSent = new Set()
+
+/** `step`: 'landing' ou 'book_1' a 'book_4'. Uma vez por visita cada. */
+export function funnel(step, services = []) {
+  if (typeof window === 'undefined' || !visitId || funnelSent.has(step)) return
+  if (navigator.webdriver) return // robô de teste não é visita
+  funnelSent.add(step)
+  try {
+    fetch('/api/b2c/lead', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ funnel: true, visitId, step, services, utm: campaignOnly(landing), landing: landing?.landing || null }),
+      keepalive: true,
+    }).catch(() => {})
+  } catch {
+    /* contagem nunca atrapalha a página */
+  }
+}
+
 function cookie(name) {
   const hit = document.cookie.split('; ').find((c) => c.startsWith(`${name}=`))
   return hit ? decodeURIComponent(hit.slice(name.length + 1)) : ''

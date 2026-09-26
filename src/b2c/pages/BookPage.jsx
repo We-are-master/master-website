@@ -29,7 +29,7 @@ import {
 import { COMPANY, PROMISES, formatPostcode, whatsappLink } from '../content/site.js'
 import { applyQuery, clearBooking, emptyBooking, loadBooking, saveBooking } from '../lib/store.js'
 import { bookableDates, windowsFor } from '../lib/slots.js'
-import { track } from '../lib/track.js'
+import { funnel, track } from '../lib/track.js'
 import { checkPromo, createCheckout, createPayment, getBookingConfig, sendLead, submitBooking } from '../lib/api.js'
 import { bookingPayload, cleanPhone, contactName, leadPayload, splitName } from '../lib/payload.js'
 import { usePageMeta } from '../lib/meta.js'
@@ -175,6 +175,7 @@ export default function BookPage() {
 
   useEffect(() => {
     track('booking_started', { value: priced.total })
+    funnel('book_1', booking.selection?.services)
     getBookingConfig().then((c) => setConfig({ ...c, loaded: true }))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -204,6 +205,7 @@ export default function BookPage() {
     navigate(`/book?step=${n + 1}`)
     window.scrollTo({ top: 0, behavior: 'smooth' })
     track('booking_step', { step: n + 1, value: priced.total })
+    funnel(`book_${n + 1}`, booking.selection?.services)
   }
 
   const update = (patch) => setBooking((b) => ({ ...b, ...patch }))
