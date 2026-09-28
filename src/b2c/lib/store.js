@@ -55,20 +55,38 @@ export function loadBooking() {
 }
 
 /**
- * Código que veio no link (`?promo=WEEK10`), de e-mail ou WhatsApp.
- *
- * Guarda na reserva e o checkout aplica sozinho, como faz com o pop-up de
- * saída: quem clicou "Book with WEEK10" não pode ter que digitar o código de
- * novo. Um código aplicado antes sai, senão o checkout mantém o velho. O
+ * Código que veio no link (`?promo=WEEK10`), de e-mail ou WhatsApp, já em
+ * maiúsculas. Só passa o formato de um código da Stripe; o resto é null.
+ */
+export function promoFromUrl(search) {
+  const code = (new URLSearchParams(search).get('promo') || '').trim().toUpperCase()
+  return /^[A-Z0-9-]{2,40}$/.test(code) ? code : null
+}
+
+/**
+ * Guarda o código do link na reserva e o checkout aplica sozinho, como faz com
+ * o pop-up de saída: quem clicou "Book with WEEK10" não pode ter que digitar o
+ * código de novo. O mesmo código (aplicado ou esperando) não mexe em nada; um
+ * código novo tira o aplicado antes, senão o checkout mantém o velho. O
  * servidor continua sendo quem diz se o código vale (validade, mínimo): aqui
  * só se guarda o texto.
  */
+function withPromoCode(booking, code) {
+  if (!code || booking.promo?.code === code || booking.promoCode === code) return booking
+  return { ...booking, promo: null, promoCode: code }
+}
+
+/**
+ * Cupom do link nas páginas que não seguram a reserva (home, serviços): vai
+ * para o storage e o /book lê de lá. No /book quem guarda é o `applyQuery`,
+ * no estado da própria reserva.
+ */
 export function capturePromoFromUrl(search) {
-  const code = (new URLSearchParams(search).get('promo') || '').trim().toUpperCase()
-  if (!/^[A-Z0-9-]{2,40}$/.test(code)) return null
+  const code = promoFromUrl(search)
+  if (!code) return null
   const booking = loadBooking()
-  if (booking.promo?.code === code || booking.promoCode === code) return code
-  saveBooking({ ...booking, promo: null, promoCode: code })
+  const next = withPromoCode(booking, code)
+  if (next !== booking) saveBooking(next)
   return code
 }
 
@@ -141,8 +159,15 @@ export function quotePreset(search) {
   return Object.keys(preset).length ? preset : null
 }
 
-/** Aplica os parâmetros de um link de reserva por cima do estado salvo. */
-export function applyQuery(booking, search) {
+/**
+ * Aplica os parâmetros de um link de reserva por cima do estado salvo,
+ * inclusive o cupom (`promo`). O cupom tem que entrar aqui: a reserva nasce
+ * deste estado e o grava no storage no primeiro efeito, por cima do que a
+ * moldura tivesse guardado ali. Era assim que o link do /book com cupom abria
+ * sem desconto.
+ */
+export function applyQuery(saved, search) {
+  const booking = withPromoCode(saved, promoFromUrl(search))
   const q = new URLSearchParams(search)
   if (![...q.keys()].some((k) => ['s', 'kind', 'size', 'bath', 'x', 'paint', 'pm', 'fix', 'tasks', 'cert', 'pc'].includes(k))) {
     return booking

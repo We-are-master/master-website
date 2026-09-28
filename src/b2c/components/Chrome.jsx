@@ -370,8 +370,12 @@ export default function B2CLayout({ children, minimalHeader = false, headerRight
     document.body.setAttribute('data-site', 'b2c')
     captureAttribution()
     funnel('landing')
-    const promo = capturePromoFromUrl(window.location.search)
-    if (promo) track('promo_link_opened', { code: promo })
+    // No /book o cupom do link é da própria reserva (applyQuery no estado dela, e
+    // a contagem sai de lá): guardado aqui, ela gravaria por cima logo em seguida.
+    if (!window.location.pathname.startsWith('/book')) {
+      const promo = capturePromoFromUrl(window.location.search)
+      if (promo) track('promo_link_opened', { code: promo })
+    }
     return () => document.body.removeAttribute('data-site')
   }, [])
 

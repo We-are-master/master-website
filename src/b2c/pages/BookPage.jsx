@@ -27,7 +27,7 @@ import {
   suggestFixPackage,
 } from '../content/pricing.js'
 import { COMPANY, PROMISES, formatPostcode, whatsappLink } from '../content/site.js'
-import { applyQuery, clearBooking, emptyBooking, loadBooking, saveBooking } from '../lib/store.js'
+import { applyQuery, clearBooking, emptyBooking, loadBooking, promoFromUrl, saveBooking } from '../lib/store.js'
 import { bookableDates, windowsFor } from '../lib/slots.js'
 import { funnel, track } from '../lib/track.js'
 import { checkPromo, createCheckout, createPayment, getBookingConfig, sendLead, submitBooking } from '../lib/api.js'
@@ -174,6 +174,10 @@ export default function BookPage() {
   useEffect(() => saveBooking(booking), [booking])
 
   useEffect(() => {
+    // O cupom do link já está no estado (applyQuery); aqui só se conta a
+    // abertura. `location` é o da primeira renderização, antes da limpeza da URL.
+    const promo = promoFromUrl(location.search)
+    if (promo) track('promo_link_opened', { code: promo })
     track('booking_started', { value: priced.total })
     funnel('book_1', booking.selection?.services)
     getBookingConfig().then((c) => setConfig({ ...c, loaded: true }))
