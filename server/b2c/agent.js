@@ -75,8 +75,11 @@ async function quote(body, env) {
   if (body.postcode) {
     const pc = formatPostcode(String(body.postcode))
     out.postcode = pc
-    out.postcodeValid = looksLikePostcode(pc)
+    // "E17" sozinho já diz a área: dá para cotar. O postcode inteiro só é preciso para reservar.
+    out.postcodeFull = looksLikePostcode(pc)
+    out.postcodeValid = out.postcodeFull || /^[A-Z]{1,2}\d[A-Z\d]?$/i.test(String(body.postcode).replace(/\s/g, ''))
     out.covered = out.postcodeValid && COVERED_AREAS.includes(postcodeArea(pc))
+    if (out.covered && !out.postcodeFull) out.note = 'Area covered. Ask for the full postcode only when booking.'
   }
   if (body.promoCode && !priced.needsQuote) {
     const r = await resolvePromo(env, body.promoCode, priced)
