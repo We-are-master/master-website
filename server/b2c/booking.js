@@ -59,6 +59,15 @@ const PHONE_RE = /^(\+44|0)\d{9,10}$/
 const str = (v, max = 300) => (typeof v === 'string' ? v.trim().slice(0, max).replace(/\0/g, '') : '')
 const pence = (gbp) => Math.round(gbp * 100)
 
+/**
+ * Depósito de 50% (reserva pelo WhatsApp, dono 29/09/2026): o cliente paga
+ * metade agora e o resto depois do serviço, pelo link de pagamento do OS. Em
+ * pence, arredondado para cima, para as duas metades somarem o total.
+ */
+export function depositOf(total) {
+  return Math.ceil(pence(total) / 2) / 100
+}
+
 export function handleConfig() {
   const env = b2cServerEnv()
   return {
@@ -207,7 +216,7 @@ function promoPartnerNote(partnerCost, pay) {
  * (data incluída, para ninguém pagar um dia que já não existe), e a sessão
  * do Checkout nasce com o valor do servidor. Nada é gravado ainda.
  */
-export async function handleCheckout(body, { origin, ip, userAgent } = {}) {
+export async function handleCheckout(body, { origin, ip, userAgent, deposit = false } = {}) {
   const env = b2cServerEnv()
   const spam = looksLikeSpam(body)
   if (spam) return { status: 400, data: { error: spam } }
@@ -223,11 +232,14 @@ export async function handleCheckout(body, { origin, ip, userAgent } = {}) {
   if (error) return { status: 400, data: { error, field: 'promo' } }
   const ref = newRef()
   const win = findWindow(b.window)
+  const now = deposit ? depositOf(priced.total) : null
   const session = await createCheckoutSession(env, {
     ref,
-    lines: chargeLines(priced),
+    lines: deposit
+      ? [{ label: `50% deposit: ${summaryOf(b)}`, detail: `The other ${gbp(priced.total - now)} is paid after the job`, amount: now }]
+      : chargeLines(priced),
     email: b.contact.email,
-    booking,
+    booking: deposit ? { ...booking, deposit: true } : booking,
     baseUrl: returnBaseUrl(env, origin),
     summary: summaryOf(b),
     suffix: statementSuffix(b.selection),
@@ -235,7 +247,7 @@ export async function handleCheckout(body, { origin, ip, userAgent } = {}) {
 
     extraMetadata: { ...adMetadata(body.ad, { ip, userAgent }), ...metadata },
   })
-  return { status: 200, data: { url: session.url, ref, total: priced.total } }
+  return { status: 200, data: { url: session.url, ref, total: priced.total, ...(deposit ? { payNow: now, payLater: Math.round((priced.total - now) * 100) / 100 } : {}) } }
 }
 
 /** Checkout transparente: mesma validação do hospedado, cobrança como PaymentIntent. */
@@ -357,7 +369,7 @@ function confirmation(b, priced, ref, mode, payment) {
 }
 
 /** Grava a reserva paga: um job por serviço no OS e os dois e-mails. */
-async function recordBooking(env, b, priced, ref, paymentIntentId) {
+async function recordBooking(env, b, priced, ref, paymentIntentId, { deposit = false } = {}) {
   const name = `${b.contact.firstName} ${b.contact.lastName}`
   const win = findWindow(b.window)
   // O que o cliente lê (no ticket ou, se ele falhar, por e-mail) e o escritório também.
@@ -379,6 +391,7 @@ async function recordBooking(env, b, priced, ref, paymentIntentId) {
     parking: PARKING_LABEL[b.parking],
     notes: b.notes,
     paymentIntentId,
+    deposit: deposit ? depositOf(priced.total) : null,
     marketing: b.marketing,
     attribution: b.attribution,
     // Para o e-mail com a marca: serviços, tipo de limpeza, calendário e acesso.
@@ -433,7 +446,9 @@ async function recordBooking(env, b, priced, ref, paymentIntentId) {
       const partnerPay = partnerCostFor(pay, price)
       const notes = [
         `Website booking ${ref} (${order.length > 1 ? `${order.indexOf(entry) + 1} of ${order.length}` : 'single job'}).`,
-        `PAID ${gbp(priced.total)} by card at booking, Stripe payment ${paymentIntentId}${order.length > 1 ? ` (covers the whole booking of ${gbp(priced.total)})` : ''}. Materials, if any, are billed separately.`,
+        deposit
+          ? `50% DEPOSIT PAID: ${gbp(depositOf(priced.total))} of ${gbp(priced.total)} by card at booking, Stripe payment ${paymentIntentId}. The balance of ${gbp(priced.total - depositOf(priced.total))} is due after the job: send the pay link from the OS.`
+          : `PAID ${gbp(priced.total)} by card at booking, Stripe payment ${paymentIntentId}${order.length > 1 ? ` (covers the whole booking of ${gbp(priced.total)})` : ''}. Materials, if any, are billed separately.`,
         priced.promo
           ? `Promo code ${priced.promo.code}: this job is ${gbp(price)} instead of ${gbp(listPrices[i])}. ${promoPartnerNote(partnerPay.partner_cost, pay)}`
           : null,
@@ -462,9 +477,9 @@ async function recordBooking(env, b, priced, ref, paymentIntentId) {
         // O cartão já passou: o job nasce PAGO e mesmo assim `unassigned`. Sem
         // isto ele nascia `unpaid` e virava "a receber" de um dinheiro que já
         // está na conta, com risco de alguém cobrar quem já pagou.
-        payment_status: 'paid',
+        payment_status: deposit ? 'partial' : 'paid',
         paid_at: new Date().toISOString(),
-        payment_amount: price,
+        payment_amount: deposit ? depositOf(price) : price,
         stripe_payment_intent_id: paymentIntentId,
         internal_notes: notes,
         // Uma conversa por reserva: o cliente vira o solicitante do ticket do
@@ -516,7 +531,9 @@ async function finalizePaid(env, { pi, metadata, amount }) {
   const { errors, clean: b } = validate(stored)
   // Com cupom, o desconto é o que o servidor gravou na cobrança (nada de consultar de novo).
   const priced = applyPromo(priceSelection(b.selection), stored.promo)
-  if (errors.length || priced.needsQuote || amount !== pence(priced.total)) {
+  const deposit = stored.deposit === true
+  const expected = deposit ? pence(depositOf(priced.total)) : pence(priced.total)
+  if (errors.length || priced.needsQuote || amount !== expected) {
     console.error('[b2c/booking] paid amount does not match booking', ref, errors, amount, priced.total)
     return { status: 409, data: { error: `Payment received for ${ref}, but the booking needs a check. We will email you within the hour.` } }
   }
@@ -528,7 +545,7 @@ async function finalizePaid(env, { pi, metadata, amount }) {
     await markBooked(env, pi.id, [])
     return { status: 200, data: { ...data, jobs: [] } }
   }
-  const jobs = await recordBooking(env, b, priced, ref, pi.id)
+  const jobs = await recordBooking(env, b, priced, ref, pi.id, { deposit })
   try {
     await markBooked(env, pi.id, jobs.map((j) => j.reference))
   } catch (err) {
