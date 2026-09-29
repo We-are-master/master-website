@@ -14,7 +14,7 @@
  */
 import { timingSafeEqual } from 'node:crypto'
 import { b2cServerEnv } from './env.js'
-import { handleCheckout, depositOf } from './booking.js'
+import { handleCheckout, handleBankBooking, depositOf } from './booking.js'
 import { resolvePromo } from './promo.js'
 import {
   CLEAN,
@@ -120,6 +120,12 @@ export async function handleAgent(body = {}, headers = {}) {
         { origin: 'https://www.getfixfy.com', deposit: body.deposit === true },
       )
       return r
+    }
+    case 'bank': {
+      // Transferência: a reserva nasce no OS aguardando o depósito de 50%.
+      const booking = body.booking || {}
+      const attribution = { utm_source: 'whatsapp', utm_medium: 'chat', utm_campaign: String(body.campaign || 'wa_v1').slice(0, 60), landing: 'whatsapp' }
+      return handleBankBooking({ ...booking, selection: normalizeSelection(booking.selection || {}), attribution, marketing: false })
     }
     default:
       return { status: 400, data: { error: 'Unknown action' } }
