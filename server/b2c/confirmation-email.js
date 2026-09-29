@@ -182,8 +182,8 @@ export function confirmationEmail(env, b, { encodedId = null } = {}) {
       <tr>${td(`padding:16px 20px 12px;`, label('Your booking'), 'colspan="2"')}</tr>
       ${lines}
       <tr>
-        ${td(`padding:16px 20px;background:${C.paper};border-top:1px solid ${C.line};border-radius:0 0 0 16px;font:600 15px/21px ${FONT};color:${C.ink};`, `Paid by card<div style="font:400 13px/18px ${FONT};color:${C.mute};">VAT included. Your Stripe receipt comes separately.</div>`)}
-        ${td(`padding:16px 20px;background:${C.paper};border-top:1px solid ${C.line};border-radius:0 0 16px 0;font:800 26px/30px ${FONT};color:${C.ink};text-align:right;white-space:nowrap;`, money(b.total), 'align="right"')}
+        ${td(`padding:16px 20px;background:${C.paper};border-top:1px solid ${C.line};border-radius:0 0 0 16px;font:600 15px/21px ${FONT};color:${C.ink};`, b.deposit ? `50% deposit paid by card<div style="font:400 13px/18px ${FONT};color:${C.mute};">The other ${money(b.total - b.deposit)} is paid after the job. VAT included.</div>` : `Paid by card<div style="font:400 13px/18px ${FONT};color:${C.mute};">VAT included. Your Stripe receipt comes separately.</div>`)}
+        ${td(`padding:16px 20px;background:${C.paper};border-top:1px solid ${C.line};border-radius:0 0 16px 0;font:800 26px/30px ${FONT};color:${C.ink};text-align:right;white-space:nowrap;`, money(b.deposit || b.total), 'align="right"')}
       </tr>
     </table>
   </td></tr>
@@ -241,10 +241,10 @@ export function confirmationEmail(env, b, { encodedId = null } = {}) {
     `Job Confirmed. See you on ${b.dateLabel}.`,
     '',
     `Hi ${firstName},`,
-    `Your booking ${b.ref} is confirmed and paid.`,
+    b.deposit ? `Your booking ${b.ref} is confirmed. We have your 50% deposit.` : `Your booking ${b.ref} is confirmed and paid.`,
     '',
     ...b.lines.map((l) => `${l.label}${l.detail ? `, ${l.detail}` : ''}: ${l.amount == null ? 'quote' : money(l.amount)}`),
-    `Paid by card, VAT included: ${money(b.total)}`,
+    b.deposit ? `Deposit paid by card: ${money(b.deposit)}. Balance after the job: ${money(b.total - b.deposit)}. Total ${money(b.total)}, VAT included.` : `Paid by card, VAT included: ${money(b.total)}`,
     '',
     `When: ${b.dateLabel}, arriving ${b.windowLabel}`,
     `Where: ${b.addressLine}`,
