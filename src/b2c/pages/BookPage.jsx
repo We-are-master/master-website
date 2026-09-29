@@ -29,6 +29,7 @@ import {
 import { COMPANY, PROMISES, formatPostcode, whatsappLink } from '../content/site.js'
 import { applyQuery, clearBooking, emptyBooking, loadBooking, promoFromUrl, saveBooking } from '../lib/store.js'
 import { bookableDates, windowsFor } from '../lib/slots.js'
+import { diasSemVaga } from '../lib/capacity.js'
 import { funnel, track } from '../lib/track.js'
 import { checkPromo, createCheckout, createPayment, getBookingConfig, sendLead, submitBooking } from '../lib/api.js'
 import { bookingPayload, cleanPhone, contactName, leadPayload, splitName } from '../lib/payload.js'
@@ -168,6 +169,12 @@ export default function BookPage() {
   const priced = useMemo(() => applyPromo(priceSelection(booking.selection), booking.promo), [booking.selection, booking.promo])
   const pc = usePostcodeCheck(booking.postcode)
   const dates = useMemo(() => bookableDates(), [])
+  // Dias sem vaga na categoria do que está na reserva (OS, 29/09/2026). Desligado = nenhum.
+  const fullDates = useMemo(() => diasSemVaga(config.capacity, booking.selection?.services || []), [config.capacity, booking.selection])
+  // Dia que encheu depois de escolhido (ou trocou o serviço): solta para escolher outro.
+  useEffect(() => {
+    if (booking.date && fullDates.has(booking.date)) setBooking((b) => ({ ...b, date: '' }))
+  }, [booking.date, fullDates])
   const windows = useMemo(() => windowsFor(), [])
   const totalShown = useTween(priced.needsQuote ? null : priced.total)
 
@@ -864,23 +871,30 @@ export default function BookPage() {
                   <fieldset className={`bk-block${errors.date ? ' has-error' : ''}`}>
                     <legend className="bk-legend">Day</legend>
                     <div className="bk-dates" role="radiogroup" aria-label="Day">
-                      {dates.map((d) => (
-                        <button
-                          key={d.iso}
-                          type="button"
-                          role="radio"
-                          aria-checked={booking.date === d.iso}
-                          className="bk-date"
-                          onClick={() => {
-                            update({ date: d.iso })
-                            setErrors((e) => ({ ...e, date: undefined }))
-                          }}
-                        >
-                          <span className="bk-date__wd">{d.weekday}</span>
-                          <span className="bk-date__d">{d.day}</span>
-                          <span className="bk-date__m">{d.month}</span>
-                        </button>
-                      ))}
+                      {dates.map((d) => {
+                        const full = fullDates.has(d.iso)
+                        return (
+                          <button
+                            key={d.iso}
+                            type="button"
+                            role="radio"
+                            aria-checked={booking.date === d.iso && !full}
+                            aria-disabled={full}
+                            disabled={full}
+                            className={`bk-date${full ? ' bk-date--full' : ''}`}
+                            title={full ? 'Fully booked' : undefined}
+                            onClick={() => {
+                              if (full) return
+                              update({ date: d.iso })
+                              setErrors((e) => ({ ...e, date: undefined }))
+                            }}
+                          >
+                            <span className="bk-date__wd">{d.weekday}</span>
+                            <span className="bk-date__d">{d.day}</span>
+                            <span className="bk-date__m">{full ? 'Full' : d.month}</span>
+                          </button>
+                        )
+                      })}
                     </div>
                     <ErrorText>{errors.date}</ErrorText>
                   </fieldset>

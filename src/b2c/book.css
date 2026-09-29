@@ -1736,3 +1736,11 @@
 .bk-extras--single {
   margin-top: 14px;
 }
+
+/* Dia sem vaga (capacidade do OS): fica à vista, mas não dá para escolher. */
+.bk-date--full,
+.bk-date--full:hover {
+  opacity: 0.45;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}

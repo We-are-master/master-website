@@ -23,6 +23,8 @@ import {
 } from './stripe.js'
 import { customerMessageHtml, sendCustomerConfirmation, sendOfficeNotification } from './email.js'
 import { createOsJob, resolveFixfyAccountId } from './os.js'
+import { capacidadeDoOs } from './capacity.js'
+import { diasSemVaga } from '../../src/b2c/lib/capacity.js'
 import { adMetadata, sendPurchase } from './meta.js'
 import { partnerPayFor } from './partner-pay.js'
 import { resolvePromo } from './promo.js'
@@ -68,8 +70,10 @@ export function depositOf(total) {
   return Math.ceil(pence(total) / 2) / 100
 }
 
-export function handleConfig() {
+export async function handleConfig() {
   const env = b2cServerEnv()
+  // Dias sem vaga por categoria (a página esconde conforme o que está na reserva).
+  const capacity = await capacidadeDoOs(env)
   return {
     status: 200,
     data: {
@@ -78,6 +82,7 @@ export function handleConfig() {
       stripe: env.stripeTest ? 'test' : env.stripeLive ? 'live' : 'none',
       // Com a publicável do mesmo modo, o cartão vai na própria página.
       publishableKey: env.paymentsEnabled && env.publishableKey ? env.publishableKey : null,
+      capacity,
     },
   }
 }
@@ -222,6 +227,7 @@ export async function handleCheckout(body, { origin, ip, userAgent, deposit = fa
   if (spam) return { status: 400, data: { error: spam } }
   const { errors, clean: b } = validate(body)
   if (!errors.length && !isBookableDate(b.date)) errors.push('That day is no longer available. Pick another one.')
+  if (!errors.length && diasSemVaga(await capacidadeDoOs(env), b.selection.services).has(b.date)) errors.push('That day is fully booked. Pick another one.')
   if (errors.length) return { status: 400, data: { error: errors[0], errors } }
   const listed = priceSelection(b.selection)
   if (listed.needsQuote) return { status: 400, data: { error: 'This booking needs a photo quote.' } }
@@ -257,6 +263,7 @@ export async function handlePayment(body, { ip, userAgent } = {}) {
   if (spam) return { status: 400, data: { error: spam } }
   const { errors, clean: b } = validate(body)
   if (!errors.length && !isBookableDate(b.date)) errors.push('That day is no longer available. Pick another one.')
+  if (!errors.length && diasSemVaga(await capacidadeDoOs(env), b.selection.services).has(b.date)) errors.push('That day is fully booked. Pick another one.')
   if (errors.length) return { status: 400, data: { error: errors[0], errors } }
   const listed = priceSelection(b.selection)
   if (listed.needsQuote) return { status: 400, data: { error: 'This booking needs a photo quote.' } }
