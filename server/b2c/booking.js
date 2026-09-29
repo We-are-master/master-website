@@ -256,6 +256,31 @@ export async function handleCheckout(body, { origin, ip, userAgent, deposit = fa
   return { status: 200, data: { url: session.url, ref, total: priced.total, ...(deposit ? { payNow: now, payLater: Math.round((priced.total - now) * 100) / 100 } : {}) } }
 }
 
+/**
+ * Reserva por transferência bancária (Harvey no WhatsApp, 29/09/2026): mesma
+ * validação e o mesmo preço do checkout; os jobs nascem no OS "aguardando
+ * depósito" (50%), sem oferta a parceiro, até a equipe registrar o depósito.
+ */
+export async function handleBankBooking(body) {
+  const env = b2cServerEnv()
+  const { errors, clean: b } = validate(body)
+  if (!errors.length && !isBookableDate(b.date)) errors.push('That day is no longer available. Pick another one.')
+  if (!errors.length && diasSemVaga(await capacidadeDoOs(env), b.selection.services).has(b.date)) errors.push('That day is fully booked. Pick another one.')
+  if (errors.length) return { status: 400, data: { error: errors[0], errors } }
+  const listed = priceSelection(b.selection)
+  if (listed.needsQuote) return { status: 400, data: { error: 'This booking needs a photo quote.' } }
+  const { priced, error } = await withPromo(env, body, b, listed)
+  if (error) return { status: 400, data: { error, field: 'promo' } }
+  const ref = newRef()
+  const deposit = depositOf(priced.total)
+  if (env.mode !== 'live' || process.env.VERCEL !== '1') {
+    console.log('[b2c/booking] bank booking dry run', ref, priced.total)
+    return { status: 200, data: { ref, total: priced.total, deposit, jobs: [], dryRun: true } }
+  }
+  const jobs = await recordBooking(env, b, priced, ref, null, { bank: { deposit } })
+  return { status: 200, data: { ref, total: priced.total, deposit, jobs: jobs.map((j) => ({ id: j.id, reference: j.reference })) } }
+}
+
 /** Checkout transparente: mesma validação do hospedado, cobrança como PaymentIntent. */
 export async function handlePayment(body, { ip, userAgent } = {}) {
   const env = b2cServerEnv()
@@ -376,7 +401,7 @@ function confirmation(b, priced, ref, mode, payment) {
 }
 
 /** Grava a reserva paga: um job por serviço no OS e os dois e-mails. */
-async function recordBooking(env, b, priced, ref, paymentIntentId, { deposit = false } = {}) {
+async function recordBooking(env, b, priced, ref, paymentIntentId, { deposit = false, bank = null } = {}) {
   const name = `${b.contact.firstName} ${b.contact.lastName}`
   const win = findWindow(b.window)
   // O que o cliente lê (no ticket ou, se ele falhar, por e-mail) e o escritório também.
@@ -453,7 +478,9 @@ async function recordBooking(env, b, priced, ref, paymentIntentId, { deposit = f
       const partnerPay = partnerCostFor(pay, price)
       const notes = [
         `Website booking ${ref} (${order.length > 1 ? `${order.indexOf(entry) + 1} of ${order.length}` : 'single job'}).`,
-        deposit
+        bank
+          ? `AWAITING BANK TRANSFER: 50% deposit of ${gbp(bank.deposit)} (of ${gbp(priced.total)}) to be paid by bank transfer with reference ${ref}. Booked on WhatsApp with Harvey. Do NOT dispatch until the deposit lands: record it in Finance and the offer goes out. Harvey releases the slot if nothing arrives in 24 hours.`
+          : deposit
           ? `50% DEPOSIT PAID: ${gbp(depositOf(priced.total))} of ${gbp(priced.total)} by card at booking, Stripe payment ${paymentIntentId}. The balance of ${gbp(priced.total - depositOf(priced.total))} is due after the job: send the pay link from the OS.`
           : `PAID ${gbp(priced.total)} by card at booking, Stripe payment ${paymentIntentId}${order.length > 1 ? ` (covers the whole booking of ${gbp(priced.total)})` : ''}. Materials, if any, are billed separately.`,
         priced.promo
@@ -484,16 +511,23 @@ async function recordBooking(env, b, priced, ref, paymentIntentId, { deposit = f
         // O cartão já passou: o job nasce PAGO e mesmo assim `unassigned`. Sem
         // isto ele nascia `unpaid` e virava "a receber" de um dinheiro que já
         // está na conta, com risco de alguém cobrar quem já pagou.
-        payment_status: deposit ? 'partial' : 'paid',
-        paid_at: new Date().toISOString(),
-        payment_amount: deposit ? depositOf(price) : price,
-        stripe_payment_intent_id: paymentIntentId,
+        // Transferência: nada pago ainda; o job espera o depósito sem ir para a oferta.
+        ...(bank
+          ? { auto_assign: false, hold_for_deposit: true }
+          : {
+              payment_status: deposit ? 'partial' : 'paid',
+              paid_at: new Date().toISOString(),
+              payment_amount: deposit ? depositOf(price) : price,
+              stripe_payment_intent_id: paymentIntentId,
+            }),
         internal_notes: notes,
         // Uma conversa por reserva: o cliente vira o solicitante do ticket do
         // primeiro job, a cópia da confirmação fica lá como nota interna e o
         // e-mail com a marca sai daqui com o código do ticket, para a resposta
         // dele cair no mesmo ticket das notas internas.
-        ...(osJobs.length === 0
+        ...(osJobs.length === 0 && bank
+          ? { ticket_subject: `Booking ${ref} (awaiting bank transfer): ${details.summary}, ${details.dateLabel}` }
+          : osJobs.length === 0
           ? {
               customer_message_html: customerMessageHtml(env, details),
               customer_message_via: 'email',
@@ -509,6 +543,11 @@ async function recordBooking(env, b, priced, ref, paymentIntentId, { deposit = f
     console.error('[b2c/booking] OS job failed', ref, err)
   }
 
+  // Transferência: o Harvey fala com o cliente no WhatsApp; confirmação só depois do depósito.
+  if (bank) {
+    if (osError || !osJobs.length) console.error('[b2c/booking] bank booking without OS job', ref, osError)
+    return osJobs
+  }
   const emailData = { ...details, osJobs, osError }
   // O cliente sempre recebe o e-mail com a marca; com o código do ticket, a
   // resposta dele cai no ticket da compra. O aviso ao escritório só sai quando
