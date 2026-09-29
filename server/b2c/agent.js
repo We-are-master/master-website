@@ -28,6 +28,8 @@ import {
 } from '../../src/b2c/content/pricing.js'
 import { COVERED_AREAS, GOOGLE_REVIEWS, PROMISES, formatPostcode, looksLikePostcode, postcodeArea } from '../../src/b2c/content/site.js'
 import { bookableDates, windowsFor } from '../../src/b2c/lib/slots.js'
+import { capacidadeDoOs } from './capacity.js'
+import { diasSemVaga } from '../../src/b2c/lib/capacity.js'
 
 function keyOk(given, env) {
   const want = env.osLeadKey || env.osKey
@@ -89,8 +91,15 @@ async function quote(body, env) {
   return out
 }
 
-function slots() {
-  return { dates: bookableDates().slice(0, 12), windows: windowsFor().map((w) => ({ id: w.id, label: w.label })), note: 'Monday to Saturday. No same-day bookings.' }
+/** Datas livres: agenda do site menos os dias sem vaga na categoria do serviço (OS). */
+async function slots(body, env) {
+  const services = Array.isArray(body.services) ? body.services.filter((s) => typeof s === 'string') : []
+  const fora = diasSemVaga(await capacidadeDoOs(env), services)
+  return {
+    dates: bookableDates().filter((d) => !fora.has(d.iso)).slice(0, 12),
+    windows: windowsFor().map((w) => ({ id: w.id, label: w.label })),
+    note: fora.size ? 'Monday to Saturday. No same-day bookings. Fully booked days are left out.' : 'Monday to Saturday. No same-day bookings.',
+  }
 }
 
 export async function handleAgent(body = {}, headers = {}) {
@@ -102,7 +111,7 @@ export async function handleAgent(body = {}, headers = {}) {
     case 'quote':
       return { status: 200, data: await quote(body, env) }
     case 'slots':
-      return { status: 200, data: slots() }
+      return { status: 200, data: await slots(body, env) }
     case 'checkout': {
       const booking = body.booking || {}
       const attribution = { utm_source: 'whatsapp', utm_medium: 'chat', utm_campaign: String(body.campaign || 'wa_v1').slice(0, 60), landing: 'whatsapp' }
