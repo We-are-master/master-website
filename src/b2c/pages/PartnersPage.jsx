@@ -26,8 +26,13 @@ import '../partners.css'
  * contadores sorteados no navegador ("£18,426 Live Opportunities",
  * "16 Partner Applications Remaining"), parceiros inventados com números e
  * uma média de £4k a £8k por mês que o payday não sustenta. Aqui só entra
- * o que é verdade: self-bill quinzenal, call-out de £25, documentos do /join,
- * entrada grátis (sem plano, decisão do dono em 24/09/2026). Todo "Join" vai para o cadastro no portal do parceiro.
+ * o que é verdade, no modelo de 06/10/2026 (contrato do parceiro, termos de
+ * uso e Commission Schedule): entrada grátis e sem plano pago; nas reservas
+ * de cliente pela Fixfy (Platform Bookings) a Fixfy é agente do profissional
+ * e fica com uma comissão fixa por job; no trabalho dos clientes empresa da
+ * Fixfy (Fixfy Client Work) paga um valor fixo por self-bill, sem comissão.
+ * Pagamento quinzenal com extrato por job. Todo "Join" vai para o cadastro no
+ * portal do parceiro.
  */
 
 const IMG = (path) => `/${path}.webp`
@@ -53,16 +58,24 @@ const STEPS = [
   },
   {
     title: 'Do the job, get paid',
-    text: 'Send the photo report from the app. We invoice the client and pay you by self-bill every two weeks.',
+    text: 'Send the photo report from the app. We pay you every two weeks by bank transfer, with a statement for every job.',
   },
 ]
 
 const REASONS = [
-  { icon: BellRing, title: 'Work that comes to you', text: 'Letting agents, property managers and businesses send us the jobs. You do not chase clients or leads.' },
-  { icon: Banknote, title: 'Paid every two weeks', text: 'We raise the self-bill for you. No invoices to write, no clients to chase for payment.' },
-  { icon: FileText, title: 'Your fee up front', text: 'The fee is on the job before you accept it. Materials are agreed and paid back.' },
-  { icon: Headphones, title: 'A real ops team', text: 'We handle the client, the access and the rescheduling, so you can focus on the work.' },
-  { icon: Smartphone, title: 'App and portal', text: 'Jobs, photo reports and self-bills on your phone, and on the desktop portal.' },
+  {
+    icon: BellRing,
+    title: 'Work that comes to you',
+    text: 'Homeowners and landlords book through Fixfy, and letting agents, property managers and businesses send us their jobs. You do not chase clients or leads.',
+  },
+  { icon: Banknote, title: 'Paid every two weeks', text: 'Bank transfer every two weeks, with a statement for every job. No invoices to write, no clients to chase for payment.' },
+  {
+    icon: FileText,
+    title: 'Clear money, up front',
+    text: 'Free to join, no paid plans. The price is on the job before you accept it. On bookings customers make through Fixfy, we keep a fixed commission per job and pay you the rest.',
+  },
+  { icon: Headphones, title: 'A real ops team', text: 'We handle the bookings, the access and the rescheduling, so you can focus on the work.' },
+  { icon: Smartphone, title: 'App and portal', text: 'Jobs, photo reports and payout statements on your phone, and on the desktop portal.' },
   { icon: Users, title: 'Bring your team', text: 'Run a company with your own handymen or cleaners? Manage the whole team from the portal.' },
 ]
 
@@ -78,11 +91,11 @@ const REQUIREMENTS = [
 const FAQS = [
   {
     q: 'How and when do I get paid?',
-    a: 'We raise a self-bill for you every two weeks, with every job approved in that period, and pay it by bank transfer. You never write an invoice.',
+    a: 'Every two weeks by bank transfer, with a statement for every job. On bookings customers make through Fixfy, we collect the payment for you as your agent and pay you your price less our fixed commission, with a VAT invoice for the commission. On work for our business clients, we pay your fixed fee by self-bill. You never write an invoice.',
   },
   {
     q: 'What does it cost to join?',
-    a: 'Nothing. Joining Fixfy is free, with no subscription and no fee to see or accept jobs.',
+    a: 'Nothing. Joining Fixfy is free, with no subscription, no paid plans and no fee to see or accept jobs. On bookings customers make through Fixfy, we keep a fixed commission per job, including VAT, set out in our commission schedule, and you see your price before you accept. There is no commission on work for our business clients, or on cancellation charges and call-outs.',
   },
   {
     q: 'What do I need to apply?',
@@ -90,11 +103,11 @@ const FAQS = [
   },
   {
     q: 'What if the client cancels at the last minute?',
-    a: 'If the client cancels within 24 hours of the job, or you cannot get in, you are paid a £25 call-out.',
+    a: 'On bookings customers make through Fixfy, a late cancellation charge or call-out is yours in full, with no commission. On work for our business clients, if the client cancels within 24 hours of the job, or you cannot get in, you are paid a £25 call-out.',
   },
   {
     q: 'Can my company join with a team?',
-    a: 'Yes. Run jobs, photo reports and self-bills for your whole team from the partner portal on your desktop.',
+    a: 'Yes. Run jobs, photo reports and payouts for your whole team from the partner portal on your desktop.',
   },
   {
     q: 'Which areas do you cover?',
@@ -112,7 +125,7 @@ export default function PartnersPage() {
   usePageMeta({
     title: 'Join Fixfy: jobs for tradespeople in London, paid every two weeks | Fixfy',
     description:
-      'Pre-booked jobs and quote requests from letting agents, property managers and businesses across London. Your fee up front, photo reports in the app, self-billing every two weeks. Free to join.',
+      'Bookings from customers and jobs from letting agents, property managers and businesses across London. Your price up front, a fixed commission per job, paid every two weeks. Free to join, no paid plans.',
     path: '/network',
   })
 
@@ -125,7 +138,7 @@ export default function PartnersPage() {
             <h1 className="mo-display bz-hero__title">
               More jobs. Less admin. Paid on time<span className="mo-dot">.</span>
             </h1>
-            <p className="bz-hero__sub">Jobs from letting agents, property managers and businesses across London, straight to your phone.</p>
+            <p className="bz-hero__sub">Jobs from homeowners, landlords, letting agents and businesses across London, straight to your phone.</p>
             <div className="bz-hero__actions">
               <a href={join} className="mo-btn mo-btn--primary mo-btn--lg">
                 Join now <ArrowRight size={18} />
@@ -255,8 +268,8 @@ export default function PartnersPage() {
               Photos in the app. Invoice done for you<span className="mo-dot">.</span>
             </h2>
             <p className="mo-lede">
-              When you finish, you take the photos in the Fixfy app and you are done. The client gets the report, we send the invoice, and
-              the job lands on your next self-bill.
+              When you finish, you take the photos in the Fixfy app and you are done. The customer gets the report, we handle the receipt
+              or invoice for you, and the job lands on your next payout statement.
             </p>
           </div>
         </div>
@@ -289,7 +302,7 @@ export default function PartnersPage() {
           <div className="mo-reveal">
             <Eyebrow icon={Wrench}>Join the network</Eyebrow>
             <h2 className="mo-h2">Built to be the best company in the UK to work with.</h2>
-            <p className="mo-lede">Free to join. Once your documents are checked, jobs start landing in your app.</p>
+            <p className="mo-lede">Free to join, with no paid plans: on bookings customers make through Fixfy, we keep a fixed commission per job. Once your documents are checked, jobs start landing in your app.</p>
             <div className="mo-final__actions pt-final__actions">
               <a href={join} className="mo-btn mo-btn--primary mo-btn--lg">
                 Join now, it&rsquo;s free <ArrowRight size={18} />

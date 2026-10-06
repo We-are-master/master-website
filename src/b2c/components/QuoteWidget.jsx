@@ -330,7 +330,7 @@ export default function QuoteWidget({ initial = 'clean', initialKind, lockServic
             {!needsQuote && <small>fixed price</small>}
           </span>
           <span className="mo-price__note">
-            {needsQuote ? 'Bigger homes get a quick photo quote' : 'VAT included · secure checkout by Stripe'}
+            {needsQuote ? 'Bigger homes get a quick photo quote' : 'Total price · secure checkout by Stripe'}
           </span>
         </div>
         <button type="button" className="mo-btn mo-btn--primary mo-btn--lg" onClick={go}>

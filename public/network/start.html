@@ -2,17 +2,14 @@
 <html lang="en-GB">
 <head>
 <meta charset="utf-8"/>
-<title>Join Fixfy Network</title>
+<title>Join Fixfy</title>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <link rel="icon" type="image/png" href="/favicon.png"/>
 <script src="network-config.js?v=2"></script>
 <script>
+// Joining Fixfy is free, with no paid plans (owner, 6 October 2026): every sign-up goes to
+// the Trade Portal onboarding. The old paid funnel (?pay=1, ?access=, ?invite=) is retired.
 (function () {
-  var qs = new URLSearchParams(location.search);
-  if (qs.get('pay') === '1' || qs.get('access') || qs.get('invite')) {
-    location.replace('start-legacy.html' + location.search);
-    return;
-  }
   var cfg = window.NETWORK_CONFIG || window.GROWTH_CONFIG || {};
   var base = (cfg.partnerPortalGetStartedUrl || 'https://partners.getfixfy.com/get-started').replace(/\/$/, '');
   location.replace(base + location.search);

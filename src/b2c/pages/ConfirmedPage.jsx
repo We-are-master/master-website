@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, Navigate, useLocation, useSearchParams } from 'react-router-dom'
-import { ArrowRight, Camera, Check, CreditCard, Loader2, Phone, Sparkles } from 'lucide-react'
+import { ArrowRight, Camera, Check, CreditCard, Loader2, Phone, Sparkles, UserCheck } from 'lucide-react'
 import B2CLayout from '../components/Chrome.jsx'
 import { formatGBP } from '../content/pricing.js'
 import { COMPANY, PROMISES, whatsappLink } from '../content/site.js'
@@ -51,7 +51,7 @@ function usePaidSession(reference) {
 export default function ConfirmedPage() {
   const { state } = useLocation()
   const [search] = useSearchParams()
-  usePageMeta({ title: 'Booking confirmed | Fixfy', description: 'Your Fixfy booking is confirmed.', path: '/book/confirmed', noindex: true })
+  usePageMeta({ title: 'Booking received | Fixfy', description: 'We have your Fixfy booking.', path: '/book/confirmed', noindex: true })
   // session_id: Checkout hospedado. payment_intent: formulário na página que
   // passou por um redirecionamento (Klarna, autenticação do banco).
   const sessionId = search.get('session_id') || (search.get('redirect_status') !== 'failed' ? search.get('payment_intent') : null)
@@ -114,12 +114,13 @@ export default function ConfirmedPage() {
                 <Check size={28} strokeWidth={3} />
               </div>
               <h1 className="bk-title">
-                Booked, {data.firstName}<span className="mo-dot">.</span>
+                Booking received, {data.firstName}<span className="mo-dot">.</span>
               </h1>
               <p className="bk-sub">
                 {formatLongDate(data.date)}
                 {win ? `, arriving ${win.phrase}` : ''}, at {[data.address?.line2, data.address?.line1].filter(Boolean).join(', ')},{' '}
-                {data.postcode}. A confirmation is on its way to {data.email}.
+                {data.postcode}. We have emailed {data.email}, and your booking confirmation naming your professional follows
+                before the visit.
               </p>
               <div className="bk-ref">
                 Booking <b>{data.ref}</b>
@@ -132,7 +133,23 @@ export default function ConfirmedPage() {
                   </span>
                   <div>
                     <b>Today · booked{isPaid ? ' and paid' : ''}</b>
-                    <p>{isPaid ? 'Paid by card. Your receipt from Stripe arrives by email.' : 'Test booking, no payment taken.'}</p>
+                    <p>
+                      {isPaid
+                        ? `Paid by card to ${COMPANY.legalName} (Fixfy), as agent for your professional. Your receipt, in their name, comes with your booking confirmation.`
+                        : 'Test booking, no payment taken.'}
+                    </p>
+                  </div>
+                </li>
+                <li>
+                  <span className="bk-timeline__dot">
+                    <UserCheck size={15} />
+                  </span>
+                  <div>
+                    <b>Next · your professional</b>
+                    <p>
+                      Your job is carried out by an independent, vetted professional. We email you their name and details as soon
+                      as they accept, always before your visit. Until then, you can cancel for free.
+                    </p>
                   </div>
                 </li>
                 <li>
@@ -141,7 +158,7 @@ export default function ConfirmedPage() {
                   </span>
                   <div>
                     <b>The day before · we confirm the plan</b>
-                    <p>A quick call or message to confirm the team, the time and how we get in.</p>
+                    <p>A quick call or message to confirm your professional, the time and how they get in.</p>
                   </div>
                 </li>
                 <li>
@@ -150,7 +167,7 @@ export default function ConfirmedPage() {
                   </span>
                   <div>
                     <b>{formatLongDate(data.date)} · the work</b>
-                    <p>{workOrderLine(data.services)}Photos of every room as the team finishes.</p>
+                    <p>{workOrderLine(data.services)}Photos of every room as your professional finishes.</p>
                   </div>
                 </li>
                 <li>
@@ -160,11 +177,11 @@ export default function ConfirmedPage() {
                   <div>
                     <b>Same day · your photo report</b>
                     {homeClean ? (
-                      <p>It lands in your inbox, with a photo of every room we worked on.</p>
+                      <p>It lands in your inbox, with a photo of every room they worked on.</p>
                     ) : (
                       <p>
                         It lands in your inbox, ready to forward to your agent. Anything on the checklist missed? Tell us within{' '}
-                        {PROMISES.recleanDays.value} days and we come back free.
+                        {PROMISES.recleanDays.value} days and we arrange for your cleaner to come back free.
                       </p>
                     )}
                   </div>
@@ -173,7 +190,7 @@ export default function ConfirmedPage() {
 
               {prep.length > 0 && (
                 <div className="bk-prep">
-                  <b>Before we arrive</b>
+                  <b>Before your professional arrives</b>
                   <ul>
                     {prep.map((p) => (
                       <li key={p}>
@@ -219,7 +236,7 @@ export default function ConfirmedPage() {
               </ul>
               <div className="bk-plan__total">
                 <div>
-                  <span>{isPaid ? 'Paid by card, VAT included' : 'Total, VAT included'}</span>
+                  <span>{isPaid ? 'Paid by card' : 'Total price'}</span>
                   <b className="mo-num">{formatGBP(data.total)}</b>
                 </div>
               </div>

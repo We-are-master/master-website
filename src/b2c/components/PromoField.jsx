@@ -38,7 +38,7 @@ export default function PromoField({ promo, selection, onChange }) {
       <div className="bk-promo bk-promo--on" role="status">
         <Tag size={16} />
         <span>
-          <b>{promo.code}</b> applied{promo.percentOff ? `, ${promo.percentOff}% off` : ''}
+          <b>{promo.code}</b> applied{promo.percentOff ? `, ${promo.percentOff}% off` : ''}, paid by Fixfy
         </span>
         <button type="button" className="mo-link" onClick={() => onChange(null)}>
           Remove

@@ -18,7 +18,7 @@ import {
   ServicesTrio,
   StickyCta,
 } from '../components/Sections.jsx'
-import { PROMISES } from '../content/site.js'
+import { GUARANTEE, PROMISES } from '../content/site.js'
 import { usePageMeta } from '../lib/meta.js'
 import { quotePreset } from '../lib/store.js'
 
@@ -152,7 +152,7 @@ export default function HomePage() {
             <h1 className="mo-display mo-hero__title">
               Home jobs at a fixed price<span className="mo-dot">.</span>
             </h1>
-            <p className="mo-hero__sub">Cleaning, Painting, Repairs &amp; Certificates.</p>
+            <p className="mo-hero__sub">Cleaning, Painting, Repairs &amp; Certificates, by vetted independent professionals.</p>
 
             <ol className="mo-flow" aria-label="How it works">
               <li>
@@ -168,7 +168,7 @@ export default function HomePage() {
 
             <ul className="mo-facts">
               <li>
-                <Tag size={16} /> Fixed prices, VAT included
+                <Tag size={16} /> Fixed total prices
               </li>
               <li>
                 <CalendarDays size={16} /> Arrival slots 9am to 6pm
@@ -179,7 +179,7 @@ export default function HomePage() {
                     <Camera size={16} /> Photo of every room
                   </li>
                   <li>
-                    <RotateCcw size={16} /> Free re-clean in {PROMISES.recleanDays.value} days
+                    <RotateCcw size={16} /> Free re-clean within {PROMISES.recleanDays.value} days
                   </li>
                 </>
               ) : service === 'cert' ? (
@@ -194,10 +194,10 @@ export default function HomePage() {
               ) : (
                 <>
                   <li>
-                    <Camera size={16} /> Photo report when we finish
+                    <Camera size={16} /> Photo report when the job is done
                   </li>
                   <li>
-                    <RotateCcw size={16} /> Put right free within {PROMISES.recleanDays.value} days
+                    <RotateCcw size={16} /> Put right free within {GUARANTEE.standardDays} days
                   </li>
                 </>
               )}
@@ -220,13 +220,13 @@ export default function HomePage() {
       <section className="mo-section mo-section--paper" id="services">
         <div className="mo-wrap">
           <div className="mo-section__head mo-reveal">
-            <Eyebrow icon={Sparkles}>What we do</Eyebrow>
+            <Eyebrow icon={Sparkles}>What you can book</Eyebrow>
             <h2 className="mo-h2">
               Four jobs, one price each<span className="mo-dot">.</span>
             </h2>
             <p className="mo-lede">
-              A clean, a fresh coat of paint, repairs or a certificate. Book one or all four, the price on screen is the price you
-              pay, and we plan the order.
+              A clean, a fresh coat of paint, repairs or a certificate. Book one or all four. The price on screen is the price you
+              pay, and we plan the order with your professionals.
             </p>
           </div>
           <ServicesTrio />

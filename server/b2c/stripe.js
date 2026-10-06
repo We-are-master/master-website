@@ -18,7 +18,9 @@ function stripe(env) {
 }
 
 const CHUNK = 480
-const MAX_CHUNKS = 40
+// A Stripe aceita 50 chaves de metadata: 38 pedaços + bn + as fixas (ref, source,
+// collection_agent, promo_mode, promo, promo_id) + as 5 do anúncio = 50.
+const MAX_CHUNKS = 38
 
 export function packBooking(booking) {
   const json = JSON.stringify(booking)
@@ -43,7 +45,60 @@ export function unpackBooking(metadata = {}) {
 
 const pence = (gbp) => Math.round(gbp * 100)
 
-export async function createCheckoutSession(env, { ref, lines, email, booking, baseUrl, summary, contextLine, suffix, extraMetadata = {} }) {
+/**
+ * Modelo de agente (06/10/2026): a Fixfy recebe o pagamento como agente do
+ * profissional, que ainda não está escolhido na hora do checkout. A descrição
+ * aparece no recibo da Stripe; quando o OS confirmar o profissional, ela vira
+ * "Booking with {nome} via Fixfy · {ref}" no mesmo PaymentIntent.
+ */
+export const agentDescription = (ref, summary) =>
+  `Fixfy booking ${ref} · ${summary} · received by GETFIXFY LTD as agent for an independent professional`
+
+/** Texto acima do botão de pagar na página da Stripe (custom_text.submit). */
+export const AGENT_SUBMIT_TEXT =
+  'Your job is carried out by an independent professional, named in your booking confirmation before the visit. GETFIXFY LTD (Fixfy) receives this payment as their agent, and paying Fixfy counts as paying them. No Fixfy fee.'
+
+/** Metadata de todo pagamento do site: a Fixfy cobra como agente de pagamento. */
+const AGENT_METADATA = { collection_agent: 'true' }
+
+/**
+ * Nome do desconto no Checkout e no recibo. A Stripe limita o nome do cupom a
+ * 40 caracteres, então "on your behalf" fica na linha do resumo e do e-mail.
+ */
+export const PROMO_COUPON_NAME = 'Fixfy promotion, paid by Fixfy'
+
+/**
+ * A promoção entra como desconto da Stripe, com as linhas no preço cheio do
+ * profissional (nunca linha mais barata). Cupom avulso, de uso único, com o
+ * valor exato em pence e o nome que o cliente lê. Se a chave não puder criar
+ * cupom (chave restrita sem escrita em Coupons), usa o próprio código
+ * promocional do dono: aí a Stripe arredonda a porcentagem do jeito dela, e
+ * quem fecha a reserva lê o desconto que ela aplicou (total_details).
+ */
+async function promotionDiscount(env, promotion) {
+  if (!promotion || !(promotion.offPence > 0)) return null
+  try {
+    const coupon = await stripe(env).coupons.create({
+      amount_off: promotion.offPence,
+      currency: 'gbp',
+      duration: 'once',
+      max_redemptions: 1,
+      name: PROMO_COUPON_NAME,
+      metadata: { source: 'b2c-site', promo: promotion.code || '', promo_id: promotion.id || '' },
+    })
+    return { discounts: [{ coupon: coupon.id }], mode: 'coupon' }
+  } catch (err) {
+    console.error('[b2c/stripe] promotion coupon not created, using the promotion code instead', err?.message)
+    if (!promotion.id) throw err
+    return { discounts: [{ promotion_code: promotion.id }], mode: 'code' }
+  }
+}
+
+export async function createCheckoutSession(
+  env,
+  { ref, lines, email, booking, baseUrl, summary, contextLine, suffix, promotion = null, extraMetadata = {} },
+) {
+  const discount = await promotionDiscount(env, promotion)
   const session = await stripe(env).checkout.sessions.create({
     mode: 'payment',
     locale: 'en-GB',
@@ -58,14 +113,25 @@ export async function createCheckoutSession(env, { ref, lines, email, booking, b
         product_data: { name: l.label, ...(l.detail ? { description: l.detail } : {}) },
       },
     })),
+    ...(discount ? { discounts: discount.discounts } : {}),
     payment_intent_data: {
-      description: `Fixfy ${summary} · ${ref}`,
+      description: agentDescription(ref, summary),
       receipt_email: email,
       statement_descriptor_suffix: suffix,
-      metadata: { ref, source: 'b2c-site' },
+      metadata: { ref, source: 'b2c-site', ...AGENT_METADATA },
     },
-    custom_text: { submit: { message: contextLine.slice(0, 1000) } },
-    metadata: { ref, source: 'b2c-site', ...packBooking(booking), ...extraMetadata },
+    custom_text: {
+      submit: { message: AGENT_SUBMIT_TEXT },
+      after_submit: { message: contextLine.slice(0, 1000) },
+    },
+    metadata: {
+      ref,
+      source: 'b2c-site',
+      ...AGENT_METADATA,
+      ...(discount ? { promo_mode: discount.mode } : {}),
+      ...packBooking(booking),
+      ...extraMetadata,
+    },
     success_url: `${baseUrl}/book/confirmed?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${baseUrl}/book?step=4&cancelled=1`,
     expires_at: Math.floor(Date.now() / 1000) + 60 * 60,
@@ -83,9 +149,9 @@ export async function createPaymentIntent(env, { ref, amount, email, booking, su
     currency: 'gbp',
     automatic_payment_methods: { enabled: true },
     receipt_email: email,
-    description: `Fixfy ${summary} · ${ref}`,
+    description: agentDescription(ref, summary),
     statement_descriptor_suffix: suffix,
-    metadata: { ref, source: 'b2c-site', ...packBooking(booking), ...extraMetadata },
+    metadata: { ref, source: 'b2c-site', ...AGENT_METADATA, ...packBooking(booking), ...extraMetadata },
   })
   return { clientSecret: intent.client_secret, id: intent.id }
 }

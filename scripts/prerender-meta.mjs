@@ -36,7 +36,7 @@ const STATIC_PAGES = {
   },
   '/end-of-tenancy-cleaning': {
     title: 'End of tenancy cleaning in London, fixed prices from £149 | Fixfy',
-    description: 'End of tenancy cleaning in London from £149, VAT included. Room-by-room checklist, photo report of every room, free re-clean within 14 days. Booked and paid online in two minutes.',
+    description: 'End of tenancy cleaning in London from £149, fixed total price. Room-by-room checklist, photo report of every room, free re-clean within 7 days. Booked and paid online in two minutes.',
     keywords: 'end of tenancy cleaning London, move out cleaning, deposit cleaning, check-out cleaning SE London, E London',
     ogType: 'website',
   },
@@ -47,8 +47,8 @@ const STATIC_PAGES = {
     noindex: true,
   },
   '/book/confirmed': {
-    title: 'Booking confirmed | Fixfy',
-    description: 'Your Fixfy booking is confirmed. A photo of every room when we finish.',
+    title: 'Booking received | Fixfy',
+    description: 'We have your Fixfy booking. A photo of every room when the job is done.',
     ogType: 'website',
     noindex: true,
   },
@@ -59,29 +59,29 @@ const STATIC_PAGES = {
   },
   '/terms': {
     title: 'Booking terms | Fixfy',
-    description: 'The terms for cleaning, painting, repairs and certificates booked and paid for on getfixfy.com.',
+    description: 'The terms for jobs booked on getfixfy.com and carried out by independent professionals, with Fixfy as their agent.',
     ogType: 'website',
   },
   '/guarantee': {
-    title: 'Our guarantee | Fixfy',
-    description: 'Every Fixfy job is guaranteed: 14 days as standard, 3 months for painting and tiling, 6 months for wall treatments, woodwork and structural work. On top of your legal rights.',
+    title: 'The 7-day guarantee | Fixfy',
+    description: 'Every job booked on Fixfy comes with a guarantee from the independent professional who does it: 7 days as standard, up to 6 months for some painting and building work, on top of your legal rights.',
     ogType: 'website',
   },
   '/privacy': {
-    title: 'Privacy policy | Fixfy',
-    description: 'What Fixfy collects when you book or contact us, why, who we share it with and your rights.',
+    title: 'Privacy notice | Fixfy',
+    description: 'What Fixfy collects when you book or contact us, why, who we share it with, including your professional, and your rights.',
     ogType: 'website',
   },
   // Preço = end of tenancy × 90%, arredondado para baixo (src/b2c/content/pricing.js).
   '/deep-cleaning': {
     title: 'Deep cleaning in London, fixed prices from £134 | Fixfy',
-    description: 'Deep cleaning in London from £134, VAT included. For moving in, a spring clean or a home that is just overdue. Oven included, photo of every room. Book online in two minutes.',
+    description: 'Deep cleaning in London from £134, fixed total price. For moving in, a spring clean or a home that is just overdue. Oven included, photo of every room. Book online in two minutes.',
     keywords: 'deep cleaning London, deep clean London, one-off deep clean, spring clean London, move in cleaning London',
     ogType: 'website',
   },
   '/painting': {
     title: 'End of tenancy painting and touch-ups in London | Fixfy',
-    description: 'Touch-ups from £215 and full repaints from £450 a room, VAT included. Booked with your end of tenancy clean or on its own. Photo report included.',
+    description: 'Touch-ups from £215 and full repaints from £450 a room, fixed total price. Booked with your end of tenancy clean or on its own. Photo report included.',
     keywords: 'end of tenancy painting London, touch up painting, repaint room London, move out painting',
     ogType: 'website',
   },
@@ -93,13 +93,13 @@ const STATIC_PAGES = {
   },
   '/landlord-certificates': {
     title: 'Landlord certificates in London: gas safety £79, EICR from £149 | Fixfy',
-    description: 'Gas safety certificate (CP12) £79, electrical safety report (EICR) from £149 and appliance testing £69 in London, VAT included. Registered engineers, certificate the same day.',
+    description: 'Gas safety certificate (CP12) £79, electrical safety report (EICR) from £149 and appliance testing £69 in London, fixed total price. Registered engineers, certificate the same day.',
     keywords: 'gas safety certificate London, CP12 landlord, EICR London, landlord certificates, PAT testing London',
     ogType: 'website',
   },
   '/network': {
     title: 'Join Fixfy: jobs for tradespeople in London, paid every two weeks | Fixfy',
-    description: 'Pre-booked jobs and quote requests from letting agents, property managers and businesses across London. Your fee up front, photo reports in the app, self-billing every two weeks. Free to join.',
+    description: 'Bookings from customers and jobs from letting agents, property managers and businesses across London. Your price up front, a fixed commission per job, paid every two weeks. Free to join, no paid plans.',
     keywords: 'jobs for tradespeople London, handyman jobs, plumber jobs, electrician jobs, cleaning jobs, subcontract work London, trade partner',
     ogType: 'website',
   },

@@ -451,17 +451,31 @@ export function priceSelection(rawSelection) {
 /** Menor cobrança da Stripe em libra: abaixo disso o cartão nem passa. */
 export const MIN_CHARGE = 0.3
 
+/** Como a promoção aparece para o cliente: linha própria, paga pela Fixfy (modelo de agente). */
+export const PROMO_LINE_LABEL = 'Fixfy promotion, paid by Fixfy on your behalf'
+
 /**
  * Cupom aplicado ao preço: a linha do desconto entra no fim e o total cai.
  * `promo` é o que o servidor validou na Stripe (percentOff OU amountOff, em
  * libras). A conta é em pence para o total bater com a cobrança.
+ *
+ * Modelo de agente (06/10/2026, VAT Notice 700 22.2): as linhas de serviço
+ * ficam SEMPRE no preço publicado, que é o preço do profissional. A promoção
+ * é a Fixfy pagando parte desse preço em nome do cliente, então vira uma
+ * linha separada e nunca baixa a linha do serviço nem o repasse.
+ *
+ * `offPence` (opcional) fixa o desconto em pence: é o valor que a Stripe
+ * aplicou de fato no Checkout, quando o arredondamento dela difere do nosso.
  */
-export function applyPromo(priced, promo) {
+export function applyPromo(priced, promo, { offPence = null } = {}) {
   if (!promo || priced.needsQuote || !(priced.total > 0)) return priced
   const subtotal = Math.round(priced.total * 100)
-  const off = promo.percentOff
-    ? Math.round((subtotal * promo.percentOff) / 100)
-    : Math.min(Math.round((promo.amountOff || 0) * 100), subtotal)
+  const off =
+    offPence != null
+      ? Math.min(Math.max(0, Math.round(offPence)), subtotal)
+      : promo.percentOff
+        ? Math.round((subtotal * promo.percentOff) / 100)
+        : Math.min(Math.round((promo.amountOff || 0) * 100), subtotal)
   if (off <= 0) return priced
   const discount = off / 100
   return {
@@ -471,8 +485,8 @@ export function applyPromo(priced, promo) {
       {
         service: 'promo',
         id: 'promo',
-        label: `Promo code ${promo.code}`,
-        detail: promo.percentOff ? `${promo.percentOff}% off` : '',
+        label: PROMO_LINE_LABEL,
+        detail: `Code ${promo.code}${promo.percentOff ? `, ${promo.percentOff}% off` : ''}`,
         amount: -discount,
       },
     ],
@@ -484,8 +498,9 @@ export function applyPromo(priced, promo) {
 }
 
 /**
- * Reparte o desconto entre partes (jobs no OS, linhas do Checkout) na
- * proporção de cada uma, em pence; a sobra do arredondamento fica na maior.
+ * Reparte o desconto entre partes (jobs no OS) na proporção de cada uma, em
+ * pence; a sobra do arredondamento fica na maior. Só serve para dizer quanto
+ * o cliente pagou de cada job: o preço do job continua cheio.
  */
 export function splitDiscount(amounts, discount) {
   const pence = amounts.map((a) => Math.round((a || 0) * 100))

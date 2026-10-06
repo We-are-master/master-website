@@ -68,7 +68,7 @@ export default function PlanSummary({ booking, priced, sizeChosen }) {
 
       <div className="bk-plan__total">
         <div>
-          <span>Total to pay now, VAT included</span>
+          <span>Total to pay now</span>
           <b className="mo-num">{priced.needsQuote ? 'Photo quote' : formatGBP(total)}</b>
         </div>
       </div>
@@ -78,7 +78,7 @@ export default function PlanSummary({ booking, priced, sizeChosen }) {
           <Tag size={15} /> Fixed price, secure checkout by Stripe
         </li>
         <li>
-          <Camera size={15} /> {hasClean ? 'Photo of every room when we finish' : 'Photo report when we finish'}
+          <Camera size={15} /> {hasClean ? 'Photo of every room when the job is done' : 'Photo report when the job is done'}
         </li>
         <li>
           <RotateCcw size={15} />{' '}

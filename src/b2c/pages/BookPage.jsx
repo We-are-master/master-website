@@ -55,9 +55,9 @@ const SERVICE_ICON = { clean: Sparkles, paint: Paintbrush, fix: Wrench, cert: Fi
 
 const ACCESS = [
   { id: 'meet', label: 'I will be there', detail: 'Or someone I trust' },
-  { id: 'agent', label: 'Keys with my agent', detail: 'We collect and return them', ask: 'Agent name, branch and address' },
+  { id: 'agent', label: 'Keys with my agent', detail: 'Collected and returned for you', ask: 'Agent name, branch and address' },
   { id: 'keysafe', label: 'Key safe', detail: 'We ask for the code the day before', ask: 'Where is the key safe?' },
-  { id: 'concierge', label: 'Concierge or porter', detail: 'We sign the keys out', ask: 'Building name and concierge phone' },
+  { id: 'concierge', label: 'Concierge or porter', detail: 'Your professional signs the keys out', ask: 'Building name and concierge phone' },
 ]
 
 const PARKING = [
@@ -88,15 +88,15 @@ function validate(step, b, ctx) {
     const needsSize = sel.services.includes('clean') || (sel.services.includes('cert') && sel.cert.items.includes('eicr'))
     if (needsSize && !b.sizeChosen) e.size = 'Choose the size of the place.'
     if (ctx.priced.needsQuote) e.size = 'For 5 or more bedrooms we price from photos. Send us a message and we reply within the day.'
-    if (sel.services.includes('fix') && sel.fix.tasks.length === 0) e.tasks = 'Tick at least one job so the team brings the right tools.'
+    if (sel.services.includes('fix') && sel.fix.tasks.length === 0) e.tasks = 'Tick at least one job so your handyman brings the right tools.'
     if (sel.services.includes('cert') && sel.cert.items.length === 0) e.cert = 'Tick at least one certificate.'
   }
   if (step === 2) {
     if (!b.date) e.date = 'Choose a day.'
     if (!ctx.windows.some((w) => w.id === b.window)) e.window = 'Choose an arrival time.'
-    if (!b.access) e.access = 'Tell us how we get in.'
+    if (!b.access) e.access = 'Tell us how your professional gets in.'
     const access = ACCESS.find((a) => a.id === b.access)
-    if (access?.ask && !b.accessNote.trim()) e.accessNote = 'Add the details so the team is not stuck at the door.'
+    if (access?.ask && !b.accessNote.trim()) e.accessNote = 'Add the details so your professional is not stuck at the door.'
     if (!b.parking) e.parking = 'Choose the parking situation.'
     if (!PHONE_RE.test(cleanPhone(b.contact.phone))) e.phone = 'Enter a UK mobile, like 07700 900123.'
   }
@@ -863,9 +863,9 @@ export default function BookPage() {
                 <>
                   <header className="bk-head">
                     <h1 className="bk-title">
-                      When, and how we get in<span className="mo-dot">.</span>
+                      When, and how your professional gets in<span className="mo-dot">.</span>
                     </h1>
-                    <p className="bk-sub">Monday to Saturday. We confirm the team and the plan with you the day before.</p>
+                    <p className="bk-sub">Monday to Saturday. We confirm your professional and the plan with you the day before.</p>
                   </header>
 
                   <fieldset className={`bk-block${errors.date ? ' has-error' : ''}`}>
@@ -919,12 +919,12 @@ export default function BookPage() {
                         </button>
                       ))}
                     </div>
-                    <p className="bk-note">The team arrives within the slot you pick. Any time is the easiest to fit if the keys are with your agent.</p>
+                    <p className="bk-note">Your professional arrives within the slot you pick. Any time is the easiest to fit if the keys are with your agent.</p>
                     <ErrorText>{errors.window}</ErrorText>
                   </fieldset>
 
                   <fieldset className={`bk-block${errors.access ? ' has-error' : ''}`}>
-                    <legend className="bk-legend">How do we get in?</legend>
+                    <legend className="bk-legend">How does your professional get in?</legend>
                     <div className="mo-options mo-options--2" role="radiogroup" aria-label="Access">
                       {ACCESS.map((a) => (
                         <button
@@ -1100,12 +1100,20 @@ export default function BookPage() {
                   </fieldset>
 
                   <fieldset className="bk-block">
+                    {/* Informação antes do contrato (modelo de agente): quem faz, quem recebe e que não há taxa da Fixfy. */}
+                    <p className="bk-fine bk-agent">
+                      Carried out by an independent, vetted professional. We name them in your booking confirmation, before the visit.{' '}
+                      {COMPANY.legalName} (Fixfy) receives your payment as their agent, and paying Fixfy counts as paying them. No Fixfy
+                      fee.
+                    </p>
                     <label className="bk-check">
                       <input type="checkbox" checked={terms} onChange={(e) => setTerms(e.target.checked)} />
                       <span>
-                        I agree to the <Link to="/terms" target="_blank">booking terms</Link> and ask you to do the work on the day I
-                        picked, even within my 14-day cancellation period. Free changes and cancellation up to{' '}
-                        {PROMISES.freeCancellationHours} hours before the slot, and I can no longer cancel once the work is done.
+                        I agree to the <Link to="/terms" target="_blank">booking terms</Link>. I understand my job is carried out by an
+                        independent professional, and that Fixfy arranges the booking and receives my payment as their agent. I ask for
+                        the work to be done on the day I picked, even within my 14-day cancellation period. Changes and cancellation are
+                        free up to {PROMISES.freeCancellationHours} hours before the slot, and I can no longer cancel once the work is
+                        done.
                       </span>
                     </label>
                     <ErrorText>{errors.terms}</ErrorText>
@@ -1170,7 +1178,7 @@ export default function BookPage() {
         {/* Barra do celular: total sempre à vista */}
         <div className="bk-bar">
           <button type="button" className="bk-bar__total" onClick={() => setSheet(true)} aria-expanded={sheet}>
-            <span>Total, VAT included</span>
+            <span>Total price</span>
             <b className="mo-num">{priced.needsQuote ? 'Quote' : formatGBP(totalShown)}</b>
             <ChevronUp size={16} />
           </button>

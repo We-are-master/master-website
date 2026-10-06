@@ -95,7 +95,7 @@ export default function JobGuide({ guide, active }) {
 
         <div className={`mo-guide${extras.length ? '' : ' mo-guide--solo'}`}>
           <div className="mo-reveal">
-            <h3 className="mo-guide__title">Before we arrive</h3>
+            <h3 className="mo-guide__title">Before your professional arrives</h3>
             <ul className="mo-prep">
               {g.prep.map((p) => {
                 const Icon = ICONS[p.icon]
