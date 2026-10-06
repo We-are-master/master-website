@@ -547,6 +547,9 @@ async function recordBooking(env, b, priced, ref, paymentIntentId, { deposit = f
         postcode: b.postcode,
         description: scopeFor(service, b, priced, ref, { certItem: entry.certItem, lines: entry.lines }),
         client_price: price,
+        // Promoção paga pela Fixfy em nome do cliente (master-os#696). OS antigo ignora o campo;
+        // a nota interna continua contando a mesma coisa.
+        ...(priced.promo && discounts[i] > 0 ? { promotion_amount: discounts[i] } : {}),
         // O cartão já passou: o job nasce PAGO e mesmo assim `unassigned`. Sem
         // isto ele nascia `unpaid` e virava "a receber" de um dinheiro que já
         // está na conta, com risco de alguém cobrar quem já pagou.
