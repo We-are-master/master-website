@@ -7,7 +7,7 @@
  */
 
 export const COMPANY = {
-  legalName: 'Getfixfy Ltd',
+  legalName: 'GETFIXFY LTD',
   address: '124 City Road, London, England, EC1V 2NX',
   companyNumber: '15406523',
   vatNumber: '478 1027 82',
@@ -29,9 +29,14 @@ export const PROMISES = {
   /** 18/09/2026: o dono descartou "cartão guardado, cobra depois"; paga no checkout (Stripe). */
   payAtCheckout: true,
   freeCancellationHours: 48,
-  // 22/09/2026: o dono pôs garantia de 14 dias em todo serviço, então o re-clean acompanha.
-  recleanDays: { value: 14, pending: false },
-  pricesIncludeVat: true,
+  // 06/10/2026 (modelo de agente): garantia de 7 dias dada pelo profissional, e o re-clean acompanha.
+  recleanDays: { value: 7, pending: false },
+  /**
+   * Nada de VAT por cima do preço: o preço da tela é o total. Se o profissional
+   * for registrado no VAT, o VAT dele já está dentro e sai no recibo. Nunca
+   * "prices include VAT": a Fixfy não vende o serviço (VAT Notice 700, seção 22).
+   */
+  noVatAddedOnTop: true,
 }
 
 /**
@@ -61,15 +66,20 @@ export const GOOGLE_REVIEWS = {
 }
 
 /**
- * Regras dos termos da reserva (/terms), 21/09/2026. Escritas por mim a pedido
- * do dono, esperando a leitura dele: taxa de cancelamento tardio, tolerância
- * de acesso e margem de peça são propostas. Mudou aqui, muda na página e no FAQ.
+ * Regras dos termos da reserva (/terms), modelo de agente de 06/10/2026: a
+ * Fixfy é agente declarada do profissional e recebe o pagamento em nome dele.
+ * A taxa de cancelamento tardio é do profissional, inteira (a Fixfy não fica
+ * com nada). Peça extra sai pelo preço do profissional, sem margem da Fixfy.
+ * Mudou aqui, muda na página e no FAQ.
  */
 export const TERMS = {
-  version: '23 September 2026',
+  version: '6 October 2026',
+  /** Versão que estes termos substituem (para reservas feitas antes da data acima). */
+  replaces: '23 September 2026',
   lateCancellationPercent: 50,
+  /** A taxa de cancelamento tardio vai 100% para o profissional. */
+  lateCancellationToProfessionalPercent: 100,
   noAccessMinutes: 30,
-  partsMarkupPercent: 30,
   replyWorkingDays: 2,
   resolveDays: 14,
 }
@@ -127,17 +137,22 @@ export function whatsappLink(text = '') {
 }
 
 /**
- * Garantia de todo serviço da Fixfy (dono, 22/09/2026). Soma-se aos
- * direitos do consumidor, nunca os substitui. Os
+ * Garantia de todo serviço reservado na Fixfy (dono, 06/10/2026): dada pelo
+ * profissional que faz o trabalho e organizada pela Fixfy. 7 dias como regra
+ * (com o re-clean), e os prazos maiores de pintura e obra, também dados pelo
+ * profissional. Soma-se aos direitos do consumidor, nunca os substitui. Os
  * prazos contam do dia em que o trabalho termina; o que não está na lista
- * fica com o prazo padrão.
+ * fica com o prazo padrão. Reservas de antes de 06/10/2026 ficam com o que
+ * foi vendido (14 dias).
  */
 export const GUARANTEE = {
-  standardDays: 14,
+  standardDays: 7,
+  /** Quem dá a garantia: o profissional independente, não a Fixfy. */
+  givenBy: 'professional',
   longer: [
     { id: 'painting', label: 'Painting and decorating', months: 3 },
-    { id: 'walls', label: 'Wall treatments', months: 6 },
     { id: 'tiling', label: 'Tiling', months: 3 },
+    { id: 'walls', label: 'Wall treatments', months: 6 },
     { id: 'wood', label: 'Woodwork and structural work', months: 6 },
   ],
 }

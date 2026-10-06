@@ -3542,8 +3542,13 @@ body[data-site='b2c'] .zls-sptwndw {
   margin: 0 0 8px;
 }
 
-.mo-doc-box p:last-child {
+.mo-doc-box p:last-child,
+.mo-doc-box ul:last-child {
   margin: 0;
+}
+
+.mo-doc > .mo-doc-box + section {
+  margin-top: 36px;
 }
 
 /* ---------- WhatsApp fixo, canto inferior direito ---------- */
