@@ -26,7 +26,7 @@ import {
   priceSelection,
   normalizeSelection,
 } from '../../src/b2c/content/pricing.js'
-import { COVERED_AREAS, GOOGLE_REVIEWS, PROMISES, formatPostcode, looksLikePostcode, postcodeArea } from '../../src/b2c/content/site.js'
+import { COVERED_AREAS, GOOGLE_REVIEWS, GUARANTEE, PROMISES, TERMS, formatPostcode, looksLikePostcode, postcodeArea } from '../../src/b2c/content/site.js'
 import { bookableDates, windowsFor } from '../../src/b2c/lib/slots.js'
 import { capacidadeDoOs } from './capacity.js'
 import { diasSemVaga } from '../../src/b2c/lib/capacity.js'
@@ -37,18 +37,38 @@ function keyOk(given, env) {
   return timingSafeEqual(Buffer.from(given), Buffer.from(want))
 }
 
+/**
+ * Como a Fixfy funciona desde 06/10/2026 (modelo de agente), para o Harvey
+ * falar igual ao site: "eu agendo você com um profissional local verificado",
+ * nunca "we clean" / "our team".
+ */
+const HOW_FIXFY_WORKS = {
+  model: 'disclosed_agent',
+  summary:
+    'Fixfy is an online platform. Every job is carried out by an independent, vetted local professional, and the customer\'s contract for the work is with them. Fixfy arranges the booking and receives the payment as their agent: paying Fixfy counts as paying the professional. No Fixfy fee.',
+  say: 'I book you with a vetted local professional. We email you their name as soon as they accept, always before your visit.',
+  never: ['we clean', 'our team will do the work', 'our cleaners', 'prices include VAT'],
+  professionalNamed: 'In the booking confirmation email, after a professional accepts. Until then the customer can cancel for free.',
+  vat: 'No VAT added on top. If the professional is VAT registered, their VAT is included in the price and shown on the receipt.',
+  promotions: 'A promo code is a Fixfy promotion, paid by Fixfy on the customer\'s behalf. The professional\'s price stays the same.',
+  lateCancellation: `Less than ${PROMISES.freeCancellationHours} hours before the slot: ${TERMS.lateCancellationPercent}% of the price, all of it to the professional (Fixfy keeps none of it).`,
+  materials: 'Anything not in the booking (parts, extra materials) is quoted by the professional at their price, and only bought with the customer\'s approval.',
+  termsVersion: TERMS.version,
+}
+
 /** Tudo que ele vende, com preço, do jeito que o site vende. */
 export function catalog() {
   return {
     currency: 'GBP',
-    vatIncluded: true,
+    noVatAddedOnTop: true,
+    howFixfyWorks: HOW_FIXFY_WORKS,
     sizes: PROPERTY_SIZES.map((s) => ({ id: s.id, label: s.label })),
     cleaning: {
       kinds: CLEAN_KINDS.map((k) => ({ id: k.id, name: k.name, forWhat: k.detail, prices: k.prices })),
       includedBathrooms: CLEAN.includedBathrooms,
       extraBathroomSteps: CLEAN.extraBathroomSteps,
       extras: CLEAN.extras.map((e) => ({ id: e.id, label: e.label, detail: e.detail, price: e.price, perRoom: e.unit === 'room' })),
-      included: ['Oven', 'Cleaning products and equipment', 'VAT', 'A photo of every room when we finish'],
+      included: ['Oven', 'Cleaning products and equipment', 'A photo of every room when the job is done'],
       teamOfTwoFromSize: CLEAN.teamOfTwoFromSize,
       fiveBedNote: '5+ bedrooms: priced from photos, pass to the team',
     },
@@ -59,11 +79,17 @@ export function catalog() {
     handyman: {
       packages: FIX.packages.map((p) => ({ id: p.id, label: p.label, detail: p.detail, price: p.price })),
       tasks: FIX.tasks.map((t) => ({ id: t.id, label: t.label })),
-      note: 'Tools included, no call-out fee. Materials are not included (customer supplies them, or we quote them separately).',
+      note: 'Tools included, no call-out fee. Materials are not included: the customer supplies them, or the professional quotes them at their price, only with the customer\'s approval.',
     },
     certificates: CERT.items.map((i) => ({ id: i.id, label: i.label, detail: i.detail, valid: i.valid, price: i.price ?? null, prices: i.prices ?? null })),
     coverage: { postcodeAreas: COVERED_AREAS, note: 'All of London' },
     promises: PROMISES,
+    guarantee: {
+      givenBy: 'The independent professional who does the job, arranged by Fixfy',
+      standardDays: GUARANTEE.standardDays,
+      longer: GUARANTEE.longer.map((g) => ({ label: g.label, months: g.months })),
+      recleanDays: PROMISES.recleanDays.value,
+    },
     reviews: { google: { rating: GOOGLE_REVIEWS.rating, count: GOOGLE_REVIEWS.count, url: GOOGLE_REVIEWS.url } },
     access: { meet: 'Customer will be there', agent: 'Keys with the letting agent', keysafe: 'Key safe', concierge: 'Concierge or porter' },
     parking: { free: 'Free parking nearby', paid: 'Paid or permit parking', none: 'No parking' },

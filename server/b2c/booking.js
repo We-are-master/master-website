@@ -34,6 +34,7 @@ import {
   CLEAN,
   FIX,
   PAINT,
+  PROMO_LINE_LABEL,
   PROPERTY_SIZES,
   SERVICES,
   applyPromo,
@@ -118,7 +119,7 @@ function validate(body) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) e.push('Choose a day.')
   const win = findWindow(body.window)
   if (!win) e.push('Choose an arrival time.')
-  if (!ACCESS_LABEL[body.access]) e.push('Tell us how we get in.')
+  if (!ACCESS_LABEL[body.access]) e.push('Tell us how your professional gets in.')
   if (!PARKING_LABEL[body.parking]) e.push('Choose the parking situation.')
   const c = body.contact || {}
   const contact = {
@@ -186,34 +187,46 @@ async function withPromo(env, body, b, priced) {
   return { priced: r.priced, booking: { ...b, promo: r.promo }, metadata: { promo: r.promo.code, promo_id: r.promo.id } }
 }
 
-/** Linhas para a Stripe, que não aceita linha negativa: o desconto sai de cada uma na proporção. */
-function chargeLines(priced) {
-  const lines = priced.lines.filter((l) => l.service !== 'promo')
-  if (!priced.discount) return lines
-  const shares = splitDiscount(lines.map((l) => l.amount), priced.discount)
-  return lines.map((l, i) => ({
-    ...l,
-    amount: Math.round((l.amount - shares[i]) * 100) / 100,
-    detail: [l.detail, `with code ${priced.promo.code}`].filter(Boolean).join(' · '),
-  }))
+/**
+ * Linhas para a Stripe: sempre no preço publicado, que é o preço do
+ * profissional (modelo de agente, VAT Notice 700 22.2: a Fixfy não mexe no
+ * valor da venda dele). A promoção vai como desconto da Stripe, à parte.
+ */
+function listLines(priced) {
+  return priced.lines.filter((l) => l.service !== 'promo')
+}
+
+/** A promoção da reserva para o Checkout: código, id e o desconto exato em pence. */
+function promotionFor(priced) {
+  if (!priced.promo || !(priced.discount > 0)) return null
+  return { code: priced.promo.code, id: priced.promo.id, offPence: pence(priced.discount) }
 }
 
 /**
- * Repasse do parceiro no job: a tabela do que a Fixfy paga (partner-pay.js),
- * não uma porcentagem do preço. O cupom é custo da Fixfy, então o repasse
- * segue o preço cheio, com um teto no que o cliente pagou: o OS guarda a
- * margem do job e repasse maior que o preço estoura o campo (o cupom de 99%
- * derrubou a reserva FX-DJJGAG).
+ * Repasse do parceiro no job: o líquido da tabela (partner-pay.js, igual ao
+ * documento 08 de comissão), não uma porcentagem do preço. Cupom é promoção
+ * da Fixfy, paga por ela em nome do cliente: nunca reduz nem limita o
+ * repasse. O preço do job no OS fica cheio, então o repasse nunca passa dele.
  */
-function partnerCostFor(pay, price) {
-  return pay == null ? {} : { partner_cost: Math.min(pay, price) }
+function partnerCostFor(pay) {
+  return pay == null ? {} : { partner_cost: pay }
 }
 
-/** O que a nota do job conta ao escritório sobre o repasse, com cupom. */
-function promoPartnerNote(partnerCost, pay) {
-  if (pay == null) return 'Partner pay is not set by the website: set it when you assign.'
-  if (partnerCost >= pay) return `Partner pay kept at the full rate (${gbp(pay)}).`
-  return `Partner pay capped at what the customer paid; the rate for this job is ${gbp(pay)}: raise it by hand if the discount is ours to absorb.`
+/**
+ * Nota do job com cupom. O payload do OS não tem campo de promoção, então ela
+ * fica registrada aqui: preço cheio no job, quanto a Fixfy paga em nome do
+ * cliente e quanto o cliente pagou de fato.
+ */
+function promotionNote({ code, listPrice, share, paid, pay, deposit = null }) {
+  return [
+    `FIXFY PROMOTION ${code}: ${gbp(share)} of this job's price (${gbp(listPrice)}) is paid by Fixfy on the customer's behalf. The customer pays ${gbp(paid)} for this job.`,
+    `Client price stays at the professional's full price (${gbp(listPrice)}) and partner pay is not reduced${pay == null ? ' (partner pay not set by the website: set it when you assign)' : ` (${gbp(pay)})`}: the promotion is a Fixfy cost.`,
+    deposit != null
+      ? `BALANCE DUE FROM THE CUSTOMER after the job: ${gbp(Math.round((paid - deposit) * 100) / 100)} for this job, NOT client price minus deposit (the promotion is not owed by the customer): send a fixed-amount pay link (?amount=${(Math.round((paid - deposit) * 100) / 100).toFixed(2)}).`
+      : null,
+  ]
+    .filter(Boolean)
+    .join(' ')
 }
 
 /**
@@ -239,21 +252,35 @@ export async function handleCheckout(body, { origin, ip, userAgent, deposit = fa
   const ref = newRef()
   const win = findWindow(b.window)
   const now = deposit ? depositOf(priced.total) : null
+  const later = deposit ? Math.round((priced.total - now) * 100) / 100 : null
   const session = await createCheckoutSession(env, {
     ref,
+    // Depósito: uma linha só, do que se paga agora (a promoção já está no total da reserva).
     lines: deposit
-      ? [{ label: `50% deposit: ${summaryOf(b)}`, detail: `The other ${gbp(priced.total - now)} is paid after the job`, amount: now }]
-      : chargeLines(priced),
+      ? [
+          {
+            label: `50% deposit: ${summaryOf(b)}`,
+            detail: [
+              `The other ${gbp(later)} is paid after the job`,
+              priced.promo ? `${PROMO_LINE_LABEL} (${priced.promo.code}): ${gbp(priced.discount)} already taken off` : null,
+            ]
+              .filter(Boolean)
+              .join(' · '),
+            amount: now,
+          },
+        ]
+      : listLines(priced),
+    promotion: deposit ? null : promotionFor(priced),
     email: b.contact.email,
     booking: deposit ? { ...booking, deposit: true } : booking,
     baseUrl: returnBaseUrl(env, origin),
     summary: summaryOf(b),
     suffix: statementSuffix(b.selection),
-    contextLine: `Booking ${ref}: ${formatLongDate(b.date)}, arriving ${win.phrase}, at ${addressLineOf(b)}. Free changes up to ${PROMISES.freeCancellationHours} hours before, refunded in full.`,
+    contextLine: `Booking ${ref}: ${formatLongDate(b.date)}, arriving ${win.phrase}, at ${addressLineOf(b)}. Carried out by an independent professional, named in your confirmation. Free changes up to ${PROMISES.freeCancellationHours} hours before, refunded in full.`,
 
     extraMetadata: { ...adMetadata(body.ad, { ip, userAgent }), ...metadata },
   })
-  return { status: 200, data: { url: session.url, ref, total: priced.total, ...(deposit ? { payNow: now, payLater: Math.round((priced.total - now) * 100) / 100 } : {}) } }
+  return { status: 200, data: { url: session.url, ref, total: priced.total, ...(deposit ? { payNow: now, payLater: later } : {}) } }
 }
 
 /**
@@ -342,14 +369,14 @@ function scopeFor(service, b, priced, ref, opts = {}) {
     parts.push(
       sel.paint.materials
         ? `Materials pack INCLUDED in the price (${PAINT.materials.detail}): bring everything, white or magnolia unless the notes say otherwise.`
-        : 'No materials pack: use the paint the customer leaves on site; anything else used goes on the report as materials, billed separately.',
+        : 'No materials pack: use the paint the customer leaves on site. Anything else needed is quoted to the customer at your price before you buy it, only with their approval, and goes on the report as materials.',
     )
   }
   if (service === 'fix') {
     const pkg = FIX.packages.find((p) => priced.lines.some((l) => l.id === `fix-${p.id}`))
     const tasks = FIX.tasks.filter((t) => sel.fix.tasks.includes(t.id)).map((t) => t.label)
     parts.push(`Move-out repairs, ${pkg?.label.toLowerCase() || 'time as booked'} on site. Jobs: ${tasks.join('; ')}.`)
-    parts.push('Parts to be listed as materials on the report and billed separately.')
+    parts.push('Parts: tell the customer what is needed and your price before buying; only with their approval. List them as materials on the report.')
   }
   if (service === 'cert') {
     const item = opts.certItem
@@ -366,7 +393,9 @@ function scopeFor(service, b, priced, ref, opts = {}) {
       parts.push('Upload the signed certificate to the report, plus a photo of the appliance or consumer unit tested. Anything that fails: list it with the fix and the price, do not start the work.')
     }
   }
-  parts.push(`Price to the customer: ${money(lines.reduce((s, l) => s + (l.amount || 0), 0))} inc VAT, fixed (${lines.map((l) => `${l.label} ${money(l.amount)}`).join(', ')}).`)
+  parts.push(
+    `Price: ${money(lines.reduce((s, l) => s + (l.amount || 0), 0))}, the fixed published price (${lines.map((l) => `${l.label} ${money(l.amount)}`).join(', ')}). A Fixfy promotion, if any, is paid by Fixfy and never changes this price.`,
+  )
   if (sel.services.length > 1) {
     parts.push(`Part of booking ${ref} with ${sel.services.filter((s) => s !== service).map((s) => serviceName(s, sel).toLowerCase()).join(' and ')}: this job goes ${ORDER_NOTE[service]}.`)
   }
@@ -459,14 +488,17 @@ async function recordBooking(env, b, priced, ref, paymentIntentId, { deposit = f
         order.push({ service, title: item.osTitle, certItem: item, lines })
       }
     }
-    // Com cupom, o desconto sai de cada job na proporção do preço (a sobra fica no maior).
+    // Preço do job: sempre o publicado (o do profissional). Com cupom, a parte
+    // que a Fixfy paga em nome do cliente é repartida entre os jobs só para
+    // saber quanto o cliente pagou de cada um (a sobra fica no maior).
     const entryLines = order.map((e) => e.lines || priced.lines.filter((l) => l.service === e.service))
     const listPrices = entryLines.map((lines) => lines.reduce((s, l) => s + (l.amount || 0), 0))
     const discounts = splitDiscount(listPrices, priced.discount)
     for (const entry of order) {
       const { service } = entry
       const i = order.indexOf(entry)
-      const price = Math.round((listPrices[i] - discounts[i]) * 100) / 100
+      const price = listPrices[i]
+      const paid = Math.round((listPrices[i] - discounts[i]) * 100) / 100
       const pay = partnerPayFor({
         service,
         lines: entryLines[i],
@@ -475,16 +507,23 @@ async function recordBooking(env, b, priced, ref, paymentIntentId, { deposit = f
         bathrooms: sel.bathrooms,
         certItem: entry.certItem,
       })
-      const partnerPay = partnerCostFor(pay, price)
+      const partnerPay = partnerCostFor(pay)
       const notes = [
         `Website booking ${ref} (${order.length > 1 ? `${order.indexOf(entry) + 1} of ${order.length}` : 'single job'}).`,
         bank
           ? `AWAITING BANK TRANSFER: 50% deposit of ${gbp(bank.deposit)} (of ${gbp(priced.total)}) to be paid by bank transfer with reference ${ref}. Booked on WhatsApp with Harvey. Do NOT dispatch until the deposit lands: record it in Finance and the offer goes out. Harvey releases the slot if nothing arrives in 24 hours.`
           : deposit
           ? `50% DEPOSIT PAID: ${gbp(depositOf(priced.total))} of ${gbp(priced.total)} by card at booking, Stripe payment ${paymentIntentId}. The balance of ${gbp(priced.total - depositOf(priced.total))} is due after the job: send the pay link from the OS.`
-          : `PAID ${gbp(priced.total)} by card at booking, Stripe payment ${paymentIntentId}${order.length > 1 ? ` (covers the whole booking of ${gbp(priced.total)})` : ''}. Materials, if any, are billed separately.`,
+          : `PAID ${gbp(priced.total)} by card at booking, Stripe payment ${paymentIntentId}${order.length > 1 ? ` (covers the whole booking of ${gbp(priced.total)})` : ''}. Received by Fixfy as agent for the professional. Extra materials, if any, are quoted to the customer at the professional's price, with their approval.`,
         priced.promo
-          ? `Promo code ${priced.promo.code}: this job is ${gbp(price)} instead of ${gbp(listPrices[i])}. ${promoPartnerNote(partnerPay.partner_cost, pay)}`
+          ? promotionNote({
+              code: priced.promo.code,
+              listPrice: price,
+              share: discounts[i],
+              paid,
+              pay,
+              deposit: bank || deposit ? depositOf(paid) : null,
+            })
           : null,
         b.role ? `Booked by: ${ROLE_LABEL[b.role]}.` : null,
         `Marketing opt-in: ${b.marketing ? 'yes' : 'no'}.`,
@@ -517,7 +556,8 @@ async function recordBooking(env, b, priced, ref, paymentIntentId, { deposit = f
           : {
               payment_status: deposit ? 'partial' : 'paid',
               paid_at: new Date().toISOString(),
-              payment_amount: deposit ? depositOf(price) : price,
+              // O que o cliente pagou deste job (com cupom, menos que o preço cheio).
+              payment_amount: deposit ? depositOf(paid) : paid,
               stripe_payment_intent_id: paymentIntentId,
             }),
         internal_notes: notes,
@@ -568,7 +608,7 @@ async function recordBooking(env, b, priced, ref, paymentIntentId, { deposit = f
  * gravou (na sessão do Checkout ou no PaymentIntent); a marca `booked` no
  * PaymentIntent segura a segunda chamada (página de volta + webhook, ou refresh).
  */
-async function finalizePaid(env, { pi, metadata, amount }) {
+async function finalizePaid(env, { pi, metadata, amount, discountPence = null }) {
   const ref = metadata?.ref
   const stored = unpackBooking(metadata)
   if (!ref || !stored) return { status: 500, data: { error: `We could not read booking ${ref || ''}. Email hello@getfixfy.com and we will sort it.` } }
@@ -576,8 +616,15 @@ async function finalizePaid(env, { pi, metadata, amount }) {
   // A data já foi conferida quando a cobrança nasceu; aqui só a forma.
   const { errors, clean: b } = validate(stored)
   // Com cupom, o desconto é o que o servidor gravou na cobrança (nada de consultar de novo).
-  const priced = applyPromo(priceSelection(b.selection), stored.promo)
+  const listed = priceSelection(b.selection)
   const deposit = stored.deposit === true
+  let priced = applyPromo(listed, stored.promo)
+  // Checkout pago com o código do dono (sem o cupom avulso): vale o desconto que a
+  // Stripe aplicou, se só o arredondamento da porcentagem separa os dois (até 2p).
+  if (stored.promo && !deposit && Number.isInteger(discountPence)) {
+    const gap = Math.abs(discountPence - pence(priced.discount || 0))
+    if (gap > 0 && gap <= 2) priced = applyPromo(listed, stored.promo, { offPence: discountPence })
+  }
   const expected = deposit ? pence(depositOf(priced.total)) : pence(priced.total)
   if (errors.length || priced.needsQuote || amount !== expected) {
     console.error('[b2c/booking] paid amount does not match booking', ref, errors, amount, priced.total)
@@ -625,7 +672,12 @@ export async function finalizeSession(sessionId) {
   if (session.status !== 'complete' || session.payment_status !== 'paid' || !pi) {
     return { status: 402, data: { error: 'Your payment has not gone through yet.', paymentStatus: session.payment_status } }
   }
-  return finalizePaid(env, { pi, metadata: session.metadata, amount: session.amount_total })
+  return finalizePaid(env, {
+    pi,
+    metadata: session.metadata,
+    amount: session.amount_total,
+    discountPence: session.total_details?.amount_discount ?? null,
+  })
 }
 
 export async function finalizePaymentIntent(paymentIntentId) {

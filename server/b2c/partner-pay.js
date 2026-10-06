@@ -1,5 +1,9 @@
 /**
- * O que a Fixfy paga ao parceiro em cada reserva do site (dono, 22/09/2026).
+ * O líquido do profissional em cada reserva do site (dono, 22/09/2026; modelo
+ * de agente desde 06/10/2026): o preço publicado, que é o preço dele, menos a
+ * comissão fixa da Fixfy. Os números batem com o documento 08 (Commission
+ * Schedule): preço − comissão = este líquido. Promoção da Fixfy nunca reduz
+ * este valor nem fica limitada pelo que o cliente pagou.
  *
  * Vai como `partner_cost` no job do OS, então o job já nasce com o repasse
  * certo e ninguém precisa corrigir depois. Quem atribui continua mandando:
@@ -15,8 +19,8 @@
  *    clean, £20 por quarto a mais (dono, 23/09/2026).
  *  - Add-ons de limpeza (carpete, geladeira, janela, varanda): 60% do preço.
  *  - Reparos: hora, meia diária (3,5h) e diária do handyman.
- *  - Pintura: valor fechado por faixa. O pacote de material é reembolso do
- *    custo, porque o site cobra custo mais 30%.
+ *  - Pintura: valor fechado por faixa. O pacote de material (£130) é
+ *    fornecido pelo profissional: líquido £100, comissão £30 (documento 08).
  *  - Certificados: o custo que o catálogo do OS paga em cada faixa.
  */
 import { CLEAN, PAINT } from '../../src/b2c/content/pricing.js'
@@ -41,7 +45,7 @@ export const PARTNER_PAY = {
   },
   /** Handyman: hora, meia diária 3,5h, diária 7h. */
   fix: { hour: 40, half: 117, day: 214 },
-  /** Pintura: touch-up até 3,5h, cômodo em duas demãos, e o material a custo. */
+  /** Pintura: touch-up até 3,5h, cômodo em duas demãos, e o pacote de material. */
   paint: { touchup: 95, rooms: 230, materials: 100 },
   /**
    * Certificados: o custo do catálogo em cada faixa. O preço de venda vive em
@@ -97,8 +101,9 @@ function cleanPay({ lines, size, kind, bathrooms }) {
  * Repasse do job, em libras, ou null quando o site não sabe (aí o OS calcula
  * e o escritório ajusta na hora de atribuir).
  *
- * `lines` são as linhas de preço DESTE job (sem desconto: o cupom sai da
- * margem da Fixfy, não do parceiro).
+ * `lines` são as linhas de preço DESTE job, no preço publicado (sem
+ * desconto: a promoção é paga pela Fixfy em nome do cliente e não mexe no
+ * preço nem no líquido do profissional).
  */
 export function partnerPayFor({ service, lines = [], size, kind, bathrooms = 1, certItem }) {
   if (!lines.length) return null
