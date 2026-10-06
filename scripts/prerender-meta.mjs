@@ -99,7 +99,7 @@ const STATIC_PAGES = {
   },
   '/network': {
     title: 'Join Fixfy: jobs for tradespeople in London, paid every two weeks | Fixfy',
-    description: 'Bookings from customers and jobs from letting agents, property managers and businesses across London. Your price up front, a fixed commission per job, paid every two weeks. Free to join, no paid plans.',
+    description: 'Bookings from customers and jobs from letting agents, property managers and businesses across London. Paid every two weeks, with a statement for every job. Free to join, no paid plans. You see what you will receive before you accept each job.',
     keywords: 'jobs for tradespeople London, handyman jobs, plumber jobs, electrician jobs, cleaning jobs, subcontract work London, trade partner',
     ogType: 'website',
   },
@@ -127,7 +127,7 @@ const STATIC_PAGES = {
   },
   '/for-trades': {
     title: 'For tradespeople — Fixfy',
-    description: 'No commission. No marketplace fees. Transparent rate cards. 98.4% of invoices paid within a week.',
+    description: 'Free to join, no paid plans. You see what you will receive before you accept each job. Paid every two weeks, with a statement for every job.',
     ogType: 'website',
   },
   '/customers': {
