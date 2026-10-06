@@ -23,13 +23,13 @@ const PAGES = {
     alt: 'Cleaner in orange gloves cleaning the inside of an oven door',
     meta: {
       title: `End of tenancy cleaning in London, fixed prices from ${formatGBP(cleanPrice('studio', 'eot'))} | Fixfy`,
-      description: `End of tenancy cleaning in London from ${formatGBP(cleanPrice('studio', 'eot'))}, VAT included. Products and equipment included, two cleaners from two bedrooms, photo report of every room and a free re-clean within ${PROMISES.recleanDays.value} days.`,
+      description: `End of tenancy cleaning in London from ${formatGBP(cleanPrice('studio', 'eot'))}, fixed total price. Products and equipment included, two cleaners from two bedrooms, photo report of every room and a free re-clean within ${PROMISES.recleanDays.value} days.`,
     },
     points: [
       `Fixed price by property size, from ${formatGBP(cleanPrice('studio', 'eot'))}`,
       'Products, cloths, hoover and mop all included. Two cleaners from two bedrooms up',
       'Oven deep clean included. Carpets, fridge and outside windows as priced add-ons',
-      'A photo of every room when we finish, to forward to your agent',
+      'A photo of every room when the job is done, to forward to your agent',
       `Free re-clean within ${PROMISES.recleanDays.value} days if the check-out flags something on our list`,
     ],
     faqs: FAQS.filter((f) => !/painting|paint and materials|certificate|safety check/i.test(f.q)),
@@ -48,16 +48,16 @@ const PAGES = {
     alt: 'Cleaner in orange gloves cleaning the inside of an oven door',
     meta: {
       title: `Deep cleaning in London, fixed prices from ${formatGBP(cleanPrice('studio', 'deep'))} | Fixfy`,
-      description: `Deep cleaning in London from ${formatGBP(cleanPrice('studio', 'deep'))}, VAT included. For moving in, a spring clean or a home that is just overdue. Oven included, photo of every room. Book online in two minutes.`,
+      description: `Deep cleaning in London from ${formatGBP(cleanPrice('studio', 'deep'))}, fixed total price. For moving in, a spring clean or a home that is just overdue. Oven included, photo of every room. Book online in two minutes.`,
     },
     points: [
       `Fixed price by property size, from ${formatGBP(cleanPrice('studio', 'deep'))}`,
       'Products, cloths, hoover and mop all included. Two cleaners from two bedrooms up',
       'Oven deep clean included. Carpets, fridge and outside windows as priced add-ons',
       'Done around your furniture and belongings, room by room',
-      'A photo of every room when we finish',
+      'A photo of every room when the job is done',
     ],
-    faqs: [...DEEP_FAQS, ...FAQS.filter((f) => /how do i pay|get in|how long|change or cancel|areas/i.test(f.q))],
+    faqs: [...DEEP_FAQS, ...FAQS.filter((f) => /how do i pay|who does the work|get in|how long|change or cancel|areas/i.test(f.q))],
     otherA: { id: 'paint', label: 'Add a fresh coat', to: '/painting' },
     otherB: { id: 'fix', label: 'Add repairs', to: '/repairs' },
     sticky: cleanPrice('studio', 'deep'),
@@ -68,21 +68,21 @@ const PAGES = {
     kind: 'after',
     eyebrow: 'After builders cleaning · London',
     title: 'After builders cleaning',
-    lede: 'Building dust gets everywhere and normal cleaning spreads it. We take it out of the property, top to bottom, at a fixed price booked online.',
+    lede: 'Building dust gets everywhere and normal cleaning spreads it. Your cleaner takes it out of the property, top to bottom, at a fixed price booked online.',
     img: '/b2c/img/svc-clean.webp',
     alt: 'Cleaner in orange gloves cleaning the inside of an oven door',
     meta: {
       title: `After builders cleaning in London, fixed prices from ${formatGBP(cleanPrice('studio', 'after'))} | Fixfy`,
-      description: `After builders cleaning in London from ${formatGBP(cleanPrice('studio', 'after'))}, VAT included. Fine dust, paint specks and grout residue removed room by room. Products and equipment included, photo report of every room.`,
+      description: `After builders cleaning in London from ${formatGBP(cleanPrice('studio', 'after'))}, fixed total price. Fine dust, paint specks and grout residue removed room by room. Products and equipment included, photo report of every room.`,
     },
     points: [
       `Fixed price by property size, from ${formatGBP(cleanPrice('studio', 'after'))}`,
       'Products, cloths, hoover and mop all included. Two cleaners from two bedrooms up',
       'Fine dust off surfaces, skirting, frames and inside windows',
       'Paint specks and grout residue taken off where they come away safely',
-      'A photo of every room when we finish, to send to whoever did the work',
+      'A photo of every room when the job is done, to send to whoever did the work',
     ],
-    faqs: FAQS.filter((f) => /how do i pay|get in|how long|change or cancel|areas|photo report/i.test(f.q)),
+    faqs: FAQS.filter((f) => /how do i pay|who does the work|get in|how long|change or cancel|areas|photo report/i.test(f.q)),
     otherA: { id: 'paint', label: 'Add a fresh coat', to: '/painting' },
     otherB: { id: 'fix', label: 'Add repairs', to: '/repairs' },
     sticky: cleanPrice('studio', 'after'),
@@ -96,15 +96,15 @@ const PAGES = {
     alt: 'Painter rolling white emulsion onto a bedroom wall',
     meta: {
       title: 'End of tenancy painting and touch-ups in London | Fixfy',
-      description: 'Touch-ups from £215 and full repaints from £450 a room, VAT included. Booked with your end of tenancy clean or on its own. Photo report included.',
+      description: 'Touch-ups from £215 and full repaints from £450 a room, fixed total price. Booked with your end of tenancy clean or on its own. Photo report included.',
     },
     points: [
       `Touch-ups across the property from ${formatGBP(PAINT.options[0].price)}`,
       `Full repaint, walls in two coats, ${formatGBP(PAINT.options[1].price)} a room`,
-      `Paint and materials pack for ${formatGBP(PAINT.materials.price)}, or use the landlord’s paint`,
-      'Booked with the clean, we do the paint first and the clean last',
+      `Paint and materials pack for ${formatGBP(PAINT.materials.price)}, supplied by your painter, or use the landlord’s paint`,
+      'Booked with the clean, we schedule the paint first and the clean last',
     ],
-    faqs: FAQS.filter((f) => /paint|how do i pay|photo report|change or cancel|areas|empty|get in|how long/i.test(f.q)),
+    faqs: FAQS.filter((f) => /paint|how do i pay|who does the work|photo report|change or cancel|areas|empty|get in|how long/i.test(f.q)),
     otherA: { id: 'clean', label: 'Add the clean', to: '/end-of-tenancy-cleaning' },
     otherB: { id: 'fix', label: 'Add repairs', to: '/repairs' },
     sticky: FROM_PRICE.paint,
@@ -124,10 +124,10 @@ const PAGES = {
       `Half day ${formatGBP(FIX.packages[0].price)} or full day ${formatGBP(FIX.packages[1].price)}, no call-out fee`,
       'Every tool the job needs comes with the handyman',
       'Tick the jobs on your list and we suggest half or full day',
-      'Parts are the only extra: billed at the end and listed in your report',
+      'Parts are the only extra: only with your approval, at the price agreed, and listed in your photo report',
       'Booked with the clean, repairs go first so the dust is cleaned away',
     ],
-    faqs: FAQS.filter((f) => /paint and materials|how do i pay|photo report|change or cancel|areas|get in|how long|book painting/i.test(f.q)),
+    faqs: FAQS.filter((f) => /paint and materials|how do i pay|who does the work|photo report|change or cancel|areas|get in|how long|book painting/i.test(f.q)),
     otherA: { id: 'clean', label: 'Add the clean', to: '/end-of-tenancy-cleaning' },
     otherB: { id: 'paint', label: 'Add a fresh coat', to: '/painting' },
     sticky: FROM_PRICE.fix,
@@ -136,12 +136,12 @@ const PAGES = {
     path: '/landlord-certificates',
     eyebrow: 'Landlord certificates · London',
     title: 'The certificates before the next tenant',
-    lede: 'Gas, electrics and appliances checked and signed by registered engineers. Fixed price, booked online, certificate and photo report on the same day.',
+    lede: 'Gas, electrics and appliances checked by registered engineers, who issue the certificate in their own name. Fixed price, booked online, certificate and photo report on the same day.',
     img: '/b2c/img/svc-cert.webp',
     alt: 'Gas engineer checking a boiler in a London flat kitchen',
     meta: {
       title: `Landlord certificates in London: gas safety ${formatGBP(CERT.items[0].price)}, EICR from ${formatGBP(certPrice(CERT.items[1], 'studio'))} | Fixfy`,
-      description: `Gas safety certificate (CP12) ${formatGBP(CERT.items[0].price)}, electrical safety report (EICR) from ${formatGBP(certPrice(CERT.items[1], 'studio'))} and energy performance certificate (EPC) from ${formatGBP(certPrice(CERT.items[2], 'studio'))} in London, VAT included. Registered engineers and assessors.`,
+      description: `Gas safety certificate (CP12) ${formatGBP(CERT.items[0].price)}, electrical safety report (EICR) from ${formatGBP(certPrice(CERT.items[1], 'studio'))} and energy performance certificate (EPC) from ${formatGBP(certPrice(CERT.items[2], 'studio'))} in London, fixed total price. Registered engineers and assessors.`,
     },
     points: [
       `Gas safety certificate (CP12) ${formatGBP(CERT.items[0].price)}, by a Gas Safe registered engineer`,
@@ -149,7 +149,7 @@ const PAGES = {
       `Energy performance certificate (EPC) from ${formatGBP(certPrice(CERT.items[2], 'studio'))}, by an accredited assessor and lodged on the national register`,
       'If something fails, you get the list and a fixed price before any work starts',
     ],
-    faqs: FAQS.filter((f) => /certificate|safety check|how do i pay|photo report|change or cancel|areas|get in/i.test(f.q)),
+    faqs: FAQS.filter((f) => /certificate|safety check|how do i pay|who does the work|photo report|change or cancel|areas|get in/i.test(f.q)),
     otherA: { id: 'clean', label: 'Add the clean', to: '/end-of-tenancy-cleaning' },
     otherB: { id: 'fix', label: 'Add repairs', to: '/repairs' },
     sticky: FROM_PRICE.cert,
@@ -215,7 +215,7 @@ export default function ServicePage({ service, kind }) {
           <div className="mo-wrap mo-standard">
             <div className="mo-reveal">
               <Eyebrow icon={SERVICE_ICON[service]}>
-                {service === 'paint' ? 'What we paint' : service === 'cert' ? 'What we certify' : 'What we fix'}
+                {service === 'paint' ? 'Painting you can book' : service === 'cert' ? 'Certificates you can book' : 'Repairs you can book'}
               </Eyebrow>
               <h2 className="mo-h2">
                 {service === 'paint'
@@ -229,8 +229,8 @@ export default function ServicePage({ service, kind }) {
                 {service === 'paint'
                   ? 'Touch-ups are for a property that just needs the marks of living gone. A full repaint is for walls that need a proper finish, priced per room so you can choose which ones.'
                   : service === 'cert'
-                    ? 'Book the ones that are due. The engineer signs the certificate, we send it with the photo report and keep the expiry date on file for the next one.'
-                    : 'Most check-out lists are small jobs that add up. Tick them in the booking and we suggest how long the team needs.'}
+                    ? 'Book the ones that are due. The engineer issues the certificate in their own name, and we send it with the photo report and keep the expiry date on file for the next one.'
+                    : 'Most check-out lists are small jobs that add up. Tick them in the booking and we suggest how long your handyman needs.'}
               </p>
             </div>
             <div className="mo-checklist mo-reveal">
@@ -250,7 +250,7 @@ export default function ServicePage({ service, kind }) {
                       'Colour matched to the existing wall where possible',
                       'Full rooms: walls in two coats, edges cut in cleanly',
                       'Skirting and woodwork on request',
-                      'Dust sheets down, tidy when we leave',
+                      'Dust sheets down, left tidy when the job is done',
                     ]
                   : FIX.tasks.filter((t) => t.id !== 'other').map((t) => t.label)
                 ).map((item) => (

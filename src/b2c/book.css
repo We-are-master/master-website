@@ -803,6 +803,13 @@
   color: var(--mo-mute);
 }
 
+/* Quem faz e quem recebe, logo acima do aceite (modelo de agente). */
+.bk-fine.bk-agent {
+  display: block;
+  margin: 0 0 14px;
+  line-height: 1.5;
+}
+
 .bk-devnote {
   margin: 0;
   font-size: 13px;

@@ -1,10 +1,22 @@
-# Fixfy Network — setup
+# Fixfy Network: setup
 
 ## URLs
 
-- Landing: `/network` (redirect from `/partners`)
-- **Partner signup:** `/network/start` → redirects to **`https://partners.getfixfy.com/get-started`** (7-day free trial, no card)
-- Legacy paid/token funnel: `/network/start?pay=1` or `?access=TOKEN` → `start-legacy.html`
+- Landing: `/network` (React page `src/b2c/pages/PartnersPage.jsx`; redirect from `/partners`)
+- **Partner signup:** `/network/start` → redirects to **`https://partners.getfixfy.com/get-started`**
+
+## Partner money model (6 October 2026)
+
+- Joining is free. Fixfy has **no paid plans, subscriptions or trials** for partners.
+- Platform Bookings (customers who book through Fixfy): Fixfy is the partner's agent, collects the payment for them and keeps a **fixed commission per job** (Commission Schedule, VAT included; 30% on quoted work). Cancellation charges and call-outs go to the partner in full.
+- Fixfy Client Work (letting agents, property managers, businesses): Fixfy pays a fixed Partner Fee by self-bill, no commission.
+- Payouts every two weeks by bank transfer, with a statement for every job.
+
+## Retired: paid funnel
+
+The old paid/token funnel (`?pay=1`, `?access=`, `?invite=`, £99/mo and £499/yr plans) is retired.
+`start.html` and `start-legacy.html` both forward to the Trade Portal, and `funnel.js` / `network-checkout.js`
+were removed. The notes below describe the old Supabase/Stripe setup and are kept only for reference.
 
 ## Frontend env (Vite / Vercel)
 
@@ -69,14 +81,11 @@ After token access (`?access=`) or legacy paid checkout (`?pay=1`), users are se
 https://partners.getfixfy.com/get-started?name=...&email=...&phone=...&business=...&trades=...
 ```
 
-The default path **`/network/start`** (no query) redirects straight to the Trade Portal onboarding — no quiz on getfixfy.com.
-
-Legacy **`?pay=1`** or **`?access=`** still use `start-legacy.html` on this domain.
+Every path to **`/network/start`** redirects straight to the Trade Portal onboarding, with or without a query.
 
 For local dev, set `VITE_PARTNER_PORTAL_GET_STARTED_URL=http://localhost:3001/get-started` in `.env`.
 
 ## Local test
 
 1. `npm run dev`
-2. Open `http://localhost:5173/network/start.html`
-3. Complete funnel with Stripe test card `4242 4242 4242 4242`
+2. Open `http://localhost:5173/network/start.html`: it forwards to the Trade Portal `get-started` page.

@@ -275,7 +275,7 @@ export function B2CHeader({ minimal = false, right = null, business = false, tra
   )
 }
 
-export function B2CFooter() {
+export function B2CFooter({ business = false }) {
   return (
     <footer className="mo-footer">
       <div className="mo-wrap">
@@ -284,7 +284,7 @@ export function B2CFooter() {
             <img src="/b2c/fixfy-navy.png" alt="Fixfy" width="85" height="30" />
             <p>
               Cleaning, painting, repairs and landlord certificates across London. Fixed prices, booked and paid
-              online, with a photo of every room when we finish.
+              online, with a photo of every room when the job is done.
             </p>
           </div>
           <div>
@@ -328,7 +328,12 @@ export function B2CFooter() {
             © {new Date().getFullYear()} {COMPANY.legalName} · {COMPANY.address} · Company number {COMPANY.companyNumber} · VAT{' '}
             {COMPANY.vatNumber}
           </span>
-          <span>Prices include VAT</span>
+          {/* B2B continua principal (preço com VAT da Fixfy); o site de reserva é agente do profissional. */}
+          <span>
+            {business
+              ? 'Prices include VAT'
+              : 'Services carried out by independent professionals. Fixfy arranges bookings and receives payment as their agent. No VAT added on top.'}
+          </span>
         </div>
       </div>
     </footer>
@@ -385,7 +390,7 @@ export default function B2CLayout({ children, minimalHeader = false, headerRight
     <div className="mo-root">
       <B2CHeader minimal={minimalHeader} right={headerRight} business={business} trades={trades} />
       <main>{children}</main>
-      {footer && <B2CFooter />}
+      {footer && <B2CFooter business={business} />}
       <WhatsAppButton />
       {/* Quem já está na reserva não leva pop-up: ele atrapalharia a compra. */}
       {/* A oferta de saída é cupom de cliente final: não aparece para empresa. */}

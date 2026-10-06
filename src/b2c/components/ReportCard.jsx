@@ -31,7 +31,7 @@ export default function ReportCard({ report = EXAMPLE_REPORT, cover = null, anim
           <img src={cover} alt="A Fixfy cleaner wiping down a kitchen worktop in an empty flat" loading="eager" />
           <span className="mo-report__cover-tag">
             <span className="mo-live-dot" aria-hidden="true" />
-            Team on site · photos as they finish
+            Professional on site · photos as they finish
           </span>
         </div>
       )}
@@ -59,7 +59,7 @@ export default function ReportCard({ report = EXAMPLE_REPORT, cover = null, anim
       </ol>
       <footer className="mo-report__foot">
         <div>
-          <span>Paid at booking, VAT included</span>
+          <span>Paid at booking</span>
           <b className="mo-report__total">{formatGBP(report.total)}</b>
         </div>
         <div className="is-today">

@@ -16,8 +16,8 @@ const from = (n) => `From ${formatGBP(n)}`
 
 const ACCESS = {
   icon: 'key',
-  title: 'Tell us how we get in',
-  text: 'Be there, leave keys with your agent or concierge, or give us a key safe code. We confirm the plan the day before.',
+  title: 'Tell us how your professional gets in',
+  text: 'Be there, leave keys with your agent or concierge, or give us a key safe code, which we pass only to your professional. We confirm the plan the day before.',
 }
 
 /** Os dois tipos de limpeza lado a lado: a mesma tabela nas duas páginas. */
@@ -43,7 +43,7 @@ export const GUIDES = {
     ...CLEAN_COMPARE,
     prep: [
       { icon: 'box', title: 'Empty the property', text: 'It works best empty. Still moving out on the day? Say so in the booking notes and we plan around you.' },
-      { icon: 'zap', title: 'Keep the power and hot water on', text: 'The team needs both to clean properly, so leave them on until we finish.' },
+      { icon: 'zap', title: 'Keep the power and hot water on', text: 'Your cleaner needs both to clean properly, so leave them on until the job is done.' },
       ACCESS,
     ],
     extras: 'clean',
@@ -51,8 +51,8 @@ export const GUIDES = {
   deep: {
     ...CLEAN_COMPARE,
     prep: [
-      { icon: 'box', title: 'Clear the surfaces', text: 'Clear the worktops and surfaces you want cleaned. We work around everything else.' },
-      { icon: 'door', title: 'Empty the cupboards you want done', text: 'We clean inside any cupboard or wardrobe you empty for us.' },
+      { icon: 'box', title: 'Clear the surfaces', text: 'Clear the worktops and surfaces you want cleaned. Your cleaner works around everything else.' },
+      { icon: 'door', title: 'Empty the cupboards you want done', text: 'Your cleaner cleans inside any cupboard or wardrobe you empty.' },
       ACCESS,
     ],
     extras: 'clean',
@@ -74,7 +74,7 @@ export const GUIDES = {
     ],
     prep: [
       { icon: 'layers', title: 'Book it after the last trade', text: 'Dust keeps falling while work goes on, so pick a day after the builders have finished.' },
-      { icon: 'zap', title: 'Keep the power and hot water on', text: 'The team needs both to clean properly, so leave them on until we finish.' },
+      { icon: 'zap', title: 'Keep the power and hot water on', text: 'Your cleaner needs both to clean properly, so leave them on until the job is done.' },
       ACCESS,
     ],
     extras: 'clean',
@@ -89,26 +89,26 @@ export const GUIDES = {
     })),
     rows: [
       { label: 'Best for', cells: ['Scuffs, marks and holes across the property', 'Walls that need a proper finish'] },
-      { label: 'What we do', cells: ['Holes filled, marks and scuffs touched up', 'Walls in two coats, edges cut in cleanly'] },
+      { label: 'What is included', cells: ['Holes filled, marks and scuffs touched up', 'Walls in two coats, edges cut in cleanly'] },
       { label: 'How it is priced', cells: ['Up to 3.5 hours', 'Per room, you choose which'] },
       { label: `Paint and materials pack, ${formatGBP(PAINT.materials.price)}`, cells: ['Optional', 'Optional'] },
       { label: 'Photo of every room', cells: [true, true] },
     ],
     prep: [
-      { icon: 'brush', title: 'Choose the paint', text: `Add the materials pack, or leave the landlord’s paint on site and we use it.` },
-      { icon: 'layers', title: 'Book it with the clean', text: 'In one booking we paint first and clean last, so no dust or touch-up marks are left behind.' },
+      { icon: 'brush', title: 'Choose the paint', text: `Add the materials pack, supplied by your painter, or leave the landlord’s paint on site for them to use.` },
+      { icon: 'layers', title: 'Book it with the clean', text: 'In one booking we schedule the paint first and the clean last, so no dust or touch-up marks are left behind.' },
       ACCESS,
     ],
     extras: 'paint',
   },
   fix: {
     title: 'Half day or full day',
-    lede: 'Repairs are booked by time, so you know how long we will be there before we arrive. No call-out fee on either.',
+    lede: 'Repairs are booked by time, so you know how long your handyman will be there before they arrive. No call-out fee on either.',
     columns: FIX.packages.map((p) => ({ id: p.id, name: p.label, price: formatGBP(p.price) })),
     rows: [
       { label: 'Time on site', cells: FIX.packages.map((p) => p.detail) },
       { label: 'Call-out fee', cells: ['None', 'None'] },
-      { label: 'Parts', cells: ['Billed at the end, listed in your report', 'Billed at the end, listed in your report'] },
+      { label: 'Parts', cells: ['Only with your approval, listed in your report', 'Only with your approval, listed in your report'] },
       { label: 'Photo when done', cells: [true, true] },
     ],
     prep: [
@@ -121,7 +121,7 @@ export const GUIDES = {
   cert: {
     title: 'What each certificate covers',
     end: '.',
-    lede: 'Book the ones that are due. Each one is signed by the engineer who does it, and we keep the expiry date on file for the next one.',
+    lede: 'Book the ones that are due. Each one is issued by the engineer who does it, in their own name, and we keep the expiry date on file for the next one.',
     columns: CERT.items.map((i) => ({
       id: i.id,
       name: i.short,

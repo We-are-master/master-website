@@ -42,7 +42,7 @@ export function Promises({ className = '', reclean = true }) {
   return (
     <ul className={`mo-promises ${className}`}>
       <li>
-        <Tag size={17} /> Fixed prices, VAT included
+        <Tag size={17} /> Fixed total prices
       </li>
       <li>
         <Camera size={17} /> Photo of every room
@@ -122,9 +122,9 @@ const SERVICE_CARDS = [
     alt: 'Cleaner in orange gloves cleaning an oven door',
     to: '/end-of-tenancy-cleaning',
     points: [
-      'Every room done to our room-by-room checklist',
+      'Every room done to the Fixfy room-by-room checklist',
       'Oven deep clean included. Carpets and fridge as add-ons, priced up front',
-      'Photos of every room when we finish',
+      'Photos of every room when the job is done',
     ],
   },
   {
@@ -150,7 +150,7 @@ const SERVICE_CARDS = [
     points: [
       'Handles, hinges, rails, sealant and the rest of the list',
       'A half day or a full day, no call-out fee',
-      'Parts listed in your photo report',
+      'Parts only with your approval, listed in your photo report',
     ],
   },
   {
@@ -206,7 +206,7 @@ export function ServicesTrio() {
 
       <div className="mo-day mo-reveal">
         <div>
-          <div className="mo-day__title">Book two or three together and we plan the order.</div>
+          <div className="mo-day__title">Book two or three together and we plan the order with your professionals.</div>
           <p className="mo-day__text">The order matters on a move-out, so you do not have to think about it.</p>
         </div>
         <ol className="mo-day__steps">
@@ -252,15 +252,15 @@ export function PayAfterPhotos({ kind = 'eot', tone = 'navy' }) {
           </h2>
           <p className="mo-lede">
             The price is fixed before you book and paid by card at checkout, so there is nothing to sort out on the day.
-            The team photographs every room as they finish it.
+            Your professional photographs every room as they finish it.
           </p>
           <ol className="mo-steps">
             <li>
               <div>
                 <b>Today: get your fixed price and book</b>
                 <p>
-                  Pick the jobs and the size of the place, choose a day, pay by card through Stripe. Your receipt and the
-                  booking confirmation arrive straight away.
+                  Pick the jobs and the size of the place, choose a day, pay by card through Stripe. We email you straight
+                  away, and your booking confirmation naming your professional follows before the visit.
                 </p>
               </div>
             </li>
@@ -269,7 +269,7 @@ export function PayAfterPhotos({ kind = 'eot', tone = 'navy' }) {
                 <b>Pick a day, from tomorrow</b>
                 <p>
                   Monday to Saturday, in a three-hour slot between 9am and 6pm, or any time that day. Book before 2pm
-                  for a next-day slot. We call the day before to confirm the team and how we get in.
+                  for a next-day slot. We call the day before to confirm your professional and how they get in.
                 </p>
               </div>
             </li>
@@ -285,7 +285,7 @@ export function PayAfterPhotos({ kind = 'eot', tone = 'navy' }) {
                   <p>
                     Repairs first, then paint, then the clean. A 2 bed clean takes 4 to 6 hours. The photo report lands on
                     your phone the same day, ready to forward to your agent. Something on the checklist missed? Tell us
-                    within {RECLEAN} days and we come back free.
+                    within {RECLEAN} days and we arrange for your cleaner to come back free.
                   </p>
                 )}
               </div>
@@ -332,13 +332,13 @@ export function CheckoutStandard({ kind = 'eot' }) {
           </h2>
           {deep ? (
             <p className="mo-lede">
-              Our room-by-room checklist, done in the home you live in. We work around your furniture and belongings, and
-              clean inside the cupboards and wardrobes you empty for us.
+              The Fixfy room-by-room checklist, done in the home you live in. Your cleaner works around your furniture and
+              belongings, and cleans inside the cupboards and wardrobes you empty.
             </p>
           ) : (
             <p className="mo-lede">
               Inventory clerks do not check whether a flat looks clean. They check the oven door, the grout and the top of
-              the skirting boards. So that is what our checklist covers, room by room, on every clean.
+              the skirting boards. So that is what the Fixfy checklist covers, room by room, on every clean.
             </p>
           )}
         </div>
@@ -391,7 +391,7 @@ export function Audiences() {
     <section className="mo-section mo-section--paper">
       <div className="mo-wrap">
         <div className="mo-section__head mo-reveal">
-          <Eyebrow icon={Users}>Who we work for</Eyebrow>
+          <Eyebrow icon={Users}>Who books with Fixfy</Eyebrow>
           <h2 className="mo-h2">
             Moving out, re-letting or managing the keys<span className="mo-dot">.</span>
           </h2>
@@ -682,7 +682,7 @@ export function PriceTables() {
             </div>
             {/* Os três tipos lado a lado; cada um tem a sua tabela no pricing.js (Housekeep menos 5%). */}
             <table className="mo-pricetable">
-              <caption className="mo-sr">Cleaning prices by size, VAT included</caption>
+              <caption className="mo-sr">Cleaning prices by size, total price</caption>
               <thead>
                 <tr>
                   <th scope="col">
@@ -709,7 +709,7 @@ export function PriceTables() {
               </tbody>
             </table>
             <ul className="mo-incl">
-              <li>Products, cloths, hoover and mop, all brought by the team</li>
+              <li>Products, cloths, hoover and mop, all brought by your cleaner</li>
               <li>Two cleaners from two bedrooms up</li>
               <li>Inside the oven included in all three</li>
             </ul>
@@ -762,7 +762,7 @@ export function PriceTables() {
                 </li>
               ))}
             </ul>
-            <p className="mo-price__note">Every tool included and no call-out fee. Parts are the only extra: billed at the end and listed in your photo report.</p>
+            <p className="mo-price__note">Every tool included and no call-out fee. Parts are the only extra: only with your approval, at the price agreed, and listed in your photo report.</p>
             <Link to={bookingHref({ services: ['fix'], fixPackage: 'half' })} className="mo-btn mo-btn--dark">
               Book repairs <ArrowRight size={18} />
             </Link>
@@ -786,7 +786,7 @@ export function PriceTables() {
                 </li>
               ))}
             </ul>
-            <p className="mo-price__note">Signed by Gas Safe and NICEIC or NAPIT registered engineers. Certificate and photo report the same day.</p>
+            <p className="mo-price__note">Issued by Gas Safe and NICEIC or NAPIT registered engineers in their own name. Certificate and photo report the same day.</p>
             <Link to={bookingHref({ services: ['cert'], cert: ['gas'] })} className="mo-btn mo-btn--dark">
               Book certificates <ArrowRight size={18} />
             </Link>
@@ -794,7 +794,7 @@ export function PriceTables() {
         </div>
         <div className="mo-fineprint">
           <span>
-            <CheckCircle2 size={16} /> All prices include VAT
+            <CheckCircle2 size={16} /> No VAT added on top. If your professional is VAT registered, their VAT is included and shown on your receipt.
           </span>
           <span>
             <CheckCircle2 size={16} /> Secure card payment by Stripe at checkout
@@ -883,7 +883,7 @@ export function Areas() {
     <section className="mo-section" id="areas">
       <div className="mo-wrap mo-areas">
         <div className="mo-reveal">
-          <Eyebrow icon={MapPin}>Where we work</Eyebrow>
+          <Eyebrow icon={MapPin}>Where you can book</Eyebrow>
           <h2 className="mo-h2">
             All of London, Monday to Saturday<span className="mo-dot">.</span>
           </h2>
@@ -970,7 +970,7 @@ export function FinalCta({ title = 'Know your price before you book.', to = '/bo
         <h2 className="mo-h2">
           {title}
         </h2>
-        <p className="mo-lede">Get a fixed price in under a minute and book online. Photos of every room when we finish.</p>
+        <p className="mo-lede">Get a fixed price in under a minute and book online. Photos of every room when the job is done.</p>
         <div className="mo-final__actions">
           <Link to={to} className="mo-btn mo-btn--primary mo-btn--lg">
             Get my price <ArrowRight size={18} />
