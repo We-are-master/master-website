@@ -27,11 +27,9 @@ import '../partners.css'
  * "16 Partner Applications Remaining"), parceiros inventados com números e
  * uma média de £4k a £8k por mês que o payday não sustenta. Aqui só entra
  * o que é verdade, no modelo de 06/10/2026 (contrato do parceiro, termos de
- * uso e Commission Schedule): entrada grátis e sem plano pago; nas reservas
- * de cliente pela Fixfy (Platform Bookings) a Fixfy é agente do profissional
- * e fica com uma comissão fixa por job; no trabalho dos clientes empresa da
- * Fixfy (Fixfy Client Work) paga um valor fixo por self-bill, sem comissão.
- * Pagamento quinzenal com extrato por job. Todo "Join" vai para o cadastro no
+ * uso): entrada grátis e sem plano pago, pagamento quinzenal com extrato por
+ * job. Comissão não é anunciada aqui (dono, 06/10/2026): o parceiro vê quanto
+ * recebe antes de aceitar cada job, e os valores ficam no contrato. Todo "Join" vai para o cadastro no
  * portal do parceiro.
  */
 
@@ -72,7 +70,7 @@ const REASONS = [
   {
     icon: FileText,
     title: 'Clear money, up front',
-    text: 'Free to join, no paid plans. The price is on the job before you accept it. On bookings customers make through Fixfy, we keep a fixed commission per job and pay you the rest.',
+    text: 'Free to join, no paid plans. You see what you will receive before you accept each job.',
   },
   { icon: Headphones, title: 'A real ops team', text: 'We handle the bookings, the access and the rescheduling, so you can focus on the work.' },
   { icon: Smartphone, title: 'App and portal', text: 'Jobs, photo reports and payout statements on your phone, and on the desktop portal.' },
@@ -91,11 +89,11 @@ const REQUIREMENTS = [
 const FAQS = [
   {
     q: 'How and when do I get paid?',
-    a: 'Every two weeks by bank transfer, with a statement for every job. On bookings customers make through Fixfy, we collect the payment for you as your agent and pay you your price less our fixed commission, with a VAT invoice for the commission. On work for our business clients, we pay your fixed fee by self-bill. You never write an invoice.',
+    a: 'Every two weeks by bank transfer, with a statement for every job. You never write an invoice.',
   },
   {
     q: 'What does it cost to join?',
-    a: 'Nothing. Joining Fixfy is free, with no subscription, no paid plans and no fee to see or accept jobs. On bookings customers make through Fixfy, we keep a fixed commission per job, including VAT, set out in our commission schedule, and you see your price before you accept. There is no commission on work for our business clients, or on cancellation charges and call-outs.',
+    a: 'Nothing. Free to join, no paid plans. You see what you will receive before you accept each job.',
   },
   {
     q: 'What do I need to apply?',
@@ -103,7 +101,7 @@ const FAQS = [
   },
   {
     q: 'What if the client cancels at the last minute?',
-    a: 'On bookings customers make through Fixfy, a late cancellation charge or call-out is yours in full, with no commission. On work for our business clients, if the client cancels within 24 hours of the job, or you cannot get in, you are paid a £25 call-out.',
+    a: 'Cancellation charges and call-outs on customer bookings are yours in full. On work for our business clients, if the client cancels within 24 hours of the job, or you cannot get in, you are paid a £25 call-out.',
   },
   {
     q: 'Can my company join with a team?',
@@ -125,7 +123,7 @@ export default function PartnersPage() {
   usePageMeta({
     title: 'Join Fixfy: jobs for tradespeople in London, paid every two weeks | Fixfy',
     description:
-      'Bookings from customers and jobs from letting agents, property managers and businesses across London. Your price up front, a fixed commission per job, paid every two weeks. Free to join, no paid plans.',
+      'Bookings from customers and jobs from letting agents, property managers and businesses across London. Paid every two weeks, with a statement for every job. Free to join, no paid plans. You see what you will receive before you accept each job.',
     path: '/network',
   })
 
@@ -302,7 +300,7 @@ export default function PartnersPage() {
           <div className="mo-reveal">
             <Eyebrow icon={Wrench}>Join the network</Eyebrow>
             <h2 className="mo-h2">Built to be the best company in the UK to work with.</h2>
-            <p className="mo-lede">Free to join, with no paid plans: on bookings customers make through Fixfy, we keep a fixed commission per job. Once your documents are checked, jobs start landing in your app.</p>
+            <p className="mo-lede">Free to join, no paid plans. You see what you will receive before you accept each job. Once your documents are checked, jobs start landing in your app.</p>
             <div className="mo-final__actions pt-final__actions">
               <a href={join} className="mo-btn mo-btn--primary mo-btn--lg">
                 Join now, it&rsquo;s free <ArrowRight size={18} />

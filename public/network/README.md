@@ -8,8 +8,8 @@
 ## Partner money model (6 October 2026)
 
 - Joining is free. Fixfy has **no paid plans, subscriptions or trials** for partners.
-- Platform Bookings (customers who book through Fixfy): Fixfy is the partner's agent, collects the payment for them and keeps a **fixed commission per job** (Commission Schedule, VAT included; 30% on quoted work). Cancellation charges and call-outs go to the partner in full.
-- Fixfy Client Work (letting agents, property managers, businesses): Fixfy pays a fixed Partner Fee by self-bill, no commission.
+- Partners see what they will receive before they accept each job.
+- Cancellation charges and call-outs on customer bookings go to the partner in full.
 - Payouts every two weeks by bank transfer, with a statement for every job.
 
 ## Retired: paid funnel
