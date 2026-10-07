@@ -143,7 +143,8 @@ export async function handleAgent(body = {}, headers = {}) {
       const attribution = { utm_source: 'whatsapp', utm_medium: 'chat', utm_campaign: String(body.campaign || 'wa_v1').slice(0, 60), landing: 'whatsapp' }
       const r = await handleCheckout(
         { ...booking, selection: normalizeSelection(booking.selection || {}), attribution, marketing: false },
-        { origin: 'https://www.getfixfy.com', deposit: body.deposit === true },
+        // O ticket da conversa do Harvey no Zendesk: o job pago nasce nele (07/10/2026).
+        { origin: 'https://www.getfixfy.com', deposit: body.deposit === true, zendeskTicketId: ticketDoZendesk(body.zendeskTicketId) },
       )
       return r
     }
@@ -156,4 +157,10 @@ export async function handleAgent(body = {}, headers = {}) {
     default:
       return { status: 400, data: { error: 'Unknown action' } }
   }
+}
+
+/** Id de ticket do Zendesk (só dígitos) ou null: vai para a metadata da Stripe. */
+function ticketDoZendesk(v) {
+  const id = String(v ?? '').trim()
+  return /^\d{1,15}$/.test(id) ? id : null
 }
