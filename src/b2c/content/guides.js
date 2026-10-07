@@ -8,7 +8,7 @@
  *
  * Célula da comparação: true = incluso, false = não, texto = o valor.
  */
-import { CERT, CLEAN, FIX, PAINT, cleanPrice, formatGBP } from './pricing.js'
+import { CERT, CLEAN, FIX, PAINT, cleanPrice, formatGBP, regrasDaLimpeza } from './pricing.js'
 import { PROMISES } from './site.js'
 
 const RECLEAN = PROMISES.recleanDays.value
@@ -144,9 +144,11 @@ export const GUIDES = {
 /** Extras da mesma visita, com o preço que a reserva cobra. */
 export function guideExtras(kind) {
   if (kind === 'clean') {
+    // Regras do tipo padrão (end of tenancy), que é o que o guia vende.
+    const regras = regrasDaLimpeza()
     return [
-      { id: 'bath', label: 'Extra bathroom', detail: `${CLEAN.includedBathrooms} is included in the price`, price: from(CLEAN.extraBathroomSteps[0]).toLowerCase() },
-      ...CLEAN.extras.map((x) => ({
+      { id: 'bath', label: 'Extra bathroom', detail: `${regras.includedBathrooms} is included in the price`, price: from(regras.extraBathroomSteps[0]).toLowerCase() },
+      ...regras.extras.map((x) => ({
         id: x.id,
         label: x.label,
         detail: x.detail,

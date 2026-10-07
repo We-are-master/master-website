@@ -23,6 +23,7 @@ import {
   cleanTeamSize,
   formatGBP,
   priceSelection,
+  regrasDaLimpeza,
   serviceName,
   suggestFixPackage,
 } from '../content/pricing.js'
@@ -330,6 +331,8 @@ export default function BookPage() {
 
   const sel = booking.selection
   const has = (id) => sel.services.includes(id)
+  // Banheiro incluso, escada e add-ons do tipo de limpeza escolhido.
+  const regras = regrasDaLimpeza(sel.clean.kind)
   // O "from" da limpeza segue o tipo escolhido só quando a limpeza está marcada.
   // Antes disso vale o mesmo "from" da home (o menor entre os tipos): quem veio
   // do anúncio de reparo não pode ver £174 na home e £200 aqui.
@@ -606,7 +609,7 @@ export default function BookPage() {
                       </div>
                       {has('clean') && (
                         <p className="bk-hint">
-                          {cleanTeamSize(sel.size) === 2
+                          {cleanTeamSize(sel.size, sel.clean.kind) === 2
                             ? 'Two cleaners on the day, with all products and equipment.'
                             : 'One cleaner on the day, with all products and equipment.'}
                         </p>
@@ -616,7 +619,7 @@ export default function BookPage() {
                           <span className="bk-label" style={{ margin: 0 }}>
                             Bathrooms
                             <span>
-                              {CLEAN.includedBathrooms} included, then from {formatGBP(CLEAN.extraBathroomSteps[0])}
+                              {regras.includedBathrooms} included, then from {formatGBP(regras.extraBathroomSteps[0])}
                             </span>
                           </span>
                           <Stepper value={sel.bathrooms} min={1} max={4} onChange={(v) => updateSel({ bathrooms: v })} label="bathrooms" />
@@ -643,7 +646,7 @@ export default function BookPage() {
                         Clean<span className="mo-dot">.</span> Add-ons
                       </legend>
                       <ul className="bk-extras">
-                        {CLEAN.extras.map((x) => {
+                        {regras.extras.map((x) => {
                           const qty = sel.clean.extras[x.id] || 0
                           const setQty = (v) =>
                             updateSel({ clean: { ...sel.clean, extras: { ...sel.clean.extras, [x.id]: v || undefined } } })

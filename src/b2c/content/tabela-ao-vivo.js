@@ -91,6 +91,39 @@ function conferirPrecosPorTamanho(prices, ativos, onde) {
   return null
 }
 
+/** Lista de add-ons: ids únicos, rótulo, preço, unidade e máximo opcionais. */
+function conferirExtras(lista, onde) {
+  const e = conferirIds(lista, onde)
+  if (e) return e
+  for (const x of lista) {
+    if (!ehTexto(x.label) || !ehPreco(x.price)) return `${onde}: rótulo ou preço inválido em ${x.id}`
+    if (x.detail !== undefined && typeof x.detail !== 'string') return `${onde}: detail inválido em ${x.id}`
+    if (x.unit !== undefined && !ehTexto(x.unit)) return `${onde}: unit inválido em ${x.id}`
+    if (x.max !== undefined && !ehInteiroPositivo(x.max)) return `${onde}: max inválido em ${x.id}`
+  }
+  return null
+}
+
+/**
+ * Regras próprias do tipo de limpeza (dono, 07/10/2026), todas opcionais:
+ * ausente = vale a do CLEAN.
+ */
+function conferirRegrasDoTipo(k, ativos) {
+  const onde = `clean.kinds.${k.id}`
+  if (k.includedBathrooms !== undefined && !ehInteiroPositivo(k.includedBathrooms)) return `${onde}: includedBathrooms inválido`
+  if (
+    k.extraBathroomSteps !== undefined &&
+    (!Array.isArray(k.extraBathroomSteps) || k.extraBathroomSteps.length === 0 || !k.extraBathroomSteps.every(ehPreco))
+  ) {
+    return `${onde}: extraBathroomSteps inválido`
+  }
+  if (k.teamOfTwoFromSize !== undefined && !ativos.includes(String(k.teamOfTwoFromSize))) {
+    return `${onde}: teamOfTwoFromSize não é tamanho ativo`
+  }
+  if (k.extras !== undefined) return conferirExtras(k.extras, `${onde}.extras`)
+  return null
+}
+
 /**
  * Conferência estrita do documento. Qualquer coisa fora do formato derruba
  * o documento inteiro (o site segue na tabela que já tem).
@@ -131,20 +164,15 @@ export function validarTabela(doc) {
   if (!Array.isArray(clean.extraBathroomSteps) || clean.extraBathroomSteps.length === 0 || !clean.extraBathroomSteps.every(ehPreco)) {
     return erro('clean: extraBathroomSteps inválido')
   }
-  e = conferirIds(clean.extras, 'clean.extras')
+  e = conferirExtras(clean.extras, 'clean.extras')
   if (e) return erro(e)
-  for (const x of clean.extras) {
-    if (!ehTexto(x.label) || !ehPreco(x.price)) return erro(`clean.extras: rótulo ou preço inválido em ${x.id}`)
-    if (x.unit !== undefined && !ehTexto(x.unit)) return erro(`clean.extras: unit inválido em ${x.id}`)
-    if (x.max !== undefined && !ehInteiroPositivo(x.max)) return erro(`clean.extras: max inválido em ${x.id}`)
-  }
   e = conferirIds(clean.kinds, 'clean.kinds') || faltando(clean.kinds, IDS_OBRIGATORIOS.kinds, 'clean.kinds')
   if (e) return erro(e)
   for (const k of clean.kinds) {
     if (!ehTexto(k.name) || !ehTexto(k.osTitle) || !ehTexto(k.short) || !ehTexto(k.tiny)) {
       return erro(`clean.kinds: texto ausente em ${k.id}`)
     }
-    e = conferirPrecosPorTamanho(k.prices, ativos, `clean.kinds.${k.id}`)
+    e = conferirPrecosPorTamanho(k.prices, ativos, `clean.kinds.${k.id}`) || conferirRegrasDoTipo(k, ativos)
     if (e) return erro(e)
   }
   if (!clean.kinds.some((k) => k.id === doc.defaultCleanKind)) return erro('defaultCleanKind não é um tipo da lista')
@@ -229,12 +257,17 @@ function escrever(t) {
 
   trocarArray(
     CLEAN_KINDS,
-    t.kinds.map((k) => ({ ...k, prices: soAtivos(k.prices, ativos) })),
+    t.kinds.map((k) => {
+      const tipo = { ...k, prices: soAtivos(k.prices, ativos) }
+      if (tipo.teamOfTwoFromSize !== undefined) tipo.teamOfTwoFromSize = String(tipo.teamOfTwoFromSize)
+      return tipo
+    }),
   )
   const padrao = CLEAN_KINDS.find((k) => k.id === t.defaultCleanKind)
   const { kinds: _kinds, prices: _prices, name: _name, osTitle: _osTitle, ...cleanResto } = t.clean
   trocarObjeto(CLEAN, {
     ...cleanResto,
+    teamOfTwoFromSize: String(cleanResto.teamOfTwoFromSize),
     kinds: CLEAN_KINDS,
     name: padrao.name,
     osTitle: padrao.osTitle,

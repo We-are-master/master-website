@@ -206,6 +206,83 @@ passo('pacote de material £140', () => strictEqual(P.priceSelection({ services:
 passo('Harvey vê o preço novo', () => strictEqual(catalog().cleaning.kinds.find((k) => k.id === 'eot').prices['2'], 999))
 passo('tamanho 7 continua recusado', () => strictEqual(P.normalizeSelection({ size: '7' }).size, '1'))
 
+// ---------- 3b. regras próprias por tipo de limpeza ----------
+console.log('\n3b. Regras por tipo: deep com 2 banheiros inclusos, escada própria, dois a partir de 3 quartos e add-ons próprios')
+const porTipo = copia(SEED)
+const deepDoc = porTipo.clean.kinds.find((k) => k.id === 'deep')
+deepDoc.includedBathrooms = 2
+deepDoc.extraBathroomSteps = [30, 40, 50]
+deepDoc.teamOfTwoFromSize = '3'
+deepDoc.extras = [
+  { id: 'oven-extra', label: 'Second oven', detail: 'Range or double oven', price: 25 },
+  { id: 'carpet', label: 'Carpet steam clean', detail: 'Per room', price: 30, unit: 'room', max: 6 },
+]
+passo('documento válido e aplicado', () => strictEqual(aplicarTabela(porTipo, 4).ok, true))
+const deep = (extra) => P.priceSelection({ services: ['clean'], size: '2', clean: { kind: 'deep', extras: {} }, ...extra })
+const eot = (extra) => P.priceSelection({ services: ['clean'], size: '2', clean: { kind: 'eot', extras: {} }, ...extra })
+passo('deep: 2 banheiros sem cobrança extra', () => strictEqual(deep({ bathrooms: 2 }).total, 237))
+passo('deep: 3 banheiros = +£30, 4 = +£70', () => {
+  strictEqual(deep({ bathrooms: 3 }).total, 237 + 30)
+  strictEqual(deep({ bathrooms: 4 }).total, 237 + 30 + 40)
+  strictEqual(P.extraBathroomsPrice(4, 'deep'), 70)
+})
+passo('deep: equipe de dois só a partir de 3 quartos', () => {
+  strictEqual(P.cleanTeamSize('2', 'deep'), 1)
+  strictEqual(P.cleanTeamSize('3', 'deep'), 2)
+  strictEqual(P.cleanTeamSize('2', 'eot'), 2)
+})
+passo('deep: add-ons próprios cobrados', () => {
+  const r = deep({ clean: { kind: 'deep', extras: { 'oven-extra': 1, carpet: 9 } } })
+  deepStrictEqual(r.selection.clean.extras, { 'oven-extra': 1, carpet: 6 })
+  strictEqual(r.total, 237 + 25 + 30 * 6)
+})
+passo('deep: add-on só do eot (fridge) sai da seleção', () => {
+  const r = deep({ clean: { kind: 'deep', extras: { fridge: 1, balcony: 1 } } })
+  deepStrictEqual(r.selection.clean.extras, {})
+  strictEqual(r.total, 237)
+})
+passo('eot sem mudança (banheiros, add-ons, equipe)', () => {
+  strictEqual(eot({ bathrooms: 3, clean: { kind: 'eot', extras: { fridge: 1, carpet: 2 } } }).total, 266 + 42 + 52 + 43 + 76)
+  strictEqual(eot({ clean: { kind: 'eot', extras: { 'oven-extra': 1 } } }).total, 266)
+})
+passo('eot e after idênticos à embutida em toda a bateria', () => {
+  const agora = retrato().precos
+  embutida.precos.forEach((p, i) => {
+    if (p.selection.clean.kind === 'deep' && p.selection.services.includes('clean')) return
+    deepStrictEqual(canonico(agora[i]), canonico(p))
+  })
+})
+passo('repasse do parceiro usa os add-ons do deep', () => {
+  const r = deep({ clean: { kind: 'deep', extras: { 'oven-extra': 1 } } })
+  strictEqual(partnerPayFor({ service: 'clean', lines: r.lines, size: '2', kind: 'deep', bathrooms: 1 }), 140 + 15)
+})
+passo('Harvey vê as regras por tipo', () => {
+  const kinds = catalog().cleaning.kinds
+  const d = kinds.find((k) => k.id === 'deep')
+  const e = kinds.find((k) => k.id === 'eot')
+  strictEqual(d.includedBathrooms, 2)
+  deepStrictEqual(d.extraBathroomSteps, [30, 40, 50])
+  strictEqual(d.teamOfTwoFromSize, '3')
+  deepStrictEqual(d.extras.map((x) => x.id), ['oven-extra', 'carpet'])
+  strictEqual(e.includedBathrooms, 1)
+  deepStrictEqual(e.extras.map((x) => x.id), ['carpet', 'fridge', 'windows', 'balcony'])
+})
+const invalidosPorTipo = {
+  'includedBathrooms texto': (k) => (k.includedBathrooms = '2'),
+  'escada vazia': (k) => (k.extraBathroomSteps = []),
+  'escada com zero': (k) => (k.extraBathroomSteps = [30, 0]),
+  'teamOfTwoFromSize inativo': (k) => (k.teamOfTwoFromSize = '7'),
+  'add-on repetido no tipo': (k) => (k.extras = [{ id: 'a', label: 'A', price: 1 }, { id: 'a', label: 'B', price: 2 }]),
+  'add-on sem preço': (k) => (k.extras = [{ id: 'a', label: 'A' }]),
+}
+for (const [nome, estraga] of Object.entries(invalidosPorTipo)) {
+  passo(`recusa por tipo: ${nome}`, () => {
+    const d = copia(porTipo)
+    estraga(d.clean.kinds.find((k) => k.id === 'deep'))
+    strictEqual(validarTabela(d).ok, false)
+  })
+}
+
 // ---------- 4. documento inválido volta para a embutida ----------
 console.log('\n4. Documento inválido volta para a tabela embutida')
 const invalidos = {

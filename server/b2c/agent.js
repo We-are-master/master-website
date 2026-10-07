@@ -25,6 +25,7 @@ import {
   PROPERTY_SIZES,
   priceSelection,
   normalizeSelection,
+  regrasDaLimpeza,
 } from '../../src/b2c/content/pricing.js'
 import { COVERED_AREAS, GOOGLE_REVIEWS, GUARANTEE, PROMISES, TERMS, formatPostcode, looksLikePostcode, postcodeArea } from '../../src/b2c/content/site.js'
 import { bookableDates, windowsFor } from '../../src/b2c/lib/slots.js'
@@ -56,6 +57,8 @@ const HOW_FIXFY_WORKS = {
   termsVersion: TERMS.version,
 }
 
+const extraDoHarvey = (e) => ({ id: e.id, label: e.label, detail: e.detail, price: e.price, perRoom: e.unit === 'room' })
+
 /** Tudo que ele vende, com preço, do jeito que o site vende. */
 export function catalog() {
   return {
@@ -64,10 +67,24 @@ export function catalog() {
     howFixfyWorks: HOW_FIXFY_WORKS,
     sizes: PROPERTY_SIZES.map((s) => ({ id: s.id, label: s.label })),
     cleaning: {
-      kinds: CLEAN_KINDS.map((k) => ({ id: k.id, name: k.name, forWhat: k.detail, prices: k.prices })),
+      // Cada tipo com as suas regras (banheiro incluso, escada, equipe de dois, add-ons).
+      kinds: CLEAN_KINDS.map((k) => {
+        const regras = regrasDaLimpeza(k.id)
+        return {
+          id: k.id,
+          name: k.name,
+          forWhat: k.detail,
+          prices: k.prices,
+          includedBathrooms: regras.includedBathrooms,
+          extraBathroomSteps: regras.extraBathroomSteps,
+          teamOfTwoFromSize: regras.teamOfTwoFromSize,
+          extras: regras.extras.map(extraDoHarvey),
+        }
+      }),
+      rulesNote: 'Bathrooms, add-ons and team size can differ by kind: always quote with the rules of the chosen kind.',
       includedBathrooms: CLEAN.includedBathrooms,
       extraBathroomSteps: CLEAN.extraBathroomSteps,
-      extras: CLEAN.extras.map((e) => ({ id: e.id, label: e.label, detail: e.detail, price: e.price, perRoom: e.unit === 'room' })),
+      extras: CLEAN.extras.map(extraDoHarvey),
       included: ['Oven', 'Cleaning products and equipment', 'A photo of every room when the job is done'],
       teamOfTwoFromSize: CLEAN.teamOfTwoFromSize,
       fiveBedNote: '5+ bedrooms: priced from photos, pass to the team',

@@ -31,7 +31,6 @@ import { resolvePromo } from './promo.js'
 import { postSiteLead } from './site-lead.js'
 import {
   CERT,
-  CLEAN,
   FIX,
   PAINT,
   PROMO_LINE_LABEL,
@@ -39,8 +38,10 @@ import {
   SERVICES,
   applyPromo,
   cleanKind,
+  cleanPrice,
   normalizeSelection,
   priceSelection,
+  regrasDaLimpeza,
   serviceName,
   splitDiscount,
 } from '../../src/b2c/content/pricing.js'
@@ -112,7 +113,7 @@ function validate(body) {
   const postcode = formatPostcode(str(body.postcode, 10))
   if (!looksLikePostcode(postcode)) e.push('Enter a full UK postcode.')
   else if (!COVERED_AREAS.includes(postcodeArea(postcode))) e.push('We only book London postcodes for now.')
-  if (selection.services.includes('clean') && CLEAN.prices[selection.size] == null) e.push('Homes with 5 or more bedrooms are priced from photos.')
+  if (selection.services.includes('clean') && cleanPrice(selection.size, selection.clean?.kind) == null) e.push('Homes with 5 or more bedrooms are priced from photos.')
   if (selection.services.includes('fix') && selection.fix.tasks.length === 0) e.push('Tick at least one repair job.')
   if (selection.services.includes('cert') && selection.cert.items.length === 0) e.push('Tick at least one certificate.')
   const date = str(body.date, 10)
@@ -357,7 +358,7 @@ function scopeFor(service, b, priced, ref, opts = {}) {
       parts.push('Clean to the Fixfy check-out checklist, every room, with a photo of each room when finished.')
     }
     parts.push('Oven deep clean included: inside, racks, trays and door glass.')
-    const extras = CLEAN.extras.filter((x) => sel.clean.extras[x.id]).map((x) => (x.unit ? `${x.label} x${sel.clean.extras[x.id]}` : x.label))
+    const extras = regrasDaLimpeza(sel.clean.kind).extras.filter((x) => sel.clean.extras[x.id]).map((x) => (x.unit ? `${x.label} x${sel.clean.extras[x.id]}` : x.label))
     if (extras.length) parts.push(`Add-ons: ${extras.join('; ')}.`)
   }
   if (service === 'paint') {

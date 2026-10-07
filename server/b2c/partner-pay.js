@@ -23,7 +23,7 @@
  *    fornecido pelo profissional: líquido £100, comissão £30 (documento 08).
  *  - Certificados: o custo que o catálogo do OS paga em cada faixa.
  */
-import { CLEAN, PAINT } from '../../src/b2c/content/pricing.js'
+import { PAINT, regrasDaLimpeza } from '../../src/b2c/content/pricing.js'
 
 export const PARTNER_PAY = {
   clean: {
@@ -75,11 +75,13 @@ function steps(n) {
  * £43 → £26, janela £35 → £21, varanda £57 → £34). Antes saía 60% exato
  * (£22,80 no carpete) e o job nascia com um repasse que o catálogo não tinha.
  */
-function extrasPay(lines) {
+function extrasPay(lines, kind) {
+  // Add-ons do tipo da limpeza (cada tipo pode ter a sua lista).
+  const lista = regrasDaLimpeza(kind).extras
   let total = 0
   for (const l of lines) {
     if (l.id === 'clean-base' || l.id === 'clean-bathrooms') continue
-    const extra = CLEAN.extras.find((x) => `clean-${x.id}` === l.id)
+    const extra = lista.find((x) => `clean-${x.id}` === l.id)
     if (!extra) {
       total += ((l.amount || 0) * PARTNER_PAY.clean.extraPct) / 100
       continue
@@ -94,7 +96,7 @@ function extrasPay(lines) {
 function cleanPay({ lines, size, kind, bathrooms }) {
   const band = PARTNER_PAY.clean.bySize[kind]?.[String(size)]
   if (band == null) return null
-  return round(band + steps(Math.max(0, (Number(bathrooms) || 1) - 1)) + extrasPay(lines))
+  return round(band + steps(Math.max(0, (Number(bathrooms) || 1) - 1)) + extrasPay(lines, kind))
 }
 
 /**

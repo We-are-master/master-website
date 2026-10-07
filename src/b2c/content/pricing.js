@@ -156,16 +156,33 @@ export function cleanPrice(size, kindId) {
   return price == null ? null : price
 }
 
-/** Quantos profissionais vão no imóvel: um até 1 quarto, dois de 2 para cima. */
-export function cleanTeamSize(size) {
-  const order = PROPERTY_SIZES.map((s) => s.id)
-  return order.indexOf(String(size)) >= order.indexOf(CLEAN.teamOfTwoFromSize) ? 2 : 1
+/**
+ * Regras da limpeza de um tipo (dono, 07/10/2026): cada tipo pode ter o seu
+ * banheiro incluso, a sua escada de banheiro extra, o tamanho a partir do
+ * qual vão dois profissionais e a sua lista de add-ons. Campo ausente no tipo
+ * = vale o do CLEAN (a regra geral de hoje). Sem tipo = tipo padrão.
+ */
+export function regrasDaLimpeza(kindId) {
+  const k = cleanKind(kindId)
+  return {
+    includedBathrooms: k.includedBathrooms ?? CLEAN.includedBathrooms,
+    extraBathroomSteps: k.extraBathroomSteps ?? CLEAN.extraBathroomSteps,
+    teamOfTwoFromSize: k.teamOfTwoFromSize ?? CLEAN.teamOfTwoFromSize,
+    extras: k.extras ?? CLEAN.extras,
+  }
 }
 
-/** Quanto custam os banheiros além do que já vem no preço, pela escada. */
-export function extraBathroomsPrice(bathrooms) {
-  const extra = Math.max(0, (Number(bathrooms) || 1) - CLEAN.includedBathrooms)
-  const steps = CLEAN.extraBathroomSteps
+/** Quantos profissionais vão no imóvel: um até o tamanho da regra do tipo, dois dali para cima. */
+export function cleanTeamSize(size, kindId) {
+  const order = PROPERTY_SIZES.map((s) => s.id)
+  return order.indexOf(String(size)) >= order.indexOf(regrasDaLimpeza(kindId).teamOfTwoFromSize) ? 2 : 1
+}
+
+/** Quanto custam os banheiros além do que já vem no preço do tipo, pela escada do tipo. */
+export function extraBathroomsPrice(bathrooms, kindId) {
+  const regras = regrasDaLimpeza(kindId)
+  const extra = Math.max(0, (Number(bathrooms) || 1) - regras.includedBathrooms)
+  const steps = regras.extraBathroomSteps
   let total = 0
   for (let i = 0; i < extra; i += 1) total += steps[Math.min(i, steps.length - 1)]
   return total
@@ -341,8 +358,9 @@ export function normalizeSelection(raw = {}) {
 
   // Tipo desconhecido, ausente ou `regular` (retirado) vira end of tenancy.
   const kind = CLEAN_KINDS.some((k) => k.id === raw.clean?.kind) ? raw.clean.kind : DEFAULT_CLEAN_KIND
+  // Só os add-ons do tipo escolhido: add-on de outro tipo some da seleção.
   const extras = {}
-  for (const extra of CLEAN.extras) {
+  for (const extra of regrasDaLimpeza(kind).extras) {
     const qty = raw.clean?.extras?.[extra.id]
     if (!qty) continue
     extras[extra.id] = extra.unit ? clampInt(qty, 1, extra.max || 8) : 1
@@ -392,16 +410,17 @@ export function priceSelection(rawSelection) {
     } else {
       lines.push({ service: 'clean', id: 'clean-base', label, detail: sizeLabel, amount: base })
     }
-    const extraBaths = Math.max(0, sel.bathrooms - CLEAN.includedBathrooms)
+    const regras = regrasDaLimpeza(sel.clean.kind)
+    const extraBaths = Math.max(0, sel.bathrooms - regras.includedBathrooms)
     if (extraBaths > 0) {
       lines.push({
         service: 'clean',
         id: 'clean-bathrooms',
         label: extraBaths === 1 ? 'Extra bathroom' : `${extraBaths} extra bathrooms`,
-        amount: extraBathroomsPrice(sel.bathrooms),
+        amount: extraBathroomsPrice(sel.bathrooms, sel.clean.kind),
       })
     }
-    for (const extra of CLEAN.extras) {
+    for (const extra of regras.extras) {
       const qty = sel.clean.extras[extra.id]
       if (!qty) continue
       lines.push({
