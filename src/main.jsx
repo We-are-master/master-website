@@ -1,7 +1,7 @@
 import './middleware/enforceHTTPS.js'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import App from './App.jsx'
+import { aplicarTabela } from './b2c/content/tabela-ao-vivo.js'
 import './styles/fixfy-tokens.css'
 import './styles/fixfy-logo.css'
 import './styles/fixfy-site-v2/colors_and_type.css'
@@ -41,8 +41,44 @@ if (document.readyState === 'loading') {
   loadToastifyCSS()
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-)
+/**
+ * Tabela de preço do OS antes do primeiro render: o servidor cobra por ela,
+ * então a página tem que mostrar a mesma. Espera no máximo 1,5s; 204, erro ou
+ * documento inválido = segue com a tabela embutida em pricing.js.
+ */
+async function carregarTabela() {
+  const controle = typeof AbortController !== 'undefined' ? new AbortController() : null
+  let timer
+  const limite = new Promise((resolve) => {
+    timer = setTimeout(() => {
+      controle?.abort()
+      resolve(null)
+    }, 1500)
+  })
+  const busca = fetch('/api/b2c/tabela', { signal: controle?.signal, headers: { Accept: 'application/json' } })
+    .then((res) => (res.status === 200 ? res.json() : null))
+    .catch(() => null)
+  try {
+    const corpo = await Promise.race([busca, limite])
+    if (corpo?.documento) {
+      const r = aplicarTabela(corpo.documento, corpo.versao ?? null)
+      if (!r.ok) console.warn('[tabela] documento do OS inválido, usando a tabela embutida:', r.erro)
+    }
+  } catch {
+    // Qualquer falha: tabela embutida.
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
+// App só é importado depois da tabela: módulos que leem preço na carga
+// (copy.js, guides.js) já nascem com os números do OS.
+carregarTabela()
+  .then(() => import('./App.jsx'))
+  .then(({ default: App }) => {
+    ReactDOM.createRoot(document.getElementById('root')).render(
+      <React.StrictMode>
+        <App />
+      </React.StrictMode>,
+    )
+  })

@@ -1,4 +1,5 @@
 import { handleWebhook } from '../../server/b2c/booking.js'
+import { garantirTabela } from '../../server/b2c/tabela.js'
 
 /** A assinatura da Stripe é sobre o corpo cru: nada de parser antes. */
 export const config = { api: { bodyParser: false } }
@@ -13,6 +14,8 @@ function rawBody(req) {
 }
 
 export default async function handler(req, res) {
+  // Tabela de preço do OS (só com TABELA_DO_OS=1; nunca lança).
+  await garantirTabela()
   if (req.method !== 'POST') {
     res.writeHead(405, { 'Content-Type': 'application/json' })
     return res.end(JSON.stringify({ error: 'Method not allowed' }))

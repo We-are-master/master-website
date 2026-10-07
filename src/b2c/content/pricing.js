@@ -98,8 +98,17 @@ export const CLEAN_KINDS = [
   },
 ]
 
-/** Link sem tipo (anúncio, chip, reserva antiga) continua sendo end of tenancy. */
-export const DEFAULT_CLEAN_KIND = 'eot'
+/**
+ * Link sem tipo (anúncio, chip, reserva antiga) continua sendo end of tenancy.
+ * `let` porque a tabela do OS (tabela-ao-vivo.js) pode trocar o tipo padrão;
+ * quem importa enxerga o valor novo (binding vivo do ES module).
+ */
+export let DEFAULT_CLEAN_KIND = 'eot'
+
+/** Só para tabela-ao-vivo.js: troca o tipo padrão vindo do OS. */
+export function definirTipoPadrao(id) {
+  DEFAULT_CLEAN_KIND = id
+}
 
 export function cleanKind(id) {
   return CLEAN_KINDS.find((k) => k.id === id) || CLEAN_KINDS.find((k) => k.id === DEFAULT_CLEAN_KIND)
@@ -273,13 +282,22 @@ export function serviceName(id, selection) {
   return SERVICES[id]?.name || ''
 }
 
-/** O menor preço de cada serviço, para os "from £" da página (limpeza: o tipo mais barato). */
-export const FROM_PRICE = {
-  clean: Math.min(...CLEAN_KINDS.map((k) => cleanPrice('studio', k.id))),
-  paint: PAINT.options[0].price,
-  fix: FIX.packages[0].price,
-  cert: Math.min(...CERT.items.map((i) => (i.prices ? Math.min(...Object.values(i.prices).filter((v) => v != null)) : i.price))),
+/**
+ * O menor preço de cada serviço, para os "from £" da página (limpeza: o tipo
+ * mais barato, no menor tamanho com preço). Objeto fixo, recalculado no lugar
+ * por `calcularFromPrice` quando a tabela do OS chega.
+ */
+export const FROM_PRICE = {}
+
+export function calcularFromPrice() {
+  const ativos = PROPERTY_SIZES.map((s) => s.id)
+  const menor = (prices) => Math.min(...ativos.map((id) => prices[id]).filter((v) => v != null))
+  FROM_PRICE.clean = Math.min(...CLEAN_KINDS.map((k) => menor(k.prices)))
+  FROM_PRICE.paint = PAINT.options[0].price
+  FROM_PRICE.fix = FIX.packages[0].price
+  FROM_PRICE.cert = Math.min(...CERT.items.map((i) => (i.prices ? menor(i.prices) : i.price)))
 }
+calcularFromPrice()
 
 /** Pacote sugerido para a lista de tarefas: o menor que cabe no tempo. */
 export function suggestFixPackage(taskIds = []) {

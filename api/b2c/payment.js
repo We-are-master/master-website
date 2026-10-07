@@ -2,8 +2,11 @@ import { handlePayment } from '../../server/b2c/booking.js'
 import { corsHeaders } from '../../server/growth/http.js'
 import { readBody } from './_body.js'
 import { clientIp } from '../../server/b2c/meta.js'
+import { garantirTabela } from '../../server/b2c/tabela.js'
 
 export default async function handler(req, res) {
+  // Tabela de preço do OS (só com TABELA_DO_OS=1; nunca lança).
+  await garantirTabela()
   const origin = req.headers.origin || null
   const headers = { ...corsHeaders(origin), 'Content-Type': 'application/json' }
   if (req.method === 'OPTIONS') {
