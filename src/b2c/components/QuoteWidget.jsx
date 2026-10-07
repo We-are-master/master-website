@@ -255,7 +255,8 @@ export default function QuoteWidget({ initial = 'clean', initialKind, lockServic
               What is due? <span>Signed by a registered engineer</span>
             </p>
             <div role="group" aria-labelledby="q-cert">
-              {CERT.items.map((item) => {
+              {/* Os três que mais vendem; o resto aparece na reserva. */}
+              {CERT.items.slice(0, 3).map((item) => {
                 const on = certItems.includes(item.id)
                 const price = certPrice(item, size)
                 return (
@@ -301,8 +302,8 @@ export default function QuoteWidget({ initial = 'clean', initialKind, lockServic
             <p className="mo-q-label" id="q-fix">
               How much time? <span>Half day or full day, no call-out fee</span>
             </p>
-            <div className="mo-chips mo-chips--grid" style={{ '--mo-cols': FIX.packages.length }} role="radiogroup" aria-labelledby="q-fix">
-              {FIX.packages.map((p) => (
+            <div className="mo-chips mo-chips--grid" style={{ '--mo-cols': FIX.packages.filter((p) => !p.perHour).length }} role="radiogroup" aria-labelledby="q-fix">
+              {FIX.packages.filter((p) => !p.perHour).map((p) => (
                 <button
                   key={p.id}
                   type="button"

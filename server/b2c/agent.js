@@ -26,6 +26,7 @@ import {
   priceSelection,
   normalizeSelection,
   regrasDaLimpeza,
+  fixTrades,
 } from '../../src/b2c/content/pricing.js'
 import { COVERED_AREAS, GOOGLE_REVIEWS, GUARANTEE, PROMISES, TERMS, formatPostcode, looksLikePostcode, postcodeArea } from '../../src/b2c/content/site.js'
 import { bookableDates, windowsFor } from '../../src/b2c/lib/slots.js'
@@ -90,15 +91,18 @@ export function catalog() {
       fiveBedNote: '5+ bedrooms: priced from photos, pass to the team',
     },
     painting: {
-      options: PAINT.options.map((o) => ({ id: o.id, label: o.label, detail: o.detail, price: o.price, perRoom: o.unit === 'room' })),
+      options: PAINT.options.map((o) => ({ id: o.id, label: o.label, detail: o.detail, price: o.price, perRoom: o.unit === 'room', time: o.time })),
       materialsPack: { price: PAINT.materials.price, detail: PAINT.materials.detail },
     },
     handyman: {
-      packages: FIX.packages.map((p) => ({ id: p.id, label: p.label, detail: p.detail, price: p.price })),
+      packages: FIX.packages.map((p) => ({ id: p.id, label: p.label, detail: p.detail, price: p.price, perHour: p.perHour === true })),
+      // Outras profissões (selection.fix.trade); hora avulsa = selection.fix.hours.
+      trades: fixTrades().map((t) => ({ id: t.id, label: t.label, detail: t.detail, packages: t.packages.map((p) => ({ id: p.id, label: p.label, detail: p.detail, price: p.price, perHour: p.perHour === true })) })),
       tasks: FIX.tasks.map((t) => ({ id: t.id, label: t.label })),
       note: 'Tools included, no call-out fee. Materials are not included: the customer supplies them, or the professional quotes them at their price, only with the customer\'s approval.',
     },
-    certificates: CERT.items.map((i) => ({ id: i.id, label: i.label, detail: i.detail, valid: i.valid, price: i.price ?? null, prices: i.prices ?? null })),
+    // options: selection.cert.options[id] = id da opção; extra: selection.cert.extra[id] = quantidade.
+    certificates: CERT.items.map((i) => ({ id: i.id, label: i.label, detail: i.detail, valid: i.valid, price: i.price ?? null, prices: i.prices ?? null, options: i.options ?? null, extra: i.extra ?? null })),
     coverage: { postcodeAreas: COVERED_AREAS, note: 'All of London' },
     promises: PROMISES,
     guarantee: {

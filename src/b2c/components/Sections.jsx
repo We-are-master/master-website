@@ -776,16 +776,21 @@ export function PriceTables() {
               <span className="mo-pricecard__name">Landlord certificates</span>
             </div>
             <ul className="mo-pricelist">
-              {CERT.items.map((item) => (
+              {CERT.items.slice(0, 3).map((item) => (
                 <li key={item.id}>
                   <span>
                     {item.short}
                     <small>{item.valid}</small>
                   </span>
-                  <b>{item.prices ? `from ${formatGBP(certPrice(item, 'studio'))}` : formatGBP(item.price)}</b>
+                  <b>{item.prices || item.options?.length > 1 ? `from ${formatGBP(certPrice(item, 'studio'))}` : formatGBP(certPrice(item, 'studio'))}</b>
                 </li>
               ))}
             </ul>
+            {CERT.items.length > 3 && (
+              <p className="mo-price__note">
+                Plus {CERT.items.length - 3} more safety checks in the booking: {CERT.items.slice(3).map((i) => i.short.toLowerCase()).join(', ')}.
+              </p>
+            )}
             <p className="mo-price__note">Issued by Gas Safe and NICEIC or NAPIT registered engineers in their own name. Certificate and photo report the same day.</p>
             <Link to={bookingHref({ services: ['cert'], cert: ['gas'] })} className="mo-btn mo-btn--dark">
               Book certificates <ArrowRight size={18} />

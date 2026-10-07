@@ -3,7 +3,7 @@
  * (é ele que relê a reserva gravada na sessão da Stripe).
  */
 import { formatPostcode } from '../content/site.js'
-import { CERT, FIX, PAINT, PROPERTY_SIZES, cleanKind, normalizeSelection, priceSelection } from '../content/pricing.js'
+import { CERT, PAINT, PROPERTY_SIZES, cleanKind, fixTrade, normalizeSelection, priceSelection } from '../content/pricing.js'
 import { bookingHref } from './store.js'
 import { adSignals, getAttribution } from './track.js'
 
@@ -76,8 +76,9 @@ export function leadSummary(b) {
       nomes.push(opt?.unit ? `full repaint, ${sel.paint.rooms} ${sel.paint.rooms === 1 ? 'room' : 'rooms'}` : 'painting touch-ups')
       if (sel.paint.materials) detalhes.push('Materials included')
     } else if (s === 'fix') {
-      const pkg = FIX.packages.find((p) => p.id === sel.fix.package) || FIX.packages[0]
-      nomes.push(`handyman ${pkg.label.toLowerCase()}`)
+      const trade = fixTrade(sel.fix.trade)
+      const pkg = trade.packages.find((p) => p.id === sel.fix.package) || trade.packages[0]
+      nomes.push(`${trade.label.toLowerCase()} ${pkg.perHour ? `${sel.fix.hours}h` : pkg.label.toLowerCase()}`)
       if (pkg.detail) detalhes.push(pkg.detail)
     } else if (s === 'cert') {
       const itens = CERT.items.filter((i) => sel.cert.items.includes(i.id)).map((i) => i.label)

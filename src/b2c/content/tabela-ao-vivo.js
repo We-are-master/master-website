@@ -104,6 +104,17 @@ function conferirExtras(lista, onde) {
   return null
 }
 
+/** Pacotes de reparo: rótulo, preço, minutos; `perHour` opcional (cobra por hora). */
+function conferirPacotes(lista, onde) {
+  const e = conferirIds(lista, onde)
+  if (e) return e
+  for (const p of lista) {
+    if (!ehTexto(p.label) || !ehPreco(p.price) || !ehInteiroPositivo(p.minutes)) return `${onde}: rótulo, preço ou minutos inválido em ${p.id}`
+    if (p.perHour !== undefined && typeof p.perHour !== 'boolean') return `${onde}: perHour não booleano em ${p.id}`
+  }
+  return null
+}
+
 /**
  * Regras próprias do tipo de limpeza (dono, 07/10/2026), todas opcionais:
  * ausente = vale a do CLEAN.
@@ -187,6 +198,7 @@ export function validarTabela(doc) {
   for (const o of paint.options) {
     if (!ehTexto(o.label) || !ehPreco(o.price)) return erro(`paint.options: rótulo ou preço inválido em ${o.id}`)
     if (o.max !== undefined && !ehInteiroPositivo(o.max)) return erro(`paint.options: max inválido em ${o.id}`)
+    if (o.time !== undefined && !ehTexto(o.time)) return erro(`paint.options: time inválido em ${o.id}`)
   }
   if (!ehObjeto(paint.materials) || !ehTexto(paint.materials.label) || !ehPreco(paint.materials.price)) {
     return erro('paint.materials inválido')
@@ -197,9 +209,17 @@ export function validarTabela(doc) {
   if (!ehObjeto(fix) || fix.id !== 'fix' || !ehTexto(fix.name) || !ehTexto(fix.osTitle)) return erro('fix inválido')
   e = conferirIds(fix.packages, 'fix.packages') || faltando(fix.packages, IDS_OBRIGATORIOS.fix, 'fix.packages')
   if (e) return erro(e)
-  for (const p of fix.packages) {
-    if (!ehTexto(p.label) || !ehPreco(p.price) || !ehInteiroPositivo(p.minutes)) {
-      return erro(`fix.packages: rótulo, preço ou minutos inválido em ${p.id}`)
+  e = conferirPacotes(fix.packages, 'fix.packages')
+  if (e) return erro(e)
+  // Outras profissões (opcional): cada uma com título do OS e pacotes próprios.
+  if (fix.trades !== undefined) {
+    e = conferirIds(fix.trades, 'fix.trades')
+    if (e) return erro(e)
+    for (const t of fix.trades) {
+      if (t.id === 'handyman') return erro('fix.trades: handyman é o próprio fix')
+      if (!ehTexto(t.label) || !ehTexto(t.osTitle)) return erro(`fix.trades: texto ausente em ${t.id}`)
+      e = conferirPacotes(t.packages, `fix.trades.${t.id}.packages`)
+      if (e) return erro(e)
     }
   }
   e = conferirIds(fix.tasks, 'fix.tasks')
@@ -218,8 +238,18 @@ export function validarTabela(doc) {
     if (i.prices !== undefined) {
       e = conferirPrecosPorTamanho(i.prices, ativos, `cert.items.${i.id}`)
       if (e) return erro(e)
+    } else if (i.options !== undefined) {
+      // Opções (ex.: quantos aparelhos): o cliente escolhe uma, cada uma com o seu preço.
+      e = conferirIds(i.options, `cert.items.${i.id}.options`)
+      if (e) return erro(e)
+      if (!i.options.every((o) => ehTexto(o.label) && ehPreco(o.price))) return erro(`cert.items: opção inválida em ${i.id}`)
     } else if (!ehPreco(i.price)) {
       return erro(`cert.items: preço inválido em ${i.id}`)
+    }
+    if (i.extra !== undefined) {
+      const x = i.extra
+      if (!ehObjeto(x) || !ehTexto(x.label) || !ehPreco(x.price)) return erro(`cert.items: extra inválido em ${i.id}`)
+      if (x.max !== undefined && !ehInteiroPositivo(x.max)) return erro(`cert.items: extra.max inválido em ${i.id}`)
     }
   }
 

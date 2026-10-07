@@ -104,9 +104,9 @@ export const GUIDES = {
   fix: {
     title: 'Half day or full day',
     lede: 'Repairs are booked by time, so you know how long your handyman will be there before they arrive. No call-out fee on either.',
-    columns: FIX.packages.map((p) => ({ id: p.id, name: p.label, price: formatGBP(p.price) })),
+    columns: FIX.packages.filter((p) => !p.perHour).map((p) => ({ id: p.id, name: p.label, price: formatGBP(p.price) })),
     rows: [
-      { label: 'Time on site', cells: FIX.packages.map((p) => p.detail) },
+      { label: 'Time on site', cells: FIX.packages.filter((p) => !p.perHour).map((p) => p.detail) },
       { label: 'Call-out fee', cells: ['None', 'None'] },
       { label: 'Parts', cells: ['Only with your approval, listed in your report', 'Only with your approval, listed in your report'] },
       { label: 'Photo when done', cells: [true, true] },
@@ -122,15 +122,15 @@ export const GUIDES = {
     title: 'What each certificate covers',
     end: '.',
     lede: 'Book the ones that are due. Each one is issued by the engineer who does it, in their own name, and we keep the expiry date on file for the next one.',
-    columns: CERT.items.map((i) => ({
+    columns: CERT.items.slice(0, 3).map((i) => ({
       id: i.id,
       name: i.short,
       price: i.prices ? from(Math.min(...Object.values(i.prices).filter((v) => v != null))) : formatGBP(i.price),
     })),
     rows: [
-      { label: 'What is checked', cells: CERT.items.map((i) => i.detail) },
-      { label: 'How often', cells: CERT.items.map((i) => i.valid.replace(/^Renew every/, 'Every')) },
-      { label: 'Photo report the same day', cells: CERT.items.map(() => true) },
+      { label: 'What is checked', cells: CERT.items.slice(0, 3).map((i) => i.detail) },
+      { label: 'How often', cells: CERT.items.slice(0, 3).map((i) => i.valid.replace(/^Renew every/, 'Every')) },
+      { label: 'Photo report the same day', cells: CERT.items.slice(0, 3).map(() => true) },
     ],
     prep: [
       { icon: 'shield', title: 'Book what is due', text: 'Tick the certificates you need in the booking. Each one is priced by the size of the property.' },

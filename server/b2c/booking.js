@@ -32,13 +32,17 @@ import { postSiteLead } from './site-lead.js'
 import {
   CERT,
   FIX,
+  HANDYMAN,
   PAINT,
   PROMO_LINE_LABEL,
   PROPERTY_SIZES,
   SERVICES,
   applyPromo,
   cleanKind,
+  certExtraQty,
+  certOption,
   cleanPrice,
+  fixTrade,
   normalizeSelection,
   priceSelection,
   regrasDaLimpeza,
@@ -114,7 +118,7 @@ function validate(body) {
   if (!looksLikePostcode(postcode)) e.push('Enter a full UK postcode.')
   else if (!COVERED_AREAS.includes(postcodeArea(postcode))) e.push('We only book London postcodes for now.')
   if (selection.services.includes('clean') && cleanPrice(selection.size, selection.clean?.kind) == null) e.push('Homes with 5 or more bedrooms are priced from photos.')
-  if (selection.services.includes('fix') && selection.fix.tasks.length === 0) e.push('Tick at least one repair job.')
+  if (selection.services.includes('fix') && selection.fix.trade === HANDYMAN && selection.fix.tasks.length === 0) e.push('Tick at least one repair job.')
   if (selection.services.includes('cert') && selection.cert.items.length === 0) e.push('Tick at least one certificate.')
   const date = str(body.date, 10)
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) e.push('Choose a day.')
@@ -366,7 +370,9 @@ function scopeFor(service, b, priced, ref, opts = {}) {
     parts.push(
       option.unit
         ? `Painting: full repaint of ${sel.paint.rooms} room${sel.paint.rooms > 1 ? 's' : ''}, walls in two coats.`
-        : 'Painting: touch-ups across the property. Fill holes, sand, touch up marks and scuffs, colour matched where possible. Up to 3.5 hours.',
+        : option.id === 'touchup'
+          ? 'Painting: touch-ups across the property. Fill holes, sand, touch up marks and scuffs, colour matched where possible. Up to 3.5 hours.'
+          : `Painting: ${option.label.toLowerCase()}. ${option.detail}`,
     )
     parts.push(
       sel.paint.materials
@@ -375,15 +381,24 @@ function scopeFor(service, b, priced, ref, opts = {}) {
     )
   }
   if (service === 'fix') {
-    const pkg = FIX.packages.find((p) => priced.lines.some((l) => l.id === `fix-${p.id}`))
-    const tasks = FIX.tasks.filter((t) => sel.fix.tasks.includes(t.id)).map((t) => t.label)
-    parts.push(`Move-out repairs, ${pkg?.label.toLowerCase() || 'time as booked'} on site. Jobs: ${tasks.join('; ')}.`)
+    const trade = fixTrade(sel.fix.trade)
+    const pkg = trade.packages.find((p) => priced.lines.some((l) => l.id === `fix-${p.id}`))
+    const tempo = pkg?.perHour ? `${sel.fix.hours} ${sel.fix.hours === 1 ? 'hour' : 'hours'}` : pkg?.label.toLowerCase() || 'time as booked'
+    if (trade.id === HANDYMAN) {
+      const tasks = FIX.tasks.filter((t) => sel.fix.tasks.includes(t.id)).map((t) => t.label)
+      parts.push(`Move-out repairs, ${tempo} on site. Jobs: ${tasks.join('; ')}.`)
+    } else {
+      parts.push(`${trade.label}, ${tempo} on site. What needs doing is in the customer notes below; call the customer before the visit if anything is unclear.`)
+    }
     parts.push('Parts: tell the customer what is needed and your price before buying; only with their approval. List them as materials on the report.')
   }
   if (service === 'cert') {
     const item = opts.certItem
     const size = PROPERTY_SIZES.find((x) => x.id === sel.size)?.label
     parts.push(`${item.label}. ${item.detail}.`)
+    const opt = certOption(item, sel)
+    const extraQty = certExtraQty(item, sel)
+    if (opt) parts.push(`Booked: ${opt.label}${extraQty ? `, plus ${item.extra.label.toLowerCase()} x${extraQty}` : ''}.`)
     if (item.id === 'gas') {
       parts.push('Landlord gas safety record (CP12) for the boiler and every gas appliance, issued in the engineer\'s own Gas Safe name and number. Fixfy never issues or reissues the certificate.')
     }
@@ -479,6 +494,11 @@ async function recordBooking(env, b, priced, ref, paymentIntentId, { deposit = f
         order.push({ service, title: cleanKind(sel.clean.kind).osTitle })
         continue
       }
+      if (service === 'fix') {
+        // Handyman, plumber, carpenter ou eletricista: o título do OS da profissão.
+        order.push({ service, title: fixTrade(sel.fix.trade).osTitle })
+        continue
+      }
       if (service !== 'cert') {
         order.push({ service, title: SERVICES[service].osTitle })
         continue
@@ -508,6 +528,10 @@ async function recordBooking(env, b, priced, ref, paymentIntentId, { deposit = f
         kind: sel.clean?.kind,
         bathrooms: sel.bathrooms,
         certItem: entry.certItem,
+        fixTrade: sel.fix?.trade,
+        hours: sel.fix?.hours,
+        certOption: entry.certItem ? certOption(entry.certItem, sel)?.id : null,
+        certExtra: entry.certItem ? certExtraQty(entry.certItem, sel) : 0,
       })
       const partnerPay = partnerCostFor(pay)
       const notes = [
