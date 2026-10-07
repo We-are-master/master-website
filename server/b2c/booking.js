@@ -234,7 +234,7 @@ function promotionNote({ code, listPrice, share, paid, pay, deposit = null }) {
  * (data incluída, para ninguém pagar um dia que já não existe), e a sessão
  * do Checkout nasce com o valor do servidor. Nada é gravado ainda.
  */
-export async function handleCheckout(body, { origin, ip, userAgent, deposit = false } = {}) {
+export async function handleCheckout(body, { origin, ip, userAgent, deposit = false, zendeskTicketId = null } = {}) {
   const env = b2cServerEnv()
   const spam = looksLikeSpam(body)
   if (spam) return { status: 400, data: { error: spam } }
@@ -278,7 +278,8 @@ export async function handleCheckout(body, { origin, ip, userAgent, deposit = fa
     suffix: statementSuffix(b.selection),
     contextLine: `Booking ${ref}: ${formatLongDate(b.date)}, arriving ${win.phrase}, at ${addressLineOf(b)}. Carried out by an independent professional, named in your confirmation. Free changes up to ${PROMISES.freeCancellationHours} hours before, refunded in full.`,
 
-    extraMetadata: { ...adMetadata(body.ad, { ip, userAgent }), ...metadata },
+    // zt: o ticket da conversa do Harvey; o primeiro job pago nasce nele.
+    extraMetadata: { ...adMetadata(body.ad, { ip, userAgent }), ...metadata, ...(zendeskTicketId ? { zt: zendeskTicketId } : {}) },
   })
   return { status: 200, data: { url: session.url, ref, total: priced.total, ...(deposit ? { payNow: now, payLater: later } : {}) } }
 }
@@ -430,7 +431,7 @@ function confirmation(b, priced, ref, mode, payment) {
 }
 
 /** Grava a reserva paga: um job por serviço no OS e os dois e-mails. */
-async function recordBooking(env, b, priced, ref, paymentIntentId, { deposit = false, bank = null } = {}) {
+async function recordBooking(env, b, priced, ref, paymentIntentId, { deposit = false, bank = null, ticketId = null } = {}) {
   const name = `${b.contact.firstName} ${b.contact.lastName}`
   const win = findWindow(b.window)
   // O que o cliente lê (no ticket ou, se ele falhar, por e-mail) e o escritório também.
@@ -572,6 +573,10 @@ async function recordBooking(env, b, priced, ref, paymentIntentId, { deposit = f
           ? { ticket_subject: `Booking ${ref} (awaiting bank transfer): ${details.summary}, ${details.dateLabel}` }
           : osJobs.length === 0
           ? {
+              // Pago na conversa do Harvey: o job entra no ticket do WhatsApp (o OS
+              // guarda a confirmação lá como nota interna, nada público). Só o
+              // primeiro: um ticket liga a um job, os outros serviços ganham o deles.
+              ...(ticketId ? { ticket_id: ticketId } : {}),
               customer_message_html: customerMessageHtml(env, details),
               customer_message_via: 'email',
               ticket_subject: `Booking ${ref}: ${details.summary}, ${details.dateLabel}`,
@@ -641,7 +646,8 @@ async function finalizePaid(env, { pi, metadata, amount, discountPence = null })
     await markBooked(env, pi.id, [])
     return { status: 200, data: { ...data, jobs: [] } }
   }
-  const jobs = await recordBooking(env, b, priced, ref, pi.id, { deposit })
+  const ticketId = /^\d{1,15}$/.test(String(metadata?.zt || '')) ? String(metadata.zt) : null
+  const jobs = await recordBooking(env, b, priced, ref, pi.id, { deposit, ticketId })
   try {
     await markBooked(env, pi.id, jobs.map((j) => j.reference))
   } catch (err) {

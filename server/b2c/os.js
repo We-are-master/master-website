@@ -37,6 +37,12 @@ export async function createOsJob(env, job) {
   })
   const data = await res.json().catch(() => ({}))
   if (!res.ok) throw new Error(`OS /api/jobs ${res.status}: ${data.error || 'unknown error'}`)
+  // O ticket da conversa já tem um job (segunda reserva na mesma conversa do
+  // WhatsApp): o OS devolve o antigo. Esta reserva ganha ticket próprio.
+  if (job.ticket_id && data.action === 'existing') {
+    const { ticket_id: _ticket, ...semTicket } = job
+    return createOsJob(env, semTicket)
+  }
   return {
     id: data.id,
     reference: data.reference,
