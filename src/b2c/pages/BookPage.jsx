@@ -72,12 +72,14 @@ const PHONE_RE = /^(\+44|0)\d{9,10}$/
 function validate(step, b, ctx) {
   const e = {}
   const sel = b.selection
-  // Passo 1: o quê, quem e onde. Nome e e-mail vêm antes do endereço para
-  // quem desistir no meio já ser um lead no OS.
+  // Passo 1: o quê, quem e onde. Nome, e-mail e celular vêm antes do endereço
+  // para quem desistir no meio já ser um lead no OS que dá para ligar (dono,
+  // 07/10/2026: só e-mail limitava o resgate).
   if (step === 0) {
     if (sel.services.length === 0) e.services = 'Choose at least one: clean, paint, fix or certify.'
     if (splitName(contactName(b)).lastName === '') e.name = 'Enter your first and last name.'
     if (!EMAIL_RE.test(b.contact.email.trim())) e.email = 'Enter an email we can send the booking to.'
+    if (!PHONE_RE.test(cleanPhone(b.contact.phone))) e.phone = 'Enter a UK mobile, like 07700 900123.'
     if (!b.postcode) e.address = 'Find the property address to continue.'
     else if (ctx.pc.status === 'outside') e.address = 'We only book London postcodes for now.'
     else if (!b.address.line1.trim()) e.address = 'Add the house number and street.'
@@ -98,7 +100,6 @@ function validate(step, b, ctx) {
     const access = ACCESS.find((a) => a.id === b.access)
     if (access?.ask && !b.accessNote.trim()) e.accessNote = 'Add the details so your professional is not stuck at the door.'
     if (!b.parking) e.parking = 'Choose the parking situation.'
-    if (!PHONE_RE.test(cleanPhone(b.contact.phone))) e.phone = 'Enter a UK mobile, like 07700 900123.'
   }
   // Passo 4: só o pagamento.
   if (step === 3) {
@@ -342,7 +343,7 @@ export default function BookPage() {
 
   // Nome e e-mail válidos viram lead no OS (quem desistir no meio entra no
   // pós-venda). Sai ao sair do campo e ao continuar, uma vez por combinação
-  // de e-mail, serviços e recusa de ofertas; nunca segura a tela.
+  // de e-mail, celular, serviços e recusa de ofertas; nunca segura a tela.
   //
   // Cada passo vencido também vai (`reached` 2, 3 e 4): é o que a aba Leads do OS
   // usa para saber até onde a pessoa chegou e quando mandar o e-mail de retomada.
@@ -350,7 +351,7 @@ export default function BookPage() {
   const captureLead = (reached = 1) => {
     const email = booking.contact.email.trim()
     if (!EMAIL_RE.test(email) || contactName(booking).length < 2) return
-    const key = [email.toLowerCase(), sel.services.join(','), booking.noOffers ? 'no-offers' : '', reached].join('|')
+    const key = [email.toLowerCase(), cleanPhone(booking.contact.phone), sel.services.join(','), booking.noOffers ? 'no-offers' : '', reached].join('|')
     if (leadSentKey.current === key) return
     leadSentKey.current = key
     sendLead(leadPayload(booking, { step: reached, elapsedMs: Date.now() - startedAt.current, website: honey })).catch(() => {
@@ -474,6 +475,22 @@ export default function BookPage() {
                           onChange={(e) => {
                             update({ contact: { ...booking.contact, email: e.target.value } })
                             setErrors((er) => ({ ...er, email: undefined }))
+                          }}
+                          onBlur={() => captureLead(1)}
+                        />
+                      </Field>
+                      <Field id="bk-ph" label="Mobile" hint="so we can call you about the booking" error={errors.phone}>
+                        <input
+                          id="bk-ph"
+                          type="tel"
+                          inputMode="tel"
+                          className="mo-input"
+                          autoComplete="tel"
+                          placeholder="07700 900123"
+                          value={booking.contact.phone}
+                          onChange={(e) => {
+                            update({ contact: { ...booking.contact, phone: e.target.value } })
+                            setErrors((er) => ({ ...er, phone: undefined }))
                           }}
                           onBlur={() => captureLead(1)}
                         />
@@ -982,23 +999,6 @@ export default function BookPage() {
                     <ErrorText>{errors.parking}</ErrorText>
                   </fieldset>
 
-                  <fieldset className="bk-block">
-                    <Field id="bk-ph" label="Mobile" hint="for the day-before call" error={errors.phone}>
-                      <input
-                        id="bk-ph"
-                        type="tel"
-                        inputMode="tel"
-                        className="mo-input"
-                        autoComplete="tel"
-                        placeholder="07700 900123"
-                        value={booking.contact.phone}
-                        onChange={(e) => {
-                          update({ contact: { ...booking.contact, phone: e.target.value } })
-                          setErrors((er) => ({ ...er, phone: undefined }))
-                        }}
-                      />
-                    </Field>
-                  </fieldset>
 
                   <fieldset className="bk-block">
                     <Field id="bk-notes" label="Anything else?" hint="optional">

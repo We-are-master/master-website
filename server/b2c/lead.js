@@ -129,6 +129,8 @@ export async function handleLead(body = {}) {
   const contact = {
     name,
     email,
+    // Celular no passo 1 (dono, 07/10/2026): quem desiste no meio dá para ligar.
+    phone: str(body.phone, 30) || null,
     postcode: str(body.postcode, 10) || null,
     notes: leadNotes(body),
     marketing_opt_out: Boolean(body.noOffers),
