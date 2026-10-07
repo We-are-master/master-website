@@ -13,6 +13,7 @@
  */
 import { loadLocalEnv } from '../growth/load-env.js'
 import { aplicarTabela, tabelaAplicada } from '../../src/b2c/content/tabela-ao-vivo.js'
+import { aplicarRepasse, restaurarRepasse } from './partner-pay.js'
 
 const URL_PADRAO = 'https://app.getfixfy.com/api/public/tabela-de-precos'
 const LIMITE_MS = 2500
@@ -20,6 +21,23 @@ const CACHE_MS = 60_000
 
 let ultimaTentativa = 0
 let emAndamento = null
+
+/**
+ * Aplica o documento inteiro: tabela do cliente (pricing.js) e repasse do
+ * parceiro (partner-pay.js), as duas da aba Services do OS. Tabela inválida
+ * volta as duas para as embutidas; só o `partnerPay` inválido (ou ausente)
+ * volta só o repasse.
+ */
+export function aplicarDocumento(doc, versao = null) {
+  const r = aplicarTabela(doc, versao)
+  if (!r.ok) {
+    restaurarRepasse()
+    return r
+  }
+  const rp = aplicarRepasse(doc.partnerPay)
+  if (!rp.ok) console.error('[b2c/tabela] partnerPay inválido, repasse embutido:', rp.erro)
+  return { ok: true, erro: null, repasse: rp }
+}
 
 export function tabelaDoOsLigada() {
   loadLocalEnv()
@@ -37,7 +55,7 @@ async function buscar() {
     if (!corpo || typeof corpo !== 'object' || !corpo.documento) throw new Error('resposta sem documento')
     const versaoAtual = tabelaAplicada()?.versao
     if (versaoAtual != null && corpo.versao === versaoAtual) return
-    const r = aplicarTabela(corpo.documento, corpo.versao ?? null)
+    const r = aplicarDocumento(corpo.documento, corpo.versao ?? null)
     if (!r.ok) throw new Error(`documento inválido: ${r.erro}`)
   } finally {
     clearTimeout(timer)
@@ -74,5 +92,7 @@ export async function handleTabela() {
   await garantirTabela()
   const atual = tabelaDoOsLigada() ? tabelaAplicada() : null
   if (!atual) return { status: 204, data: null }
-  return { status: 200, data: { versao: atual.versao, documento: atual.documento } }
+  // O repasse do parceiro não vai para o navegador: a página só precisa do preço.
+  const { partnerPay: _repasse, ...documento } = atual.documento
+  return { status: 200, data: { versao: atual.versao, documento } }
 }

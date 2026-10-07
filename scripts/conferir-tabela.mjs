@@ -20,7 +20,8 @@ import { deepStrictEqual, strictEqual, ok } from 'node:assert/strict'
 import * as P from '../src/b2c/content/pricing.js'
 import { aplicarTabela, restaurarEmbutida, tabelaAplicada, validarTabela } from '../src/b2c/content/tabela-ao-vivo.js'
 import { catalog } from '../server/b2c/agent.js'
-import { partnerPayFor } from '../server/b2c/partner-pay.js'
+import { partnerPayFor, restaurarRepasse } from '../server/b2c/partner-pay.js'
+import { aplicarDocumento } from '../server/b2c/tabela.js'
 
 const raiz = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const caminho = process.argv[2] || resolve(raiz, 'scripts/fixtures/tabela-de-precos-v1.json')
@@ -98,7 +99,7 @@ function retrato() {
       const partes = []
       for (const service of sel.services) {
         const linhas = r.lines.filter((l) => l.service === service)
-        const itens = service === 'cert' ? linhas.map((l) => ({ lines: [l], certItem: l.id.slice(5) })) : [{ lines: linhas }]
+        const itens = service === 'cert' ? linhas.map((l) => ({ lines: [l], certItem: { id: l.id.slice(5) } })) : [{ lines: linhas }]
         for (const { lines, certItem } of itens) {
           try {
             partes.push(partnerPayFor({ service, lines, size: sel.size, kind: sel.clean?.kind, bathrooms: sel.bathrooms, certItem }))
@@ -317,5 +318,101 @@ for (const chave of Object.keys(embutida)) {
   passo(`idêntico à embutida: ${chave}`, () => deepStrictEqual(canonico(deVolta[chave]), canonico(embutida[chave])))
 }
 restaurarEmbutida()
+
+// ---------- 5. documento do OS com partnerPay (aba Services) ----------
+const URL_OS = process.env.OS_TABELA_URL || 'http://localhost:3018/api/public/tabela-de-precos'
+const FIXTURE_OS = resolve(raiz, 'scripts/fixtures/tabela-do-os-v3-services.json')
+let vivo
+try {
+  const res = await fetch(URL_OS, { signal: AbortSignal.timeout(3000) })
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+  vivo = await res.json()
+  console.log(`\n5. Documento do OS ao vivo (${URL_OS}, versão ${vivo.versao}, fonte ${vivo.documento?.fonte})`)
+} catch (err) {
+  vivo = JSON.parse(readFileSync(FIXTURE_OS, 'utf8'))
+  console.log(`\n5. OS fora do ar (${err.message}): cópia salva ${FIXTURE_OS} (versão ${vivo.versao})`)
+}
+const DOC_OS = vivo.documento
+passo('tem partnerPay e fonte services', () => {
+  ok(DOC_OS.partnerPay)
+  strictEqual(DOC_OS.fonte, 'services')
+})
+passo('aplicado com repasse do OS', () => {
+  const r = aplicarDocumento(DOC_OS, vivo.versao)
+  strictEqual(r.ok, true)
+  strictEqual(r.repasse.ok, true)
+  ok(!r.repasse.embutido)
+})
+const comOs = retrato()
+for (const chave of Object.keys(embutida)) {
+  passo(`idêntico com o OS: ${chave}`, () => deepStrictEqual(canonico(comOs[chave]), canonico(embutida[chave])))
+}
+passo('repasse por seleção idêntico um a um (cliente e parceiro)', () => {
+  embutida.repasse.forEach((r, i) => deepStrictEqual(comOs.repasse[i], r))
+  ok(embutida.repasse.flat().filter((v) => typeof v === 'number').length > 1000)
+})
+const repasse = (service, extra) => {
+  const r = P.priceSelection({ services: [service], size: '2', ...extra })
+  return partnerPayFor({ service, lines: r.lines, size: r.selection.size, kind: r.selection.clean.kind, bathrooms: r.selection.bathrooms, certItem: extra?.certItem })
+}
+passo('EPC por tamanho (£60) e escada além do documento (5 banheiros extra)', () => {
+  strictEqual(repasse('cert', { size: '4', cert: { items: ['epc'] }, certItem: { id: 'epc' } }), 60)
+  const r = P.priceSelection({ services: ['clean'], size: '1' })
+  strictEqual(partnerPayFor({ service: 'clean', lines: r.lines, size: '1', kind: 'eot', bathrooms: 6 }), 140 + 26 + 31 + 40 + 40 + 48)
+})
+const mexido = copia(DOC_OS)
+mexido.partnerPay.clean.extras.deep.carpet = 20
+mexido.partnerPay.fix.half = 120
+mexido.partnerPay.cert.epc = 70
+mexido.partnerPay.clean.bySize.after['2'] = 170
+passo('partnerPay alterado vale (add-on por tipo, meia diária, EPC número antigo, faixa)', () => {
+  strictEqual(aplicarDocumento(mexido, 4).repasse.ok, true)
+  strictEqual(repasse('clean', { clean: { kind: 'deep', extras: { carpet: 3 } } }), 140 + 20 * 3)
+  strictEqual(repasse('clean', { clean: { kind: 'eot', extras: { carpet: 3 } } }), 166 + 23 * 3)
+  strictEqual(repasse('fix', { fix: { package: 'half' } }), 120)
+  strictEqual(repasse('cert', { size: '5', cert: { items: ['epc'] }, certItem: { id: 'epc' } }), 70)
+  strictEqual(repasse('clean', { clean: { kind: 'after' } }), 170)
+})
+passo('add-on sem valor no OS cai nos 60%', () => {
+  const d = copia(DOC_OS)
+  delete d.partnerPay.clean.extras.eot.fridge
+  aplicarDocumento(d, 5)
+  strictEqual(repasse('clean', { clean: { kind: 'eot', extras: { fridge: 1 } } }), 166 + 26)
+})
+const repasseRuim = {
+  'meia diária negativa': (pp) => (pp.fix.half = -1),
+  'faixa texto': (pp) => (pp.clean.bySize.eot['2'] = '166'),
+  'sem o tipo deep': (pp) => delete pp.clean.bySize.deep,
+  'escada vazia': (pp) => (pp.clean.step = []),
+  'EPC texto': (pp) => (pp.cert.epc = 'sixty'),
+  'add-on zero': (pp) => (pp.clean.extras.eot.carpet = 0),
+}
+for (const [nome, estraga] of Object.entries(repasseRuim)) {
+  passo(`partnerPay inválido (${nome}) volta para o repasse embutido`, () => {
+    aplicarDocumento(mexido, 6)
+    const d = copia(DOC_OS)
+    estraga(d.partnerPay)
+    const r = aplicarDocumento(d, 7)
+    strictEqual(r.ok, true)
+    strictEqual(r.repasse.ok, false)
+    deepStrictEqual(retrato().repasse, embutida.repasse)
+  })
+}
+passo('documento sem partnerPay = repasse embutido', () => {
+  aplicarDocumento(mexido, 8)
+  const d = copia(DOC_OS)
+  delete d.partnerPay
+  strictEqual(aplicarDocumento(d, 9).repasse.embutido, true)
+  deepStrictEqual(retrato().repasse, embutida.repasse)
+})
+passo('tabela inválida volta as duas para as embutidas', () => {
+  aplicarDocumento(mexido, 10)
+  const d = copia(mexido)
+  d.fix.packages = []
+  strictEqual(aplicarDocumento(d, 11).ok, false)
+  deepStrictEqual(canonico(retrato()), canonico(embutida))
+})
+restaurarEmbutida()
+restaurarRepasse()
 
 console.log(`\nTudo certo: ${passos} conferências, ${embutida.precos.length} seleções por retrato.`)

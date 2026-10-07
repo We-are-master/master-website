@@ -61,6 +61,88 @@ export const PARTNER_PAY = {
 
 const round = (n) => Math.round(n * 100) / 100
 
+/*
+ * Repasse vindo do OS (dono, 07/10/2026): a aba Services do OS é a fonte
+ * única do preço ao cliente E do repasse. Quando o documento da tabela traz
+ * `partnerPay`, os números acima são trocados NO LUGAR (como em pricing.js);
+ * os embutidos ficam guardados para voltar se o documento vier ruim.
+ */
+const copia = (v) => JSON.parse(JSON.stringify(v))
+const REPASSE_EMBUTIDO = copia(PARTNER_PAY)
+
+const ehObjeto = (v) => v != null && typeof v === 'object' && !Array.isArray(v)
+const ehValor = (v) => typeof v === 'number' && Number.isFinite(v) && v > 0
+const ehValorOuNulo = (v) => v === null || ehValor(v)
+const tabelaPorTamanho = (t) => ehObjeto(t) && Object.values(t).every(ehValorOuNulo)
+
+/** Conferência estrita do `partnerPay` do documento. */
+export function validarRepasse(pp) {
+  const erro = (msg) => ({ ok: false, erro: `partnerPay: ${msg}` })
+  if (!ehObjeto(pp)) return erro('não é objeto')
+  const c = pp.clean
+  if (!ehObjeto(c) || !ehObjeto(c.bySize)) return erro('clean.bySize ausente')
+  for (const kind of Object.keys(REPASSE_EMBUTIDO.clean.bySize)) {
+    if (!(kind in c.bySize)) return erro(`clean.bySize sem o tipo ${kind}`)
+  }
+  for (const [kind, t] of Object.entries(c.bySize)) {
+    if (!tabelaPorTamanho(t)) return erro(`clean.bySize.${kind} inválido`)
+  }
+  if (!Array.isArray(c.step) || c.step.length === 0 || !c.step.every(ehValor)) return erro('clean.step inválido')
+  if (c.extras !== undefined) {
+    if (!ehObjeto(c.extras)) return erro('clean.extras inválido')
+    for (const [kind, t] of Object.entries(c.extras)) {
+      if (!ehObjeto(t) || !Object.values(t).every(ehValor)) return erro(`clean.extras.${kind} inválido`)
+    }
+  }
+  for (const k of ['hour', 'half', 'day']) if (!ehValor(pp.fix?.[k])) return erro(`fix.${k} inválido`)
+  for (const k of ['touchup', 'rooms', 'materials']) if (!ehValor(pp.paint?.[k])) return erro(`paint.${k} inválido`)
+  const cert = pp.cert
+  if (!ehObjeto(cert)) return erro('cert ausente')
+  if (!ehValorOuNulo(cert.gas)) return erro('cert.gas inválido')
+  if (!tabelaPorTamanho(cert.eicr)) return erro('cert.eicr inválido')
+  // EPC: número único (formato antigo) ou tabela por tamanho (o OS hoje).
+  if (!(ehValor(cert.epc) || tabelaPorTamanho(cert.epc))) return erro('cert.epc inválido')
+  return { ok: true, erro: null }
+}
+
+function escreverRepasse(pp) {
+  const c = PARTNER_PAY.clean
+  c.bySize = copia(pp.clean.bySize)
+  // Degraus além do que o documento traz seguem os embutidos.
+  c.step = [...pp.clean.step, ...REPASSE_EMBUTIDO.clean.step.slice(pp.clean.step.length)]
+  if (pp.clean.extras) c.extras = copia(pp.clean.extras)
+  else delete c.extras
+  c.extraPct = REPASSE_EMBUTIDO.clean.extraPct
+  PARTNER_PAY.fix = { ...pp.fix }
+  PARTNER_PAY.paint = { ...pp.paint }
+  PARTNER_PAY.cert = copia(pp.cert)
+}
+
+/** Volta para o repasse embutido neste arquivo. */
+export function restaurarRepasse() {
+  const e = copia(REPASSE_EMBUTIDO)
+  for (const k of Object.keys(PARTNER_PAY)) delete PARTNER_PAY[k]
+  Object.assign(PARTNER_PAY, e)
+}
+
+/**
+ * Aplica o `partnerPay` do documento do OS. Ausente ou inválido: repasse
+ * embutido (e o erro volta para o log de quem chamou).
+ */
+export function aplicarRepasse(pp) {
+  if (pp === undefined || pp === null) {
+    restaurarRepasse()
+    return { ok: true, erro: null, embutido: true }
+  }
+  const r = validarRepasse(pp)
+  if (!r.ok) {
+    restaurarRepasse()
+    return r
+  }
+  escreverRepasse(pp)
+  return r
+}
+
 /** Soma os primeiros `n` degraus da escada; o último se repete se acabar. */
 function steps(n) {
   const { step } = PARTNER_PAY.clean
@@ -87,7 +169,10 @@ function extrasPay(lines, kind) {
       continue
     }
     const qty = Math.max(1, Math.round((l.amount || 0) / extra.price))
-    total += Math.round((extra.price * PARTNER_PAY.clean.extraPct) / 100) * qty
+    // Valor do add-on por tipo vindo do OS; sem ele, 60% do preço em libra inteira.
+    const doOs = PARTNER_PAY.clean.extras?.[kind]?.[extra.id]
+    const unidade = doOs ?? Math.round((extra.price * PARTNER_PAY.clean.extraPct) / 100)
+    total += unidade * qty
   }
   return total
 }
