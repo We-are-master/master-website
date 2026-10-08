@@ -98,8 +98,17 @@ export const CLEAN_KINDS = [
   },
 ]
 
-/** Link sem tipo (anúncio, chip, reserva antiga) continua sendo end of tenancy. */
-export const DEFAULT_CLEAN_KIND = 'eot'
+/**
+ * Link sem tipo (anúncio, chip, reserva antiga) continua sendo end of tenancy.
+ * `let` porque a tabela do OS (tabela-ao-vivo.js) pode trocar o tipo padrão;
+ * quem importa enxerga o valor novo (binding vivo do ES module).
+ */
+export let DEFAULT_CLEAN_KIND = 'eot'
+
+/** Só para tabela-ao-vivo.js: troca o tipo padrão vindo do OS. */
+export function definirTipoPadrao(id) {
+  DEFAULT_CLEAN_KIND = id
+}
 
 export function cleanKind(id) {
   return CLEAN_KINDS.find((k) => k.id === id) || CLEAN_KINDS.find((k) => k.id === DEFAULT_CLEAN_KIND)
@@ -147,16 +156,33 @@ export function cleanPrice(size, kindId) {
   return price == null ? null : price
 }
 
-/** Quantos profissionais vão no imóvel: um até 1 quarto, dois de 2 para cima. */
-export function cleanTeamSize(size) {
-  const order = PROPERTY_SIZES.map((s) => s.id)
-  return order.indexOf(String(size)) >= order.indexOf(CLEAN.teamOfTwoFromSize) ? 2 : 1
+/**
+ * Regras da limpeza de um tipo (dono, 07/10/2026): cada tipo pode ter o seu
+ * banheiro incluso, a sua escada de banheiro extra, o tamanho a partir do
+ * qual vão dois profissionais e a sua lista de add-ons. Campo ausente no tipo
+ * = vale o do CLEAN (a regra geral de hoje). Sem tipo = tipo padrão.
+ */
+export function regrasDaLimpeza(kindId) {
+  const k = cleanKind(kindId)
+  return {
+    includedBathrooms: k.includedBathrooms ?? CLEAN.includedBathrooms,
+    extraBathroomSteps: k.extraBathroomSteps ?? CLEAN.extraBathroomSteps,
+    teamOfTwoFromSize: k.teamOfTwoFromSize ?? CLEAN.teamOfTwoFromSize,
+    extras: k.extras ?? CLEAN.extras,
+  }
 }
 
-/** Quanto custam os banheiros além do que já vem no preço, pela escada. */
-export function extraBathroomsPrice(bathrooms) {
-  const extra = Math.max(0, (Number(bathrooms) || 1) - CLEAN.includedBathrooms)
-  const steps = CLEAN.extraBathroomSteps
+/** Quantos profissionais vão no imóvel: um até o tamanho da regra do tipo, dois dali para cima. */
+export function cleanTeamSize(size, kindId) {
+  const order = PROPERTY_SIZES.map((s) => s.id)
+  return order.indexOf(String(size)) >= order.indexOf(regrasDaLimpeza(kindId).teamOfTwoFromSize) ? 2 : 1
+}
+
+/** Quanto custam os banheiros além do que já vem no preço do tipo, pela escada do tipo. */
+export function extraBathroomsPrice(bathrooms, kindId) {
+  const regras = regrasDaLimpeza(kindId)
+  const extra = Math.max(0, (Number(bathrooms) || 1) - regras.includedBathrooms)
+  const steps = regras.extraBathroomSteps
   let total = 0
   for (let i = 0; i < extra; i += 1) total += steps[Math.min(i, steps.length - 1)]
   return total
@@ -216,6 +242,27 @@ export const FIX = {
   ],
 }
 
+/**
+ * Quem vai no Fix (dono, 07/10/2026: "tudo que tem preço no OS vai pro
+ * site"). O handyman é o próprio FIX (pacotes e lista de tarefas acima); as
+ * outras profissões vêm da tabela do OS em `FIX.trades`, cada uma com o seu
+ * título do OS e os seus pacotes. Pacote com `perHour` é cobrado por hora
+ * (o cliente escolhe quantas).
+ */
+export const HANDYMAN = 'handyman'
+
+export function fixTrades() {
+  return [
+    { id: HANDYMAN, label: 'Handyman', detail: 'Small repairs and odd jobs', osTitle: FIX.osTitle, packages: FIX.packages, tasks: FIX.tasks },
+    ...(FIX.trades || []).map((t) => ({ ...t, tasks: [] })),
+  ]
+}
+
+export function fixTrade(id) {
+  const lista = fixTrades()
+  return lista.find((t) => t.id === id) || lista[0]
+}
+
 export const CERT = {
   id: 'cert',
   verb: 'Certify',
@@ -258,10 +305,31 @@ export const CERT = {
   ],
 }
 
-/** Preço de um item de certificado no tamanho escolhido (null = sob consulta). */
+/** Preço de um item de certificado no tamanho escolhido (null = sob consulta). Com opções, o da primeira (o "from"). */
 export function certPrice(item, size) {
   if (item.prices) return item.prices[size] ?? null
+  if (item.options?.length) return item.options[0].price
   return item.price
+}
+
+/** A opção escolhida de um certificado com opções (ex.: quantos aparelhos a gás). */
+export function certOption(item, sel) {
+  if (!item.options?.length) return null
+  return item.options.find((o) => o.id === sel?.cert?.options?.[item.id]) || item.options[0]
+}
+
+/** Quantas unidades extras (ex.: porta corta-fogo a mais) o cliente pediu. */
+export function certExtraQty(item, sel) {
+  if (!item.extra) return 0
+  return sel?.cert?.extra?.[item.id] || 0
+}
+
+/** Preço do certificado na reserva: tamanho, opção e extras. null = sob consulta. */
+export function certLinePrice(item, sel) {
+  const opt = certOption(item, sel)
+  const base = opt ? opt.price : certPrice(item, sel?.size)
+  if (base == null) return null
+  return base + (item.extra ? item.extra.price * certExtraQty(item, sel) : 0)
 }
 
 export const SERVICES = { clean: CLEAN, paint: PAINT, fix: FIX, cert: CERT }
@@ -273,22 +341,38 @@ export function serviceName(id, selection) {
   return SERVICES[id]?.name || ''
 }
 
-/** O menor preço de cada serviço, para os "from £" da página (limpeza: o tipo mais barato). */
-export const FROM_PRICE = {
-  clean: Math.min(...CLEAN_KINDS.map((k) => cleanPrice('studio', k.id))),
-  paint: PAINT.options[0].price,
-  fix: FIX.packages[0].price,
-  cert: Math.min(...CERT.items.map((i) => (i.prices ? Math.min(...Object.values(i.prices).filter((v) => v != null)) : i.price))),
-}
+/**
+ * O menor preço de cada serviço, para os "from £" da página (limpeza: o tipo
+ * mais barato, no menor tamanho com preço). Objeto fixo, recalculado no lugar
+ * por `calcularFromPrice` quando a tabela do OS chega.
+ */
+export const FROM_PRICE = {}
 
-/** Pacote sugerido para a lista de tarefas: o menor que cabe no tempo. */
-export function suggestFixPackage(taskIds = []) {
+export function calcularFromPrice() {
+  const ativos = PROPERTY_SIZES.map((s) => s.id)
+  const menor = (prices) => Math.min(...ativos.map((id) => prices[id]).filter((v) => v != null))
+  FROM_PRICE.clean = Math.min(...CLEAN_KINDS.map((k) => menor(k.prices)))
+  FROM_PRICE.paint = PAINT.options[0].price
+  FROM_PRICE.fix = FIX.packages.filter((p) => !p.perHour)[0]?.price ?? FIX.packages[0].price
+  FROM_PRICE.cert = Math.min(...CERT.items.map((i) => (i.prices ? menor(i.prices) : certPrice(i))))
+}
+calcularFromPrice()
+
+/**
+ * Pacote sugerido para a lista de tarefas: o menor que cabe no tempo. A hora
+ * avulsa nunca é sugerida (fica como escolha do cliente); profissão só com
+ * hora avulsa sugere a hora.
+ */
+export function suggestFixPackage(taskIds = [], tradeId = HANDYMAN) {
+  const trade = fixTrade(tradeId)
+  const fechados = trade.packages.filter((p) => !p.perHour)
+  if (!fechados.length) return trade.packages[0]
   const minutes = taskIds.reduce((sum, id) => {
-    const task = FIX.tasks.find((t) => t.id === id)
+    const task = trade.tasks.find((t) => t.id === id)
     return sum + (task ? task.minutes : 0)
   }, 0)
-  if (minutes === 0) return FIX.packages[0]
-  return FIX.packages.find((p) => p.minutes >= minutes) || FIX.packages[FIX.packages.length - 1]
+  if (minutes === 0) return fechados[0]
+  return fechados.find((p) => p.minutes >= minutes) || fechados[fechados.length - 1]
 }
 
 export function emptySelection() {
@@ -298,8 +382,8 @@ export function emptySelection() {
     bathrooms: 1,
     clean: { kind: DEFAULT_CLEAN_KIND, extras: {} },
     paint: { option: 'touchup', rooms: 1, materials: false },
-    fix: { tasks: [], package: null },
-    cert: { items: [] },
+    fix: { trade: HANDYMAN, tasks: [], package: null, hours: 1 },
+    cert: { items: [], options: {}, extra: {} },
   }
 }
 
@@ -323,8 +407,9 @@ export function normalizeSelection(raw = {}) {
 
   // Tipo desconhecido, ausente ou `regular` (retirado) vira end of tenancy.
   const kind = CLEAN_KINDS.some((k) => k.id === raw.clean?.kind) ? raw.clean.kind : DEFAULT_CLEAN_KIND
+  // Só os add-ons do tipo escolhido: add-on de outro tipo some da seleção.
   const extras = {}
-  for (const extra of CLEAN.extras) {
+  for (const extra of regrasDaLimpeza(kind).extras) {
     const qty = raw.clean?.extras?.[extra.id]
     if (!qty) continue
     extras[extra.id] = extra.unit ? clampInt(qty, 1, extra.max || 8) : 1
@@ -334,14 +419,27 @@ export function normalizeSelection(raw = {}) {
   const paintRooms = clampInt(raw.paint?.rooms ?? 1, 1, 8)
   const paintMaterials = raw.paint?.materials === true
 
+  const trade = fixTrade(raw.fix?.trade)
   const tasks = Array.isArray(raw.fix?.tasks)
-    ? FIX.tasks.filter((t) => raw.fix.tasks.includes(t.id)).map((t) => t.id)
+    ? trade.tasks.filter((t) => raw.fix.tasks.includes(t.id)).map((t) => t.id)
     : []
-  const pkg = FIX.packages.some((p) => p.id === raw.fix?.package) ? raw.fix.package : null
+  const pkg = trade.packages.some((p) => p.id === raw.fix?.package) ? raw.fix.package : null
+  const hours = clampInt(raw.fix?.hours ?? 1, 1, 8)
 
   const certItems = Array.isArray(raw.cert?.items)
     ? CERT.items.filter((i) => raw.cert.items.includes(i.id)).map((i) => i.id)
     : []
+  // Opção e extras só dos certificados marcados que têm opção ou extra.
+  const certOptions = {}
+  const certExtra = {}
+  for (const item of CERT.items) {
+    if (!certItems.includes(item.id)) continue
+    const opt = raw.cert?.options?.[item.id]
+    if (item.options?.some((o) => o.id === opt)) certOptions[item.id] = opt
+    else if (item.options?.length) certOptions[item.id] = item.options[0].id
+    const qty = raw.cert?.extra?.[item.id]
+    if (item.extra && qty) certExtra[item.id] = clampInt(qty, 0, item.extra.max || 10)
+  }
 
   return {
     ...base,
@@ -350,8 +448,8 @@ export function normalizeSelection(raw = {}) {
     bathrooms,
     clean: { kind, extras },
     paint: { option: paintOption, rooms: paintRooms, materials: paintMaterials },
-    fix: { tasks, package: pkg },
-    cert: { items: certItems },
+    fix: { trade: trade.id, tasks, package: pkg, hours },
+    cert: { items: certItems, options: certOptions, extra: certExtra },
   }
 }
 
@@ -374,16 +472,17 @@ export function priceSelection(rawSelection) {
     } else {
       lines.push({ service: 'clean', id: 'clean-base', label, detail: sizeLabel, amount: base })
     }
-    const extraBaths = Math.max(0, sel.bathrooms - CLEAN.includedBathrooms)
+    const regras = regrasDaLimpeza(sel.clean.kind)
+    const extraBaths = Math.max(0, sel.bathrooms - regras.includedBathrooms)
     if (extraBaths > 0) {
       lines.push({
         service: 'clean',
         id: 'clean-bathrooms',
         label: extraBaths === 1 ? 'Extra bathroom' : `${extraBaths} extra bathrooms`,
-        amount: extraBathroomsPrice(sel.bathrooms),
+        amount: extraBathroomsPrice(sel.bathrooms, sel.clean.kind),
       })
     }
-    for (const extra of CLEAN.extras) {
+    for (const extra of regras.extras) {
       const qty = sel.clean.extras[extra.id]
       if (!qty) continue
       lines.push({
@@ -402,7 +501,7 @@ export function priceSelection(rawSelection) {
       service: 'paint',
       id: `paint-${option.id}`,
       label: `${PAINT.name}: ${option.label.toLowerCase()}`,
-      detail: option.unit ? `${qty} ${qty === 1 ? 'room' : 'rooms'}` : 'Up to 3.5 hours',
+      detail: option.unit ? `${qty} ${qty === 1 ? 'room' : 'rooms'}` : option.time || 'Up to 3.5 hours',
       amount: option.price * qty,
     })
     if (sel.paint.materials) {
@@ -417,28 +516,36 @@ export function priceSelection(rawSelection) {
   }
 
   if (sel.services.includes('fix')) {
-    const pkg = FIX.packages.find((p) => p.id === sel.fix.package) || suggestFixPackage(sel.fix.tasks)
+    const trade = fixTrade(sel.fix.trade)
+    const pkg = trade.packages.find((p) => p.id === sel.fix.package) || suggestFixPackage(sel.fix.tasks, trade.id)
+    const qty = pkg.perHour ? sel.fix.hours : 1
     lines.push({
       service: 'fix',
       id: `fix-${pkg.id}`,
-      label: `${FIX.name}: ${pkg.label.toLowerCase()}`,
-      detail: sel.fix.tasks.length
-        ? `${sel.fix.tasks.length} ${sel.fix.tasks.length === 1 ? 'job' : 'jobs'} on your list`
-        : pkg.detail || '',
-      amount: pkg.price,
+      label: `${trade.id === HANDYMAN ? FIX.name : trade.label}: ${pkg.label.toLowerCase()}`,
+      detail: pkg.perHour
+        ? `${qty} ${qty === 1 ? 'hour' : 'hours'}`
+        : sel.fix.tasks.length
+          ? `${sel.fix.tasks.length} ${sel.fix.tasks.length === 1 ? 'job' : 'jobs'} on your list`
+          : pkg.detail || '',
+      amount: pkg.price * qty,
     })
   }
 
   if (sel.services.includes('cert')) {
     for (const item of CERT.items) {
       if (!sel.cert.items.includes(item.id)) continue
-      const amount = certPrice(item, sel.size)
+      const amount = certLinePrice(item, sel)
       if (amount == null) needsQuote = true
+      const opt = certOption(item, sel)
+      const extraQty = certExtraQty(item, sel)
       lines.push({
         service: 'cert',
         id: `cert-${item.id}`,
         label: item.label,
-        detail: item.prices ? sizeLabel : item.valid,
+        detail: [opt ? opt.label : item.prices ? sizeLabel : item.valid, extraQty ? `${item.extra.label} × ${extraQty}` : null]
+          .filter(Boolean)
+          .join(', '),
         amount,
       })
     }

@@ -25,6 +25,8 @@ import {
   PROPERTY_SIZES,
   priceSelection,
   normalizeSelection,
+  regrasDaLimpeza,
+  fixTrades,
 } from '../../src/b2c/content/pricing.js'
 import { COVERED_AREAS, GOOGLE_REVIEWS, GUARANTEE, PROMISES, TERMS, formatPostcode, looksLikePostcode, postcodeArea } from '../../src/b2c/content/site.js'
 import { bookableDates, windowsFor } from '../../src/b2c/lib/slots.js'
@@ -56,6 +58,8 @@ const HOW_FIXFY_WORKS = {
   termsVersion: TERMS.version,
 }
 
+const extraDoHarvey = (e) => ({ id: e.id, label: e.label, detail: e.detail, price: e.price, perRoom: e.unit === 'room' })
+
 /** Tudo que ele vende, com preço, do jeito que o site vende. */
 export function catalog() {
   return {
@@ -64,24 +68,41 @@ export function catalog() {
     howFixfyWorks: HOW_FIXFY_WORKS,
     sizes: PROPERTY_SIZES.map((s) => ({ id: s.id, label: s.label })),
     cleaning: {
-      kinds: CLEAN_KINDS.map((k) => ({ id: k.id, name: k.name, forWhat: k.detail, prices: k.prices })),
+      // Cada tipo com as suas regras (banheiro incluso, escada, equipe de dois, add-ons).
+      kinds: CLEAN_KINDS.map((k) => {
+        const regras = regrasDaLimpeza(k.id)
+        return {
+          id: k.id,
+          name: k.name,
+          forWhat: k.detail,
+          prices: k.prices,
+          includedBathrooms: regras.includedBathrooms,
+          extraBathroomSteps: regras.extraBathroomSteps,
+          teamOfTwoFromSize: regras.teamOfTwoFromSize,
+          extras: regras.extras.map(extraDoHarvey),
+        }
+      }),
+      rulesNote: 'Bathrooms, add-ons and team size can differ by kind: always quote with the rules of the chosen kind.',
       includedBathrooms: CLEAN.includedBathrooms,
       extraBathroomSteps: CLEAN.extraBathroomSteps,
-      extras: CLEAN.extras.map((e) => ({ id: e.id, label: e.label, detail: e.detail, price: e.price, perRoom: e.unit === 'room' })),
+      extras: CLEAN.extras.map(extraDoHarvey),
       included: ['Oven', 'Cleaning products and equipment', 'A photo of every room when the job is done'],
       teamOfTwoFromSize: CLEAN.teamOfTwoFromSize,
       fiveBedNote: '5+ bedrooms: priced from photos, pass to the team',
     },
     painting: {
-      options: PAINT.options.map((o) => ({ id: o.id, label: o.label, detail: o.detail, price: o.price, perRoom: o.unit === 'room' })),
+      options: PAINT.options.map((o) => ({ id: o.id, label: o.label, detail: o.detail, price: o.price, perRoom: o.unit === 'room', time: o.time })),
       materialsPack: { price: PAINT.materials.price, detail: PAINT.materials.detail },
     },
     handyman: {
-      packages: FIX.packages.map((p) => ({ id: p.id, label: p.label, detail: p.detail, price: p.price })),
+      packages: FIX.packages.map((p) => ({ id: p.id, label: p.label, detail: p.detail, price: p.price, perHour: p.perHour === true })),
+      // Outras profissões (selection.fix.trade); hora avulsa = selection.fix.hours.
+      trades: fixTrades().map((t) => ({ id: t.id, label: t.label, detail: t.detail, packages: t.packages.map((p) => ({ id: p.id, label: p.label, detail: p.detail, price: p.price, perHour: p.perHour === true })) })),
       tasks: FIX.tasks.map((t) => ({ id: t.id, label: t.label })),
       note: 'Tools included, no call-out fee. Materials are not included: the customer supplies them, or the professional quotes them at their price, only with the customer\'s approval.',
     },
-    certificates: CERT.items.map((i) => ({ id: i.id, label: i.label, detail: i.detail, valid: i.valid, price: i.price ?? null, prices: i.prices ?? null })),
+    // options: selection.cert.options[id] = id da opção; extra: selection.cert.extra[id] = quantidade.
+    certificates: CERT.items.map((i) => ({ id: i.id, label: i.label, detail: i.detail, valid: i.valid, price: i.price ?? null, prices: i.prices ?? null, options: i.options ?? null, extra: i.extra ?? null })),
     coverage: { postcodeAreas: COVERED_AREAS, note: 'All of London' },
     promises: PROMISES,
     guarantee: {

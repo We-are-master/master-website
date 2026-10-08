@@ -23,7 +23,7 @@
  *    fornecido pelo profissional: líquido £100, comissão £30 (documento 08).
  *  - Certificados: o custo que o catálogo do OS paga em cada faixa.
  */
-import { CLEAN, PAINT } from '../../src/b2c/content/pricing.js'
+import { PAINT, regrasDaLimpeza } from '../../src/b2c/content/pricing.js'
 
 export const PARTNER_PAY = {
   clean: {
@@ -61,6 +61,99 @@ export const PARTNER_PAY = {
 
 const round = (n) => Math.round(n * 100) / 100
 
+/*
+ * Repasse vindo do OS (dono, 07/10/2026): a aba Services do OS é a fonte
+ * única do preço ao cliente E do repasse. Quando o documento da tabela traz
+ * `partnerPay`, os números acima são trocados NO LUGAR (como em pricing.js);
+ * os embutidos ficam guardados para voltar se o documento vier ruim.
+ */
+const copia = (v) => JSON.parse(JSON.stringify(v))
+const REPASSE_EMBUTIDO = copia(PARTNER_PAY)
+
+const ehObjeto = (v) => v != null && typeof v === 'object' && !Array.isArray(v)
+const ehValor = (v) => typeof v === 'number' && Number.isFinite(v) && v > 0
+const ehValorOuNulo = (v) => v === null || ehValor(v)
+const tabelaPorTamanho = (t) => ehObjeto(t) && Object.values(t).every(ehValorOuNulo)
+/** Certificado com opções: { options: { id: valor }, extra?: valor } (dono, 07/10/2026). */
+const porOpcao = (t) => ehObjeto(t) && ehObjeto(t.options) && Object.values(t.options).every(ehValor) && (t.extra === undefined || ehValor(t.extra))
+const valorDeCertificado = (t) => ehValorOuNulo(t) || porOpcao(t) || tabelaPorTamanho(t)
+
+/** Conferência estrita do `partnerPay` do documento. */
+export function validarRepasse(pp) {
+  const erro = (msg) => ({ ok: false, erro: `partnerPay: ${msg}` })
+  if (!ehObjeto(pp)) return erro('não é objeto')
+  const c = pp.clean
+  if (!ehObjeto(c) || !ehObjeto(c.bySize)) return erro('clean.bySize ausente')
+  for (const kind of Object.keys(REPASSE_EMBUTIDO.clean.bySize)) {
+    if (!(kind in c.bySize)) return erro(`clean.bySize sem o tipo ${kind}`)
+  }
+  for (const [kind, t] of Object.entries(c.bySize)) {
+    if (!tabelaPorTamanho(t)) return erro(`clean.bySize.${kind} inválido`)
+  }
+  if (!Array.isArray(c.step) || c.step.length === 0 || !c.step.every(ehValor)) return erro('clean.step inválido')
+  if (c.extras !== undefined) {
+    if (!ehObjeto(c.extras)) return erro('clean.extras inválido')
+    for (const [kind, t] of Object.entries(c.extras)) {
+      if (!ehObjeto(t) || !Object.values(t).every(ehValor)) return erro(`clean.extras.${kind} inválido`)
+    }
+  }
+  for (const k of ['hour', 'half', 'day']) if (!ehValor(pp.fix?.[k])) return erro(`fix.${k} inválido`)
+  if (pp.fix.trades !== undefined) {
+    if (!ehObjeto(pp.fix.trades)) return erro('fix.trades inválido')
+    for (const [id, t] of Object.entries(pp.fix.trades)) {
+      if (!ehObjeto(t) || !Object.values(t).every(ehValor)) return erro(`fix.trades.${id} inválido`)
+    }
+  }
+  for (const k of ['touchup', 'rooms', 'materials']) if (!ehValor(pp.paint?.[k])) return erro(`paint.${k} inválido`)
+  for (const [k, v] of Object.entries(pp.paint)) if (!ehValor(v)) return erro(`paint.${k} inválido`)
+  const cert = pp.cert
+  if (!ehObjeto(cert)) return erro('cert ausente')
+  for (const [id, t] of Object.entries(cert)) if (!valorDeCertificado(t)) return erro(`cert.${id} inválido`)
+  if (!(ehValorOuNulo(cert.gas) || porOpcao(cert.gas))) return erro('cert.gas inválido')
+  if (!tabelaPorTamanho(cert.eicr)) return erro('cert.eicr inválido')
+  // EPC: número único (formato antigo) ou tabela por tamanho (o OS hoje).
+  if (!(ehValor(cert.epc) || tabelaPorTamanho(cert.epc))) return erro('cert.epc inválido')
+  return { ok: true, erro: null }
+}
+
+function escreverRepasse(pp) {
+  const c = PARTNER_PAY.clean
+  c.bySize = copia(pp.clean.bySize)
+  // Degraus além do que o documento traz seguem os embutidos.
+  c.step = [...pp.clean.step, ...REPASSE_EMBUTIDO.clean.step.slice(pp.clean.step.length)]
+  if (pp.clean.extras) c.extras = copia(pp.clean.extras)
+  else delete c.extras
+  c.extraPct = REPASSE_EMBUTIDO.clean.extraPct
+  PARTNER_PAY.fix = copia(pp.fix)
+  PARTNER_PAY.paint = { ...pp.paint }
+  PARTNER_PAY.cert = copia(pp.cert)
+}
+
+/** Volta para o repasse embutido neste arquivo. */
+export function restaurarRepasse() {
+  const e = copia(REPASSE_EMBUTIDO)
+  for (const k of Object.keys(PARTNER_PAY)) delete PARTNER_PAY[k]
+  Object.assign(PARTNER_PAY, e)
+}
+
+/**
+ * Aplica o `partnerPay` do documento do OS. Ausente ou inválido: repasse
+ * embutido (e o erro volta para o log de quem chamou).
+ */
+export function aplicarRepasse(pp) {
+  if (pp === undefined || pp === null) {
+    restaurarRepasse()
+    return { ok: true, erro: null, embutido: true }
+  }
+  const r = validarRepasse(pp)
+  if (!r.ok) {
+    restaurarRepasse()
+    return r
+  }
+  escreverRepasse(pp)
+  return r
+}
+
 /** Soma os primeiros `n` degraus da escada; o último se repete se acabar. */
 function steps(n) {
   const { step } = PARTNER_PAY.clean
@@ -75,17 +168,22 @@ function steps(n) {
  * £43 → £26, janela £35 → £21, varanda £57 → £34). Antes saía 60% exato
  * (£22,80 no carpete) e o job nascia com um repasse que o catálogo não tinha.
  */
-function extrasPay(lines) {
+function extrasPay(lines, kind) {
+  // Add-ons do tipo da limpeza (cada tipo pode ter a sua lista).
+  const lista = regrasDaLimpeza(kind).extras
   let total = 0
   for (const l of lines) {
     if (l.id === 'clean-base' || l.id === 'clean-bathrooms') continue
-    const extra = CLEAN.extras.find((x) => `clean-${x.id}` === l.id)
+    const extra = lista.find((x) => `clean-${x.id}` === l.id)
     if (!extra) {
       total += ((l.amount || 0) * PARTNER_PAY.clean.extraPct) / 100
       continue
     }
     const qty = Math.max(1, Math.round((l.amount || 0) / extra.price))
-    total += Math.round((extra.price * PARTNER_PAY.clean.extraPct) / 100) * qty
+    // Valor do add-on por tipo vindo do OS; sem ele, 60% do preço em libra inteira.
+    const doOs = PARTNER_PAY.clean.extras?.[kind]?.[extra.id]
+    const unidade = doOs ?? Math.round((extra.price * PARTNER_PAY.clean.extraPct) / 100)
+    total += unidade * qty
   }
   return total
 }
@@ -94,7 +192,7 @@ function extrasPay(lines) {
 function cleanPay({ lines, size, kind, bathrooms }) {
   const band = PARTNER_PAY.clean.bySize[kind]?.[String(size)]
   if (band == null) return null
-  return round(band + steps(Math.max(0, (Number(bathrooms) || 1) - 1)) + extrasPay(lines))
+  return round(band + steps(Math.max(0, (Number(bathrooms) || 1) - 1)) + extrasPay(lines, kind))
 }
 
 /**
@@ -105,19 +203,29 @@ function cleanPay({ lines, size, kind, bathrooms }) {
  * desconto: a promoção é paga pela Fixfy em nome do cliente e não mexe no
  * preço nem no líquido do profissional).
  */
-export function partnerPayFor({ service, lines = [], size, kind, bathrooms = 1, certItem }) {
+export function partnerPayFor({ service, lines = [], size, kind, bathrooms = 1, certItem, fixTrade = 'handyman', hours = 1, certOption = null, certExtra = 0 }) {
   if (!lines.length) return null
 
   if (service === 'clean') return cleanPay({ lines, size, kind, bathrooms })
 
   if (service === 'fix') {
     const pkg = lines.find((l) => l.id?.startsWith('fix-'))?.id.slice(4)
-    return PARTNER_PAY.fix[pkg] ?? null
+    const tabela = fixTrade === 'handyman' ? PARTNER_PAY.fix : PARTNER_PAY.fix.trades?.[fixTrade]
+    const unidade = tabela?.[pkg]
+    if (unidade == null) return null
+    // Hora avulsa: o repasse acompanha as horas compradas.
+    return round(unidade * (pkg === 'hour' ? Math.max(1, hours) : 1))
   }
 
   if (service === 'paint') {
     const materials = lines.some((l) => l.id === 'paint-materials') ? PARTNER_PAY.paint.materials : 0
     const rooms = lines.find((l) => l.id === 'paint-rooms')
+    const outra = lines.find((l) => l.id?.startsWith('paint-') && l.id !== 'paint-materials' && l.id !== 'paint-rooms' && l.id !== 'paint-touchup')
+    if (outra) {
+      // Opção nova vinda do OS (ex.: diária): repasse pelo id da opção.
+      const v = PARTNER_PAY.paint[outra.id.slice(6)]
+      return v == null ? null : round(v + materials)
+    }
     if (rooms) {
       // O preço do cômodo é por unidade; o repasse acompanha a quantidade.
       const perRoom = PAINT.options.find((o) => o.id === 'rooms')?.price || 1
@@ -130,6 +238,10 @@ export function partnerPayFor({ service, lines = [], size, kind, bathrooms = 1, 
   if (service === 'cert') {
     const table = PARTNER_PAY.cert[certItem?.id]
     if (table == null) return null
+    if (porOpcao(table)) {
+      const v = table.options[certOption] ?? Object.values(table.options)[0]
+      return round(v + (table.extra || 0) * (certExtra || 0))
+    }
     const own = typeof table === 'object' ? table[String(size)] : table
     return own == null ? null : round(own)
   }

@@ -12,17 +12,24 @@ import {
   CLEAN,
   FIX,
   FROM_PRICE,
+  HANDYMAN,
   PAINT,
   PROPERTY_SIZES,
   SERVICE_ORDER,
   SERVICES,
   applyPromo,
+  certExtraQty,
+  certLinePrice,
+  certOption,
   certPrice,
   cleanKind,
   cleanPrice,
   cleanTeamSize,
+  fixTrade,
+  fixTrades,
   formatGBP,
   priceSelection,
+  regrasDaLimpeza,
   serviceName,
   suggestFixPackage,
 } from '../content/pricing.js'
@@ -90,7 +97,7 @@ function validate(step, b, ctx) {
     const needsSize = sel.services.includes('clean') || (sel.services.includes('cert') && sel.cert.items.includes('eicr'))
     if (needsSize && !b.sizeChosen) e.size = 'Choose the size of the place.'
     if (ctx.priced.needsQuote) e.size = 'For 5 or more bedrooms we price from photos. Send us a message and we reply within the day.'
-    if (sel.services.includes('fix') && sel.fix.tasks.length === 0) e.tasks = 'Tick at least one job so your handyman brings the right tools.'
+    if (sel.services.includes('fix') && sel.fix.trade === HANDYMAN && sel.fix.tasks.length === 0) e.tasks = 'Tick at least one job so your handyman brings the right tools.'
     if (sel.services.includes('cert') && sel.cert.items.length === 0) e.cert = 'Tick at least one certificate.'
   }
   if (step === 2) {
@@ -330,12 +337,15 @@ export default function BookPage() {
 
   const sel = booking.selection
   const has = (id) => sel.services.includes(id)
+  // Banheiro incluso, escada e add-ons do tipo de limpeza escolhido.
+  const regras = regrasDaLimpeza(sel.clean.kind)
   // O "from" da limpeza segue o tipo escolhido só quando a limpeza está marcada.
   // Antes disso vale o mesmo "from" da home (o menor entre os tipos): quem veio
   // do anúncio de reparo não pode ver £174 na home e £200 aqui.
   const fromPrice = (id) => (id === 'clean' && has('clean') ? cleanPrice('studio', sel.clean.kind) : FROM_PRICE[id])
-  const suggested = suggestFixPackage(sel.fix.tasks)
-  const fixPkg = FIX.packages.find((p) => p.id === sel.fix.package) || suggested
+  const trade = fixTrade(sel.fix.trade)
+  const suggested = suggestFixPackage(sel.fix.tasks, trade.id)
+  const fixPkg = trade.packages.find((p) => p.id === sel.fix.package) || suggested
   const accessOption = ACCESS.find((a) => a.id === booking.access)
   const help = whatsappLink('Hi Fixfy, I have a question about my booking')
   const canPay = config.loaded && config.payments
@@ -606,7 +616,7 @@ export default function BookPage() {
                       </div>
                       {has('clean') && (
                         <p className="bk-hint">
-                          {cleanTeamSize(sel.size) === 2
+                          {cleanTeamSize(sel.size, sel.clean.kind) === 2
                             ? 'Two cleaners on the day, with all products and equipment.'
                             : 'One cleaner on the day, with all products and equipment.'}
                         </p>
@@ -616,7 +626,7 @@ export default function BookPage() {
                           <span className="bk-label" style={{ margin: 0 }}>
                             Bathrooms
                             <span>
-                              {CLEAN.includedBathrooms} included, then from {formatGBP(CLEAN.extraBathroomSteps[0])}
+                              {regras.includedBathrooms} included, then from {formatGBP(regras.extraBathroomSteps[0])}
                             </span>
                           </span>
                           <Stepper value={sel.bathrooms} min={1} max={4} onChange={(v) => updateSel({ bathrooms: v })} label="bathrooms" />
@@ -643,7 +653,7 @@ export default function BookPage() {
                         Clean<span className="mo-dot">.</span> Add-ons
                       </legend>
                       <ul className="bk-extras">
-                        {CLEAN.extras.map((x) => {
+                        {regras.extras.map((x) => {
                           const qty = sel.clean.extras[x.id] || 0
                           const setQty = (v) =>
                             updateSel({ clean: { ...sel.clean, extras: { ...sel.clean.extras, [x.id]: v || undefined } } })
@@ -748,8 +758,31 @@ export default function BookPage() {
                   {has('fix') && (
                     <fieldset className={`bk-block${errors.tasks ? ' has-error' : ''}`} id="bk-fix">
                       <legend className="bk-legend">
-                        Fix<span className="mo-dot">.</span> What is on the list?
+                        Fix<span className="mo-dot">.</span> {trade.id === HANDYMAN ? 'What is on the list?' : 'Who do you need?'}
                       </legend>
+                      {fixTrades().length > 1 && (
+                        <div className="mo-chips" role="radiogroup" aria-label="Who do you need" style={{ marginBottom: 18 }}>
+                          {fixTrades().map((t) => (
+                            <button
+                              key={t.id}
+                              type="button"
+                              role="radio"
+                              aria-checked={trade.id === t.id}
+                              className="mo-chip"
+                              onClick={() => {
+                                updateSel({ fix: { ...sel.fix, trade: t.id, package: null, tasks: t.id === HANDYMAN ? sel.fix.tasks : [] } })
+                                setErrors((e) => ({ ...e, tasks: undefined }))
+                              }}
+                            >
+                              {t.label}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                      {trade.id !== HANDYMAN && (
+                        <p className="bk-note">{trade.detail ? `${trade.detail}. ` : ''}Tell us what needs doing in the notes at the end, with photos on WhatsApp if you can.</p>
+                      )}
+                      {trade.id === HANDYMAN && (
                       <div className="mo-chips" role="group" aria-label="Repair jobs">
                         {FIX.tasks.map((t) => {
                           const on = sel.fix.tasks.includes(t.id)
@@ -771,17 +804,18 @@ export default function BookPage() {
                           )
                         })}
                       </div>
+                      )}
                       <ErrorText>{errors.tasks}</ErrorText>
                       <p className="bk-label" style={{ marginTop: 22 }}>
                         Time on site
                         <span>
-                          {sel.fix.tasks.length
+                          {trade.id === HANDYMAN && sel.fix.tasks.length
                             ? `We suggest ${suggested.label.toLowerCase()} for ${sel.fix.tasks.length} ${sel.fix.tasks.length === 1 ? 'job' : 'jobs'}`
-                            : 'Half day or full day, no call-out fee'}
+                            : 'No call-out fee'}
                         </span>
                       </p>
                       <div className="mo-chips" role="radiogroup" aria-label="Time on site">
-                        {FIX.packages.map((p) => (
+                        {trade.packages.map((p) => (
                           <button
                             key={p.id}
                             type="button"
@@ -791,11 +825,22 @@ export default function BookPage() {
                             onClick={() => updateSel({ fix: { ...sel.fix, package: p.id } })}
                           >
                             {p.label}
-                            <span className="mo-chip__price">{formatGBP(p.price)}</span>
-                            {sel.fix.tasks.length > 0 && suggested.id === p.id && <span className="bk-suggested">Suggested</span>}
+                            <span className="mo-chip__price">
+                              {formatGBP(p.price)}
+                              {p.perHour ? ' an hour' : ''}
+                            </span>
+                            {trade.id === HANDYMAN && sel.fix.tasks.length > 0 && suggested.id === p.id && <span className="bk-suggested">Suggested</span>}
                           </button>
                         ))}
                       </div>
+                      {fixPkg.perHour && (
+                        <div className="mo-row bk-baths">
+                          <span className="bk-label" style={{ margin: 0 }}>
+                            Hours<span>{fixPkg.detail || 'Minimum 1 hour'}</span>
+                          </span>
+                          <Stepper value={sel.fix.hours} min={1} max={8} onChange={(v) => updateSel({ fix: { ...sel.fix, package: fixPkg.id, hours: v } })} label="hours" />
+                        </div>
+                      )}
                     </fieldset>
                   )}
 
@@ -807,29 +852,65 @@ export default function BookPage() {
                       <ul className="bk-extras">
                         {CERT.items.map((item) => {
                           const on = sel.cert.items.includes(item.id)
-                          const price = certPrice(item, sel.size)
+                          const price = on ? certLinePrice(item, sel) : certPrice(item, sel.size)
+                          const opt = certOption(item, sel)
+                          const extraQty = certExtraQty(item, sel)
                           return (
-                            <li key={item.id} className={on ? 'is-on' : ''}>
+                            <li key={item.id} className={on ? 'is-on' : ''} style={on && (item.options?.length > 1 || item.extra) ? { flexWrap: 'wrap' } : undefined}>
                               <div className="bk-extra__text">
                                 <b>{item.label}</b>
                                 <span>
                                   {item.detail}. {item.valid}.
                                 </span>
                               </div>
-                              <span className="bk-extra__price">{price == null ? 'Ask us' : formatGBP(price)}</span>
+                              <span className="bk-extra__price">
+                                {price == null ? 'Ask us' : `${!on && item.options?.length > 1 ? 'from ' : ''}${formatGBP(price)}`}
+                              </span>
                               <button
                                 type="button"
                                 className={`bk-toggle${on ? ' is-on' : ''}`}
                                 aria-pressed={on}
                                 onClick={() => {
                                   const items = on ? sel.cert.items.filter((x) => x !== item.id) : [...sel.cert.items, item.id]
-                                  updateSel({ cert: { items } })
+                                  updateSel({ cert: { ...sel.cert, items } })
                                   setErrors((e) => ({ ...e, cert: undefined }))
                                 }}
                               >
                                 {on ? <Check size={16} strokeWidth={3} /> : <Plus size={16} strokeWidth={2.6} />}
                                 <span className="mo-sr">{on ? `Remove ${item.label}` : `Add ${item.label}`}</span>
                               </button>
+                              {on && item.options?.length > 1 && (
+                                <div className="mo-chips" role="radiogroup" aria-label={item.label} style={{ flexBasis: '100%', marginTop: 10 }}>
+                                  {item.options.map((o) => (
+                                    <button
+                                      key={o.id}
+                                      type="button"
+                                      role="radio"
+                                      aria-checked={opt?.id === o.id}
+                                      className="mo-chip"
+                                      onClick={() => updateSel({ cert: { ...sel.cert, options: { ...sel.cert.options, [item.id]: o.id } } })}
+                                    >
+                                      {o.label}
+                                      <span className="mo-chip__price">{formatGBP(o.price)}</span>
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
+                              {on && item.extra && (
+                                <div className="mo-row bk-baths" style={{ flexBasis: '100%' }}>
+                                  <span className="bk-label" style={{ margin: 0 }}>
+                                    {item.extra.label}
+                                    <span>{formatGBP(item.extra.price)} each</span>
+                                  </span>
+                                  <Stepper
+                                    value={extraQty}
+                                    min={0}
+                                    max={item.extra.max || 10}
+                                    onChange={(v) => updateSel({ cert: { ...sel.cert, extra: { ...sel.cert.extra, [item.id]: v } } })}
+                                    label={item.extra.label}
+                                  />
+                                </div>
+                              )}
                             </li>
                           )
                         })}
@@ -837,7 +918,8 @@ export default function BookPage() {
                       <ErrorText>{errors.cert}</ErrorText>
                       <p className="bk-note">
                         Gas by a Gas Safe registered engineer, electrics by a NICEIC or NAPIT registered electrician, the EPC by an accredited
-                        energy assessor. The certificate and the photo report land on the same day.
+                        energy assessor, and every other check by a professional qualified for it. The certificate and the photo report land on
+                        the same day.
                       </p>
                     </fieldset>
                   )}
