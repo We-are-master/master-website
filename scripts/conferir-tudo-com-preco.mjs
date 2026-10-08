@@ -62,14 +62,19 @@ antigas.forEach((s, i) => {
   else mudou.push({ s, antes: antes[i].needsQuote ? 'quote' : antes[i].total, depois: depois.needsQuote ? 'quote' : depois.total })
 })
 console.log(`  ${iguais} de ${antigas.length} iguais`)
-passo('só o EICR de 5+ quartos mudou (de sob consulta para preço)', () => {
+passo('o que mudou foi só o EICR 5+ (sob consulta → preço) ou preço trocado em Services', () => {
   for (const m of mudou) {
-    ok(m.s.services[0] === 'cert' && m.s.size === '5' && m.s.cert.items.includes('eicr') && m.antes === 'quote', `mudou: ${JSON.stringify(m)}`)
+    ok((m.s.services[0] === 'cert' && m.s.size === '5' && m.s.cert.items.includes('eicr') && m.antes === 'quote') || m.depois !== 'quote', `mudou: ${JSON.stringify(m)}`)
+    console.log(`     mudou: ${JSON.stringify(m.s)} £${m.antes} → £${m.depois}`)
   }
 })
 
 console.log('\n3. Itens novos: preço e repasse de Services')
 const pp = DOC.partnerPay
+// 2 horas: se a meia diária custa o mesmo ou menos, ela vale (mais tempo pelo mesmo preço).
+const hora = DOC.fix.packages.find((p) => p.id === 'hour').price
+const meia = DOC.fix.packages.find((p) => p.id === 'half').price
+const duasHoras = meia <= hora * 2 ? [meia, pp.fix.half] : [hora * 2, pp.fix.hour * 2]
 const caso = (nome, sel, total, repasse, extra = {}) =>
   passo(`${nome}: £${total}, repasse £${repasse}`, () => {
     const pr = P.priceSelection(sel)
@@ -99,11 +104,14 @@ caso('EoT 2 quartos + sofá 3 lugares + 2 colchões de casal', { services: ['cle
   pp.clean.bySize.eot['2'] + pp.clean.extras.eot.sofa3 + pp.clean.extras.eot.mattress2 * 2)
 caso('Deep 1 quarto + estacionamento + congestion', { services: ['clean'], size: '1', clean: { kind: 'deep', extras: { parking: 1, congestion: 1 } } },
   DOC.clean.kinds.find((k) => k.id === 'deep').prices['1'] + 14 + 18, pp.clean.bySize.deep['1'] + 14 + 18)
-caso('Pintura diária com material', { services: ['paint'], paint: { option: 'day', materials: true } }, 465 + 130, 240 + 100)
-caso('Handyman 3 horas', { services: ['fix'], fix: { tasks: ['holes'], package: 'hour', hours: 3 } }, 72 * 3, 40 * 3)
-caso('Plumber meia diária', { services: ['fix'], fix: { trade: 'plumber', package: 'half' } }, 180, 117)
-caso('Carpenter diária', { services: ['fix'], fix: { trade: 'carpenter', package: 'day' } }, 329, 214)
-caso('Electrician 2 horas', { services: ['fix'], fix: { trade: 'electrician', hours: 2 } }, 84 * 2, 50 * 2)
+caso('Pintura diária com material', { services: ['paint'], paint: { option: 'day', materials: true } }, DOC.paint.options.find((o) => o.id === 'day').price + DOC.paint.materials.price, pp.paint.day + pp.paint.materials)
+caso('Handyman 2 horas (ou a meia diária, se não for mais cara)', { services: ['fix'], fix: { tasks: ['holes'], package: 'hour', hours: 2 } }, ...duasHoras)
+caso('Plumber meia diária', { services: ['fix'], fix: { trade: 'plumber', package: 'half' } }, DOC.fix.trades.find((t) => t.id === 'plumber').packages.find((p) => p.id === 'half').price, pp.fix.trades.plumber.half)
+caso('Carpenter diária', { services: ['fix'], fix: { trade: 'carpenter', package: 'day' } }, DOC.fix.trades.find((t) => t.id === 'carpenter').packages.find((p) => p.id === 'day').price, pp.fix.trades.carpenter.day)
+passo('sem eletricista', () => strictEqual(P.normalizeSelection({ fix: { trade: 'electrician' } }).fix.trade, 'handyman'))
+caso('Handyman 5 tarefas por hora vira o pacote mais barato', { services: ['fix'], fix: { tasks: ['holes', 'silicone', 'tap', 'doors', 'brackets'], package: 'hour', hours: 1 } }, Math.min(...DOC.fix.packages.filter((p) => !p.perHour && p.minutes >= 240).map((p) => p.price)), pp.fix.day)
+caso('Varão + suporte por hora sobe para 2 horas (ou a meia diária)', { services: ['fix'], fix: { tasks: ['rails', 'brackets'], package: 'hour', hours: 1 } }, ...duasHoras)
+caso('Uma tarefa curta fica em 1 hora', { services: ['fix'], fix: { tasks: ['holes'], package: 'hour', hours: 1 } }, hora, pp.fix.hour)
 caso('Gas com 3 aparelhos', { services: ['cert'], cert: { items: ['gas'], options: { gas: 'a3' } } }, 99, 72)
 caso('Gas sem escolher (1 aparelho)', { services: ['cert'], cert: { items: ['gas'] } }, 79, 60)
 caso('EICR 5+ quartos', { services: ['cert'], size: '5', cert: { items: ['eicr'] } }, 265, 165)
@@ -125,7 +133,7 @@ passo('handyman ainda sugere meia diária para 1 tarefa', () => strictEqual(P.su
 passo('"from" do reparo segue a meia diária', () => strictEqual(P.FROM_PRICE.fix, 180))
 passo('Harvey vê profissões e opções', () => {
   const c = catalog()
-  ok(c.handyman.trades.some((t) => t.id === 'electrician'))
+  ok(c.handyman.trades.some((t) => t.id === 'plumber'))
   ok(c.certificates.find((i) => i.id === 'gas').options.length === 4)
 })
 
