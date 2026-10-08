@@ -423,8 +423,18 @@ export function normalizeSelection(raw = {}) {
   const tasks = Array.isArray(raw.fix?.tasks)
     ? trade.tasks.filter((t) => raw.fix.tasks.includes(t.id)).map((t) => t.id)
     : []
-  const pkg = trade.packages.some((p) => p.id === raw.fix?.package) ? raw.fix.package : null
-  const hours = clampInt(raw.fix?.hours ?? 1, 1, 8)
+  let pkg = trade.packages.some((p) => p.id === raw.fix?.package) ? raw.fix.package : null
+  // Por hora: as horas nunca ficam abaixo do tempo das tarefas marcadas (dono,
+  // 08/10/2026: duas prateleiras e um varão saíam por 1 hora, £90, e são 75 min).
+  const minutosDasTarefas = trade.tasks.filter((t) => tasks.includes(t.id)).reduce((s, t) => s + t.minutes, 0)
+  const hours = clampInt(Math.max(Number(raw.fix?.hours) || 1, Math.ceil(minutosDasTarefas / 60)), 1, 8)
+  // Muitas horas: o pacote fechado que cabe no tempo sai mais barato (5 tarefas
+  // por hora davam £360, mais que a diária). Fica o mais barato.
+  const porHora = trade.packages.find((p) => p.id === pkg && p.perHour)
+  if (porHora) {
+    const fechado = trade.packages.filter((p) => !p.perHour && p.minutes >= hours * 60).sort((a, b) => a.price - b.price)[0]
+    if (fechado && fechado.price <= porHora.price * hours) pkg = fechado.id
+  }
 
   const certItems = Array.isArray(raw.cert?.items)
     ? CERT.items.filter((i) => raw.cert.items.includes(i.id)).map((i) => i.id)
