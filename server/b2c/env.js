@@ -33,6 +33,8 @@ export function b2cServerEnv() {
     stripeTest,
     stripeLive,
     paymentsEnabled: stripeTest || (stripeLive && mode === 'live'),
+    // Fase 0 (dono, 09/10/2026): o sinal de 50% guarda o cartão e o OS cobra o restante no final review.
+    cardOnFile: (process.env.B2C_CARD_ON_FILE || '').trim() === 'on',
     publishableKey: pkMatches ? pk : '',
     webhookSecret: (process.env.B2C_STRIPE_WEBHOOK_SECRET || '').trim(),
     osUrl: (process.env.MASTER_OS_URL || 'http://localhost:3000').replace(/\/$/, ''),

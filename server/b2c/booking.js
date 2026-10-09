@@ -285,6 +285,9 @@ export async function handleCheckout(body, { origin, ip, userAgent, deposit = fa
 
     // zt: o ticket da conversa do Harvey; o primeiro job pago nasce nele.
     extraMetadata: { ...adMetadata(body.ad, { ip, userAgent }), ...metadata, ...(zendeskTicketId ? { zt: zendeskTicketId } : {}) },
+    // Só o sinal guarda o cartão; o /book continua cobrando 100% sem salvar (dono, 09/10/2026).
+    saveCard: deposit && env.cardOnFile,
+    payLater: later,
   })
   return { status: 200, data: { url: session.url, ref, total: priced.total, ...(deposit ? { payNow: now, payLater: later } : {}) } }
 }
@@ -447,7 +450,7 @@ function confirmation(b, priced, ref, mode, payment) {
 }
 
 /** Grava a reserva paga: um job por serviço no OS e os dois e-mails. */
-async function recordBooking(env, b, priced, ref, paymentIntentId, { deposit = false, bank = null, ticketId = null } = {}) {
+async function recordBooking(env, b, priced, ref, paymentIntentId, { deposit = false, bank = null, ticketId = null, card = null } = {}) {
   const name = `${b.contact.firstName} ${b.contact.lastName}`
   const win = findWindow(b.window)
   // O que o cliente lê (no ticket ou, se ele falhar, por e-mail) e o escritório também.
@@ -588,6 +591,7 @@ async function recordBooking(env, b, priced, ref, paymentIntentId, { deposit = f
               // O que o cliente pagou deste job (com cupom, menos que o preço cheio).
               payment_amount: deposit ? depositOf(paid) : paid,
               stripe_payment_intent_id: paymentIntentId,
+              ...(deposit && card ? { stripe_customer_id: card.stripeCustomerId, stripe_payment_method_id: card.stripePaymentMethodId } : {}),
             }),
         internal_notes: notes,
         // Uma conversa por reserva: o cliente vira o solicitante do ticket do
@@ -672,7 +676,12 @@ async function finalizePaid(env, { pi, metadata, amount, discountPence = null })
     return { status: 200, data: { ...data, jobs: [] } }
   }
   const ticketId = /^\d{1,15}$/.test(String(metadata?.zt || '')) ? String(metadata.zt) : null
-  const jobs = await recordBooking(env, b, priced, ref, pi.id, { deposit, ticketId })
+  // Cartão salvo no sinal: o OS cobra o restante no final review.
+  const card =
+    deposit && typeof pi.customer === 'string' && typeof pi.payment_method === 'string'
+      ? { stripeCustomerId: pi.customer, stripePaymentMethodId: pi.payment_method }
+      : null
+  const jobs = await recordBooking(env, b, priced, ref, pi.id, { deposit, ticketId, card })
   try {
     await markBooked(env, pi.id, jobs.map((j) => j.reference))
   } catch (err) {
