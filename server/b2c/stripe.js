@@ -58,6 +58,12 @@ export const agentDescription = (ref, summary) =>
 export const AGENT_SUBMIT_TEXT =
   'Your job is carried out by an independent professional, named in your booking confirmation before the visit. GETFIXFY LTD (Fixfy) receives this payment as their agent, and paying Fixfy counts as paying them. No Fixfy fee.'
 
+/** Consentimento do cartão salvo (Fase 0): o restante é cobrado no fim do job. */
+export function cardOnFileText(payLater) {
+  const resto = typeof payLater === 'number' ? `the remaining £${payLater.toFixed(2)}` : 'the remaining balance'
+  return `Your card is saved securely by Stripe and ${resto} is charged automatically when your job is completed and checked. Extra work or materials you approve, or a late-cancellation charge under our booking terms, may also be charged to this card.`
+}
+
 /** Metadata de todo pagamento do site: a Fixfy cobra como agente de pagamento. */
 const AGENT_METADATA = { collection_agent: 'true' }
 
@@ -96,7 +102,7 @@ async function promotionDiscount(env, promotion) {
 
 export async function createCheckoutSession(
   env,
-  { ref, lines, email, booking, baseUrl, summary, contextLine, suffix, promotion = null, extraMetadata = {} },
+  { ref, lines, email, booking, baseUrl, summary, contextLine, suffix, promotion = null, extraMetadata = {}, saveCard = false, payLater = null },
 ) {
   const discount = await promotionDiscount(env, promotion)
   const session = await stripe(env).checkout.sessions.create({
@@ -114,14 +120,17 @@ export async function createCheckoutSession(
       },
     })),
     ...(discount ? { discounts: discount.discounts } : {}),
+    // Sinal com cartão salvo: a Stripe guarda o cartão e o OS cobra o restante no fim do job.
+    ...(saveCard ? { customer_creation: 'always' } : {}),
     payment_intent_data: {
       description: agentDescription(ref, summary),
       receipt_email: email,
       statement_descriptor_suffix: suffix,
       metadata: { ref, source: 'b2c-site', ...AGENT_METADATA },
+      ...(saveCard ? { setup_future_usage: 'off_session' } : {}),
     },
     custom_text: {
-      submit: { message: AGENT_SUBMIT_TEXT },
+      submit: { message: saveCard ? `${AGENT_SUBMIT_TEXT} ${cardOnFileText(payLater)}`.slice(0, 1000) : AGENT_SUBMIT_TEXT },
       after_submit: { message: contextLine.slice(0, 1000) },
     },
     metadata: {

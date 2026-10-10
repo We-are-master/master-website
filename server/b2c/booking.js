@@ -185,7 +185,17 @@ const statementSuffix = (sel) => (sel.services.length === 1 ? SUFFIX[sel.service
  * nasce. O cupom aplicado vai junto com a reserva na metadata (é ele que
  * reprecifica no fim) e em chaves próprias, para contar os usos na busca.
  */
-async function withPromo(env, body, b, priced) {
+export const AGENT_DISCOUNT_MAX = 5
+
+async function withPromo(env, body, b, priced, agentDiscount = 0) {
+  // Desconto do Harvey (dono, 10/10/2026): o link já nasce com o preço descontado, sem
+  // cupom criado à mão. Só chega pela rota do agente (X-Agent-Key) e nunca passa de 5%.
+  // Segue o mesmo caminho da promoção: custo da Fixfy, repasse do parceiro intacto.
+  const pct = Math.min(AGENT_DISCOUNT_MAX, Math.max(0, Math.floor(Number(agentDiscount) || 0)))
+  if (pct > 0) {
+    const promo = { id: null, code: `HARVEY${pct}`, percentOff: pct, amountOff: null }
+    return { priced: applyPromo(priced, promo), booking: { ...b, promo }, metadata: { promo: promo.code, agent_discount: String(pct) } }
+  }
   if (!body.promoCode) return { priced, booking: b, metadata: {} }
   const r = await resolvePromo(env, body.promoCode, priced)
   if (!r.ok) return { error: r.error }
@@ -239,7 +249,7 @@ function promotionNote({ code, listPrice, share, paid, pay, deposit = null }) {
  * (data incluída, para ninguém pagar um dia que já não existe), e a sessão
  * do Checkout nasce com o valor do servidor. Nada é gravado ainda.
  */
-export async function handleCheckout(body, { origin, ip, userAgent, deposit = false, zendeskTicketId = null } = {}) {
+export async function handleCheckout(body, { origin, ip, userAgent, deposit = false, zendeskTicketId = null, agentDiscount = 0 } = {}) {
   const env = b2cServerEnv()
   const spam = looksLikeSpam(body)
   if (spam) return { status: 400, data: { error: spam } }
@@ -252,7 +262,7 @@ export async function handleCheckout(body, { origin, ip, userAgent, deposit = fa
   if (!env.paymentsEnabled) {
     return { status: 409, data: { error: 'Online payment is not enabled in this environment.' } }
   }
-  const { priced, booking, metadata, error } = await withPromo(env, body, b, listed)
+  const { priced, booking, metadata, error } = await withPromo(env, body, b, listed, agentDiscount)
   if (error) return { status: 400, data: { error, field: 'promo' } }
   const ref = newRef()
   const win = findWindow(b.window)
@@ -285,6 +295,9 @@ export async function handleCheckout(body, { origin, ip, userAgent, deposit = fa
 
     // zt: o ticket da conversa do Harvey; o primeiro job pago nasce nele.
     extraMetadata: { ...adMetadata(body.ad, { ip, userAgent }), ...metadata, ...(zendeskTicketId ? { zt: zendeskTicketId } : {}) },
+    // Só o sinal guarda o cartão; o /book continua cobrando 100% sem salvar (dono, 09/10/2026).
+    saveCard: deposit && env.cardOnFile,
+    payLater: later,
   })
   return { status: 200, data: { url: session.url, ref, total: priced.total, ...(deposit ? { payNow: now, payLater: later } : {}) } }
 }
@@ -447,7 +460,7 @@ function confirmation(b, priced, ref, mode, payment) {
 }
 
 /** Grava a reserva paga: um job por serviço no OS e os dois e-mails. */
-async function recordBooking(env, b, priced, ref, paymentIntentId, { deposit = false, bank = null, ticketId = null } = {}) {
+async function recordBooking(env, b, priced, ref, paymentIntentId, { deposit = false, bank = null, ticketId = null, card = null } = {}) {
   const name = `${b.contact.firstName} ${b.contact.lastName}`
   const win = findWindow(b.window)
   // O que o cliente lê (no ticket ou, se ele falhar, por e-mail) e o escritório também.
@@ -588,6 +601,7 @@ async function recordBooking(env, b, priced, ref, paymentIntentId, { deposit = f
               // O que o cliente pagou deste job (com cupom, menos que o preço cheio).
               payment_amount: deposit ? depositOf(paid) : paid,
               stripe_payment_intent_id: paymentIntentId,
+              ...(deposit && card ? { stripe_customer_id: card.stripeCustomerId, stripe_payment_method_id: card.stripePaymentMethodId } : {}),
             }),
         internal_notes: notes,
         // Uma conversa por reserva: o cliente vira o solicitante do ticket do
@@ -672,7 +686,12 @@ async function finalizePaid(env, { pi, metadata, amount, discountPence = null })
     return { status: 200, data: { ...data, jobs: [] } }
   }
   const ticketId = /^\d{1,15}$/.test(String(metadata?.zt || '')) ? String(metadata.zt) : null
-  const jobs = await recordBooking(env, b, priced, ref, pi.id, { deposit, ticketId })
+  // Cartão salvo no sinal: o OS cobra o restante no final review.
+  const card =
+    deposit && typeof pi.customer === 'string' && typeof pi.payment_method === 'string'
+      ? { stripeCustomerId: pi.customer, stripePaymentMethodId: pi.payment_method }
+      : null
+  const jobs = await recordBooking(env, b, priced, ref, pi.id, { deposit, ticketId, card })
   try {
     await markBooked(env, pi.id, jobs.map((j) => j.reference))
   } catch (err) {

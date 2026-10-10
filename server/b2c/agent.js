@@ -6,7 +6,7 @@
  *   POST /api/b2c/agent  { action: "catalog" }
  *   POST /api/b2c/agent  { action: "quote", selection, postcode?, promoCode? }
  *   POST /api/b2c/agent  { action: "slots" }
- *   POST /api/b2c/agent  { action: "checkout", booking, deposit?, campaign? }
+ *   POST /api/b2c/agent  { action: "checkout", booking, deposit?, campaign?, discountPercent? (até 5) }
  *
  * Só com X-Agent-Key (a chave de lead do OS, a mesma que o site já usa para
  * falar com ele). O job nasce pelo caminho de sempre: pagou, o webhook da
@@ -165,7 +165,7 @@ export async function handleAgent(body = {}, headers = {}) {
       const r = await handleCheckout(
         { ...booking, selection: normalizeSelection(booking.selection || {}), attribution, marketing: false },
         // O ticket da conversa do Harvey no Zendesk: o job pago nasce nele (07/10/2026).
-        { origin: 'https://www.getfixfy.com', deposit: body.deposit === true, zendeskTicketId: ticketDoZendesk(body.zendeskTicketId) },
+        { origin: 'https://www.getfixfy.com', deposit: body.deposit === true, zendeskTicketId: ticketDoZendesk(body.zendeskTicketId), agentDiscount: body.discountPercent },
       )
       return r
     }
