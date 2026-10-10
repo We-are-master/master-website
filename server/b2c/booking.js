@@ -185,7 +185,17 @@ const statementSuffix = (sel) => (sel.services.length === 1 ? SUFFIX[sel.service
  * nasce. O cupom aplicado vai junto com a reserva na metadata (é ele que
  * reprecifica no fim) e em chaves próprias, para contar os usos na busca.
  */
-async function withPromo(env, body, b, priced) {
+export const AGENT_DISCOUNT_MAX = 5
+
+async function withPromo(env, body, b, priced, agentDiscount = 0) {
+  // Desconto do Harvey (dono, 10/10/2026): o link já nasce com o preço descontado, sem
+  // cupom criado à mão. Só chega pela rota do agente (X-Agent-Key) e nunca passa de 5%.
+  // Segue o mesmo caminho da promoção: custo da Fixfy, repasse do parceiro intacto.
+  const pct = Math.min(AGENT_DISCOUNT_MAX, Math.max(0, Math.floor(Number(agentDiscount) || 0)))
+  if (pct > 0) {
+    const promo = { id: null, code: `HARVEY${pct}`, percentOff: pct, amountOff: null }
+    return { priced: applyPromo(priced, promo), booking: { ...b, promo }, metadata: { promo: promo.code, agent_discount: String(pct) } }
+  }
   if (!body.promoCode) return { priced, booking: b, metadata: {} }
   const r = await resolvePromo(env, body.promoCode, priced)
   if (!r.ok) return { error: r.error }
@@ -239,7 +249,7 @@ function promotionNote({ code, listPrice, share, paid, pay, deposit = null }) {
  * (data incluída, para ninguém pagar um dia que já não existe), e a sessão
  * do Checkout nasce com o valor do servidor. Nada é gravado ainda.
  */
-export async function handleCheckout(body, { origin, ip, userAgent, deposit = false, zendeskTicketId = null } = {}) {
+export async function handleCheckout(body, { origin, ip, userAgent, deposit = false, zendeskTicketId = null, agentDiscount = 0 } = {}) {
   const env = b2cServerEnv()
   const spam = looksLikeSpam(body)
   if (spam) return { status: 400, data: { error: spam } }
@@ -252,7 +262,7 @@ export async function handleCheckout(body, { origin, ip, userAgent, deposit = fa
   if (!env.paymentsEnabled) {
     return { status: 409, data: { error: 'Online payment is not enabled in this environment.' } }
   }
-  const { priced, booking, metadata, error } = await withPromo(env, body, b, listed)
+  const { priced, booking, metadata, error } = await withPromo(env, body, b, listed, agentDiscount)
   if (error) return { status: 400, data: { error, field: 'promo' } }
   const ref = newRef()
   const win = findWindow(b.window)
