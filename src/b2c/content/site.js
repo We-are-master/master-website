@@ -30,7 +30,8 @@ export const PROMISES = {
   payAtCheckout: true,
   freeCancellationHours: 48,
   // 06/10/2026 (modelo de agente): garantia de 7 dias dada pelo profissional, e o re-clean acompanha.
-  recleanDays: { value: 7, pending: false },
+  // 14/10/2026: o dono subiu a garantia padrão para 14 dias; o re-clean acompanha.
+  recleanDays: { value: 14, pending: false },
   /**
    * Nada de VAT por cima do preço: o preço da tela é o total. Se o profissional
    * for registrado no VAT, o VAT dele já está dentro e sai no recibo. Nunca
@@ -138,7 +139,8 @@ export function whatsappLink(text = '') {
 
 /**
  * Garantia de todo serviço reservado na Fixfy (dono, 06/10/2026): dada pelo
- * profissional que faz o trabalho e organizada pela Fixfy. 7 dias como regra
+ * profissional que faz o trabalho e organizada pela Fixfy. 14 dias como regra
+ * (dono, 14/10/2026; era 7 desde 06/10)
  * (com o re-clean), e os prazos maiores de pintura e obra, também dados pelo
  * profissional. Soma-se aos direitos do consumidor, nunca os substitui. Os
  * prazos contam do dia em que o trabalho termina; o que não está na lista
@@ -146,7 +148,7 @@ export function whatsappLink(text = '') {
  * foi vendido (14 dias).
  */
 export const GUARANTEE = {
-  standardDays: 7,
+  standardDays: 14,
   /** Quem dá a garantia: o profissional independente, não a Fixfy. */
   givenBy: 'professional',
   longer: [
