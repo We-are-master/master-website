@@ -2,7 +2,7 @@
  * Datas e janelas de chegada da reserva.
  *
  * Regra simples até o agente de capacidade do plano 3 existir: segunda a
- * sábado, a partir de amanhã (ou depois de amanhã quando já passou das 14h
+ * sexta, a partir de amanhã (ou depois de amanhã quando já passou das 14h
  * em Londres), 21 dias à frente. A janela vai para o OS no formato
  * "HH:MM - HH:MM", que o POST /api/jobs aceita.
  */
@@ -39,7 +39,8 @@ export function bookableDates(now = new Date()) {
   const out = []
   for (let i = firstOffset; out.length < DAYS_AHEAD && i < 60; i += 1) {
     const day = addDays(today, i)
-    if (day.dow === 0) continue // domingo fechado
+    // Segunda a sexta por enquanto (dono, 15/10/2026): vale para o site e para o Harvey.
+    if (day.dow === 0 || day.dow === 6) continue
     const iso = `${day.y}-${pad(day.m)}-${pad(day.d)}`
     const asDate = new Date(Date.UTC(day.y, day.m - 1, day.d, 12))
     out.push({
