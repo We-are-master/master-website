@@ -16,7 +16,7 @@ import {
   constructWebhookEvent,
   createCheckoutSession,
   createPaymentIntent,
-  markBooked,
+  markBooked, markProgress,
   retrievePaymentIntent,
   retrieveSession,
   unpackBooking,
@@ -460,7 +460,28 @@ function confirmation(b, priced, ref, mode, payment) {
 }
 
 /** Grava a reserva paga: um job por serviço no OS e os dois e-mails. */
-async function recordBooking(env, b, priced, ref, paymentIntentId, { deposit = false, bank = null, ticketId = null, card = null } = {}) {
+/** "0:JOB-1|2:JOB-3" → { 0: 'JOB-1', 2: 'JOB-3' } (o que já nasceu no OS desta reserva). */
+export function lerFeitos(texto) {
+  const feitos = {}
+  for (const par of String(texto || '').split('|')) {
+    const [i, referencia] = par.split(':')
+    if (/^\d+$/.test(i || '') && referencia) feitos[Number(i)] = referencia
+  }
+  return feitos
+}
+export const escreverFeitos = (feitos) => Object.entries(feitos).map(([i, r]) => `${i}:${r}`).join('|').slice(0, 480)
+
+async function recordBooking(env, b, priced, ref, paymentIntentId, { deposit = false, bank = null, ticketId = null, card = null, progresso = null, resultado = {} } = {}) {
+  // Reserva refeita (o OS falhou na primeira vez): pula o que já nasceu e não repete e-mail.
+  const feitos = lerFeitos(progresso?.bk_done)
+  const salvar = async (patch) => {
+    if (!paymentIntentId) return
+    try {
+      await markProgress(env, paymentIntentId, patch)
+    } catch (err) {
+      console.error('[b2c/booking] could not save booking progress', ref, err)
+    }
+  }
   const name = `${b.contact.firstName} ${b.contact.lastName}`
   const win = findWindow(b.window)
   // O que o cliente lê (no ticket ou, se ele falhar, por e-mail) e o escritório também.
@@ -529,9 +550,14 @@ async function recordBooking(env, b, priced, ref, paymentIntentId, { deposit = f
     const entryLines = order.map((e) => e.lines || priced.lines.filter((l) => l.service === e.service))
     const listPrices = entryLines.map((lines) => lines.reduce((s, l) => s + (l.amount || 0), 0))
     const discounts = splitDiscount(listPrices, priced.discount)
+    resultado.total = order.length
     for (const entry of order) {
       const { service } = entry
       const i = order.indexOf(entry)
+      if (feitos[i]) {
+        osJobs.push({ reference: feitos[i], title: entry.title, jaExistia: true })
+        continue
+      }
       const price = listPrices[i]
       const paid = Math.round((listPrices[i] - discounts[i]) * 100) / 100
       const pay = partnerPayFor({
@@ -624,6 +650,9 @@ async function recordBooking(env, b, priced, ref, paymentIntentId, { deposit = f
       })
       if (osJobs.length === 0 && job.customerRequesterSet) threadId = job.encodedId
       osJobs.push({ ...job, title: entry.title })
+      // Grava na hora: se o próximo serviço falhar, a nova tentativa não recria este.
+      feitos[i] = job.reference
+      await salvar({ bk_done: escreverFeitos(feitos) })
     }
   } catch (err) {
     osError = err.message
@@ -635,13 +664,18 @@ async function recordBooking(env, b, priced, ref, paymentIntentId, { deposit = f
     if (osError || !osJobs.length) console.error('[b2c/booking] bank booking without OS job', ref, osError)
     return osJobs
   }
+  resultado.completa = !osError && osJobs.length === (resultado.total ?? osJobs.length) && osJobs.length > 0
   const emailData = { ...details, osJobs, osError }
   // O cliente sempre recebe o e-mail com a marca; com o código do ticket, a
   // resposta dele cai no ticket da compra. O aviso ao escritório só sai quando
   // o job não nasceu no OS, e vai para o hello@ (vira ticket): nada em e-mail pessoal.
   if (env.resendKey) {
-    const sends = [sendCustomerConfirmation(env, emailData, { encodedId: threadId })]
-    if (osError || !osJobs.length) sends.push(sendOfficeNotification(env, emailData))
+    // Uma vez cada (23/10/2026): a reserva refeita não manda de novo a confirmação nem o aviso.
+    const mandarAoCliente = progresso?.bk_emailed !== '1'
+    const avisarEscritorio = !resultado.completa && progresso?.bk_office !== '1'
+    const sends = []
+    if (mandarAoCliente) sends.push(sendCustomerConfirmation(env, emailData, { encodedId: threadId }).then(() => salvar({ bk_emailed: '1' })))
+    if (avisarEscritorio) sends.push(sendOfficeNotification(env, { ...emailData, vaiTentarDeNovo: !!paymentIntentId }).then(() => salvar({ bk_office: '1' })))
     const results = await Promise.allSettled(sends)
     results.forEach((r) => r.status === 'rejected' && console.error('[b2c/booking] email failed', ref, r.reason))
   } else {
@@ -691,9 +725,19 @@ async function finalizePaid(env, { pi, metadata, amount, discountPence = null })
     deposit && typeof pi.customer === 'string' && typeof pi.payment_method === 'string'
       ? { stripeCustomerId: pi.customer, stripePaymentMethodId: pi.payment_method }
       : null
-  const jobs = await recordBooking(env, b, priced, ref, pi.id, { deposit, ticketId, card })
+  const resultado = {}
+  const jobs = await recordBooking(env, b, priced, ref, pi.id, { deposit, ticketId, card, progresso: pi.metadata || {}, resultado })
+  if (!resultado.completa) {
+    // O pagamento passou e algum job não nasceu no OS (23/10/2026). Antes a reserva era
+    // marcada como feita mesmo assim e ninguém tentava de novo. Agora ela fica pendente:
+    // o webhook responde erro de propósito e a Stripe reentrega o evento (por até 3 dias),
+    // e cada nova tentativa cria só o que falta. O cliente já recebeu a confirmação.
+    await markProgress(env, pi.id, { bk_pending: '1' }).catch((err) => console.error('[b2c/booking] could not mark pending', ref, err))
+    return { status: 200, pending: true, data: { ...data, jobs: jobs.map((j) => j.reference) } }
+  }
   try {
     await markBooked(env, pi.id, jobs.map((j) => j.reference))
+    if (pi.metadata?.bk_pending === '1') await markProgress(env, pi.id, { bk_pending: '' })
   } catch (err) {
     console.error('[b2c/booking] could not mark payment as booked', ref, err)
   }
@@ -794,7 +838,8 @@ export async function handleWebhook(rawBody, signature) {
     if (current.metadata?.booked === '1') return { status: 200, data: { ok: true, already: true } }
     if (fresh) return { status: 409, data: { retry: 'waiting for the customer to return' } }
     const result = await finalizePaymentIntent(pi.id)
-    return { status: result.status === 200 ? 200 : 500, data: result.data }
+    // Reserva com job faltando no OS: erro de propósito, para a Stripe reentregar e refazer.
+    return { status: result.status === 200 && !result.pending ? 200 : 500, data: result.data }
   }
   if (!['checkout.session.completed', 'checkout.session.async_payment_succeeded'].includes(event.type)) {
     return { status: 200, data: { ignored: event.type } }
@@ -805,5 +850,5 @@ export async function handleWebhook(rawBody, signature) {
   if (current.payment_intent?.metadata?.booked === '1') return { status: 200, data: { ok: true, already: true } }
   if (fresh) return { status: 409, data: { retry: 'waiting for the customer to return' } }
   const result = await finalizeSession(session.id)
-  return { status: result.status === 200 ? 200 : 500, data: result.data }
+  return { status: result.status === 200 && !result.pending ? 200 : 500, data: result.data }
 }

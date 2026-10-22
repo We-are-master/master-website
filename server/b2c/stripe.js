@@ -180,6 +180,15 @@ export async function markBooked(env, paymentIntentId, jobs) {
   })
 }
 
+/**
+ * Progresso da reserva no próprio PaymentIntent (23/10/2026): quais jobs já
+ * nasceram no OS, se o cliente e o escritório já receberam o e-mail. É o que
+ * deixa a reserva paga ser refeita sem duplicar job nem e-mail.
+ */
+export async function markProgress(env, paymentIntentId, patch) {
+  await stripe(env).paymentIntents.update(paymentIntentId, { metadata: patch })
+}
+
 export function constructWebhookEvent(env, rawBody, signature) {
   return stripe(env).webhooks.constructEvent(rawBody, signature, env.webhookSecret)
 }

@@ -99,6 +99,7 @@ export async function sendOfficeNotification(env, b) {
     <p style="font-size:14px;line-height:1.5;margin:8px 0 0"><b>Payment:</b> paid ${money(b.deposit || b.total)} by card${b.deposit ? ` (50% deposit of ${money(b.total)})` : ''}, received as agent for the professional, Stripe ${esc(b.paymentIntentId || '')} · <b>Marketing opt-in:</b> ${b.marketing ? 'yes' : 'no'}</p>
     ${jobs ? `<p style="font-size:14px;margin:12px 0 4px"><b>OS jobs</b></p><ul style="font-size:14px;margin:0;padding-left:18px">${jobs}</ul>` : '<p style="font-size:14px;color:#b93b00;margin:12px 0 0">No OS job was created (see error below).</p>'}
     ${b.osError ? `<p style="font-size:13px;color:#b93b00;margin:8px 0 0">${esc(b.osError)}</p>` : ''}
+    ${b.vaiTentarDeNovo ? '<p style="font-size:13px;color:#6b6b85;margin:8px 0 0">The site retries automatically for up to 3 days and creates only the missing jobs. Check the OS before creating anything by hand.</p>' : ''}
     <p style="font-size:13px;color:#6b6b85;margin:12px 0 0">Source: ${esc(JSON.stringify(b.attribution || {}))}</p>`
   return send(env, {
     to: env.notifyEmail,
