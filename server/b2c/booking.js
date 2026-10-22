@@ -197,7 +197,7 @@ async function withPromo(env, body, b, priced, agentDiscount = 0) {
     return { priced: applyPromo(priced, promo), booking: { ...b, promo }, metadata: { promo: promo.code, agent_discount: String(pct) } }
   }
   if (!body.promoCode) return { priced, booking: b, metadata: {} }
-  const r = await resolvePromo(env, body.promoCode, priced)
+  const r = await resolvePromo(env, body.promoCode, priced, { email: b.contact?.email })
   if (!r.ok) return { error: r.error }
   return { priced: r.priced, booking: { ...b, promo: r.promo }, metadata: { promo: r.promo.code, promo_id: r.promo.id } }
 }

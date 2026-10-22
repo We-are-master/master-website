@@ -53,3 +53,31 @@ export async function createOsJob(env, job) {
     encodedId: data.zendesk_encoded_id || null,
   }
 }
+
+/**
+ * Esta pessoa já comprou da Fixfy? (código só de primeira compra, WELCOME10, 23/10/2026)
+ * Procura o e-mail nos clientes do OS e um job pago ou concluído. Sem conseguir ler o OS,
+ * devolve null: quem chama decide (o checkout deixa passar, para não perder a venda).
+ */
+export async function jaComprouAntes(env, email) {
+  const e = String(email || '').trim().toLowerCase()
+  if (!e || !env.supabaseUrl || !env.serviceKey) return null
+  try {
+    const supabase = createClient(env.supabaseUrl, env.serviceKey, { auth: { persistSession: false } })
+    const { data: clientes, error } = await supabase.from('clients').select('id').ilike('email', e).limit(20)
+    if (error) throw error
+    const ids = (clientes || []).map((c) => c.id)
+    if (!ids.length) return false
+    const { count, error: e2 } = await supabase
+      .from('jobs')
+      .select('id', { count: 'exact', head: true })
+      .in('client_id', ids)
+      .is('deleted_at', null)
+      .or('finance_status.eq.paid,payment_status.eq.paid,status.eq.completed')
+    if (e2) throw e2
+    return (count || 0) > 0
+  } catch (err) {
+    console.error('[b2c/os] first purchase check failed', err?.message)
+    return null
+  }
+}
