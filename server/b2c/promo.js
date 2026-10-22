@@ -13,6 +13,7 @@
 import { b2cServerEnv } from './env.js'
 import { countPromoRedemptions, findPromotionCode } from './stripe.js'
 import { MIN_CHARGE, applyPromo, formatGBP, priceSelection } from '../../src/b2c/content/pricing.js'
+import { jaComprouAntes } from './os.js'
 
 // A Stripe só aceita letras, números e hífen no código.
 const CODE_RE = /^[A-Za-z0-9-]{2,40}$/
@@ -20,7 +21,7 @@ const UNAVAILABLE = 'Promo codes are not available right now. Please try again l
 const nope = (error) => ({ ok: false, error })
 
 /** Confere o código e devolve o preço com o desconto: { ok, promo, priced } ou { ok: false, error }. */
-export async function resolvePromo(env, rawCode, priced) {
+export async function resolvePromo(env, rawCode, priced, { email = null } = {}) {
   const code = String(rawCode || '').trim()
   if (!CODE_RE.test(code)) return nope('That code is not valid.')
   if (!env.stripeSecretKey) return nope(UNAVAILABLE)
@@ -56,6 +57,14 @@ export async function resolvePromo(env, rawCode, priced) {
       return nope(UNAVAILABLE)
     }
     if (used >= Math.min(...limits)) return nope('That code has already been used.')
+  }
+  // Só na primeira compra (metadata first_purchase_only na Stripe). A trava da própria Stripe
+  // (restrictions.first_time_transaction) não serve aqui: ela pede cliente da Stripe, e o site
+  // cobra sem cliente. No resumo (sem e-mail ainda) o desconto aparece; no checkout, com o
+  // e-mail, quem já comprou fica sem.
+  if (pc.metadata?.first_purchase_only === '1' && email) {
+    const comprou = await jaComprouAntes(env, email)
+    if (comprou === true) return nope('That code is for your first Fixfy booking only.')
   }
   const promo = { id: pc.id, code: pc.code, percentOff: coupon.percent_off || null, amountOff: coupon.amount_off ? coupon.amount_off / 100 : null }
   const withPromo = applyPromo(priced, promo)
