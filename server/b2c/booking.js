@@ -666,12 +666,13 @@ async function recordBooking(env, b, priced, ref, paymentIntentId, { deposit = f
   }
   resultado.completa = !osError && osJobs.length === (resultado.total ?? osJobs.length) && osJobs.length > 0
   const emailData = { ...details, osJobs, osError }
-  // O cliente sempre recebe o e-mail com a marca; com o código do ticket, a
-  // resposta dele cai no ticket da compra. O aviso ao escritório só sai quando
-  // o job não nasceu no OS, e vai para o hello@ (vira ticket): nada em e-mail pessoal.
+  // Uma confirmação só, do OS (dono, 25/10/2026): o job nasce com o sinal pago e o OS manda
+  // "Your booking is confirmed" no ticket. O site só manda a dele se o job NÃO nasceu no OS
+  // (rede de segurança: o cliente pagou e não pode ficar sem nada). O aviso ao escritório só
+  // sai quando o job não nasceu no OS, e vai para o hello@ (vira ticket).
   if (env.resendKey) {
     // Uma vez cada (23/10/2026): a reserva refeita não manda de novo a confirmação nem o aviso.
-    const mandarAoCliente = progresso?.bk_emailed !== '1'
+    const mandarAoCliente = osJobs.length === 0 && progresso?.bk_emailed !== '1'
     const avisarEscritorio = !resultado.completa && progresso?.bk_office !== '1'
     const sends = []
     if (mandarAoCliente) sends.push(sendCustomerConfirmation(env, emailData, { encodedId: threadId }).then(() => salvar({ bk_emailed: '1' })))
