@@ -165,7 +165,7 @@ export async function handleAgent(body = {}, headers = {}) {
       const r = await handleCheckout(
         { ...booking, selection: normalizeSelection(booking.selection || {}), attribution, marketing: false },
         // O ticket da conversa do Harvey no Zendesk: o job pago nasce nele (07/10/2026).
-        { origin: 'https://www.getfixfy.com', deposit: body.deposit === true, zendeskTicketId: ticketDoZendesk(body.zendeskTicketId), agentDiscount: body.discountPercent },
+        { origin: 'https://www.getfixfy.com', deposit: body.deposit === true, zendeskTicketId: ticketDoZendesk(body.zendeskTicketId), agentDiscount: body.discountPercent, validadeHoras: 24 },
       )
       return r
     }
