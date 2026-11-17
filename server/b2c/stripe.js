@@ -102,7 +102,7 @@ async function promotionDiscount(env, promotion) {
 
 export async function createCheckoutSession(
   env,
-  { ref, lines, email, booking, baseUrl, summary, contextLine, suffix, promotion = null, extraMetadata = {}, saveCard = false, payLater = null },
+  { ref, lines, email, booking, baseUrl, summary, contextLine, suffix, promotion = null, extraMetadata = {}, saveCard = false, payLater = null, validadeHoras = 1 },
 ) {
   const discount = await promotionDiscount(env, promotion)
   const session = await stripe(env).checkout.sessions.create({
@@ -143,7 +143,8 @@ export async function createCheckoutSession(
     },
     success_url: `${baseUrl}/book/confirmed?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${baseUrl}/book?step=4&cancelled=1`,
-    expires_at: Math.floor(Date.now() / 1000) + 60 * 60,
+    // Site: 1 h. Link do Harvey no WhatsApp: até 24 h, o máximo da Stripe (dono, 17/11/2026).
+    expires_at: Math.floor(Date.now() / 1000) + Math.round(Math.min(Math.max(validadeHoras, 0.5), 24) * 3600) - (validadeHoras >= 24 ? 60 : 0),
   })
   return { url: session.url, id: session.id }
 }
