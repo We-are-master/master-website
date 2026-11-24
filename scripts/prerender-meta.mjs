@@ -125,11 +125,7 @@ const STATIC_PAGES = {
     description: 'Portfolio-level spend, compliance and asset condition. White-label for your tenants if you want.',
     ogType: 'website',
   },
-  '/for-trades': {
-    title: 'For tradespeople — Fixfy',
-    description: 'Free to join, no paid plans. You see what you will receive before you accept each job. Paid every two weeks, with a statement for every job.',
-    ogType: 'website',
-  },
+  // /for-trades é página estática (public/for-trades): snapshot aqui apagaria ela no build.
   '/customers': {
     title: 'Customers — Fixfy',
     description: "How Britain's estates run on Fixfy. Case studies from retail, healthcare, co-working and listed estates.",
