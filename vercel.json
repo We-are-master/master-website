@@ -37,6 +37,10 @@
       "destination": "/growth/index.html"
     },
     {
+      "source": "/for-trades",
+      "destination": "/for-trades/index.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/"
     }

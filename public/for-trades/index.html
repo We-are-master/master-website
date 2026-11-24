@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8"/>
+<title>Fixfy for Trades · Your digital employee for £197/month</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="description" content="Your own website plus Harvey, your digital employee, who answers every enquiry on WhatsApp and email, sends the quote, takes the deposit, sends the job report and asks for the review. £197 a month, no setup fee."/>
+<link rel="icon" type="image/png" href="/favicon.png"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,500..900&family=Inter:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap"/>
+<link rel="stylesheet" href="/for-trades/trades.css?v=74"/>
+<script>
+/* Cookies (PECR): nada que rastreia roda antes do sim. A escolha é a mesma do
+   site principal (localStorage cookieConsent), então quem já respondeu lá não
+   vê o banner aqui. Só no domínio getfixfy.com: no preview nada carrega. */
+(function (w, d) {
+  var LIVE = /(^|\.)getfixfy\.com$/.test(w.location.hostname);
+  var loaded = {};
+  function script(src) { var s = d.createElement('script'); s.async = true; s.src = src; d.head.appendChild(s); }
+  var loaders = {
+    analytics: function () {
+      w.dataLayer = w.dataLayer || [];
+      w.gtag = function () { w.dataLayer.push(arguments); };
+      w.gtag('js', new Date());
+      w.gtag('config', 'G-YPVCS2DXF9');
+      script('https://www.googletagmanager.com/gtag/js?id=G-YPVCS2DXF9');
+    },
+    marketing: function () {
+      if (w.fbq) return;
+      var n = w.fbq = function () { n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments); };
+      if (!w._fbq) w._fbq = n;
+      n.push = n; n.loaded = true; n.version = '2.0'; n.queue = [];
+      script('https://connect.facebook.net/en_US/fbevents.js');
+      w.fbq('init', '1555218078932742');
+      w.fbq('track', 'PageView');
+    }
+  };
+  function run(name) { if (loaded[name]) return; loaded[name] = true; if (LIVE) loaders[name](); }
+  function apply(p) { if (!p) return; if (p.analytics) run('analytics'); if (p.marketing) run('marketing'); }
+  function saved() { try { return JSON.parse(w.localStorage.getItem('cookieConsent') || 'null'); } catch (e) { return null; } }
+  w.fixfyConsent = { apply: apply, saved: saved, loaded: loaded, live: LIVE };
+  apply(saved());
+})(window, document);
+</script>
+</head>
+<body>
+
+<!-- ================= PROMO BAR (Black November, real fixed deadline) ================= -->
+<div class="promo" data-ends="2026-11-30T18:00:00Z" role="region" aria-label="Black November offer">
+  <div class="wrap promo-in">
+    <div class="promo-l">
+      <span class="promo-tag">Black November</span>
+      <span class="promo-txt"><span class="promo-long">Lock in <b>£197/month for 12 months</b>. Join by Sunday 30 November, 6pm.</span><span class="promo-short">£197/month locked for 12 months</span><span class="promo-xs">£197 locked 12 months</span></span>
+    </div>
+    <div class="promo-cd" aria-live="off"><span class="promo-cd-l">Ends in</span><span class="cd" data-cd>Sun 30 Nov, 6pm</span></div>
+    <a href="#book" class="promo-cta">Claim it <span class="arr">→</span></a>
+  </div>
+</div>
+
+<!-- ================= NAV ================= -->
+<nav class="nav">
+  <div class="wrap nav-in">
+    <a href="/for-trades" class="brand" aria-label="Fixfy for Trades">
+      <img src="/brand/fixfy-primary-white.png" alt="Fixfy" class="brand-logo"/>
+      <span class="brand-tag">for Trades</span>
+    </a>
+    <div class="nav-links">
+      <a href="#included">What you get</a>
+      <a href="#integrations">Integrations</a>
+      <a href="#how">How Harvey works</a>
+      <a href="#price">Price</a>
+    </div>
+    <a href="#book" class="btn btn-primary btn-sm">Book a demo <span class="arr">→</span></a>
+  </div>
+</nav>
+
+<!-- ================= 1. HERO (Attention) ================= -->
+<header class="hero">
+  <div class="hero-glow" aria-hidden="true"></div>
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <span class="eyebrow eyebrow--dark"><span class="dot-live"></span> Plumbers, electricians, builders, handymen ⤵</span>
+      <h1 class="display hero-h1">Stop working all day. Then doing admin all night. Get your evenings back for <span class="hl">£197</span> a month.</h1>
+      <p class="lead lead--dark">Meet Harvey, your AI office assistant. He responds to enquiries, follows up on quotes and sends payment links &amp; reminders while you’re on the tools.</p>
+      <ul class="hero-get">
+        <li><b>A website built to sell</b><span>Made to book jobs, not just look nice.</span></li>
+        <li><b>A Google profile that converts</b><span>Run to win local searches and calls.</span></li>
+        <li><b>Automated from "hi" to invoice</b><span>Replies, quotes, bookings, invoices.</span></li>
+        <li><b>5-star reviews on autopilot</b><span>Google review requests, sent for you.</span></li>
+      </ul>
+      <div class="hero-act">
+      <div class="hero-cta">
+        <a href="#book" class="btn btn-primary btn-lg">Book a free demo <span class="arr">→</span></a>
+        <a href="#watch" class="btn btn-ghost btn-lg">Watch Harvey work</a>
+      </div>
+      <div class="hero-proof">
+        <div class="hp-pill">
+          <div class="hp-stack">
+          <button type="button" class="hp-face" data-i="0" aria-label="Read Mark Bennett's review"><img class="hp-av" src="/for-trades/partners/01-plumber.jpg" alt="" width="42" height="42"/></button>
+          <button type="button" class="hp-face" data-i="1" aria-label="Read Daniel Brooks's review"><img class="hp-av" src="/for-trades/partners/02-electrician.jpg" alt="" width="42" height="42"/></button>
+          <button type="button" class="hp-face" data-i="2" aria-label="Read Paul Henderson's review"><img class="hp-av" src="/for-trades/partners/03-builder.jpg" alt="" width="42" height="42"/></button>
+          <button type="button" class="hp-face" data-i="3" aria-label="Read Adam Shah's review"><img class="hp-av" src="/for-trades/partners/04-handyman.jpg" alt="" width="42" height="42"/></button>
+          </div>
+          <div class="hp-txt">
+            <b>£843k revenue</b>
+            <small class="hp-rate"><span class="stars" style="--r:4.9" aria-label="Rated 4.9 out of 5">★★★★★</span><b>4.9</b></small>
+          </div>
+        </div>
+        <div class="hp-pop" role="dialog" aria-live="polite" hidden></div>
+      </div>
+      </div>
+    </div>
+
+    <div class="hero-stage" id="watch" aria-label="Illustration: your phone while Harvey looks after a customer">
+      <div class="stage-glow" aria-hidden="true"></div>
+      <div class="phone">
+        <span class="phone-btn phone-btn--a"></span><span class="phone-btn phone-btn--b"></span><span class="phone-btn phone-btn--c"></span>
+        <div class="screen">
+          <div class="ios-notif" id="hero-notif" aria-hidden="true"></div>
+          <div class="done-burst" id="hero-done" aria-hidden="true"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="23"/><path d="M15 27l7 7 15-16"/></svg><b>Job done</b><small></small></div>
+          <div class="ios-bar"><span class="ios-time">21:47</span><span class="island"></span><span class="ios-ic"><svg viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg viewBox="0 0 26 12"><rect x=".5" y=".5" width="22" height="11" rx="3.5" fill="none" stroke="currentColor" opacity=".45"/><rect x="2.5" y="2.5" width="15" height="7" rx="2"/><rect x="24" y="4" width="1.6" height="4" rx=".8" opacity=".45"/></svg></span></div>
+          <div class="wa-head">
+            <svg class="wa-back" viewBox="0 0 10 18"><path d="M8.5 1.5L1.5 9l7 7.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="wa-av" id="hero-av">SM</span>
+            <div class="wa-who"><b id="hero-name">Sarah Mitchell</b><small id="hero-status">via your website</small></div>
+            <span class="wa-acts"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="13" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M15 10.5l6-3.5v10l-6-3.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><svg viewBox="0 0 24 24"><path d="M6.6 3.5l2.6.3 1.3 4-1.9 1.6a12 12 0 0 0 6 6l1.6-1.9 4 1.3.3 2.6c0 1.3-1.2 2.4-2.5 2.2A16.5 16.5 0 0 1 4.3 6c-.2-1.3.9-2.5 2.3-2.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span>
+          </div>
+          <div class="wa-body">
+                        <div class="wa-chat" id="hero-chat"></div>
+          </div>
+          <div class="wa-input"><span class="wa-field">Message</span><span class="wa-mic"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3" fill="#fff"/><path d="M6 11a6 6 0 0 0 12 0M12 17v3" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg></span></div>
+        </div>
+      </div>
+      <div class="float" id="hero-float" aria-hidden="true"></div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= 2. PROBLEM (Attention → Interest) ================= -->
+<section class="sec sec--paper" id="problem">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 class="h2">You're up a ladder. Your next job is in your pocket, <span class="hl">going cold.</span></h2>
+      <p class="lead">The customer who messages at 9pm books whoever answers first. Then the evenings go on quotes, invoices and chasing money you already earned.</p>
+    </div>
+    <div class="pain-grid">
+      <article class="pain">
+        <div class="pain-num">£<span class="countup" data-to="5901" data-sep="1">0</span></div>
+        <h3 class="h3">in unpaid invoices</h3>
+        <p>The average UK trade is owed £5,901 for work already done. Job finished, money still out.</p>
+      </article>
+      <article class="pain">
+        <div class="pain-num"><span class="countup" data-to="277">0</span><span class="pain-unit">hours</span></div>
+        <h3 class="h3">a year on admin</h3>
+        <p>Quoting, invoicing and chasing payments take 5h20 a week. That is almost seven full working weeks a year.</p>
+      </article>
+      <article class="pain">
+        <div class="pain-num"><span class="countup" data-to="68">0</span>%</div>
+        <h3 class="h3">chasing late payments</h3>
+        <p>More than two in three trades are chasing overdue payments. Almost a quarter are chasing four or more at once.</p>
+      </article>
+    </div>
+    <p class="src">Sources: <a href="https://www.installeronline.co.uk/news/93-of-uk-tradespeople-say-running-their-business-is-stressing-them-out-new-national-report-finds/" target="_blank" rel="noopener">NOW Report 2026</a> · <a href="https://professionalbuildersmerchant.co.uk/news/direct-line-research-reveals-concerning-extent-of-late-payments-to-uk-tradespeople/" target="_blank" rel="noopener">Direct Line 2026</a></p>
+  </div>
+</section>
+
+<!-- ================= 3. WHAT YOU GET (Interest) ================= -->
+<section class="sec" id="included">
+  <div class="wrap">
+    <div class="sec-head sec-head--center">
+      <span class="eyebrow">What you get</span>
+      <h2 class="h2">Your website and your office. For £197.</h2>
+      <p class="lead">Three things, set up for you and running from day one. You see all of it in one simple app on your phone.</p>
+    </div>
+    <div class="prod-grid">
+      <article class="prod">
+        <span class="prod-tag">1 · Website</span>
+        <h3 class="h3">A fast website built to be found</h3>
+        <p>Built for speed and local SEO, so it shows up when people near you search for your trade. Every enquiry lands with Harvey.</p>
+        <div class="serp" aria-hidden="true">
+          <div class="serp-q"><span class="serp-g">G</span>boiler repair clapham</div>
+          <div class="serp-r">
+            <small>yourbusiness.co.uk</small>
+            <b>Boiler Repair in Clapham · Same Week Visits</b>
+            <span>Gas Safe engineer covering SW London. Get a quote on WhatsApp in minutes.</span>
+          </div>
+          <ul class="serp-chips"><li>Mobile first</li><li>Local SEO</li><li>Hosted for you</li></ul>
+        </div>
+      </article>
+
+      <article class="prod">
+        <span class="prod-tag">2 · Google</span>
+        <h3 class="h3">Your Google Business Profile, done properly</h3>
+        <p>We set up and look after your profile, so customers find you on Google Maps and call or message you directly. No lead fees.</p>
+        <div class="gbp" aria-hidden="true">
+          <div class="gbp-map"><i></i></div>
+          <div class="gbp-body">
+            <b>Your Business Plumbing &amp; Heating</b>
+            <span class="gbp-stars">★★★★★ <small>Google reviews</small></span>
+            <small>Plumber · Clapham · Open now</small>
+            <div class="gbp-btns"><span>Call</span><span>Website</span><span>WhatsApp</span></div>
+          </div>
+        </div>
+        <small class="how-note">Example layout. Your profile shows your own reviews.</small>
+      </article>
+    </div>
+
+    <div class="wf">
+      <div class="wf-head">
+        <span class="prod-tag prod-tag--dark">3 · Automated workflow</span>
+        <h3 class="h3">From first message to money in the bank. Automatic.</h3>
+        <p>Every step after the enquiry runs on its own. You only step in to do the job, or when Harvey asks you.</p>
+      </div>
+      <ol class="wf-steps">
+        <li><span class="wf-ic">🌐</span><b>Website</b><small>Customer finds you and sends an enquiry.</small></li>
+        <li><span class="wf-ic">💬</span><b>Customer</b><small>Harvey replies, asks the right questions and books.</small></li>
+        <li><span class="wf-ic">📄</span><b>Quote</b><small>Built from your prices. Big jobs come to you first.</small></li>
+        <li><span class="wf-ic">£</span><b>Invoice</b><small>Sent when the job is done. Chased until paid.</small></li>
+        <li><span class="wf-ic">🏦</span><b>Bank reconciliation</b><small>Payments matched to invoices in your accounts.</small></li>
+        <li><span class="wf-ic">★</span><b>Reviews</b><small>Happy customers asked for a Google review.</small></li>
+      </ol>
+      <p class="wf-loop">↻ More reviews lift you on Google. More customers find you. The loop starts again.</p>
+    </div>
+
+    <div class="integrations" id="integrations">
+      <div class="int-copy">
+        <h3 class="h2 int-h">No need to switch. Harvey works with what you already use.</h3>
+        <p class="lead">Your website and Harvey plug into your job and accounts software. Customers, quotes, jobs and invoices land where they always have, without you typing anything twice.</p>
+      </div>
+      <ul class="int-grid">
+        <li class="int"><img src="/for-trades/logos/xero.png" alt="" width="40" height="40" loading="lazy"/><span>Xero</span></li>
+        <li class="int"><img src="/for-trades/logos/quickbooks.png" alt="" width="40" height="40" loading="lazy"/><span>QuickBooks</span></li>
+        <li class="int"><img src="/for-trades/logos/sage.png" alt="" width="40" height="40" loading="lazy"/><span>Sage</span></li>
+        <li class="int"><img src="/for-trades/logos/freeagent.png" alt="" width="40" height="40" loading="lazy"/><span>FreeAgent</span></li>
+        <li class="int"><img src="/for-trades/logos/getjobber.png" alt="" width="40" height="40" loading="lazy"/><span>Jobber</span></li>
+        <li class="int"><img src="/for-trades/logos/fergus.png" alt="" width="40" height="40" loading="lazy"/><span>Fergus</span></li>
+        <li class="int"><img src="/for-trades/logos/servicem8.png" alt="" width="40" height="40" loading="lazy"/><span>ServiceM8</span></li>
+        <li class="int"><img src="/for-trades/logos/tradifyhq.png" alt="" width="40" height="40" loading="lazy"/><span>Tradify</span></li>
+        <li class="int"><img src="/for-trades/logos/stripe.png" alt="" width="40" height="40" loading="lazy"/><span>Stripe</span></li>
+      </ul>
+      <p class="src int-note">Using something else? Tell us on the demo. Logos belong to their owners and are shown to name the software we connect to.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 4. HOW HARVEY WORKS (Interest) ================= -->
+<section class="sec" id="how">
+  <div class="wrap">
+    <div class="sec-head sec-head--center">
+      <span class="eyebrow">How Harvey works</span>
+      <h2 class="h2">Trained on your business. <span class="hl">Not the internet.</span></h2>
+      <p class="lead">Harvey isn't a chatbot guessing answers. He works from a knowledge base we build with you: your prices, your services, your areas and the way you talk to customers. If he doesn't know, he asks you.</p>
+    </div>
+
+    <div class="hub">
+      <div class="hub-head">
+        <h3 class="h3">Wherever the lead comes from, Harvey answers.</h3>
+        <p>Website, WhatsApp, email, a missed call or a lead site. Every enquiry gets a reply, on the channel the customer used.</p>
+      </div>
+      <div class="hub-map">
+        <ul class="hub-in">
+          <li><span class="hub-ic">🌐</span><b>Website form</b></li>
+          <li><span class="hub-ic hub-ic--wa">✆</span><b>WhatsApp</b></li>
+          <li><span class="hub-ic">✉</span><b>Email</b></li>
+          <li><span class="hub-ic">G</span><b>Google profile</b></li>
+          <li><span class="hub-ic">☎</span><b>Missed call</b></li>
+          <li><span class="hub-ic">⇣</span><b>Lead sites</b><small>any lead in your inbox</small></li>
+        </ul>
+        <div class="hub-core">
+          <div class="hub-orb"><span>H</span></div>
+          <b>Harvey</b>
+          <small>Same answers, 24/7</small>
+        </div>
+        <div class="hub-out">
+          <div class="mail">
+            <div class="mail-top"><span class="hub-tag">Email reply</span><small>2 min</small></div>
+            <div class="mail-meta"><b>Re: Boiler not firing up</b><small>To: James Carter</small></div>
+            <p>Hi James, sorry to hear that. We can come out Thursday morning. Call-out is £60 for the first hour. Shall I book you in?</p>
+          </div>
+          <div class="mail mail--wa">
+            <div class="mail-top"><span class="hub-tag hub-tag--wa">Missed call → WhatsApp</span><small>1 min</small></div>
+            <p class="wa-b">Sorry I missed your call, I'm on a job. What do you need doing?</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ================= 5. PROOF (Desire) ================= -->
+<section class="sec sec--navy" id="proof">
+  <div class="wrap proof-grid">
+    <div class="proof-copy">
+      <h2 class="h2 h2--dark h2--3l"><span>This isn't a lab demo.</span> <span>It's the system</span> <span>that runs Fixfy.</span></h2>
+      <p class="lead lead--dark">Fixfy is a London property maintenance company. We built Harvey and the office behind him to run our own jobs: enquiries, quotes, payments, reports and reviews. Now your business gets the same system.</p>
+    </div>
+    <div class="proof-nums">
+      <div class="pn pn--big pn--solo">
+        <span class="pn-tag">Revenue</span>
+        <div class="pn-n"><span class="pn-cur">£</span><span class="countup" data-to="843" data-dark="1">0</span><span class="pn-unit">k</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 5b. REVIEWS (Desire) ================= -->
+<section class="sec" id="reviews">
+  <div class="wrap">
+    <div class="sec-head sec-head--center">
+      <span class="eyebrow">From our partners</span>
+      <h2 class="h2">Trades who already work <span class="hl">with Harvey.</span></h2>
+      <p class="rv-avg"><span class="stars" style="--r:4.9" aria-label="Rated 4.9 out of 5">★★★★★</span><b>4.9</b> average<span class="rv-avg-x"> from 8 partner reviews</span><span class="rv-avg-s"> · 8 reviews</span></p>
+    </div>
+  </div>
+  <div class="rv-wall">
+      <div class="rv-row rv-row--a"><div class="rv-track"><figure class="rv-card"><blockquote>“While I’m under a sink, Harvey handles the first customer messages and collects the job details. I can pick things up when I’m ready.”</blockquote><figcaption><img src="/for-trades/partners/01-plumber.jpg" alt="" width="44" height="44" loading="lazy"/><span><b>Mark Bennett</b><small>Plumber · London</small></span></figcaption></figure><figure class="rv-card"><blockquote>“Harvey keeps enquiries moving while I’m on site. I finish the job knowing which customers need a quote or a callback.”</blockquote><figcaption><img src="/for-trades/partners/02-electrician.jpg" alt="" width="44" height="44" loading="lazy"/><span><b>Daniel Brooks</b><small>Electrician · London</small></span></figcaption></figure><figure class="rv-card"><blockquote>“Harvey helps keep quotes, deposit requests and invoices moving. There’s less paperwork waiting for me when I get home.”</blockquote><figcaption><img src="/for-trades/partners/03-builder.jpg" alt="" width="44" height="44" loading="lazy"/><span><b>Paul Henderson</b><small>Builder · London</small></span></figcaption></figure><figure class="rv-card"><blockquote>“Customers message at all hours. Harvey handles routine questions on WhatsApp, so every reply doesn’t have to come from me.”</blockquote><figcaption><img src="/for-trades/partners/04-handyman.jpg" alt="" width="44" height="44" loading="lazy"/><span><b>Adam Shah</b><small>Handyman · London</small></span></figcaption></figure><figure class="rv-card" aria-hidden="true"><blockquote>“While I’m under a sink, Harvey handles the first customer messages and collects the job details. I can pick things up when I’m ready.”</blockquote><figcaption><img src="/for-trades/partners/01-plumber.jpg" alt="" width="44" height="44" loading="lazy"/><span><b>Mark Bennett</b><small>Plumber · London</small></span></figcaption></figure><figure class="rv-card" aria-hidden="true"><blockquote>“Harvey keeps enquiries moving while I’m on site. I finish the job knowing which customers need a quote or a callback.”</blockquote><figcaption><img src="/for-trades/partners/02-electrician.jpg" alt="" width="44" height="44" loading="lazy"/><span><b>Daniel Brooks</b><small>Electrician · London</small></span></figcaption></figure><figure class="rv-card" aria-hidden="true"><blockquote>“Harvey helps keep quotes, deposit requests and invoices moving. There’s less paperwork waiting for me when I get home.”</blockquote><figcaption><img src="/for-trades/partners/03-builder.jpg" alt="" width="44" height="44" loading="lazy"/><span><b>Paul Henderson</b><small>Builder · London</small></span></figcaption></figure><figure class="rv-card" aria-hidden="true"><blockquote>“Customers message at all hours. Harvey handles routine questions on WhatsApp, so every reply doesn’t have to come from me.”</blockquote><figcaption><img src="/for-trades/partners/04-handyman.jpg" alt="" width="44" height="44" loading="lazy"/><span><b>Adam Shah</b><small>Handyman · London</small></span></figcaption></figure></div></div>
+      <div class="rv-row rv-row--b"><div class="rv-track"><figure class="rv-card"><blockquote>“I used to spend my evenings remembering who needed a follow-up. Harvey takes care of the routine reminders.”</blockquote><figcaption><img src="/for-trades/partners/05-decorator.jpg" alt="" width="44" height="44" loading="lazy"/><span><b>Sophie Turner</b><small>Decorator · London</small></span></figcaption></figure><figure class="rv-card"><blockquote>“I can’t stop halfway through a roof to answer messages. Harvey collects the enquiry details so I can follow up properly afterwards.”</blockquote><figcaption><img src="/for-trades/partners/06-roofer.jpg" alt="" width="44" height="44" loading="lazy"/><span><b>Graham Ellis</b><small>Roofer · London</small></span></figcaption></figure><figure class="rv-card"><blockquote>“Harvey sends payment reminders, so I’m not trying to remember which invoices need chasing after a full day of call-outs.”</blockquote><figcaption><img src="/for-trades/partners/07-heating-engineer.jpg" alt="" width="44" height="44" loading="lazy"/><span><b>Marcus Clarke</b><small>Heating engineer · London</small></span></figcaption></figure><figure class="rv-card"><blockquote>“After a job, Harvey sends the review request. It’s a small task, but it’s one I used to forget when the next job started.”</blockquote><figcaption><img src="/for-trades/partners/08-carpenter.jpg" alt="" width="44" height="44" loading="lazy"/><span><b>David Chen</b><small>Carpenter · London</small></span></figcaption></figure><figure class="rv-card" aria-hidden="true"><blockquote>“I used to spend my evenings remembering who needed a follow-up. Harvey takes care of the routine reminders.”</blockquote><figcaption><img src="/for-trades/partners/05-decorator.jpg" alt="" width="44" height="44" loading="lazy"/><span><b>Sophie Turner</b><small>Decorator · London</small></span></figcaption></figure><figure class="rv-card" aria-hidden="true"><blockquote>“I can’t stop halfway through a roof to answer messages. Harvey collects the enquiry details so I can follow up properly afterwards.”</blockquote><figcaption><img src="/for-trades/partners/06-roofer.jpg" alt="" width="44" height="44" loading="lazy"/><span><b>Graham Ellis</b><small>Roofer · London</small></span></figcaption></figure><figure class="rv-card" aria-hidden="true"><blockquote>“Harvey sends payment reminders, so I’m not trying to remember which invoices need chasing after a full day of call-outs.”</blockquote><figcaption><img src="/for-trades/partners/07-heating-engineer.jpg" alt="" width="44" height="44" loading="lazy"/><span><b>Marcus Clarke</b><small>Heating engineer · London</small></span></figcaption></figure><figure class="rv-card" aria-hidden="true"><blockquote>“After a job, Harvey sends the review request. It’s a small task, but it’s one I used to forget when the next job started.”</blockquote><figcaption><img src="/for-trades/partners/08-carpenter.jpg" alt="" width="44" height="44" loading="lazy"/><span><b>David Chen</b><small>Carpenter · London</small></span></figcaption></figure></div></div>
+  </div>
+</section>
+
+<!-- ================= 6. PRICE (Action) ================= -->
+<section class="sec sec--paper" id="price">
+  <div class="wrap price-solo">
+    <div class="sec-head sec-head--center">
+      <h2 class="h2">One job pays for the month.</h2>
+      <p class="lead">Everything above for one flat price. The rest you see live on a 20-minute demo, with your own trade.</p>
+    </div>
+    <div class="plan">
+      <div class="plan-top">
+        <span class="chip chip--coral">Fixfy for Trades</span>
+        <div class="plan-price"><span class="cur">£</span>197<span class="per">/month</span></div>
+        <small class="plan-vat">+ VAT · No setup fee · Cancel any time</small>
+      </div>
+      <ul class="plan-list">
+        <li>Fast website with local SEO, built and hosted</li>
+        <li>Google Business Profile set up and managed</li>
+        <li>Harvey on WhatsApp and email, 24/7</li>
+        <li>Missed call to WhatsApp</li>
+        <li>Quotes from your price list</li>
+        <li>Stripe deposits and pay links</li>
+        <li>Calendar, bookings and 24h reminders</li>
+        <li>Job reports with photos</li>
+        <li>Invoices and payment chasing</li>
+        <li>Bank reconciliation in your accounts</li>
+        <li>One simple app for everything</li>
+        <li>Google review requests</li>
+        <li>Set up with you on a call</li>
+      </ul>
+      <a href="#book" class="btn btn-primary btn-lg btn-block">Book my free demo <span class="arr">→</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 7. BOOK (Action) ================= -->
+<section class="sec sec--navy" id="book">
+  <div class="wrap book-grid">
+    <div class="book-copy">
+      <h2 class="h2 h2--dark">30 minutes. Watch Harvey answer a customer from your trade.</h2>
+      <p class="lead lead--dark">A video call where Harvey answers a customer live on WhatsApp, runs one of your own jobs through and we explain setup. No obligation.</p>
+      <div class="faq">
+        <details><summary>Do I need a new phone number?</summary><p>No. Harvey works on the WhatsApp Business number you already use.</p></details>
+        <details><summary>What if Harvey doesn't know the answer?</summary><p>He tells the customer you'll confirm, and sends the question to you. Bigger or unusual jobs always come to you to approve.</p></details>
+        <details><summary>Do I have to stop using Jobber, Fergus or Xero?</summary><p>No. Harvey connects to the software you already use, so quotes, jobs and invoices keep landing there.</p></details>
+        <details><summary>Am I tied into a contract?</summary><p>No. Monthly, cancel any time.</p></details>
+        <details><summary>Which trades is it for?</summary><p>Plumbers, electricians, heating engineers, handymen, builders, roofers, painters, cleaners and most home services.</p></details>
+      </div>
+    </div>
+
+    <div class="book">
+      <div class="book-top">
+        <span class="book-lbl">Pick a time that suits you</span>
+        <small>20 minutes on Google Meet. Reminders by email. No card needed.</small>
+      </div>
+      <div class="book-cal" id="book-cal" aria-label="Book a Fixfy for Trades demo"><div class="cal-load">Loading times…</div></div>
+      <p class="book-alt">Rather message? WhatsApp <a href="https://wa.me/442045384668?text=Hi%2C%20I%27d%20like%20a%20demo%20of%20Fixfy%20for%20Trades." target="_blank" rel="noopener">+44 20 4538 4668</a> or email <a href="mailto:hello@getfixfy.com?subject=Fixfy%20for%20Trades%20demo">hello@getfixfy.com</a></p>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <img src="/brand/fixfy-primary-white.png" alt="Fixfy" class="brand-logo"/>
+    <p>hello@getfixfy.com · +44 20 4538 4668</p>
+    <p class="foot-legal">© 2026 Getfixfy Ltd · 124 City Road, London, England, EC1V 2NX · Company number 15406523 · VAT Registration Number: 478 1027 82</p>
+  </div>
+</footer>
+
+<a href="#book" class="sticky-cta btn btn-primary">Book a free demo <span class="arr">→</span></a>
+
+<script src="/for-trades/trades.js?v=44" defer></script>
+<div class="bm" id="book-modal" role="dialog" aria-modal="true" aria-labelledby="bm-title" hidden>
+  <div class="bm-back" data-close></div>
+  <div class="bm-box">
+    <div class="bm-head">
+      <div><b id="bm-title">Book your free demo</b><small>20 minutes on Google Meet. Three quick steps.</small></div>
+      <button class="bm-x" type="button" aria-label="Close" data-close><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div class="bm-body"><div class="bm-cal" id="bm-cal"><div class="cal-load">Loading times…</div></div></div>
+    <p class="bm-alt">Rather message? <a href="https://wa.me/442045384668?text=Hi%2C%20I%27d%20like%20a%20demo%20of%20Fixfy%20for%20Trades." target="_blank" rel="noopener">WhatsApp</a> · <a href="mailto:hello@getfixfy.com?subject=Fixfy%20for%20Trades%20demo">Email</a></p>
+  </div>
+</div>
+<div class="ck" id="ck" role="region" aria-label="Cookie choice" hidden>
+  <p>We use cookies to see which ads bring trades to this page. <a href="/privacy">Privacy</a></p>
+  <div class="ck-b"><button type="button" class="ck-no" data-ck="0">Reject</button><button type="button" class="ck-yes" data-ck="1">Accept</button></div>
+</div>
+</body>
+</html>
