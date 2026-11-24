@@ -9,12 +9,21 @@ import { openCookieSettings } from '../../lib/consent.js'
 import '../b2c.css'
 
 /**
+ * "Solutions" (empresa e trades) e "Services" são grupos: no computador viram
+ * um menu pequeno, no celular um link por item na lista.
  * "Services" agrupa todos os serviços: no computador vira um menu pequeno,
  * no celular vira um link por serviço na lista.
  */
+const SOLUTIONS = {
+  label: 'Solutions',
+  items: [
+    { to: '/business', label: 'For Business' },
+    { to: '/for-trades', label: 'For Trades', page: true },
+  ],
+}
+
 const NAV = [
-  { to: '/business', label: 'For Business' },
-  { to: '/network', label: 'For Trades' },
+  SOLUTIONS,
   {
     label: 'Services',
     items: [
@@ -34,8 +43,7 @@ const NAV = [
  */
 const NAV_PRO = [
   { to: '/', label: 'Home', end: true },
-  { to: '/business', label: 'For Business' },
-  { to: '/network', label: 'For Trades' },
+  SOLUTIONS,
 ]
 
 /**
@@ -155,11 +163,17 @@ function NavGroup({ item }) {
         <ChevronDown size={15} strokeWidth={2.2} aria-hidden="true" />
       </button>
       <div className="mo-nav__menu" id={menuId}>
-        {item.items.map((i) => (
-          <NavLink key={i.to} to={i.to} className={({ isActive }) => (isActive ? 'is-active' : undefined)}>
-            {i.label}
-          </NavLink>
-        ))}
+        {item.items.map((i) =>
+          i.page ? (
+            <a key={i.to} href={i.to}>
+              {i.label}
+            </a>
+          ) : (
+            <NavLink key={i.to} to={i.to} className={({ isActive }) => (isActive ? 'is-active' : undefined)}>
+              {i.label}
+            </NavLink>
+          ),
+        )}
       </div>
     </div>
   )

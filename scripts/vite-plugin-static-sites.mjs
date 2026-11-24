@@ -7,6 +7,7 @@ import { resolve } from 'node:path'
 
 const STATIC_ROUTES = [
   { path: '/growth', index: '/growth/index.html' },
+  { path: '/for-trades', index: '/for-trades/index.html' },
 ]
 
 function staticRewriteMiddleware(req, _res, next) {
