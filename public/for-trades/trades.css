@@ -193,7 +193,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .f-ic--lead { background: #E6F0FF; color: #1D4ED8; }
 .f-ic--navy { background: #E8E7F7; color: var(--navy); }
 .msg.sys { align-self: center; max-width: 92%; background: rgba(255,255,255,.95); color: #3B4250; font-size: 10px; font-weight: 600; padding: 4px 9px; border-radius: 8px; }
-.msg.src { display: flex; align-items: center; gap: 6px; background: #FFF8E6; color: #6A4B00; }
+.msg.src { display: flex; align-items: center; gap: 6px; margin: 0 0 2px; background: #FFF8E6; color: #6A4B00; }
 .src-ic { width: 13px; height: 13px; display: grid; place-items: center; flex: none; } .src-ic svg { width: 12px; height: 12px; }
 .src-ic--web { color: #2563EB; } .src-ic--lead { color: #1D4ED8; }
 .msg.time { color: #5E6470; font-weight: 600; }
