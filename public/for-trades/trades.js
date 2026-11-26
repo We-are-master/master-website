@@ -109,6 +109,8 @@
       floatTimer = setTimeout(() => hfloat.classList.remove('show'), 2000);
     }, 120);
   }
+  /* como no WhatsApp: a conversa comeca no topo e, quando enche a tela, rola para cima ate a ultima mensagem */
+  const follow = () => chat.scrollTo({ top: chat.scrollHeight, behavior: reduced ? 'auto' : 'smooth' });
   async function heroLoop() {
     if (!chat) return;
     const phoneEl = chat.closest('.phone') || chat;
@@ -126,12 +128,12 @@
       for (const step of script(c)) {
         const el = bubble(step);
         chat.appendChild(el);
+        follow();
         if (step.t === 'typing') {
           await heroWait(step.pause);
           el.remove();
           continue;
         }
-        while (chat.children.length > 12) chat.firstElementChild.remove();
         if (step.float) flashFloat(step.float);
         if (step.notif) showNotif(step.notif);
         if (step.done) showDone(step.done, step.html);
