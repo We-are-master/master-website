@@ -123,7 +123,8 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .wa-acts { display: flex; gap: 12px; flex: none; color: #007AFF; } .wa-acts svg { width: 17px; height: 17px; }
 .wa-body { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 8px 8px 6px; background-color: #EFEAE2; background-image: radial-gradient(rgba(120,100,70,.09) 1px, transparent 1.2px); background-size: 16px 16px; }
 .wa-day { align-self: center; font-size: 11px; font-weight: 600; color: #5E6470; background: rgba(255,255,255,.9); padding: 4px 10px; border-radius: 8px; box-shadow: 0 1px .5px rgba(0,0,0,.08); margin-bottom: 8px; }
-.wa-chat { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; gap: 6px; }
+.wa-chat { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-start; gap: 6px; }
+.wa-chat > * { flex-shrink: 0; }
 .wa-input { display: flex; align-items: center; gap: 6px; padding: 6px 8px 18px; background: #F6F5F3; border-top: 1px solid rgba(0,0,0,.05); }
 .wa-field { flex: 1; height: 28px; border-radius: 15px; background: #fff; border: 1px solid rgba(0,0,0,.08); color: #9A9EA8; font-size: 11.5px; display: flex; align-items: center; padding: 0 12px; }
 .wa-mic { width: 28px; height: 28px; border-radius: 50%; background: #1DAA61; display: grid; place-items: center; flex: none; } .wa-mic svg { width: 14px; height: 14px; }
