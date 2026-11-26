@@ -49,7 +49,7 @@
   function script(c) {
     const bal = c.price - c.dep;
     return [
-      { t: 'src', html: '<span class="src-ic src-ic--' + c.src + '">' + IC[c.src] + '</span>' + c.srcLabel, pause: 1300, notif: { app: c.src, name: c.app, t: 'New enquiry', b: c.full + ': ' + c.talk[0] }, float: { pos: 'a', ic: c.src, tone: c.src, b: 'New customer', s: 'From ' + c.srcName } },
+      { t: 'src', html: '<span class="src-ic src-ic--' + c.src + '">' + IC[c.src] + '</span>' + c.srcLabel, pause: 1300, notif: { app: c.src, name: c.app, t: 'New enquiry', b: c.full + ': ' + c.talk[0] } },
       ...talkSteps(c),
       { t: 'card', html: '<div class="mc"><span class="mc-tag">Quote · Q-' + c.ref + '</span><div class="mc-row"><span>' + c.job + '<br><em>Parts and labour</em></span><b>' + gbp(c.price) + '</b></div><div class="mc-dep">Deposit today <b>' + gbp(c.dep) + '</b></div></div><span class="mc-btn">Accept · Pay ' + gbp(c.dep).replace('.00', '') + ' deposit</span>' + STRIPE, at: c.t0, pause: 1800 },
       { t: 'in', html: 'Perfect, paying now 👍', at: c.t1, pause: 800 },
@@ -493,12 +493,12 @@ document.querySelectorAll('a[href="#watch"]').forEach((a) => a.addEventListener(
 })();
 
 
-/* Black November bar: counts down to the fixed deadline, then hides itself */
+/* Black Friday: a barra e o cartao de preco contam ate o prazo fixo; depois tudo que e da oferta some */
 (() => {
   const bar = document.querySelector('.promo');
   if (!bar) return;
   const end = Date.parse(bar.dataset.ends);
-  const out = bar.querySelector('[data-cd]');
+  const outs = document.querySelectorAll('[data-cd]');
   const pad = (n) => String(n).padStart(2, '0');
   let t = 0;
   const tick = () => {
@@ -507,7 +507,8 @@ document.querySelectorAll('a[href="#watch"]').forEach((a) => a.addEventListener(
     const s = Math.floor(ms / 1000);
     const d = Math.floor(s / 86400), h = Math.floor(s / 3600) % 24, m = Math.floor(s / 60) % 60, sec = s % 60;
     const u = (v, l) => '<span class="cd-u"><b>' + v + '</b><small>' + l + '</small></span>';
-    out.innerHTML = (d ? u(d, 'd') : '') + u(pad(h), 'h') + u(pad(m), 'm') + u(pad(sec), 's');
+    const html = (d ? u(d, 'd') : '') + u(pad(h), 'h') + u(pad(m), 'm') + u(pad(sec), 's');
+    outs.forEach((o) => { o.innerHTML = html; });
   };
   if (Date.now() < end) t = setInterval(tick, 1000);
   tick();
