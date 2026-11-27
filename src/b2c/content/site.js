@@ -85,6 +85,16 @@ export const TERMS = {
   resolveDays: 14,
 }
 
+/**
+ * Termos de conta empresa (/business-terms), 27/11/2026: depósito pago e obra
+ * não iniciada em 3 meses por motivo do cliente fica com a Fixfy.
+ */
+export const BUSINESS_TERMS = {
+  version: '27 November 2026',
+  depositSchedulingMonths: 3,
+  quoteValidWorkingDays: 5,
+}
+
 /** Áreas de postcode atendidas: Londres inteira, centro e periferia. */
 export const COVERED_AREAS = [
   'E', 'EC', 'N', 'NW', 'SE', 'SW', 'W', 'WC',

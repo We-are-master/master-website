@@ -326,6 +326,7 @@ export function B2CFooter({ business = false }) {
             <h4>Legal</h4>
             <ul>
               <li><Link to="/terms">Terms</Link></li>
+              <li><Link to="/business-terms">Business terms</Link></li>
               <li><Link to="/guarantee">Guarantee</Link></li>
               <li><Link to="/privacy">Privacy</Link></li>
               <li><Link to="/cookies">Cookies</Link></li>
