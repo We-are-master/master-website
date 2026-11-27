@@ -249,7 +249,7 @@ function promotionNote({ code, listPrice, share, paid, pay, deposit = null }) {
  * (data incluída, para ninguém pagar um dia que já não existe), e a sessão
  * do Checkout nasce com o valor do servidor. Nada é gravado ainda.
  */
-export async function handleCheckout(body, { origin, ip, userAgent, deposit = false, zendeskTicketId = null, agentDiscount = 0 } = {}) {
+export async function handleCheckout(body, { origin, ip, userAgent, deposit = false, zendeskTicketId = null, agentDiscount = 0, validadeHoras = 1 } = {}) {
   const env = b2cServerEnv()
   const spam = looksLikeSpam(body)
   if (spam) return { status: 400, data: { error: spam } }
@@ -298,6 +298,7 @@ export async function handleCheckout(body, { origin, ip, userAgent, deposit = fa
     // Só o sinal guarda o cartão; o /book continua cobrando 100% sem salvar (dono, 09/10/2026).
     saveCard: deposit && env.cardOnFile,
     payLater: later,
+    validadeHoras,
   })
   return { status: 200, data: { url: session.url, ref, total: priced.total, ...(deposit ? { payNow: now, payLater: later } : {}) } }
 }
