@@ -93,6 +93,22 @@ export const BUSINESS_TERMS = {
   version: '27 November 2026',
   depositSchedulingMonths: 3,
   quoteValidWorkingDays: 5,
+  noAccessMinutes: 30,
+  failedVisitHours: 1,
+  freeChangeHours: 48,
+  lateCancellationPercent: 50,
+  signOffWorkingDays: 3,
+  guaranteeCleaningDays: 3,
+  guaranteeWorksDays: 14,
+  /** Vencimento padrão das contas B2B (dono, 09/10/2026). */
+  paymentDays: 7,
+  invoiceDisputeDays: 7,
+  damageReportDays: 7,
+  /** AXA 550.310.359, até 22/03/2027. */
+  publicLiability: 2000000,
+  nonSolicitMonths: 12,
+  introductionFee: 2500,
+  introductionPercent: 20,
 }
 
 /** Áreas de postcode atendidas: Londres inteira, centro e periferia. */
