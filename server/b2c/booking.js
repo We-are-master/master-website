@@ -359,8 +359,6 @@ export async function handlePayment(body, { ip, userAgent } = {}) {
 /** O texto que o parceiro lê antes de sair: completo, em inglês. */
 function scopeFor(service, b, priced, ref, opts = {}) {
   const sel = b.selection
-  const lines = opts.lines || priced.lines.filter((l) => l.service === service)
-  const money = (n) => `£${n}`
   const parts = []
   if (service === 'clean') {
     const size = PROPERTY_SIZES.find((s) => s.id === sel.size)?.label
@@ -423,9 +421,8 @@ function scopeFor(service, b, priced, ref, opts = {}) {
       parts.push('Upload the signed certificate to the report, plus a photo of the appliance or consumer unit tested. Anything that fails: list it with the fix and the price, do not start the work.')
     }
   }
-  parts.push(
-    `Price: ${money(lines.reduce((s, l) => s + (l.amount || 0), 0))}, the fixed published price (${lines.map((l) => `${l.label} ${money(l.amount)}`).join(', ')}). A Fixfy promotion, if any, is paid by Fixfy and never changes this price.`,
-  )
+  // Preço nunca no scope (dono, 25/10/2026): o scope vai para o parceiro, que não sabe
+  // quanto o cliente pagou. O valor do cliente mora em client_price no OS.
   if (sel.services.length > 1) {
     parts.push(`Part of booking ${ref} with ${sel.services.filter((s) => s !== service).map((s) => serviceName(s, sel).toLowerCase()).join(' and ')}: this job goes ${ORDER_NOTE[service]}.`)
   }
